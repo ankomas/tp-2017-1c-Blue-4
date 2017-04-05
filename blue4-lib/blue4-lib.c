@@ -1,11 +1,11 @@
 /*
- * main.c
+ * blue4-lib
  *
  *  Created on: 2/4/2017
- *      Author: utnso
+ *      Author: alejandrokrumkamp
  */
 
-#include "main.h"
+#include "blue4-lib.h"
 
 #include <commons/config.h>
 #include <commons/string.h>
@@ -140,10 +140,4 @@ void test(char * aString){
 
 void testi(int aInt){
 	printf("%s[Testi] Resultado: %i %s \n",KBOL,aInt,KNRM);
-}
-
-
-
-int main() {
-	return 0;
 }

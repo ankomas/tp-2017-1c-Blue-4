@@ -1,20 +1,14 @@
 /*
- * main.h
+ * blue4-lib.h
  *
- *  Created on: 2/4/2017
- *      Author: utnso
+ *  Created on: 4/4/2017
+ *      Author: alejandrokrumkamp
  */
 
-#ifndef MAIN_H_
-#define MAIN_H_
+#ifndef BLUE4_LIB_H_
+#define BLUE4_LIB_H_
 
-	/**
-	* @NAME: assert
-	* @DESC: evalua que dos strings sean iguales
-	*/
-	void assert(char * aString, char * anotherString);
-
-	/**
+/**
 	* @NAME: asserti
 	* @DESC: evalua que dos ints sean iguales
 	*/
@@ -81,6 +75,4 @@
 	*/
 	void testi(int aInt);
 
-
-
-#endif /* MAIN_H_ */
+#endif /* BLUE4_LIB_H_ */
