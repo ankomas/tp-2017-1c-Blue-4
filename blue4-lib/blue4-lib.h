@@ -51,6 +51,12 @@
 	char** obtenerConfiguracionArray(char *rutaArchivo,char *propiedadConfiguracion);
 
 	/**
+	* @NAME: recvall
+	* @DESC: recibe un mensaje a traves de sockets
+	*/
+	int recvall(int s, char *buf, int *len);
+
+	/**
 	* @NAME: rutaAbsoluta
 	* @DESC: devuelve la ruta de la carpeta donde se esta ejecutando la carpeta
 	* Si esta en /Debug devolvera un nivel mas arriba de la carpeta actual
@@ -62,6 +68,12 @@
 	* @DESC: concatena rutaAbsoluta() con el nombre de archivo pasado por parametro
 	*/
 	char * rutaAbsolutaDe(char * archivo);
+
+	/**
+	* @NAME: sendall
+	* @DESC: envia un mensaje a traves de sockets
+	*/
+	int sendall(int s, char *buf, int *len);
 
 	/**
 	* @NAME: test
