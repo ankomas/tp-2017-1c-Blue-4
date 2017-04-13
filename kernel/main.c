@@ -9,8 +9,11 @@
 #include <stdlib.h>
 
 #include "sockets.h"
+#include "blue4-lib.h"
 
 int main(){
-	servidor();
+	//servidor();
+	test(concat(4,"a","b","c","d"));
+
 	return 0;
 }

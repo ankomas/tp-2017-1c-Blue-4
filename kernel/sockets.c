@@ -152,7 +152,7 @@ int servidor(void)
                     }
                 } else {
                     // handle data from a client
-                    if ((nbytes = recv(i, buf, sizeof buf, 0)) <= 0) {
+                    if ((nbytes = recvall(i, buf, sizeof buf)) <= 0) {
                         // got error or connection closed by client
                         if (nbytes == 0) {
                             // connection closed
@@ -169,7 +169,7 @@ int servidor(void)
                             if (FD_ISSET(j, &master)) {
                                 // except the listener and ourselves
                                 if (j != listener && j != i) {
-                                    if (send(j, buf, nbytes, 0) == -1) {
+                                    if (sendall(j, buf, nbytes) == -1) {
                                         perror("send");
                                     }
                                 }

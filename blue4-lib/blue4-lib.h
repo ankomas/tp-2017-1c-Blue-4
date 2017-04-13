@@ -8,7 +8,13 @@
 #ifndef BLUE4_LIB_H_
 #define BLUE4_LIB_H_
 
-/**
+	/**
+	* @NAME: assert
+	* @DESC: evalua que dos strings sean iguales
+	*/
+	void assert(char * aString, char * anotherString);
+
+	/**
 	* @NAME: asserti
 	* @DESC: evalua que dos ints sean iguales
 	*/
