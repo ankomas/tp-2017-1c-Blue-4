@@ -5,6 +5,7 @@
  *      Author: utnso
  */
 #include <stdio.h>
+#include <blue4-lib.h>
 
 int main(){
 	printf("Hello world!\n");
