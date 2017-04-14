@@ -11,7 +11,14 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
-#define idKernel 8080
+#include "conexiones.h"
+
+
+
+typedef struct{
+	char* ip;
+	int puerto_kernel;
+}datosConfig_t;
 
 
 struct data_socket
@@ -105,3 +112,36 @@ int establecerHandshake(int socket,char* mensaje,int tamanioMensaje)
 
 	return 0;
 }
+
+
+
+datosConfig_t obtenerEstructurasDelConfig()
+{
+	datosConfig_t datos;
+	datos.ip = obtenerConfiguracionString(rutaAbsolutaDe("configConsola.cfg"),"IP_KERNEL");
+
+	printf("el ip: %s \n",datos.ip);
+	datos.puerto_kernel = obtenerConfiguracion(rutaAbsolutaDe("configConsola.cfg"),"PUERTO_KERNEL");
+	return datos;
+}
+
+
+
+
+int conectarseAlKernel()
+{
+	int resultado;
+	datosConfig_t datosDelConfig = obtenerEstructurasDelConfig();
+	char* ip = datosDelConfig.ip;
+	printf("el ip usado es: %s \n",ip);
+	int puerto_kernel = datosDelConfig.puerto_kernel;
+	printf("el puerto usado es: %d \n",puerto_kernel);
+	resultado=conectar(puerto_kernel, ip);
+	if(resultado==0)
+	{
+		printf("Conexion Exitosa!!! \n\n");
+		return 0;
+	}
+	return 1;
+}
+

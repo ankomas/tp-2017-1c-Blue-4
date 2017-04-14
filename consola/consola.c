@@ -5,9 +5,26 @@
  *      Author: utnso
  */
 
+
 #include "conexiones.h"
+#include <blue4-lib.h>
+#include <commons/config.h>
+#include<stdio.h>
+#include"operacionesDeConsola.h"
+
+
 
 int main()
 {
-	return conectar(8090, "127.0.0.1");
+	int resultadoDeConexion;
+	resultadoDeConexion = crearMenuDeConexion();
+	if(resultadoDeConexion!=0)
+	{
+		return 0;
+	}
+
+	crearMenuPrincipal();
+
+	return 0;
 }
+
