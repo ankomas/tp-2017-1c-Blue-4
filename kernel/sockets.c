@@ -17,8 +17,9 @@
 #include <netdb.h>
 
 #include <pthread.h>
-#include "sockets.h"
 #include "blue4-lib.h"
+
+#include "main.h"
 
 const char CONSOLA_ID = '1';
 const char KERNEL_ID = '2';
@@ -156,7 +157,8 @@ int servidor(void)
                     }
                 } else {
                     // handle data from a client
-                    if ((nbytes = recvall(i, buf, sizeof buf)) <= 0) {
+                    if ((nbytes = recvall(i, buf, sizeof buf)) == 0) {
+
 
                     	if(buf[0] == CONSOLA_ID)
                     		test("a");
@@ -170,6 +172,8 @@ int servidor(void)
                     		test("e");
                     	else
                     		test("Handshake no reconocido.");
+
+                    	//queue_push(procesosNEW, 2);
 
                     	// umc =
 
