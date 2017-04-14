@@ -162,18 +162,6 @@ int servidor(void)
 								remoteIP, INET6_ADDRSTRLEN),
 							newfd);
 
-                        //
-							char buf[10] = "Beej!";
-							int len = 0;
-
-							len = strlen(buf);
-							if (sendall(newfd, buf, &len) == -1) {
-								perror("sendall");
-								printf("We only sent %d bytes because of the error!\n", len);
-								killme();
-							}
-                        //
-
                     }
                 } else {
                     // handle data from a client
