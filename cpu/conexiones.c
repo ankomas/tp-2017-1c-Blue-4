@@ -11,92 +11,59 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
-#define idKernel 8080
 
+#include <sys/types.h>
+#include <netdb.h>
 
-struct data_socket
+struct addrinfo *crear_addrinfo_socket(char* ip,char* puerto)
 {
-	int socket;
-	struct sockaddr_in direccionServidor;
-};
+	int status;
+	struct addrinfo hints;
+	struct addrinfo *servinfo;
 
-struct data_socket crearSocket(int puerto, char *ip)
-{
-	int miSocket;
-	struct data_socket datosDelSocket;
-	struct sockaddr_in direccionServidor;
-	direccionServidor.sin_family = AF_INET;
-	direccionServidor.sin_addr.s_addr = inet_addr(ip);
-	direccionServidor.sin_port = htons(puerto);
-	miSocket = socket(AF_INET, SOCK_STREAM, 0);
-	if (miSocket < 0)
+	//Llenar info
+
+	memset(&hints,0,sizeof hints); //Lleno hints de 0
+	hints.ai_family=AF_INET; //ip4v
+	hints.ai_socktype=SOCK_STREAM;
+
+	status=getaddrinfo(ip,puerto,&hints,&servinfo);
+
+	if(status!=0)
 	{
-		perror("no se pudo crear el socket ");
+		printf("\a");
+		system("tput setaf 1");
+		fprintf(stderr,"Error de getaddrinfo: %s\n",gai_strerror(status));
+		system("tput setaf 9");
 		exit(1);
 	}
-	datosDelSocket.socket = miSocket;
-	datosDelSocket.direccionServidor = direccionServidor;
-	return datosDelSocket;
+
+	return servinfo;
 }
 
-
-
-int enviarMensaje(int socket,char* mensaje,int tamanioMensaje)
+int crear_socket(struct addrinfo *servinfo)
 {
-	//char mensaje[1000];
-	//scanf("%s", mensaje);
-	//memset(mensaje,'\0',1000);
-	//memcpy(mensaje,mensajeAEnviar,tamanioMensajeAEnviar);
-	//tamanioMensaje = strlen(mensaje);
-	int bytesEnviados = send(socket, mensaje, tamanioMensaje, 0);
-	int bytesRestantes = tamanioMensaje - bytesEnviados;
-	int enviadosEnEsteCiclo;
-	if(bytesEnviados <= 0)
-		perror("no se envio el mensaje");
-	while(bytesRestantes > 0)
-	{
-		enviadosEnEsteCiclo = send(socket, mensaje+bytesEnviados, bytesRestantes, 0);
-		if(enviadosEnEsteCiclo == -1)
-			break;
-		bytesEnviados += enviadosEnEsteCiclo;
-		bytesRestantes -= enviadosEnEsteCiclo;
-	}
-	return (bytesEnviados == tamanioMensaje);
+	int sockfd;
 
+	sockfd=socket(servinfo->ai_family,servinfo->ai_socktype,servinfo->ai_protocol); //El protocolo esta en 0 por el memset
+
+	if (sockfd==-1)
+		perror("socekt");
+
+	return sockfd;
 }
-
-int conectar(int puerto, char *ip)
+int conectar(char *puerto, char *ip)
 {
-	struct data_socket datosDelSocket = crearSocket(puerto, ip);
-	int socketCliente = datosDelSocket.socket;
-	struct sockaddr_in direccionServidor = datosDelSocket.direccionServidor;
-	if (connect(socketCliente, (void*) &direccionServidor, sizeof(direccionServidor)) != 0)
+	struct addrinfo *servinfo=crear_addrinfo_socket(ip,puerto);
+
+	int socketCliente = crear_socket(servinfo);
+
+	printf("Socket creado: %i\n",socketCliente);
+	if (connect(socketCliente, servinfo->ai_addr, servinfo->ai_addrlen) != 0)
 	{
 		perror("No se pudo conectar");
 		return 1;
 	}
-	return 0;
-}
-
-
-// esta funcion es provisoria
-// opcion 1 : estblecer un id por cada proceso que este definido en un protocolo
-// opcion 2 : manejarse por medio de mensajes con strings
-// opcion 3 : combinar las dos opciones aneteriores
-// duda : el hs se encarga de cortar las comunicaciones de una conexion no deseada o lo hace el propio proceso
-int establecerHandshake(int socket,char* mensaje,int tamanioMensaje)
-{
-	char buf[4];
-
-	enviarMensaje(socket,mensaje,tamanioMensaje);
-
-	memset(buf,'\0',4);
-
-	if(recv(socket,buf,sizeof(uint32_t),0) == -1 ){
-		perror("recv");
-		exit(1);
-	}
-	printf("Recibi del cliente : %s , de tamanio : %d \n",buf,strlen(buf));
-
+	send(socketCliente,"3",1,0);
 	return 0;
 }

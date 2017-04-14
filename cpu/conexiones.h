@@ -10,7 +10,7 @@
 
 struct data_socket crearSocket(int, char* );
 int enviarMensaje(int ,char*,int );
-int conectar(int , char* );
+int conectar(char* , char* );
 
 
 
