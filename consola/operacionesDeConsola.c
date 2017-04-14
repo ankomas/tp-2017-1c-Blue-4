@@ -5,6 +5,7 @@
  *      Author: utnso
  */
 
+#include "conexiones.h"
 void iniciarProgramaAnsisop(char* programaAsisop)
 {
 
@@ -29,6 +30,12 @@ void limpiarMensajes()
 }
 
 
+void mostrarDatosDelConfig()
+{
+	datosConfig_t datos = obtenerEstructurasDelConfig();
+	printf("La IP usada es : %s \n",datos.ip);
+	printf("El PUERTO usado es: %d \n\n",datos.puerto_kernel);
+}
 
 
 int crearMenuDeConexion()
@@ -36,11 +43,11 @@ int crearMenuDeConexion()
 	int opcion,resultado;
 
 	do{
-	system("clear");
 	printf("BIENVENIDO A LA CONSOLA \n");
 	printf("PUEDE ELEGIR DOS OPCIONES \n\n");
 	printf("1-PARA CONECTARSE A UN NUCLEO \n");
-	printf("2-PARA SALIR \n\n");
+	printf("2-MOSTRAR DATOS USADOS EN EL CONFIG \n");
+	printf("3-PARA SALIR \n\n");
 	printf("OPCION A ELEGIR:");
 	scanf("%d",&opcion);
 
@@ -55,13 +62,17 @@ int crearMenuDeConexion()
 		getchar();
 		return 0;
 	case 2:
+		mostrarDatosDelConfig();
+		getchar();
+		break;
+	case 3:
 		return 1;
 	default:
 		system("clear");
 		getchar();
 		break;
 	}
-	}while(opcion!=2 && opcion!=1);
+	}while(opcion!=3 && opcion!=1);
 
 	return 2;
 }

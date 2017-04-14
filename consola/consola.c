@@ -16,6 +16,7 @@
 
 int main()
 {
+
 	int resultadoDeConexion;
 	resultadoDeConexion = crearMenuDeConexion();
 	if(resultadoDeConexion!=0)

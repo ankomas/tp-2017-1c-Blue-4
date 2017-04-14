@@ -15,12 +15,6 @@
 
 
 
-typedef struct{
-	char* ip;
-	int puerto_kernel;
-}datosConfig_t;
-
-
 struct data_socket
 {
 	int socket;
@@ -84,8 +78,7 @@ int conectar(int puerto, char *ip)
 	}
 	//while (1)
 	//{
-		char* mensaje = "hola soy un proceso Consola";
-		enviarMensaje(socketCliente,mensaje,strlen(mensaje));
+
 	//}
 	return 0;
 }
@@ -120,7 +113,6 @@ datosConfig_t obtenerEstructurasDelConfig()
 	datosConfig_t datos;
 	datos.ip = obtenerConfiguracionString(rutaAbsolutaDe("configConsola.cfg"),"IP_KERNEL");
 
-	printf("el ip: %s \n",datos.ip);
 	datos.puerto_kernel = obtenerConfiguracion(rutaAbsolutaDe("configConsola.cfg"),"PUERTO_KERNEL");
 	return datos;
 }

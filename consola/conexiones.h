@@ -10,10 +10,18 @@
 
 // Defino estructuras administrativas que leo del config
 
+
+typedef struct{
+	char* ip;
+	int puerto_kernel;
+}datosConfig_t;
+
+
 struct data_socket crearSocket(int, char* );
 int enviarMensaje(int ,char*,int );
 int conectar(int , char* );
 int conectarseAlKernel();
+datosConfig_t obtenerEstructurasDelConfig();
 
 
 #endif /* CONEXIONES_H_ */
