@@ -37,23 +37,30 @@ void *get_in_addr(struct sockaddr *sa)
 	return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-void handshakeHandler(int i, char* buf){
+int handshakeHandler(int i){
+
 	int reconozcoCliente = -1;
+	char bufHandshake[1];
 	int tamHandshake = 1;
-	if(buf[0] == CONSOLA_ID)
-		reconozcoCliente = 1;
-	else if(buf[0] == CPU_ID)
-		reconozcoCliente = 1;
-	else if(buf[0] == FS_ID)
-		reconozcoCliente = 1;
-	else if(buf[0] == UMC_ID)
-		reconozcoCliente = 1;
+	if(recvall(i, bufHandshake, sizeof bufHandshake) == 0){
+		if(bufHandshake[0] == CONSOLA_ID)
+			reconozcoCliente = 1;
+		else if(bufHandshake[0] == CPU_ID)
+			reconozcoCliente = 1;
+		else if(bufHandshake[0] == FS_ID)
+			reconozcoCliente = 1;
+		else if(bufHandshake[0] == UMC_ID)
+			reconozcoCliente = 1;
+	} else {
+		return -1;
+	}
 
 	if(reconozcoCliente < 0){
-		// No es un Handshake, pero puede ser una operacion
+		return -1;
 	} else {
-		if( sendall(i,charToString(KERNEL_ID),&tamHandshake) == 0)
+		if(sendall(i,charToString(KERNEL_ID),&tamHandshake) == 0)
 			log_trace(logger, concat(2,"Se realizo el Handshake con exito con ",string_itoa(i)) );
+		return 0;
 	}
 }
 
@@ -149,25 +156,30 @@ int servidor(void)
 						&addrlen);
 
 					if (newfd == -1) {
-                        perror("accept");
-                    } else {
-                        FD_SET(newfd, &master); // add to master set
-                        if (newfd > fdmax) {    // keep track of the max
-                            fdmax = newfd;
-                        }
-                        printf("selectserver: new connection from %s on "
-                            "socket %d\n",
-							inet_ntop(remoteaddr.ss_family,
-								get_in_addr((struct sockaddr*)&remoteaddr),
-								remoteIP, INET6_ADDRSTRLEN),
-							newfd);
+						perror("accept");
+					} else {
+							FD_SET(newfd, &master); // add to master set
+							if (newfd > fdmax) {    // keep track of the max
+								fdmax = newfd;
+							}
+							printf("selectserver: new connection from %s on "
+								"socket %d\n",
+								inet_ntop(remoteaddr.ss_family,
+									get_in_addr((struct sockaddr*)&remoteaddr),
+									remoteIP, INET6_ADDRSTRLEN),
+								newfd);
+						if(handshakeHandler(newfd) == -1){
+							int tamI = 1;
+							send(newfd,"0",1,NULL);
+							//close(i);
+						}
 
-                    }
+					}
+
+
                 } else {
                     // handle data from a client
                     if ((nbytes = recvall(i, buf, sizeof buf)) == 0) {
-
-                    	handshakeHandler(i,buf);
 
                     	//queue_push(procesosNEW, 2);
 
