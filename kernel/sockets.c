@@ -17,8 +17,9 @@
 #include <netdb.h>
 
 #include <pthread.h>
-#include "sockets.h"
 #include "blue4-lib.h"
+
+#include "main.h"
 
 const char CONSOLA_ID = '1';
 const char KERNEL_ID = '2';
@@ -34,6 +35,33 @@ void *get_in_addr(struct sockaddr *sa)
 	}
 
 	return &(((struct sockaddr_in6*)sa)->sin6_addr);
+}
+
+int handshakeHandler(int i){
+
+	int reconozcoCliente = -1;
+	char bufHandshake[1];
+	int tamHandshake = 1;
+	if(recvall(i, bufHandshake, sizeof bufHandshake) == 0){
+		if(bufHandshake[0] == CONSOLA_ID)
+			reconozcoCliente = 1;
+		else if(bufHandshake[0] == CPU_ID)
+			reconozcoCliente = 1;
+		else if(bufHandshake[0] == FS_ID)
+			reconozcoCliente = 1;
+		else if(bufHandshake[0] == UMC_ID)
+			reconozcoCliente = 1;
+	} else {
+		return -1;
+	}
+
+	if(reconozcoCliente < 0){
+		return -1;
+	} else {
+		if(sendall(i,charToString(KERNEL_ID),&tamHandshake) == 0)
+			log_trace(logger, concat(2,"Se realizo el Handshake con exito con ",string_itoa(i)) );
+		return 0;
+	}
 }
 
 int servidor(void)
@@ -128,48 +156,31 @@ int servidor(void)
 						&addrlen);
 
 					if (newfd == -1) {
-                        perror("accept");
-                    } else {
-                        FD_SET(newfd, &master); // add to master set
-                        if (newfd > fdmax) {    // keep track of the max
-                            fdmax = newfd;
-                        }
-                        printf("selectserver: new connection from %s on "
-                            "socket %d\n",
-							inet_ntop(remoteaddr.ss_family,
-								get_in_addr((struct sockaddr*)&remoteaddr),
-								remoteIP, INET6_ADDRSTRLEN),
-							newfd);
-
-                        //
-							char buf[10] = "Beej!";
-							int len = 0;
-
-							len = strlen(buf);
-							if (sendall(newfd, buf, &len) == -1) {
-								perror("sendall");
-								printf("We only sent %d bytes because of the error!\n", len);
-								killme();
+						perror("accept");
+					} else {
+							FD_SET(newfd, &master); // add to master set
+							if (newfd > fdmax) {    // keep track of the max
+								fdmax = newfd;
 							}
-                        //
+							printf("selectserver: new connection from %s on "
+								"socket %d\n",
+								inet_ntop(remoteaddr.ss_family,
+									get_in_addr((struct sockaddr*)&remoteaddr),
+									remoteIP, INET6_ADDRSTRLEN),
+								newfd);
+						if(handshakeHandler(newfd) == -1){
+							send(newfd,"0",1,0);
+							//close(i);
+						}
 
-                    }
+					}
+
+
                 } else {
                     // handle data from a client
-                    if ((nbytes = recvall(i, buf, sizeof buf)) <= 0) {
+                    if ((nbytes = recv(i, buf, sizeof buf,0)) <= 0) {
 
-                    	if(buf[0] == CONSOLA_ID)
-                    		test("a");
-                    	else if(buf[0] == KERNEL_ID)
-                    		test("b");
-                    	else if(buf[0] == CPU_ID)
-                    		test("c");
-                    	else if(buf[0] == FS_ID)
-                    		test("d");
-                    	else if(buf[0] == UMC_ID)
-                    		test("e");
-                    	else
-                    		test("Handshake no reconocido.");
+                    	//queue_push(procesosNEW, 2);
 
                     	// umc =
 

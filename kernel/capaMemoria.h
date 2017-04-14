@@ -1,12 +1,12 @@
 /*
- * semaforos.h
+ * capaMemoria.h
  *
- *  Created on: 13/4/2017
+ *  Created on: 14/4/2017
  *      Author: utnso
  */
 
-#ifndef SEMAFOROS_H_
-#define SEMAFOROS_H_
+#ifndef CAPAMEMORIA_H_
+#define CAPAMEMORIA_H_
 
 #include "blue4-lib.h"
 #include <stdio.h>
@@ -15,4 +15,4 @@
 int cantidadElementosArrayConfig(char* unaRuta,char*unId);
 int valorSemaforo(char * unSemaforo);
 
-#endif /* SEMAFOROS_H_ */
+#endif /* CAPAMEMORIA_H_ */

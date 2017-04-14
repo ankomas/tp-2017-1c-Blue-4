@@ -1,11 +1,11 @@
 /*
- * semaforos.c
+ * capaMemoria.c
  *
- *  Created on: 13/4/2017
+ *  Created on: 14/4/2017
  *      Author: utnso
  */
 
-#include "semaforos.h"
+#include "capaMemoria.h"
 
 int cantidadElementosArrayConfig(char* unaRuta,char*unId){
 	int aux = 0;
