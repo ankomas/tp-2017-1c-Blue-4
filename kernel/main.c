@@ -19,8 +19,8 @@ t_queue * procesosEXIT;
 t_log* logger;
 
 void inicializarDatos(){
-	log_trace(logger,"Iniciando Kernel...");
 	logger = log_create("logger.log",rutaAbsolutaDe("Debug/kernel"),true,LOG_LEVEL_TRACE);
+	log_trace(logger,"Iniciando Kernel...");
 
 	procesosNEW = queue_create();
 	procesosREADY = queue_create();
