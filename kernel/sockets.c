@@ -17,12 +17,14 @@
 #include <netdb.h>
 
 #include <pthread.h>
-
 #include "sockets.h"
-
 #include "blue4-lib.h"
 
-#define PORT "9034"   // port we're listening on
+const char CONSOLA_ID = '1';
+const char KERNEL_ID = '2';
+const char CPU_ID = '3';
+const char FS_ID = '4';
+const char UMC_ID = '5';
 
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
@@ -36,6 +38,8 @@ void *get_in_addr(struct sockaddr *sa)
 
 int servidor(void)
 {
+	char* puerto = obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_PROG");
+
     fd_set master;    // master file descriptor list
     fd_set read_fds;  // temp file descriptor list for select()
     int fdmax;        // maximum file descriptor number
@@ -45,7 +49,7 @@ int servidor(void)
     struct sockaddr_storage remoteaddr; // client address
     socklen_t addrlen;
 
-    char buf[256];    // buffer for client data
+    char buf[1];    // buffer for client data
     int nbytes;
 
 	char remoteIP[INET6_ADDRSTRLEN];
@@ -63,7 +67,7 @@ int servidor(void)
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
-	if ((rv = getaddrinfo(NULL, PORT, &hints, &ai)) != 0) {
+	if ((rv = getaddrinfo(NULL, puerto, &hints, &ai)) != 0) {
 		fprintf(stderr, "selectserver: %s\n", gai_strerror(rv));
 		exit(1);
 	}
@@ -153,6 +157,22 @@ int servidor(void)
                 } else {
                     // handle data from a client
                     if ((nbytes = recvall(i, buf, sizeof buf)) <= 0) {
+
+                    	if(buf[0] == CONSOLA_ID)
+                    		test("a");
+                    	else if(buf[0] == KERNEL_ID)
+                    		test("b");
+                    	else if(buf[0] == CPU_ID)
+                    		test("c");
+                    	else if(buf[0] == FS_ID)
+                    		test("d");
+                    	else if(buf[0] == UMC_ID)
+                    		test("e");
+                    	else
+                    		test("Handshake no reconocido.");
+
+                    	// umc =
+
                         // got error or connection closed by client
                         if (nbytes == 0) {
                             // connection closed
@@ -169,7 +189,7 @@ int servidor(void)
                             if (FD_ISSET(j, &master)) {
                                 // except the listener and ourselves
                                 if (j != listener && j != i) {
-                                    if (sendall(j, buf, nbytes) == -1) {
+                                    if (sendall(j, buf, (int*)nbytes) == -1) {
                                         perror("send");
                                     }
                                 }

@@ -49,20 +49,20 @@ int sendall(int s, char *buf, int *len)
     return n==-1?-1:0; // return -1 on failure, 0 on success
 }
 
-int recvall(int s, char *buf, int *len)
+int recvall(int s, char *buf, int len)
 {
     int total = 0;        // how many bytes we've sent
-    int bytesleft = *len; // how many we have left to send
+    int bytesleft = len; // how many we have left to send
     int n;
 
-    while(total < *len) {
+    while(total < len) {
         n = recv(s, buf+total, bytesleft, MSG_WAITALL);
         if (n == -1) { break; }
         total += n;
         bytesleft -= n;
     }
 
-    *len = total; // return number actually sent here
+    len = total; // return number actually sent here
 
     return n==-1?-1:0; // return -1 on failure, 0 on success
 }

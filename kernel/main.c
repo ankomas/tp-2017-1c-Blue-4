@@ -8,12 +8,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "sockets.h"
-#include "blue4-lib.h"
+#include "main.h"
 
 int main(){
-	//servidor();
-	test(concat(4,"a","b","c","d"));
+	testi(valorSemaforo("SEM3"));
+	servidor();
 
 	return 0;
 }

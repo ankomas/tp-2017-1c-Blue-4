@@ -60,7 +60,7 @@
 	* @NAME: recvall
 	* @DESC: recibe un mensaje a traves de sockets
 	*/
-	int recvall(int s, char *buf, int *len);
+	int recvall(int s, char *buf, int len);
 
 	/**
 	* @NAME: rutaAbsoluta
