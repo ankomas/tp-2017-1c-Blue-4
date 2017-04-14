@@ -179,7 +179,7 @@ int servidor(void)
 
                 } else {
                     // handle data from a client
-                    if ((nbytes = recvall(i, buf, sizeof buf)) == 0) {
+                    if ((nbytes = recv(i, buf, sizeof buf,0)) <= 0) {
 
                     	//queue_push(procesosNEW, 2);
 
