@@ -54,6 +54,7 @@ int crear_socket(struct addrinfo *servinfo)
 }
 int conectar(char *puerto, char *ip)
 {
+	char *charsito;
 	struct addrinfo *servinfo=crear_addrinfo_socket(ip,puerto);
 
 	int socketCliente = crear_socket(servinfo);
@@ -65,5 +66,10 @@ int conectar(char *puerto, char *ip)
 		return 1;
 	}
 	send(socketCliente,"3",1,0);
+	charsito=malloc(1);
+	recv(socketCliente,charsito,1,0);
+
+	printf("Lo que me llego: %c\n",charsito[0]);
+	free(charsito);
 	return 0;
 }
