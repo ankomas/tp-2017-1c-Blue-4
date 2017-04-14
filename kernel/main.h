@@ -9,6 +9,7 @@
 #define MAIN_H_
 
 #include "commons/log.h"
+#include "commons/string.h"
 
 #include "blue4-lib.h"
 #include "capaMemoria.h"

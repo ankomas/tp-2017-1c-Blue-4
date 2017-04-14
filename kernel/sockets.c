@@ -37,6 +37,26 @@ void *get_in_addr(struct sockaddr *sa)
 	return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
+void handshakeHandler(int i, char* buf){
+	int reconozcoCliente = -1;
+	int tamHandshake = 1;
+	if(buf[0] == CONSOLA_ID)
+		reconozcoCliente = 1;
+	else if(buf[0] == CPU_ID)
+		reconozcoCliente = 1;
+	else if(buf[0] == FS_ID)
+		reconozcoCliente = 1;
+	else if(buf[0] == UMC_ID)
+		reconozcoCliente = 1;
+
+	if(reconozcoCliente < 0){
+		// No es un Handshake, pero puede ser una operacion
+	} else {
+		if( sendall(i,charToString(KERNEL_ID),&tamHandshake) == 0)
+			log_trace(logger, concat(2,"Se realizo el Handshake con exito con ",string_itoa(i)) );
+	}
+}
+
 int servidor(void)
 {
 	char* puerto = obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_PROG");
@@ -159,19 +179,7 @@ int servidor(void)
                     // handle data from a client
                     if ((nbytes = recvall(i, buf, sizeof buf)) == 0) {
 
-
-                    	if(buf[0] == CONSOLA_ID)
-                    		test("a");
-                    	else if(buf[0] == KERNEL_ID)
-                    		test("b");
-                    	else if(buf[0] == CPU_ID)
-                    		test("c");
-                    	else if(buf[0] == FS_ID)
-                    		test("d");
-                    	else if(buf[0] == UMC_ID)
-                    		test("e");
-                    	else
-                    		test("Handshake no reconocido.");
+                    	handshakeHandler(i,buf);
 
                     	//queue_push(procesosNEW, 2);
 
