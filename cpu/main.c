@@ -9,10 +9,13 @@
 #include <commons/config.h>
 #include "conexiones.h"
 
+#define ID_KERNEL 2
+
 int main() {
 	//int socketKernel,socketMemoria;
 	char *ipKernel, *ipMemoria, *puertoKernel, *puertoMemoria;
 	t_config* config;
+	int socketKernel;
 
 	config = config_create("config.cfg");
 
@@ -26,7 +29,7 @@ int main() {
 			ipKernel, puertoKernel, ipMemoria, puertoMemoria);
 
 	printf("Conectando con Kernel...\n");
-	conectar(puertoKernel, ipKernel);
+	socketKernel=conectar(puertoKernel, ipKernel,ID_KERNEL);
 	//socketMemoria=conectar(puertoMemoria,ipMemoria);
 
 	config_destroy(config);
