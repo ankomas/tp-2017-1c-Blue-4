@@ -169,8 +169,7 @@ int servidor(void)
 									remoteIP, INET6_ADDRSTRLEN),
 								newfd);
 						if(handshakeHandler(newfd) == -1){
-							int tamI = 1;
-							send(newfd,"0",1,NULL);
+							send(newfd,"0",1,0);
 							//close(i);
 						}
 
