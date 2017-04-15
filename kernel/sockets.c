@@ -122,13 +122,8 @@ int handshakeHandler(int i){
 			nuevaCPU->id = i;
 			list_add(CPUs,nuevaCPU);
 			reconozcoCliente = 1;
-		}else if(bufHandshake[0] == FS_ID){
-			idFS = i;
-			reconozcoCliente = 1;
-		}else if(bufHandshake[0] == UMC_ID){
-			idUMC = i;
-			reconozcoCliente = 1;
 		}
+
 	} else {
 		return -1;
 	}
@@ -302,7 +297,7 @@ int servidor(void)
 
                 } else {
                     // handle data from a client
-                    if ((nbytes = recv(i, buf, sizeof buf,0)) <= 0) {
+                    if ((nbytes = recv(i, buf, sizeof buf,MSG_WAITALL)) <= 0) {
 
                     	//queue_push(procesosNEW, 2);
 
