@@ -19,7 +19,7 @@
 //#include <commons/config>
 #include "conexiones.h"
 #define KERNEL_ID '2'
-#define FS_ID '1'
+#define FS_ID '4'
 
 
 

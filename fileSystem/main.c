@@ -10,24 +10,8 @@
 
 int main(void) {
 
-	int puerto;
-	char* puntoMontaje;
-
-	t_config* config;
-/*
-	config=config_create("config.cfg");
-
-	printf("La información de mi Archivo de Configuración es:\n");
-
-	puerto=config_get_int_value(config,"PUERTO");
-
-	printf("PUERTO: %i,\n",puerto);
-*/
-	puntoMontaje=config_get_string_value(config,"PUNTO_MONTAJE");
-
-	printf("PUNTO_MONTAJE: %s\n\n",puntoMontaje);
-
-	config_destroy(config);
+	anuncio(concat(2,"Puerto: ",obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO")));
+	anuncio(concat(2,"Punto de Montaje: ",obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUNTO_MONTAJE")));
 
 	servidor();
 

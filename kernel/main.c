@@ -42,9 +42,8 @@ void inicializarDatos(){
 	CONSOLAs = list_create();
 	CPUs = list_create();
 
-	idFS = conectar(obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_FS"), obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"IP_FS"),FS_ID_INT);
+	idFS =  conectar(obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_FS"),  obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"IP_FS"),FS_ID_INT);
 	idUMC = conectar(obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_UMC"), obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"IP_UMC"),UMC_ID_INT);
-
 	if(idFS <= 0){
 		log_error(logger,"No se pudo conectar al FileSystem");
 	} else {
@@ -52,9 +51,9 @@ void inicializarDatos(){
 	}
 
 	if(idUMC <= 0){
-		log_error(logger,"No se pudo conectar a la UMC");
+		log_error(logger,"No se pudo conectar a la Memoria");
 	} else {
-		log_trace(logger,"Conexion establecida con la UMC");
+		log_trace(logger,"Conexion establecida con la Memoria");
 	}
 
 	procesosNEW = queue_create();
