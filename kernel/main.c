@@ -30,8 +30,8 @@ void inicializarDatos(){
 
 	CONSOLAs = list_create();
 	CPUs = list_create();
-	idFS = 0;
-	idUMC = 0;
+	idFS = conectar("2", "127.0.0.1",FS_ID);
+	idUMC = conectar("2", "127.0.0.1",UMC_ID);
 	procesosNEW = queue_create();
 	procesosREADY = queue_create();
 	procesosEXEC = queue_create();
@@ -42,6 +42,8 @@ void inicializarDatos(){
 int main(){
 
 	inicializarDatos();
+	testi(idFS);
+	testi(idUMC);
 
 	//testi(valorSemaforo("SEM3"));
 
