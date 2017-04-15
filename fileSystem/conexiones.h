@@ -17,7 +17,7 @@ int conectarseAlKernel();
 
 int establecerHandshake(int, char*, int );
 
-void servidor( int );
+int servidor( );
 
 
 #endif /* CONEXIONES_H_ */

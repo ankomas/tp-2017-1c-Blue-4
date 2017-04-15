@@ -14,7 +14,7 @@ int main(void) {
 	char* puntoMontaje;
 
 	t_config* config;
-
+/*
 	config=config_create("config.cfg");
 
 	printf("La información de mi Archivo de Configuración es:\n");
@@ -22,14 +22,14 @@ int main(void) {
 	puerto=config_get_int_value(config,"PUERTO");
 
 	printf("PUERTO: %i,\n",puerto);
-
+*/
 	puntoMontaje=config_get_string_value(config,"PUNTO_MONTAJE");
 
 	printf("PUNTO_MONTAJE: %s\n\n",puntoMontaje);
 
 	config_destroy(config);
 
-	servidor(puerto);
+	servidor();
 
 	return 0;
 
