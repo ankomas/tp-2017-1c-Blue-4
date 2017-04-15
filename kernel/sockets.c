@@ -4,8 +4,6 @@
  *  Created on: 4/4/2017
  *      Author: utnso
  */
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -43,14 +41,25 @@ int handshakeHandler(int i){
 	char bufHandshake[1];
 	int tamHandshake = 1;
 	if(recvall(i, bufHandshake, sizeof bufHandshake) == 0){
-		if(bufHandshake[0] == CONSOLA_ID)
+		if(bufHandshake[0] == CONSOLA_ID){
+			//TODO liberar estas consolas
+			t_consola * nuevaCONSOLA = malloc(sizeof(nuevaCONSOLA));
+			nuevaCONSOLA->id = i;
+			list_add(CONSOLAs,nuevaCONSOLA);
 			reconozcoCliente = 1;
-		else if(bufHandshake[0] == CPU_ID)
+		}else if(bufHandshake[0] == CPU_ID){
+			//TODO liberar estas consolas
+			t_cpu * nuevaCPU = malloc(sizeof(nuevaCPU));
+			nuevaCPU->id = i;
+			list_add(CPUs,nuevaCPU);
 			reconozcoCliente = 1;
-		else if(bufHandshake[0] == FS_ID)
+		}else if(bufHandshake[0] == FS_ID){
+			idFS = i;
 			reconozcoCliente = 1;
-		else if(bufHandshake[0] == UMC_ID)
+		}else if(bufHandshake[0] == UMC_ID){
+			idUMC = i;
 			reconozcoCliente = 1;
+		}
 	} else {
 		return -1;
 	}
@@ -61,6 +70,52 @@ int handshakeHandler(int i){
 		if(sendall(i,charToString(KERNEL_ID),&tamHandshake) == 0)
 			log_trace(logger, concat(2,"Se realizo el Handshake con exito con ",string_itoa(i)) );
 		return 0;
+	}
+}
+
+void eliminarSiHayCONSOLAs(int i) {
+	if(!list_is_empty(CONSOLAs)){
+		int aux = 0;
+		t_consola *consolaAux = list_get(CONSOLAs,aux);
+		while (consolaAux->id != i){
+			consolaAux = list_get(CONSOLAs,aux);
+			aux++;
+		}
+
+		if(consolaAux->id == i){
+			list_remove(CONSOLAs, aux);
+			log_trace(logger,"Consola eliminada");
+		}
+	}
+
+}
+
+void eliminarSiHayCPU(int i) {
+	if(!list_is_empty(CPUs)){
+		int aux = 0;
+		t_consola *cpuAux = list_get(CPUs,aux);
+		while (cpuAux->id != i){
+			cpuAux = list_get(CPUs,aux);
+			aux++;
+		}
+
+		if(cpuAux->id == i){
+			list_remove(CPUs, aux);
+			log_trace(logger,"CPU eliminada");
+		}
+	}
+
+}
+
+void liberarRecursos(int i){
+	if(i == idFS){
+		idFS = 0;
+	} else if(i == idUMC){
+		idUMC = 0;
+	} else{
+		//Busco a ver si es una cpu o consola
+		eliminarSiHayCPU(i);
+		eliminarSiHayCONSOLAs(i);
 	}
 }
 
@@ -188,8 +243,10 @@ int servidor(void)
                         if (nbytes == 0) {
                             // connection closed
                             printf("selectserver: socket %d hung up\n", i);
+                            liberarRecursos(i);
                         } else {
                             perror("recv");
+                            liberarRecursos(i);
                         }
                         close(i); // bye!
                         FD_CLR(i, &master); // remove from master set

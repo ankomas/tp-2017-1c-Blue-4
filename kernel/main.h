@@ -18,6 +18,11 @@
 #include "sockets.h"
 #include "planificador.h"
 
+extern int idFS,idUMC;
+
+extern t_list * CONSOLAs;
+extern t_list* CPUs;
+
 typedef struct t_pcb {
 	int pid;
 	int pc;
@@ -25,6 +30,17 @@ typedef struct t_pcb {
 	void * posicionStack;
 	int exitCode;
 } t_pcb;
+
+typedef struct t_cpu {
+	int id;
+	t_pcb *programaEnEjecucion;
+	bool disponible;
+} t_cpu;
+
+typedef struct t_consola {
+	int id;
+	bool disponible;
+} t_consola;
 
 extern t_log* logger;
 

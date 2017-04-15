@@ -10,6 +10,11 @@
 
 #include "main.h"
 
+int idFS;
+int idUMC;
+
+t_list * CONSOLAs;
+t_list * CPUs;
 t_queue * procesosNEW;
 t_queue * procesosREADY;
 t_queue * procesosEXEC;
@@ -22,6 +27,11 @@ void inicializarDatos(){
 	logger = log_create("logger.log",rutaAbsolutaDe("Debug/kernel"),true,LOG_LEVEL_TRACE);
 	log_trace(logger,"Iniciando Kernel...");
 
+
+	CONSOLAs = list_create();
+	CPUs = list_create();
+	idFS = 0;
+	idUMC = 0;
 	procesosNEW = queue_create();
 	procesosREADY = queue_create();
 	procesosEXEC = queue_create();
