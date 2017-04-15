@@ -59,7 +59,7 @@
 	int handshake(int socketCliente) {
 		char *charsito;
 		int res;
-		send(socketCliente, "3", 1, 0);
+		send(socketCliente, "2", 1, 0);
 		charsito = malloc(1);
 		recv(socketCliente, charsito, 1, 0);
 

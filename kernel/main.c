@@ -36,8 +36,9 @@ void inicializarDatos(){
 
 	CONSOLAs = list_create();
 	CPUs = list_create();
-	idFS = conectar("8084", "127.0.0.1",FS_ID);
-	idUMC = conectar("8085", "127.0.0.1",UMC_ID);
+
+	idFS = conectar("8084", "127.0.0.1",4);
+	idUMC = conectar("8085", "127.0.0.1",5);
 	procesosNEW = queue_create();
 	procesosREADY = queue_create();
 	procesosEXEC = queue_create();

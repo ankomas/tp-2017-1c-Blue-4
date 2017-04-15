@@ -11,20 +11,6 @@
 
 int main(void) {
 
-	int puerto;
-
-	t_config* config;
-
-	config = config_create("config.cfg");
-
-	printf("La información de mi Archivo de Configuración es:\n");
-
-	puerto = config_get_int_value(config, "PUERTO");
-
-	printf("PUERTO: %i,\n", puerto);
-
-	config_destroy(config);
-
 	servidor();
 
 	return 0;

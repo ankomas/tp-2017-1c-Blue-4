@@ -33,19 +33,26 @@ void *get_in_addr(struct sockaddr *sa)
 	return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-int handshakeHandler(int i) {
+int handshakeHandler(int i){
 
 	int reconozcoCliente = -1;
 	char bufHandshake[1];
 	int tamHandshake = 1;
-	if (bufHandshake[0] == KERNEL_ID) {
-		reconozcoCliente = 1;
-	}
-
-	if (reconozcoCliente < 0) {
+	if(recvall(i, bufHandshake, sizeof bufHandshake) == 0){
+		if(bufHandshake[0] == KERNEL_ID){
+			reconozcoCliente = 1;
+		}
+	} else {
 		return -1;
 	}
-	return 0;
+
+	if(reconozcoCliente < 0){
+		return -1;
+	} else {
+		if(sendall(i,charToString(UMC_ID),&tamHandshake) == 0)
+			printf("Handshake exitoso");
+		return 0;
+	}
 }
 
 int servidor(void)
