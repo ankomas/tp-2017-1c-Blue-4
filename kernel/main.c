@@ -10,6 +10,12 @@
 
 #include "main.h"
 
+const char CONSOLA_ID = '1';
+const char KERNEL_ID = '2';
+const char CPU_ID = '3';
+const char FS_ID = '4';
+const char UMC_ID = '5';
+
 int idFS;
 int idUMC;
 
@@ -30,8 +36,8 @@ void inicializarDatos(){
 
 	CONSOLAs = list_create();
 	CPUs = list_create();
-	idFS = 0;
-	idUMC = 0;
+	idFS = conectar("8084", "127.0.0.1",FS_ID);
+	idUMC = conectar("8085", "127.0.0.1",UMC_ID);
 	procesosNEW = queue_create();
 	procesosREADY = queue_create();
 	procesosEXEC = queue_create();
