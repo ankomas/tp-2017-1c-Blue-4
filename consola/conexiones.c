@@ -66,44 +66,44 @@ int enviarMensaje(int socket,char* mensaje,int tamanioMensaje)
 
 }
 
-int conectar(int puerto, char *ip)
+
+int handshake(int socketCliente,int id) {
+	char *mensaje;
+	int respuesta;
+	send(socketCliente, "1", 1, 0);
+	mensaje = malloc(1);
+	recv(socketCliente, mensaje, 1, 0);
+
+	//printf("Lo que me llego: %s\n", charsito);
+	respuesta=mensaje[0]-'0';
+	free(mensaje);
+
+	if(id!=respuesta){
+			printf("Error: el id del proceso al que se conecto (%i) no es el requerido (%i)\n",respuesta,id);
+			return -1;
+		}
+
+	return 0;
+}
+
+
+int conectar(int puerto, char *ip,int id)
 {
+	int respuesta_handshake;
+
 	struct data_socket datosDelSocket = crearSocket(puerto, ip);
 	int socketCliente = datosDelSocket.socket;
 	struct sockaddr_in direccionServidor = datosDelSocket.direccionServidor;
 	if (connect(socketCliente, (void*) &direccionServidor, sizeof(direccionServidor)) != 0)
 	{
 		perror("No se pudo conectar");
-		return 1;
+		return -1;
 	}
-	//while (1)
-	//{
+	respuesta_handshake= handshake(socketCliente,id);
+	if(respuesta_handshake<0)
+		return -1;
 
-	//}
-	return 0;
-}
-
-
-// esta funcion es provisoria
-// opcion 1 : estblecer un id por cada proceso que este definido en un protocolo
-// opcion 2 : manejarse por medio de mensajes con strings
-// opcion 3 : combinar las dos opciones aneteriores
-// duda : el hs se encarga de cortar las comunicaciones de una conexion no deseada o lo hace el propio proceso
-int establecerHandshake(int socket,char* mensaje,int tamanioMensaje)
-{
-	char buf[4];
-
-	enviarMensaje(socket,mensaje,tamanioMensaje);
-
-	memset(buf,'\0',4);
-
-	if(recv(socket,buf,sizeof(uint32_t),0) == -1 ){
-		perror("recv");
-		exit(1);
-	}
-	printf("Recibi del cliente : %s , de tamanio : %d \n",buf,strlen(buf));
-
-	return 0;
+	return socketCliente;
 }
 
 
@@ -120,20 +120,20 @@ datosConfig_t obtenerEstructurasDelConfig()
 
 
 
-int conectarseAlKernel()
+int conectarseAlKernel(int id_kernel)
 {
-	int resultado;
+	int socket_cliente;
 	datosConfig_t datosDelConfig = obtenerEstructurasDelConfig();
 	char* ip = datosDelConfig.ip;
 	printf("el ip usado es: %s \n",ip);
 	int puerto_kernel = datosDelConfig.puerto_kernel;
 	printf("el puerto usado es: %d \n",puerto_kernel);
-	resultado=conectar(puerto_kernel, ip);
-	if(resultado==0)
+	socket_cliente=conectar(puerto_kernel, ip,id_kernel);
+	if(socket_cliente>0)
 	{
 		printf("Conexion Exitosa!!! \n\n");
-		return 0;
+		return socket_cliente;
 	}
-	return 1;
+	return -1;
 }
 

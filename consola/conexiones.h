@@ -19,8 +19,8 @@ typedef struct{
 
 struct data_socket crearSocket(int, char* );
 int enviarMensaje(int ,char*,int );
-int conectar(int , char* );
-int conectarseAlKernel();
+int conectar(int , char* ,int);
+int conectarseAlKernel(int);
 datosConfig_t obtenerEstructurasDelConfig();
 
 

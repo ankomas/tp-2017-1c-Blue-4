@@ -6,6 +6,9 @@
  */
 
 #include "conexiones.h"
+#define id_kernel 2
+
+
 void iniciarProgramaAnsisop(char* programaAsisop)
 {
 
@@ -40,7 +43,7 @@ void mostrarDatosDelConfig()
 
 int crearMenuDeConexion()
 {
-	int opcion,resultado;
+	int opcion,socket_cliente;
 
 	do{
 	printf("BIENVENIDO A LA CONSOLA \n");
@@ -55,18 +58,18 @@ int crearMenuDeConexion()
 	{
 	case 1:
 		printf("Conectando al Kernel..... \n\n");
-		resultado=conectarseAlKernel();
-		if(resultado!=0)
-			return 2;
+		socket_cliente=conectarseAlKernel(id_kernel);
+		if(socket_cliente<0)
+			return -2;
 		system("clear");
 		getchar();
-		return 0;
+		return socket_cliente;
 	case 2:
 		mostrarDatosDelConfig();
 		getchar();
 		break;
 	case 3:
-		return 1;
+		return -1;
 	default:
 		system("clear");
 		getchar();
@@ -74,7 +77,7 @@ int crearMenuDeConexion()
 	}
 	}while(opcion!=3 && opcion!=1);
 
-	return 2;
+	return -2;
 }
 
 
