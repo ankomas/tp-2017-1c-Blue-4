@@ -12,6 +12,12 @@
 	* @NAME: assert
 	* @DESC: evalua que dos strings sean iguales
 	*/
+	void anuncio(char * aString);
+
+	/**
+	* @NAME: assert
+	* @DESC: evalua que dos strings sean iguales
+	*/
 	void assert(char * aString, char * anotherString);
 
 	/**

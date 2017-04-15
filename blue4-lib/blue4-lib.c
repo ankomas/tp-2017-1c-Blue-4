@@ -69,6 +69,10 @@ int recvall(int s, char *buf, int len)
 
 /* FIN SOCKETS */
 
+void anuncio(char *aString) {
+	printf("%s %s %s \n",KBOL,aString,KNRM);
+}
+
 void assert(char * aString, char * anotherString){
 	if(strcmp(aString,anotherString) == 0){
 		printf("%s[Assert] Correcto: Las cadenas son iguales \n%s",KGRN,KNRM);
