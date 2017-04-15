@@ -120,6 +120,8 @@ int handshakeHandler(int i){
 			//TODO liberar estas consolas
 			t_cpu * nuevaCPU = malloc(sizeof(nuevaCPU));
 			nuevaCPU->id = i;
+			nuevaCPU->programaEnEjecucion = 0;
+			nuevaCPU->disponible = true;
 			list_add(CPUs,nuevaCPU);
 			reconozcoCliente = 1;
 		}
@@ -141,12 +143,14 @@ void eliminarSiHayCONSOLAs(int i) {
 	if(!list_is_empty(CONSOLAs)){
 		int aux = 0;
 		t_consola *consolaAux = list_get(CONSOLAs,aux);
-		while (consolaAux->id != i){
+		while (consolaAux->id != i && aux < list_size(CONSOLAs)){
 			consolaAux = list_get(CONSOLAs,aux);
 			aux++;
+			//testi(consolaAux->id);
 		}
 
 		if(consolaAux->id == i){
+			//testi(consolaAux->id);
 			list_remove(CONSOLAs, aux);
 			log_trace(logger,"Consola eliminada");
 		}
@@ -158,7 +162,8 @@ void eliminarSiHayCPU(int i) {
 	if(!list_is_empty(CPUs)){
 		int aux = 0;
 		t_consola *cpuAux = list_get(CPUs,aux);
-		while (cpuAux->id != i){
+		while (cpuAux->id != i && aux < list_size(CPUs)){
+
 			cpuAux = list_get(CPUs,aux);
 			aux++;
 		}
