@@ -8,7 +8,11 @@
 #ifndef OPERACIONESDECONSOLA_H_
 #define OPERACIONESDECONSOLA_H_
 
+#include <pthread.h>
 void iniciarProgramaAnsisop(char*);
+void gestionarProgramaAnsisop(char* pathPrograma);
+pthread_t hiloPrograma;
+
 
 
 

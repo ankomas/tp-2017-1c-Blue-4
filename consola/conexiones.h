@@ -9,7 +9,7 @@
 #define CONEXIONES_H_
 
 // Defino estructuras administrativas que leo del config
-
+int socket_kernel;
 
 typedef struct{
 	char* ip;

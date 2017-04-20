@@ -4,15 +4,53 @@
  *  Created on: 14/4/2017
  *      Author: utnso
  */
-
+#include <pthread.h>
 #include "conexiones.h"
+#include "hilos.h"
+#include <stdint.h>
+#include <sys/socket.h>
+
+
 #define id_kernel 2
 
 
-void iniciarProgramaAnsisop(char* programaAsisop)
+
+void gestionarProgramaAnsisop(char* pathPrograma)
 {
+	// TODO serializar!!!
+	//int tamanio_programa = strlen(pathPrograma);
+	// pido el PID al Kernel
+	uint32_t tamanio=1;
+	sendall(socket_kernel,"A",&tamanio);
+	//sendall(socket_kernel,pathPrograma,tamanio_programa);
+
+	// recibir el PID del Kernel
+	char* pid_programa = malloc(4);
+	memset(pid_programa,'\0',4);
+	recv(socket_kernel,&pid_programa,4,MSG_WAITALL);
+	printf("el pid recibido es : %s \n",pid_programa);
+
+
+	// recibir un mensaje del kernel y validar que sea el PID correspondiente al programa enviado por este hilo
+/*
+	while(1)
+	{
+
+	}
+
+*/
 
 }
+
+
+
+void iniciarProgramaAnsisop(char* pathProgramaAsisop)
+{
+	pthread_t hiloPrograma;
+	crearHiloPrograma(pathProgramaAsisop);
+	//sendall();
+}
+
 
 
 void finalizarPrograma(int id)
@@ -21,16 +59,20 @@ void finalizarPrograma(int id)
 }
 
 
+
+
 void desconectarConsola()
 {
 
 }
 
 
+
 void limpiarMensajes()
 {
 	system("clear");
 }
+
 
 
 void mostrarDatosDelConfig()
@@ -89,7 +131,7 @@ int crearMenuDeConexion()
 void crearMenuPrincipal()
 {
 	int opcion,id;
-	char* programa;
+	char* rutaPrograma=NULL;
 
 	do{
 
@@ -98,7 +140,7 @@ void crearMenuPrincipal()
 		printf("1-INICIAR PROGRAMA \n");
 		printf("2-FINALIZAR PROGRAMA \n");
 		printf("3-DESCONECTAR CONSOLA \n");
-		printf("4-LIMPIAR MENSAJES");
+		printf("4-LIMPIAR MENSAJES \n\n");
 
 		printf("OPCION A ELEGIR:");
 		scanf("%d",&opcion);
@@ -107,9 +149,10 @@ void crearMenuPrincipal()
 			{
 			case 1:
 				printf("Ingrese programa ANSISOP ");
-				scanf("%s",&programa); //TODO averiguar si es la ruta o un programa por medio de un string!!!
+				scanf("%s",rutaPrograma);
 				printf("Iniciando programa ANSISOP..... \n\n");
-				iniciarProgramaAnsisop(programa);
+				//crearHiloPrograma(rutaPrograma);
+				iniciarProgramaAnsisop(rutaPrograma);
 				getchar();
 				break;
 			case 2:

@@ -17,9 +17,9 @@
 int main()
 {
 
-	int socket_cliente;
-	socket_cliente = crearMenuDeConexion();
-	if(socket_cliente<0)
+	//int socket_cliente;
+	socket_kernel = crearMenuDeConexion();
+	if(socket_kernel<0)
 	{
 		return 0;
 	}

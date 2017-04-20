@@ -11,6 +11,7 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include <stdint.h>
 #include "conexiones.h"
 
 
@@ -74,7 +75,7 @@ int handshake(int socketCliente,int id) {
 	mensaje = malloc(1);
 	recv(socketCliente, mensaje, 1, 0);
 
-	//printf("Lo que me llego: %s\n", charsito);
+	//printf("Lo que me llego: %s\n", mensaje);
 	respuesta=mensaje[0]-'0';
 	free(mensaje);
 
