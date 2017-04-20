@@ -8,6 +8,7 @@
 #ifndef PLANIFICADOR_H_
 #define PLANIFICADOR_H_
 
+#include <stdint.h>
 #include "commons/collections/queue.h"
 
 extern t_queue * procesosNEW;

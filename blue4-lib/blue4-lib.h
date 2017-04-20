@@ -8,6 +8,8 @@
 #ifndef BLUE4_LIB_H_
 #define BLUE4_LIB_H_
 
+#include <stdint.h>
+
 	/**
 	* @NAME: assert
 	* @DESC: evalua que dos strings sean iguales
@@ -66,7 +68,7 @@
 	* @NAME: recvall
 	* @DESC: recibe un mensaje a traves de sockets
 	*/
-	int recvall(int s, char *buf, int len);
+	int recvall(uint32_t s, char *buf, uint32_t len);
 
 	/**
 	* @NAME: rutaAbsoluta
@@ -85,7 +87,7 @@
 	* @NAME: sendall
 	* @DESC: envia un mensaje a traves de sockets
 	*/
-	int sendall(int s, char *buf, int *len);
+	int sendall(uint32_t s, char *buf, uint32_t *len);
 
 	/**
 	* @NAME: test

@@ -19,6 +19,8 @@
 
 #include "main.h"
 
+uint32_t pidActual = 100;
+
 /* CLIENTE */
 	struct addrinfo *crear_addrinfo_socket(char* ip, char* puerto) {
 		int status;
@@ -303,6 +305,15 @@ int servidor(void)
                 } else {
                     // handle data from a client
                     if ((nbytes = recv(i, buf, sizeof buf,MSG_WAITALL)) <= 0) {
+
+                    	if(buf[0] == 'A'){
+                    		//Envio PID
+                    		char* mensaje = malloc(4);
+                    		mensaje = string_itoa(pidActual);
+                    		uint32_t tamMensaje = 4;
+                    		sendall(i,mensaje,&tamMensaje);
+                    		pidActual++;
+                    	}
 
                     	//queue_push(procesosNEW, 2);
 
