@@ -305,16 +305,6 @@ int servidor(void)
                 } else {
                     // handle data from a client
                     if ((nbytes = recv(i, buf, sizeof buf,MSG_WAITALL)) <= 0) {
-
-                    	if(buf[0] == 'A'){
-                    		//Envio PID
-                    		char* mensaje = malloc(4);
-                    		mensaje = string_itoa(pidActual);
-                    		uint32_t tamMensaje = 4;
-                    		sendall(i,mensaje,&tamMensaje);
-                    		pidActual++;
-                    	}
-
                     	//queue_push(procesosNEW, 2);
 
                     	// umc =
@@ -331,6 +321,18 @@ int servidor(void)
                         close(i); // bye!
                         FD_CLR(i, &master); // remove from master set
                     } else {
+
+                    	if(buf[0] == 'A'){
+                    		//Envio PID
+                    		//TODO tener en cuenta multiprogramacion
+                    		log_trace(logger,"Un nuevo proceso ha sido creado");
+                    		char* mensaje = malloc(4);
+                    		mensaje = string_itoa(pidActual);
+                    		uint32_t tamMensaje = 4;
+                    		sendall(i,mensaje,&tamMensaje);
+                    		pidActual++;
+                    	}
+
                         // we got some data from a client
                         for(j = 0; j <= fdmax; j++) {
                             // send to everyone!
