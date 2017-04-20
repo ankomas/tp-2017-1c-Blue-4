@@ -9,6 +9,8 @@
 #include "hilos.h"
 #include <stdint.h>
 #include <sys/socket.h>
+#include <string.h>
+#include <stdio.h>
 
 
 #define id_kernel 2
@@ -21,14 +23,17 @@ void gestionarProgramaAnsisop(char* pathPrograma)
 	//int tamanio_programa = strlen(pathPrograma);
 	// pido el PID al Kernel
 	uint32_t tamanio=1;
-	sendall(socket_kernel,"A",&tamanio);
+	send(socket_kernel,"A",1,NULL);
 	//sendall(socket_kernel,pathPrograma,tamanio_programa);
 
 	// recibir el PID del Kernel
 	char* pid_programa = malloc(4);
 	memset(pid_programa,'\0',4);
-	recv(socket_kernel,&pid_programa,4,MSG_WAITALL);
-	printf("el pid recibido es : %s \n",pid_programa);
+
+	recv(socket_kernel,pid_programa,4,MSG_WAITALL);
+	test(pid_programa);
+
+	//printf("el pid recibido es : %s \n",pid_programa);
 
 
 	// recibir un mensaje del kernel y validar que sea el PID correspondiente al programa enviado por este hilo
