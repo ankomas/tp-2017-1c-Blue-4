@@ -8,7 +8,7 @@
 #ifndef SOCKETS_H_
 #define SOCKETS_H_
 
-int servidor(void);
+int servidor();
 
 
 #endif /* SOCKETS_H_ */

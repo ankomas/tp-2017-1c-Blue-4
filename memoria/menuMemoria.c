@@ -11,16 +11,17 @@
 #include <sys/socket.h>
 #include <blue4-lib.h>
 #include <commons/config.h>
-#include "menuMemoria.h"
+#include "configuraciones.h"
+#include "memoria.h"
 
 void modificarRetardo()
 {
 	int nuevoRetardo;
+	printf("El retardo actual es: %i ms\n", retardo);
 	printf("Ingrese el nuevo retardo en ms\n");
 	scanf("%i", &nuevoRetardo);
-	retardoMemoria = nuevoRetardo;
-	printf("El nuevo Retardo es: %i\n"
-			"-----------------------------------------\n", retardoMemoria);
+	retardo = nuevoRetardo;
+	printf("El nuevo Retardo es: %i\n", retardo);
 }
 
 void dumpMenu()
@@ -49,17 +50,16 @@ void memorySize() {};
 void PIDSize() {};
 
 void mostrarMenuMemoria() {
-	printf("Bienvenido a la memoria!\n");
 	int opcion;
 	while(1)
 	{
-		printf(	"Ingrese un comando:\n"
+		printf(	"\nIngrese un comando:\n"
 				"Modificar el retardo: Presione 1\n"
 				"Reportar estado actual: Presione 2\n"
 				"Limpiar el contenido de la cache: Presione 3\n"
 				"Indicar el tamaño de la memoria: Presione 4\n"
 				"Indicar el tamaño de un proceso: Presione 5\n"
-				"Salir: Presione 6\n");
+				"Para salir del menu: Presione 6\n\n");
 		scanf("%d", &opcion);
 		switch(opcion)
 		{
@@ -68,7 +68,6 @@ void mostrarMenuMemoria() {
 		case 3: flush(); break;
 		case 4: memorySize(); break;
 		case 5: PIDSize(); break;
-		case 6: break;
 		}
 		if(opcion == 6)
 			break;

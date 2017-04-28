@@ -16,6 +16,7 @@
 
 #include <pthread.h>
 #include "blue4-lib.h"
+#include "memoria.h"
 
 const char CONSOLA_ID = '1';
 const char KERNEL_ID = '2';
@@ -50,15 +51,13 @@ int handshakeHandler(int i){
 		return -1;
 	} else {
 		if(sendall(i,charToString(UMC_ID),&tamHandshake) == 0)
-			printf("Handshake exitoso");
+			printf("Handshake exitoso\n");
 		return 0;
 	}
 }
 
-int servidor(void)
+int servidor()
 {
-	char* puerto = obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO");
-
     fd_set master;    // master file descriptor list
     fd_set read_fds;  // temp file descriptor list for select()
     int fdmax;        // maximum file descriptor number

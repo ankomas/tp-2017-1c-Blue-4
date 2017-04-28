@@ -10,6 +10,5 @@
 
 void mostrarMenuMemoria();
 
-int retardoMemoria;
 
 #endif /* MENUMEMORIA_H_ */
