@@ -6,7 +6,6 @@
 #include <blue4-lib.h>
 #include <commons/config.h>
 #include <pthread.h>
-#include "sockets.h"
 #include "configuraciones.h"
 #include "menuMemoria.h"
 #include "memoria.h"

@@ -12,7 +12,6 @@
 #include <sys/socket.h>
 #include <blue4-lib.h>
 #include <commons/config.h>
-//#include "configuraciones.h"
 #include "memoria.h"
 
 void configurarTodo()
@@ -33,7 +32,7 @@ void configurarTodo()
 	printf("Entradas Cache: %i\n", entradasCache);
 	printf("Cache x proceso: %i\n", cachePorProceso);
 	printf("Retardo: %i\n", retardo);
-	printf("\nPresione Cualquier tecla Para continuar\n");
+	printf("\nPresione Enter Para continuar\n");
 	while ( getchar() != '\n');
 	system("clear");
 }
