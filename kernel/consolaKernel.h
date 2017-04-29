@@ -8,6 +8,6 @@
 #ifndef CONSOLAKERNEL_H_
 #define CONSOLAKERNEL_H_
 
-
+void * consolaKernel();
 
 #endif /* CONSOLAKERNEL_H_ */

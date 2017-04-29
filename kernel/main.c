@@ -9,6 +9,7 @@
 #include <stdlib.h>
 
 #include "main.h"
+#include <pthread.h>
 
 const char CONSOLA_ID = '1';
 const char KERNEL_ID = '2';
@@ -26,6 +27,8 @@ int cantidadProgramasEnSistema,gradoMultiprogramacion;
 int idFS;
 int idUMC;
 
+pthread_t hiloPlanificador,hiloConsolaKernel;
+
 t_list * CONSOLAs;
 t_list * CPUs;
 t_queue * procesosNEW;
@@ -39,6 +42,9 @@ t_log* logger;
 void inicializarDatos(){
 	logger = log_create("logger.log",rutaAbsolutaDe("Debug/kernel"),true,LOG_LEVEL_TRACE);
 	log_trace(logger,"Iniciando Kernel...");
+
+	pthread_create(&hiloPlanificador, NULL, planificador,NULL);
+	pthread_create(&hiloConsolaKernel, NULL, consolaKernel,NULL);
 
 	CONSOLAs = list_create();
 	CPUs = list_create();
@@ -67,6 +73,7 @@ void inicializarDatos(){
 }
 
 int main(){
+
 	gradoMultiprogramacion = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"),"GRADO_MULTIPROG");
 	anuncio(concat(2,"IP a utilizar: ",obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"IP")));
 	anuncio(concat(2,"PUERTO a utilizar: ",obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_PROG")));
@@ -75,6 +82,9 @@ int main(){
 	//testi(valorSemaforo("SEM3"));
 
 	servidor();
+	pthread_join(hiloPlanificador,0);
+	pthread_join(hiloPlanificador,0);
+
 
 	return 0;
 }

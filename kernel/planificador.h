@@ -17,6 +17,6 @@ extern t_queue * procesosEXEC;
 extern t_queue * procesosBLOCK;
 extern t_queue * procesosEXIT;
 
-void planificador();
+void *planificador();
 
 #endif /* PLANIFICADOR_H_ */
