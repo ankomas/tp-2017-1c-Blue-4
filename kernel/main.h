@@ -8,6 +8,7 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 
+#include "commons/collections/dictionary.h"
 #include "commons/log.h"
 #include "commons/string.h"
 
@@ -18,7 +19,7 @@
 #include "sockets.h"
 #include "planificador.h"
 
-extern int idFS,idUMC;
+extern int cantidadProgramasEnSistema,idFS,idUMC,gradoMultiprogramacion;
 
 extern t_list * CONSOLAs;
 extern t_list* CPUs;
@@ -29,6 +30,7 @@ typedef struct t_pcb {
 	void * tablaArchivos;
 	void * posicionStack;
 	int exitCode;
+	int cantidadPaginasAsignadas;
 } t_pcb;
 
 typedef struct t_cpu {

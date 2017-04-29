@@ -22,6 +22,7 @@ const char CPU_ID_INT = 3;
 const char FS_ID_INT = 4;
 const char UMC_ID_INT = 5;
 
+int cantidadProgramasEnSistema,gradoMultiprogramacion;
 int idFS;
 int idUMC;
 
@@ -42,6 +43,8 @@ void inicializarDatos(){
 	CONSOLAs = list_create();
 	CPUs = list_create();
 
+	cantidadProgramasEnSistema = 0;
+	gradoMultiprogramacion = 0;
 	idFS =  conectar(obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_FS"),  obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"IP_FS"),FS_ID_INT);
 	idUMC = conectar(obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_UMC"), obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"IP_UMC"),UMC_ID_INT);
 	if(idFS <= 0){
@@ -64,7 +67,7 @@ void inicializarDatos(){
 }
 
 int main(){
-
+	gradoMultiprogramacion = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"),"GRADO_MULTIPROG");
 	anuncio(concat(2,"IP a utilizar: ",obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"IP")));
 	anuncio(concat(2,"PUERTO a utilizar: ",obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_PROG")));
 	inicializarDatos();

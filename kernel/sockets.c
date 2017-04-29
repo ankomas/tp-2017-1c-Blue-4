@@ -61,9 +61,11 @@ uint32_t pidActual = 100;
 	int handshake(int socketCliente) {
 		char *charsito;
 		int res;
-		send(socketCliente, "2", 1, 0);
+		if(send(socketCliente, "2", 1, 0) < 1)
+			log_error(logger,"Fallo el envio al momento de realizar un handshake");
 		charsito = malloc(1);
-		recv(socketCliente, charsito, 1, 0);
+		if(recv(socketCliente, charsito, 1, 0) < 1)
+			log_error(logger,"Fallo el recibir al momento de realizar un handshake");
 
 		//printf("Lo que me llego: %s\n", charsito);
 		res=charsito[0]-'0';
@@ -106,20 +108,29 @@ void *get_in_addr(struct sockaddr *sa)
 	return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
+void enviarPID(uint32_t i) {
+	log_trace(logger,"Un nuevo proceso ha sido creado");
+	char* mensaje = malloc(4);
+	mensaje = string_itoa(pidActual);
+	uint32_t tamMensaje = 4;
+	if(sendall(i,mensaje,&tamMensaje) < 0){
+		log_error(logger,"No se pudo crear un proceso");
+	}
+	pidActual++;
+}
+
 int handshakeHandler(int i){
 
 	int reconozcoCliente = -1;
 	char bufHandshake[1];
-	int tamHandshake = 1;
+	uint32_t tamHandshake = 1;
 	if(recvall(i, bufHandshake, sizeof bufHandshake) == 0){
 		if(bufHandshake[0] == CONSOLA_ID){
-			//TODO liberar estas consolas
 			t_consola * nuevaCONSOLA = malloc(sizeof(nuevaCONSOLA));
 			nuevaCONSOLA->id = i;
 			list_add(CONSOLAs,nuevaCONSOLA);
 			reconozcoCliente = 1;
 		}else if(bufHandshake[0] == CPU_ID){
-			//TODO liberar estas consolas
 			t_cpu * nuevaCPU = malloc(sizeof(nuevaCPU));
 			nuevaCPU->id = i;
 			nuevaCPU->programaEnEjecucion = 0;
@@ -178,7 +189,7 @@ void eliminarSiHayCPU(int i) {
 
 }
 
-void liberarRecursos(int i){
+void liberarRecursos(int i,int codigoError){
 	if(i == idFS){
 		idFS = 0;
 	} else if(i == idUMC){
@@ -305,33 +316,38 @@ int servidor(void)
                 } else {
                     // handle data from a client
                     if ((nbytes = recv(i, buf, sizeof buf,MSG_WAITALL)) <= 0) {
-                    	//queue_push(procesosNEW, 2);
-
-                    	// umc =
 
                         // got error or connection closed by client
                         if (nbytes == 0) {
                             // connection closed
                             printf("selectserver: socket %d hung up\n", i);
-                            liberarRecursos(i);
+                            liberarRecursos(i,-20);
                         } else {
                             perror("recv");
-                            liberarRecursos(i);
+                            liberarRecursos(i,-20);
                         }
                         close(i); // bye!
                         FD_CLR(i, &master); // remove from master set
                     } else {
 
-                    	if(buf[0] == 'A'){
-                    		//Envio PID
-                    		//TODO tener en cuenta multiprogramacion
-                    		log_trace(logger,"Un nuevo proceso ha sido creado");
-                    		char* mensaje = malloc(4);
-                    		mensaje = string_itoa(pidActual);
-                    		uint32_t tamMensaje = 4;
-                    		sendall(i,mensaje,&tamMensaje);
-                    		pidActual++;
-                    	}
+                    	// FUNCIONES MANEJADORAS
+
+							// ENVIO DE PID
+							if(buf[0] == 'A'){
+								//Envio PID
+								if(gradoMultiprogramacion >= cantidadProgramasEnSistema){
+									enviarPID(i);
+									cantidadProgramasEnSistema++;
+								}else{
+									if(send(i,"N",1,0) < 1)
+										log_error(logger,"ERROR, el kernel no le pudo enviar el mensaje de que no es posible crear un nuevo programa");
+									log_info(logger,"No se pueden aceptar mas programas debido al grado de multiprogramacion definido.");
+								}
+							}
+							// FIN ENVIO DE PID
+
+
+                    	// FIN FUNCIONES MANEJADORAS
 
                         // we got some data from a client
                         for(j = 0; j <= fdmax; j++) {
@@ -339,7 +355,7 @@ int servidor(void)
                             if (FD_ISSET(j, &master)) {
                                 // except the listener and ourselves
                                 if (j != listener && j != i) {
-                                    if (sendall(j, buf, (int*)nbytes) == -1) {
+                                    if (sendall(j, buf, (uint32_t*)nbytes) == -1) {
                                         perror("send");
                                     }
                                 }
