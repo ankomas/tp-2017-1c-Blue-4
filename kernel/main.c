@@ -23,7 +23,7 @@ const char CPU_ID_INT = 3;
 const char FS_ID_INT = 4;
 const char UMC_ID_INT = 5;
 
-int cantidadProgramasEnSistema,gradoMultiprogramacion,retardo;
+int cantidadProgramasEnSistema,gradoMultiprogramacion,retardo,quantum;
 int idFS;
 int idUMC;
 
@@ -42,14 +42,12 @@ void inicializarDatos(){
 	logger = log_create("logger.log",rutaAbsolutaDe("Debug/kernel"),false,LOG_LEVEL_TRACE);
 	log_trace(logger,"Iniciando Kernel...");
 
-	pthread_create(&hiloPlanificador, NULL, planificador,NULL);
-	pthread_create(&hiloConsolaKernel, NULL, consolaKernel,NULL);
-
 	CONSOLAs = list_create();
 	CPUs = list_create();
 
 	cantidadProgramasEnSistema = 0;
 	gradoMultiprogramacion = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"),"GRADO_MULTIPROG");
+	quantum = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"),"QUANTUM");
 	idFS =  conectar(obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_FS"),  obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"IP_FS"),FS_ID_INT);
 	idUMC = conectar(obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_UMC"), obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"IP_UMC"),UMC_ID_INT);
 	retardo = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"),"RETARDO");
@@ -70,6 +68,8 @@ void inicializarDatos(){
 	procesosEXEC = queue_create();
 	procesosBLOCK = queue_create();
 	procesosEXIT = queue_create();
+
+	pthread_create(&hiloConsolaKernel, NULL, consolaKernel,NULL);
 }
 
 int main(){
@@ -81,8 +81,7 @@ int main(){
 	//testi(valorSemaforo("SEM3"));
 
 	servidor();
-	pthread_join(hiloPlanificador,0);
-	pthread_join(hiloPlanificador,0);
+	pthread_join(hiloConsolaKernel,0);
 
 
 	return 0;

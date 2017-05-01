@@ -391,6 +391,7 @@ int servidor(void)
 									nuevoProceso->pc=0;
 									nuevoProceso->posicionStack = NULL;
 									nuevoProceso->tablaArchivos = NULL;
+									nuevoProceso->quantumRestante = 0;
 									queue_push(procesosREADY,nuevoProceso);
 									pidActual++;
 									cantidadProgramasEnSistema++;

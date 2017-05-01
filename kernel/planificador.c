@@ -11,6 +11,9 @@
 #include "planificador.h"
 #include "main.h"
 
+char *algoritmoPlanificador;
+
+
 t_cpu* indiceProximaCPULibre(){
 	int indice = 0;
 	t_cpu * CPUaux;
@@ -31,39 +34,57 @@ t_cpu* indiceProximaCPULibre(){
 	return NULL;
 }
 
-void FIFO(){
-
-
-}
-
-void RR(){
-
-}
-
 void* cpu(t_cpu * cpu){
 	printf("cpu: %i\n",cpu->id);
-	usleep(10000000);
-	pthread_exit(NULL);
+	t_pcb * proximoProceso;
+	while(1){
+		//TODO falta mutex en todos los accesos a las colas
+
+		proximoProceso = planificador(NULL);
+		//send al proximoProceso->id
+		//TODO verificar el recv
+		//recv(cpuLibre->id,tamPaquete,3,MSG_WAITALL);
+		if(1 == 2){
+			//TODO checkear errores en el futuro
+			pthread_exit(NULL);
+		} else if(1==3){
+			//checkear si termino bien para limpiar estructuras
+			pthread_exit(NULL);
+		} else {
+			planificador(proximoProceso);
+		}
+
+		usleep(10000000);
+	}
+
 	return 0;
 }
 
-void *planificador(){
-	char *algoritmoPlanificador = obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"ALGORITMO");
+t_pcb* planificador(t_pcb* unPCB){
+	// mutex por haber leido de un archivo que puede ser actualizado hasta antes del recv
+	algoritmoPlanificador = obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"ALGORITMO");
+	printf("algoritmoPlanificador %s\n",algoritmoPlanificador);
 
-	while(1){
-		printf("algoritmoPlanificador %s\n",algoritmoPlanificador);
-		//TODO falta mutex en todos los accesos a las colas
-		//t_pcb * proximoProceso = queue_pop(procesosREADY);
-		t_cpu* cpuLibre = indiceProximaCPULibre();
-		//if(indiceProximaCPULibre() != NULL){
-			//sendall(cpuLibre->id,"pcb",(uint32_t*)3);
-			//cpuLibre->disponible = false;
-		//}
-		//TODO verificar el recv
-		//recv(cpuLibre->id,tamPaquete,3,MSG_WAITALL);
+	if(unPCB == NULL){
+		t_pcb* aux = queue_pop(procesosREADY);
+		return aux;
+	}
 
-
-		usleep(retardo);
+	if(strcmp(algoritmoPlanificador,"RR") == 0){
+		if(unPCB->quantumRestante == 0){
+			if(queue_size(procesosREADY) > 0){
+				t_pcb* aux = queue_pop(procesosREADY);
+				aux->quantumRestante--;
+				return aux;
+			}
+		} else {
+			unPCB->quantumRestante--;
+			return unPCB;
+		}
+	} else if(strcmp(algoritmoPlanificador,"FIFO") == 0){
+		return unPCB;
+	} else {
+		log_error(logger,"Algoritmo mal cargado al config.cfg");
 	}
 
 	return 0;
