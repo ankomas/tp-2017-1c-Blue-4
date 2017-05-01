@@ -4,54 +4,21 @@
  *  Created on: 14/4/2017
  *      Author: utnso
  */
-#include <pthread.h>
 #include "conexiones.h"
 #include "hilos.h"
-#include <stdint.h>
-#include <sys/socket.h>
-#include <string.h>
-#include <stdio.h>
+#include  "operacionesDeConsola.h"
+#include "funcionesAuxiliares.h"
+#include "unistd.h"
 
-
-#define id_kernel 2
-
-
-
-void gestionarProgramaAnsisop(char* pathPrograma)
-{
-	// TODO serializar!!!
-	//int tamanio_programa = strlen(pathPrograma);
-	// pido el PID al Kernel
-	uint32_t tamanio=1;
-	send(socket_kernel,"A",1,NULL);
-	//sendall(socket_kernel,pathPrograma,tamanio_programa);
-
-	// recibir el PID del Kernel
-	char* pid_programa = malloc(4);
-	memset(pid_programa,'\0',4);
-
-	recv(socket_kernel,pid_programa,4,MSG_WAITALL);
-	test(pid_programa);
-
-	//printf("el pid recibido es : %s \n",pid_programa);
-
-
-	// recibir un mensaje del kernel y validar que sea el PID correspondiente al programa enviado por este hilo
-/*
-	while(1)
-	{
-
-	}
-
-*/
-
-}
-
-
-
+/**
+ * Es el que inicia una conexion ,envio de programas ANSISOP y queda a la espera de mensajes del proceso KERNEL
+ *
+ * @param pathProgramaAnsisop (ruta del programa a utillizar)
+ */
 void iniciarProgramaAnsisop(char* pathProgramaAsisop)
 {
-	pthread_t hiloPrograma;
+	//pthread_t hiloPrograma;
+	//conectarseAlKernel();
 	crearHiloPrograma(pathProgramaAsisop);
 	//sendall();
 }
@@ -60,6 +27,16 @@ void iniciarProgramaAnsisop(char* pathProgramaAsisop)
 
 void finalizarPrograma(int id)
 {
+	//void * estado;
+	socket_kernel=cerrarSocket(socket_kernel);
+
+	int numero=pthread_attr_destroy(&hiloDetachable);
+	if(numero)
+	{
+		textoEnColor("El programa NO finalizo exitosamente",0,0);
+		return;
+	}
+	textoEnColor("El programa finalizo exitosamente",0,0);
 
 }
 
@@ -88,14 +65,14 @@ void mostrarDatosDelConfig()
 }
 
 
-int crearMenuDeConexion()
+void menuDeControl()
 {
-	int opcion,socket_cliente;
+	int opcion;
 
 	do{
 	printf("BIENVENIDO A LA CONSOLA \n");
-	printf("PUEDE ELEGIR DOS OPCIONES \n\n");
-	printf("1-PARA CONECTARSE A UN NUCLEO \n");
+	printf("PUEDE ELEGIR UNA DE ESTAS OPCIONES \n\n");
+	printf("1-IR AL MENU PRINCIPAL DE LA CONSOLA \n");
 	printf("2-MOSTRAR DATOS USADOS EN EL CONFIG \n");
 	printf("3-PARA SALIR \n\n");
 	printf("OPCION A ELEGIR:");
@@ -104,19 +81,23 @@ int crearMenuDeConexion()
 	switch(opcion)
 	{
 	case 1:
+		/*
 		printf("Conectando al Kernel..... \n\n");
-		socket_cliente=conectarseAlKernel(id_kernel);
+		socket_cliente=conectarseAlKernel();
 		if(socket_cliente<0)
 			return -2;
 		system("clear");
 		getchar();
 		return socket_cliente;
+		*/
+		getchar();
+		break;
 	case 2:
 		mostrarDatosDelConfig();
 		getchar();
 		break;
 	case 3:
-		return -1;
+		break;
 	default:
 		system("clear");
 		getchar();
@@ -124,7 +105,6 @@ int crearMenuDeConexion()
 	}
 	}while(opcion!=3 && opcion!=1);
 
-	return -2;
 }
 
 

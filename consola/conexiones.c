@@ -13,6 +13,7 @@
 #include <sys/socket.h>
 #include <stdint.h>
 #include "conexiones.h"
+#include "hilos.h"
 
 
 
@@ -68,7 +69,7 @@ int enviarMensaje(int socket,char* mensaje,int tamanioMensaje)
 }
 
 
-int handshake(int socketCliente,int id) {
+int handshake(int socketCliente) {
 	char *mensaje;
 	int respuesta;
 	send(socketCliente, "1", 1, 0);
@@ -79,8 +80,8 @@ int handshake(int socketCliente,int id) {
 	respuesta=mensaje[0]-'0';
 	free(mensaje);
 
-	if(id!=respuesta){
-			printf("Error: el id del proceso al que se conecto (%i) no es el requerido (%i)\n",respuesta,id);
+	if(id_kernel!=respuesta){
+			printf("Error: el id del proceso al que se conecto (%i) no es el requerido (%i)\n",respuesta,id_kernel);
 			return -1;
 		}
 
@@ -100,7 +101,7 @@ int conectar(int puerto, char *ip,int id)
 		perror("No se pudo conectar");
 		return -1;
 	}
-	respuesta_handshake= handshake(socketCliente,id);
+	respuesta_handshake= handshake(socketCliente);
 	if(respuesta_handshake<0)
 		return -1;
 
@@ -121,7 +122,7 @@ datosConfig_t obtenerEstructurasDelConfig()
 
 
 
-int conectarseAlKernel(int id_kernel)
+int conectarseAlKernel()
 {
 	int socket_cliente;
 	datosConfig_t datosDelConfig = obtenerEstructurasDelConfig();

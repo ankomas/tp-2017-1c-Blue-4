@@ -8,9 +8,14 @@
 #ifndef CONEXIONES_H_
 #define CONEXIONES_H_
 
-// Defino estructuras administrativas que leo del config
-int socket_kernel;
 
+
+#define id_kernel 2
+
+// Defino estructuras administrativas que leo del config
+//int socket_kernel;
+
+#include <unistd.h>
 typedef struct{
 	char* ip;
 	int puerto_kernel;
@@ -20,8 +25,9 @@ typedef struct{
 struct data_socket crearSocket(int, char* );
 int enviarMensaje(int ,char*,int );
 int conectar(int , char* ,int);
-int conectarseAlKernel(int);
+int conectarseAlKernel();
 datosConfig_t obtenerEstructurasDelConfig();
+void crearMenuPrincipal();
 
 
 #endif /* CONEXIONES_H_ */
