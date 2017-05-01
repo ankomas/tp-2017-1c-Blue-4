@@ -19,28 +19,28 @@
 #include "sockets.h"
 #include "planificador.h"
 
-extern int cantidadProgramasEnSistema,idFS,idUMC,gradoMultiprogramacion;
-
+extern int cantidadProgramasEnSistema,idFS,idUMC,gradoMultiprogramacion,retardo;
 extern t_list * CONSOLAs;
 extern t_list* CPUs;
 
 typedef struct t_pcb {
-	int pid;
-	int pc;
+	uint32_t pid;
+	uint32_t pc;
 	void * tablaArchivos;
 	void * posicionStack;
-	int exitCode;
-	int cantidadPaginasAsignadas;
+	uint32_t exitCode;
+	uint32_t cantidadPaginasAsignadas;
 } t_pcb;
 
 typedef struct t_cpu {
-	int id;
+	uint32_t id;
 	t_pcb *programaEnEjecucion;
 	bool disponible;
+	pthread_t hilo;
 } t_cpu;
 
 typedef struct t_consola {
-	int id;
+	uint32_t id;
 	bool disponible;
 } t_consola;
 
