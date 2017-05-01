@@ -15,7 +15,6 @@
 #include <netdb.h>
 
 #include <pthread.h>
-#include "blue4-lib.h"
 
 #include "main.h"
 
@@ -149,8 +148,18 @@ void enviarPID(uint32_t i) {
 	if(sendall(i,mensaje,&tamMensaje) < 0){
 		log_error(logger,"No se pudo crear un proceso");
 	}
-	pidActual++;
 }
+
+/*pthread_t crearHiloCPU(t_cpu *unaCPU){
+	pthread_attr_t attr;
+	pthread_t thread;
+
+	pthread_attr_init(&attr);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+
+	pthread_create(&thread, PTHREAD_CREATE_DETACHED, cpu,unaCPU);
+	return thread;
+}*/
 
 int handshakeHandler(int i){
 
@@ -168,6 +177,9 @@ int handshakeHandler(int i){
 			nuevaCPU->id = i;
 			nuevaCPU->programaEnEjecucion = 0;
 			nuevaCPU->disponible = true;
+			pthread_t thread;
+			pthread_create(&thread, NULL, cpu,nuevaCPU);
+			//nuevaCPU->hilo = crearHiloCPU(nuevaCPU);
 			list_add(CPUs,nuevaCPU);
 			reconozcoCliente = 1;
 		}
@@ -206,8 +218,8 @@ void eliminarSiHayCONSOLAs(int i) {
 
 void eliminarSiHayCPU(int i) {
 	if(!list_is_empty(CPUs)){
-		int aux = 0;
-		t_consola *cpuAux = list_get(CPUs,aux);
+		uint32_t aux = 0;
+		t_cpu *cpuAux = list_get(CPUs,aux);
 		while (cpuAux->id != i && aux < list_size(CPUs)){
 
 			cpuAux = list_get(CPUs,aux);
@@ -215,6 +227,7 @@ void eliminarSiHayCPU(int i) {
 		}
 
 		if(cpuAux->id == i){
+			//pthread_exit(&cpuAux->hilo);
 			list_remove(CPUs, aux);
 			log_trace(logger,"CPU eliminada");
 		}
@@ -370,6 +383,16 @@ int servidor(void)
 								//Envio PID
 								if(gradoMultiprogramacion >= cantidadProgramasEnSistema){
 									enviarPID(i);
+									// Los procesos New no estan modelados,porque depende del grado de multiprogramacion
+									t_pcb * nuevoProceso = malloc(sizeof(t_pcb));
+									nuevoProceso->pid=pidActual;
+									nuevoProceso->cantidadPaginasAsignadas = 0;
+									nuevoProceso->exitCode = 0;
+									nuevoProceso->pc=0;
+									nuevoProceso->posicionStack = NULL;
+									nuevoProceso->tablaArchivos = NULL;
+									queue_push(procesosREADY,nuevoProceso);
+									pidActual++;
 									cantidadProgramasEnSistema++;
 								}else{
 									if(send(i,"N",1,0) < 1)

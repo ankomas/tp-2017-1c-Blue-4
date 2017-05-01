@@ -25,6 +25,10 @@
 #define DETENER_PLANIFICACION '6'
 
 
+void listarProcesos(){
+	//printf("cantidad procesos actuales: %d\n",queue_size(procesosREADY));
+}
+
 void *consolaKernel(){
 	while(1){
 		printf("soy la consola del kernel\n");
@@ -33,7 +37,7 @@ void *consolaKernel(){
 		printf("opcion elegida: %c\n", opcion[0]);
 
 		if(opcion[0] == LISTADO_PROCESOS){
-
+			listarProcesos();
 		} else if(opcion[0] == INFO_PROCESO){
 			scanf("%s", opcion);
 			if(opcion[0] == CANTIDAD_RAFAGAS_EJECUTADAS){
