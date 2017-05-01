@@ -113,7 +113,7 @@ uint32_t pidActual = 100;
 
 		int socketCliente = crear_socket(servinfo);
 
-		printf("Socket creado: %i\n", socketCliente);
+		//printf("Socket creado: %i\n", socketCliente);
 		if (connect(socketCliente, servinfo->ai_addr, servinfo->ai_addrlen) != 0) {
 			perror("No se pudo conectar");
 			return -1;
@@ -125,7 +125,7 @@ uint32_t pidActual = 100;
 			printf("Error: el id del proceso al que se conecto (%i) no es el requerido (%i)\n",res,id);
 			return -1;
 		}
-		printf("Conexion existosa.\n");
+		//printf("Conexion existosa.\n");
 
 		return socketCliente;
 	}
