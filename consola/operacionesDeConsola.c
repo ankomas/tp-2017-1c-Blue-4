@@ -4,23 +4,50 @@
  *  Created on: 14/4/2017
  *      Author: utnso
  */
+#include "conexiones.h"
+#include "hilos.h"
+#include  "operacionesDeConsola.h"
+#include "funcionesAuxiliares.h"
+#include "unistd.h"
 
-void iniciarProgramaAnsisop(char* programaAsisop)
+/**
+ * Es el que inicia una conexion ,envio de programas ANSISOP y queda a la espera de mensajes del proceso KERNEL
+ *
+ * @param pathProgramaAnsisop (ruta del programa a utillizar)
+ */
+void iniciarProgramaAnsisop(char* pathProgramaAsisop)
 {
-
+	//pthread_t hiloPrograma;
+	//conectarseAlKernel();
+	crearHiloPrograma(pathProgramaAsisop);
+	//sendall();
 }
+
 
 
 void finalizarPrograma(int id)
 {
+	//void * estado;
+	socket_kernel=cerrarSocket(socket_kernel);
+
+	int numero=pthread_attr_destroy(&hiloDetachable);
+	if(numero)
+	{
+		textoEnColor("El programa NO finalizo exitosamente",0,0);
+		return;
+	}
+	textoEnColor("El programa finalizo exitosamente",0,0);
 
 }
+
+
 
 
 void desconectarConsola()
 {
 
 }
+
 
 
 void limpiarMensajes()
@@ -30,40 +57,54 @@ void limpiarMensajes()
 
 
 
-
-int crearMenuDeConexion()
+void mostrarDatosDelConfig()
 {
-	int opcion,resultado;
+	datosConfig_t datos = obtenerEstructurasDelConfig();
+	printf("La IP usada es : %s \n",datos.ip);
+	printf("El PUERTO usado es: %d \n\n",datos.puerto_kernel);
+}
+
+
+void menuDeControl()
+{
+	int opcion;
 
 	do{
-	system("clear");
 	printf("BIENVENIDO A LA CONSOLA \n");
-	printf("PUEDE ELEGIR DOS OPCIONES \n\n");
-	printf("1-PARA CONECTARSE A UN NUCLEO \n");
-	printf("2-PARA SALIR \n\n");
+	printf("PUEDE ELEGIR UNA DE ESTAS OPCIONES \n\n");
+	printf("1-IR AL MENU PRINCIPAL DE LA CONSOLA \n");
+	printf("2-MOSTRAR DATOS USADOS EN EL CONFIG \n");
+	printf("3-PARA SALIR \n\n");
 	printf("OPCION A ELEGIR:");
 	scanf("%d",&opcion);
 
 	switch(opcion)
 	{
 	case 1:
+		/*
 		printf("Conectando al Kernel..... \n\n");
-		resultado=conectarseAlKernel();
-		if(resultado!=0)
-			return 2;
+		socket_cliente=conectarseAlKernel();
+		if(socket_cliente<0)
+			return -2;
 		system("clear");
 		getchar();
-		return 0;
+		return socket_cliente;
+		*/
+		getchar();
+		break;
 	case 2:
-		return 1;
+		mostrarDatosDelConfig();
+		getchar();
+		break;
+	case 3:
+		break;
 	default:
 		system("clear");
 		getchar();
 		break;
 	}
-	}while(opcion!=2 && opcion!=1);
+	}while(opcion!=3 && opcion!=1);
 
-	return 2;
 }
 
 
@@ -75,7 +116,7 @@ int crearMenuDeConexion()
 void crearMenuPrincipal()
 {
 	int opcion,id;
-	char* programa;
+	char* rutaPrograma=NULL;
 
 	do{
 
@@ -84,7 +125,7 @@ void crearMenuPrincipal()
 		printf("1-INICIAR PROGRAMA \n");
 		printf("2-FINALIZAR PROGRAMA \n");
 		printf("3-DESCONECTAR CONSOLA \n");
-		printf("4-LIMPIAR MENSAJES");
+		printf("4-LIMPIAR MENSAJES \n\n");
 
 		printf("OPCION A ELEGIR:");
 		scanf("%d",&opcion);
@@ -93,9 +134,10 @@ void crearMenuPrincipal()
 			{
 			case 1:
 				printf("Ingrese programa ANSISOP ");
-				scanf("%s",&programa); //TODO averiguar si es la ruta o un programa por medio de un string!!!
+				scanf("%s",rutaPrograma);
 				printf("Iniciando programa ANSISOP..... \n\n");
-				iniciarProgramaAnsisop(programa);
+				//crearHiloPrograma(rutaPrograma);
+				iniciarProgramaAnsisop(rutaPrograma);
 				getchar();
 				break;
 			case 2:

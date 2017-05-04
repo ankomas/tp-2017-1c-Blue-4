@@ -8,6 +8,7 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 
+#include "commons/collections/dictionary.h"
 #include "commons/log.h"
 #include "commons/string.h"
 
@@ -18,13 +19,22 @@
 #include "sockets.h"
 #include "planificador.h"
 
-typedef struct t_pcb {
-	int pid;
-	int pc;
-	void * tablaArchivos;
-	void * posicionStack;
-	int exitCode;
-} t_pcb;
+extern int cantidadProgramasEnSistema,idFS,idUMC,gradoMultiprogramacion,retardo,quantum;
+extern t_list * CONSOLAs;
+extern t_list* CPUs;
+
+
+typedef struct t_cpu {
+	uint32_t id;
+	t_pcb *programaEnEjecucion;
+	bool disponible;
+	pthread_t hilo;
+} t_cpu;
+
+typedef struct t_consola {
+	uint32_t id;
+	bool disponible;
+} t_consola;
 
 extern t_log* logger;
 

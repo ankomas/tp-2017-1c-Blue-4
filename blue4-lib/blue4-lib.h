@@ -42,6 +42,12 @@ typedef struct{
 	* @NAME: assert
 	* @DESC: evalua que dos strings sean iguales
 	*/
+	void anuncio(char * aString);
+
+	/**
+	* @NAME: assert
+	* @DESC: evalua que dos strings sean iguales
+	*/
 	void assert(char * aString, char * anotherString);
 
 	/**
@@ -90,7 +96,7 @@ typedef struct{
 	* @NAME: recvall
 	* @DESC: recibe un mensaje a traves de sockets
 	*/
-	int recvall(int s, char *buf, int len);
+	int recvall(uint32_t s, char *buf, uint32_t len);
 
 	/**
 	* @NAME: rutaAbsoluta
@@ -109,7 +115,7 @@ typedef struct{
 	* @NAME: sendall
 	* @DESC: envia un mensaje a traves de sockets
 	*/
-	int sendall(int s, char *buf, int *len);
+	int sendall(uint32_t s, char *buf, uint32_t *len);
 
 	/**
 	* @NAME: test

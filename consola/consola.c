@@ -11,20 +11,17 @@
 #include <commons/config.h>
 #include<stdio.h>
 #include"operacionesDeConsola.h"
-
+#include "hilos.h"
 
 
 int main()
 {
-	int resultadoDeConexion;
-	resultadoDeConexion = crearMenuDeConexion();
-	if(resultadoDeConexion!=0)
-	{
-		return 0;
-	}
 
+	//pthread_t hiloPrincipal;
+	menuDeControl();
+	//pthread_create(&hiloPrincipal,NULL,(void*)crearMenuPrincipal,NULL);
+	//pthread_join(hiloPrincipal,NULL);
 	crearMenuPrincipal();
-
 	return 0;
 }
 

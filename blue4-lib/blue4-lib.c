@@ -81,11 +81,11 @@ package_t serializar(int numArgs, ...)
 
 }
 
-int sendall(int s, char *buf, int *len)
+int sendall(uint32_t s, char *buf, uint32_t *len)
 {
-    int total = 0;        // how many bytes we've sent
-    int bytesleft = *len; // how many we have left to send
-    int n;
+	uint32_t total = 0;        // how many bytes we've sent
+	uint32_t bytesleft = *len; // how many we have left to send
+	uint32_t n;
 
     while(total < *len) {
         n = send(s, buf+total, bytesleft, 0);
@@ -99,11 +99,11 @@ int sendall(int s, char *buf, int *len)
     return n==-1?-1:0; // return -1 on failure, 0 on success
 }
 
-int recvall(int s, char *buf, int len)
+int recvall(uint32_t s, char *buf, uint32_t len)
 {
-    int total = 0;        // how many bytes we've sent
-    int bytesleft = len; // how many we have left to send
-    int n;
+	uint32_t total = 0;        // how many bytes we've sent
+	uint32_t bytesleft = len; // how many we have left to send
+	uint32_t n;
 
     while(total < len) {
         n = recv(s, buf+total, bytesleft, MSG_WAITALL);
@@ -118,6 +118,10 @@ int recvall(int s, char *buf, int len)
 }
 
 /* FIN SOCKETS */
+
+void anuncio(char *aString) {
+	printf("%s %s %s \n",KBOL,aString,KNRM);
+}
 
 void assert(char * aString, char * anotherString){
 	if(strcmp(aString,anotherString) == 0){
