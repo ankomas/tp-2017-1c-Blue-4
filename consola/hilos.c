@@ -44,6 +44,7 @@ void crearHiloPrograma(char* pathProgramaAnsisop)
 	//TODO averiguar como puedo liberar esto
 	//free(pathProgramaAnsisop);
 	pthread_create(&hilo,&hiloDetachable,(void*)createOperacionesHiloPrograma,(void*)dataHilo);
+	// TODO esto va aca ???
 	//pthread_attr_destroy(&hiloDetachable);
 
 }

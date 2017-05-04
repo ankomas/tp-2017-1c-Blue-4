@@ -302,6 +302,32 @@ char* serializar_msj(char* path,char codigoOp[1])
  * @param dataHilo
  */
 
+
+int enviarMensajeConCodigoDeOperacion(char codOp[1],int socket,package_t contenido)
+{
+	uint32_t tamanio=1;
+		int envio=sendall(socket,codOp,&tamanio);
+		if(envio<0)
+		{
+			printf("fallo el envio del mensaje \n");
+			return -1;
+		}
+
+		/*
+		tamanio= sizeof(package_t);
+		envio=sendall(socket,&socket,&tamanio);
+		if(envio<0)
+				{
+					printf("fallo el envio del mensaje \n");
+					return -1;
+				}
+		*/
+		return 0;
+}
+
+
+
+
 void gestionarProgramaAnsisop(dataHilos_t* dataHilo)
 {
 	// TODO serializar!!!
@@ -311,26 +337,30 @@ void gestionarProgramaAnsisop(dataHilos_t* dataHilo)
 	char* pathPrograma=dataHilo->path;
 	printf("dataHilo.path: %s \n",dataHilo->path);
 	package_t mensaje;
-	uint32_t tamPath=strlen(pathPrograma);
+
+	char* lecturaDeProgramaAnsisop = leerProgramaAnsisop(pathPrograma);
+	uint32_t tamPath=strlen(lecturaDeProgramaAnsisop);
 	printf("tam de path: %d \n",tamPath);
-	mensaje=serializar(2,11,"ahora funca");
-	printf("el mensaje enpaquetado es: %s \n",mensaje.data);
+	mensaje=serializar(2,tamPath,lecturaDeProgramaAnsisop);
+	printf("el mensaje enpaquetado es: %s \n",mensaje.data+4);
 	printf("el tamaño del mensaje enpaquetado es: %d \n",mensaje.data_size);
-	//char* lecturaDeProgramaAnsisop = leerProgramaAnsisop(pathPrograma);
+
 	//printf("el paquete es: \n\n %s \n",mensaje);
-	char* pid_programa;
-	uint32_t tamanio=1;
-	int envio=sendall(dataHilo->socketKernel,"A",&tamanio);
-	if(envio<0)
+	int respuesta=enviarMensajeConCodigoDeOperacion("A",dataHilo->socketKernel,mensaje);
+	if(respuesta<0)
 	{
-		printf("fallo el envio del mensaje \n");
 		return;
 	}
+	char* pid_programa;
+
 
 	pid_programa=recibirPid(dataHilo->socketKernel);
+	if(pid_programa==NULL)
+	{
+		return;
+	}
 	dataHilo->pidHilo= atoi(pid_programa);
-
-	textoEnColor("PROGRAMA CREADO CON PID ",dataHilo->pidHilo,1);
+    textoEnColor("PROGRAMA CREADO CON PID ",dataHilo->pidHilo,1);
 
 	free(pid_programa);
 	agregarDataHilo(dataHilo);
