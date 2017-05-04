@@ -78,16 +78,16 @@ dataHilos_t* eliminarHiloDeListaPorPid(int pid)
 	pthread_mutex_lock(&mutexDataDeHilos);
 	int esIgual(dataHilos_t* data)
 	{
-		printf("en la funcion que filtro el pid es : %d \n",(*data).pidHilo);
-		printf("en la funcion que filtro el socket es : %d \n",(*data).socketKernel);
+		//printf("en la funcion que filtro el pid es : %d \n",(*data).pidHilo);
+		//printf("en la funcion que filtro el socket es : %d \n",(*data).socketKernel);
 		return (*data).pidHilo==pid;
 	}
-	printf("El pid que tengo que eliminar es : %d \n",pid);
+	//printf("El pid que tengo que eliminar es : %d \n",pid);
 	//pthread_mutex_lock(&mutexDataDeHilos);
 	//printf("hiloRemovido->pid : %d\n",(*hiloRemovido).pidHilo);
 	//printf("hiloRemovido->socket : %d \n",(*hiloRemovido).socketKernel);
     list_remove_by_condition(dataDeHilos,(void*)esIgual);
-	printf("tam de lista en funcion eliminarHilo es : %d \n",list_size(dataDeHilos));
+	//printf("tam de lista en funcion eliminarHilo es : %d \n",list_size(dataDeHilos));
 
 	pthread_mutex_unlock(&mutexDataDeHilos);
 
@@ -109,7 +109,7 @@ void agregarDataHilo(dataHilos_t* dataHilo)
 {
 	pthread_mutex_lock(&mutexDataDeHilos);
 	list_add(dataDeHilos,dataHilo);
-	printf("pid en agregarDataHilo es: %d \n",(dataHilo)->pidHilo);
+	//printf("pid en agregarDataHilo es: %d \n",(dataHilo)->pidHilo);
 	pthread_mutex_unlock(&mutexDataDeHilos);
 
 }
@@ -195,7 +195,7 @@ void eliminarHiloYrecursos(dataHilos_t* hiloAEliminar)
 		//eliminarHiloDeListaPorPid(hiloAEliminar.pidHilo);
 		//printf("nuevo tam de la lista : %d \n",list_size(dataDeHilos));
 		//cerrarSocket(hiloAEliminar);
-		printf("el pid antes de cerrar en eliminarRecursos es: %d \n",hiloAEliminar->pidHilo);
+		//printf("el pid antes de cerrar en eliminarRecursos es: %d \n",hiloAEliminar->pidHilo);
 
 		pthread_cancel(hiloAEliminar->hilo);
 		eliminarRecursos(hiloAEliminar);
@@ -223,6 +223,8 @@ void eliminarHiloYrecursos(dataHilos_t* hiloAEliminar)
  *
  * su ruta sea especificada por parametro.
  *
+ * Nota: liberar el string que retorna la funcion!!!
+ *
  * @param ruta_del_archivo
  * @return contenido_leido
  */
@@ -232,12 +234,13 @@ char* leerProgramaAnsisop(char* ruta)
 	FILE* programa;
 	char* contenido=malloc(200);
 	memset(contenido,'\0',200);
-	printf("ruta en leerPrograma : %s \n",ruta);
+	//printf("ruta en leerPrograma : %s \n",ruta);
 
 	programa = fopen(ruta,"r");
 	if(programa==NULL)
 	{
 		textoEnColor("Ruta invalida del programa ",0,0);
+		free(contenido);
 		return NULL;
 	}
 
@@ -309,7 +312,7 @@ int enviarMensajeConCodigoDeOperacion(char codOp[1],int socket,package_t conteni
 		int envio=sendall(socket,codOp,&tamanio);
 		if(envio<0)
 		{
-			printf("fallo el envio del mensaje \n");
+			textoEnColor("fallo el envio del mensaje ",0,0);
 			return -1;
 		}
 
@@ -335,16 +338,18 @@ void gestionarProgramaAnsisop(dataHilos_t* dataHilo)
 	// pido el PID al Kernel
 	//int socket_kernel=dataHilo.socket;
 	char* pathPrograma=dataHilo->path;
-	printf("dataHilo.path: %s \n",dataHilo->path);
+	//printf("dataHilo.path: %s \n",dataHilo->path);
 	package_t mensaje;
 
 	char* lecturaDeProgramaAnsisop = leerProgramaAnsisop(pathPrograma);
+	if(lecturaDeProgramaAnsisop!=NULL)
+	{
 	uint32_t tamPath=strlen(lecturaDeProgramaAnsisop);
 	printf("tam de path: %d \n",tamPath);
 	mensaje=serializar(2,tamPath,lecturaDeProgramaAnsisop);
-	printf("el mensaje enpaquetado es: %s \n",mensaje.data+4);
+	printf("el mensaje enpaquetado es: \n%s \n",mensaje.data+4);
 	printf("el tamaño del mensaje enpaquetado es: %d \n",mensaje.data_size);
-
+	}
 	//printf("el paquete es: \n\n %s \n",mensaje);
 	int respuesta=enviarMensajeConCodigoDeOperacion("A",dataHilo->socketKernel,mensaje);
 	if(respuesta<0)
@@ -357,6 +362,7 @@ void gestionarProgramaAnsisop(dataHilos_t* dataHilo)
 	pid_programa=recibirPid(dataHilo->socketKernel);
 	if(pid_programa==NULL)
 	{
+		printf(" No se pudo recibir un pid \n");
 		return;
 	}
 	dataHilo->pidHilo= atoi(pid_programa);
