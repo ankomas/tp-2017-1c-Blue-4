@@ -22,6 +22,7 @@ int main(void) {
 	pthread_create(&hiloMostrarMenu, NULL, (void *) mostrarMenuMemoria, NULL);
 	servidor(puerto);
 	pthread_join(hiloMostrarMenu, NULL);
+	free(memoria);
 
 	return 0;
 
