@@ -8,6 +8,36 @@
 #ifndef BLUE4_LIB_H_
 #define BLUE4_LIB_H_
 
+#include <stdint.h>
+#include <stdarg.h>
+
+typedef struct{
+	uint32_t data_size;
+	char* data;
+}package_t;
+
+	/**
+	* @NAME: serializar
+	* @DESC: Serializa una serie de argumentos.
+	* Uso: El primer argumento es la cantidad de argumentos totales (menos este),
+	* luego los siguientes argumentos deben ser ingresados de la forma "tamanio,dato",
+	* quedando de la siguiente forma:
+	* serializador(cantidad_de_argumentos,tam1,dato1,tam2,dato2,.....)
+	* SIendo la firma la siguiente
+	* serializador(int args, uint32_t tam1,void* dato1,....)
+	* Retorno: Retorna una estructura del tipo package_t, que almacena el stream y
+	* su tamanio.
+	* Nota: Liberar paquete.data al terminar de utilizarlo.
+	* EJemplo:
+	*
+	* 		uint32_t tam1,tam2,dato1;
+	* 		char* dato2;
+	*		package_t res;
+	*		....
+	* 		res=serializador(4,tam1,&dato1,tam2,dato2);
+	*/
+	package_t serializar(int args, ...);
+
 	/**
 	* @NAME: assert
 	* @DESC: evalua que dos strings sean iguales

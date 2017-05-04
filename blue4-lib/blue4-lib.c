@@ -31,6 +31,56 @@
 
 /* SOCKETS */
 
+package_t serializar(int numArgs, ...)
+{
+	va_list listaArg,listaArg2;
+	uint32_t tamTotal,i,puntero,n;
+	uint32_t nuevoTam =0;
+	package_t paqueteRetorno;
+	char *aCopiar;
+	char* paquete=NULL;
+
+	tamTotal=((numArgs)/2)*sizeof(uint32_t);
+
+	va_start(listaArg,numArgs);
+
+	va_copy(listaArg2,listaArg);
+
+	for(i=0;i<numArgs;i++)
+	{
+		if(i%2!=0){
+			va_arg(listaArg2,char*);
+		}else{
+			n=va_arg(listaArg2,uint32_t);
+			tamTotal+=n;
+		}
+	}
+
+	paquete=malloc(tamTotal);
+	puntero=0;
+
+	for(i=0;i<numArgs;i++)
+	{
+		if(i%2!=0){
+			aCopiar=va_arg(listaArg,void*);
+			memcpy(paquete+puntero,aCopiar,nuevoTam);
+			puntero+=nuevoTam;
+		}else{
+			nuevoTam=va_arg(listaArg,uint32_t);
+			memcpy(paquete+puntero,&nuevoTam,sizeof(uint32_t));
+			puntero+=sizeof(uint32_t);
+		}
+	}
+
+	va_end(listaArg);
+
+	paqueteRetorno.data_size=tamTotal;
+	paqueteRetorno.data=paquete;
+
+	return paqueteRetorno;
+
+}
+
 int sendall(int s, char *buf, int *len)
 {
     int total = 0;        // how many bytes we've sent
