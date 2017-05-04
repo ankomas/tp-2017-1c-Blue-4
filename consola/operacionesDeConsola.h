@@ -22,7 +22,7 @@ void iniciarProgramaAnsisop(char*);
 void menuDeControl();
 //pthread_t hiloPrograma;
 
-pthread_attr_t hiloPrincipalDetachable;
-pthread_t hiloPrincipal;
+//pthread_attr_t hiloPrincipalDetachable;
+//pthread_t hiloPrincipal;
 
 #endif /* OPERACIONESDECONSOLA_H_ */

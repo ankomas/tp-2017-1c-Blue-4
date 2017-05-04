@@ -291,6 +291,9 @@ char* serializar_msj(char* path,char codigoOp[1])
 
 
 
+
+
+
 /**
  * Gestiona el manejo de las conexiones con el kernel cada ves que se invoca y
  *
@@ -307,11 +310,14 @@ void gestionarProgramaAnsisop(dataHilos_t* dataHilo)
 	//int socket_kernel=dataHilo.socket;
 	char* pathPrograma=dataHilo->path;
 	printf("dataHilo.path: %s \n",dataHilo->path);
-	char* mensaje;
+	package_t mensaje;
+	uint32_t tamPath=strlen(pathPrograma);
+	printf("tam de path: %d \n",tamPath);
+	mensaje=serializar(2,11,"ahora funca");
+	printf("el mensaje enpaquetado es: %s \n",mensaje.data);
+	printf("el tamaño del mensaje enpaquetado es: %d \n",mensaje.data_size);
 	//char* lecturaDeProgramaAnsisop = leerProgramaAnsisop(pathPrograma);
-	char a = '2';
-	mensaje=serializar_msj("hola que hace",a);
-	printf("el paquete es: \n\n %s \n",mensaje);
+	//printf("el paquete es: \n\n %s \n",mensaje);
 	char* pid_programa;
 	uint32_t tamanio=1;
 	int envio=sendall(dataHilo->socketKernel,"A",&tamanio);

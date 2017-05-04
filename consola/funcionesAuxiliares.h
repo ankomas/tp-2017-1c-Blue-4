@@ -24,6 +24,7 @@
 #include "unistd.h"
 #include <commons/collections/list.h>
 #include <commons/string.h>
+#include <blue4-lib.h>
 
 
 void textoEnColor(char* ,int ,int );

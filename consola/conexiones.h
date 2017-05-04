@@ -16,12 +16,18 @@
 //int socket_kernel;
 
 #include <unistd.h>
+#include <inttypes.h>
 typedef struct{
 	char* ip;
 	int puerto_kernel;
 }datosConfig_t;
 
-
+/*
+typedef struct{
+	uint32_t data_size;
+	char* data;
+}package_t;
+*/
 struct data_socket crearSocket(int, char* );
 int enviarMensaje(int ,char*,int );
 int conectar(int , char* ,int);
