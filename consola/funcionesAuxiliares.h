@@ -19,13 +19,27 @@
 #define KWHT  "\x1B[37m"
 
 #include "string.h"
+#include "stdio.h"
 #include "hilos.h"
 #include "unistd.h"
+#include <commons/collections/list.h>
+#include <commons/string.h>
+
 
 void textoEnColor(char* ,int ,int );
 
-void gestionarProgramaAnsisop(dataHilos_t);
+void gestionarProgramaAnsisop(dataHilos_t*);
 
-int cerrarSocket(int );
+void eliminarRecursos(dataHilos_t* );
+dataHilos_t* buscaHiloPorPid(int );
+dataHilos_t* eliminarHiloDeListaPorPid(int );
+void eliminarHiloYrecursos(dataHilos_t* );
+char* leerProgramaAnsisop(char* );
+
+
+t_list* dataDeHilos;
+pthread_mutex_t mutexDataDeHilos;
+pthread_mutex_t mutexAListas;
+sem_t semaforo;
 
 #endif /* FUNCIONESAUXILIARES_H_ */

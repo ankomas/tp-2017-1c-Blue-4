@@ -9,18 +9,20 @@
 #define HILOS_H_
 
 #include <pthread.h>
+#include <semaphore.h>
 
-pthread_attr_t hiloDetachable;
-pthread_t hilo;
+//pthread_t hilo;
 
 typedef struct
 {
 	char* path;
-	int socket;
+	int socketKernel;
+	int pidHilo;
 	pthread_attr_t hiloPrograma;
+	pthread_t hilo;
 
 }dataHilos_t;
-int socket_kernel;
+//int socket_kernel;
 void crearHiloPrograma(char*);
 
 #endif /* HILOS_H_ */

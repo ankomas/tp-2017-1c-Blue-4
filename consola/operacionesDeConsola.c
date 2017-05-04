@@ -19,6 +19,8 @@ void iniciarProgramaAnsisop(char* pathProgramaAsisop)
 {
 	//pthread_t hiloPrograma;
 	//conectarseAlKernel();
+	printf("la ruta es : %s \n",pathProgramaAsisop);
+	//leerProgramaAnsisop(pathProgramaAsisop);
 	crearHiloPrograma(pathProgramaAsisop);
 	//sendall();
 }
@@ -28,15 +30,24 @@ void iniciarProgramaAnsisop(char* pathProgramaAsisop)
 void finalizarPrograma(int id)
 {
 	//void * estado;
-	socket_kernel=cerrarSocket(socket_kernel);
 
-	int numero=pthread_attr_destroy(&hiloDetachable);
-	if(numero)
+	//printf("el size de la lista es : %d \n",list_size(dataDeHilos));
+	//pthread_mutex_lock(&mutexDataDeHilos);// QUIZA NO VALLAN ESTOS MUTEX!!!
+	dataHilos_t* data = buscaHiloPorPid(id);
+	//pthread_mutex_unlock(&mutexDataDeHilos);
+
+	if(data==NULL)
 	{
-		textoEnColor("El programa NO finalizo exitosamente",0,0);
+		textoEnColor("el ID ingresado no es valido",0,0);
 		return;
 	}
-	textoEnColor("El programa finalizo exitosamente",0,0);
+	textoEnColor("El id Buscado es ",(*data).pidHilo,1);
+	//pthread_mutex_lock(&mutexAListas);
+
+	eliminarHiloYrecursos(data);
+	//pthread_mutex_unlock(&mutexAListas);
+	//eliminarHiloDeListaPorPid(data->pidHilo);
+	//printf("nuevo tam antes de cerrar 2: %d \n",list_size(dataDeHilos));
 
 }
 
@@ -75,7 +86,7 @@ void menuDeControl()
 	printf("1-IR AL MENU PRINCIPAL DE LA CONSOLA \n");
 	printf("2-MOSTRAR DATOS USADOS EN EL CONFIG \n");
 	printf("3-PARA SALIR \n\n");
-	printf("OPCION A ELEGIR:");
+	printf("OPCION A ELEGIR: \n");
 	scanf("%d",&opcion);
 
 	switch(opcion)
@@ -116,7 +127,7 @@ void menuDeControl()
 void crearMenuPrincipal()
 {
 	int opcion,id;
-	char* rutaPrograma=NULL;
+	char* rutaPrograma=malloc(100);
 
 	do{
 
@@ -136,7 +147,6 @@ void crearMenuPrincipal()
 				printf("Ingrese programa ANSISOP ");
 				scanf("%s",rutaPrograma);
 				printf("Iniciando programa ANSISOP..... \n\n");
-				//crearHiloPrograma(rutaPrograma);
 				iniciarProgramaAnsisop(rutaPrograma);
 				getchar();
 				break;

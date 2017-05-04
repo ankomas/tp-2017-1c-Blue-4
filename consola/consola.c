@@ -12,12 +12,24 @@
 #include<stdio.h>
 #include"operacionesDeConsola.h"
 #include "hilos.h"
+#include "funcionesAuxiliares.h"
+
+
+void inicializarEstructurasAdministrativas()
+{
+	dataDeHilos = list_create();
+	pthread_mutex_init(&mutexDataDeHilos,NULL);
+	pthread_mutex_init(&mutexAListas,NULL);
+	sem_init(&semaforo,0,0);
+
+}
+
 
 
 int main()
 {
 
-	//pthread_t hiloPrincipal;
+	inicializarEstructurasAdministrativas();
 	menuDeControl();
 	//pthread_create(&hiloPrincipal,NULL,(void*)crearMenuPrincipal,NULL);
 	//pthread_join(hiloPrincipal,NULL);
