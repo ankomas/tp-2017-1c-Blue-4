@@ -17,6 +17,7 @@ int marcos, tamMarco, entradasCache, cachePorProceso, retardo;
 int main(void) {
 
 	configurarTodo();
+	void* memoria = malloc(8192); //Se crea un gran frame
 	pthread_t hiloMostrarMenu;
 	pthread_create(&hiloMostrarMenu, NULL, (void *) mostrarMenuMemoria, NULL);
 	servidor(puerto);
