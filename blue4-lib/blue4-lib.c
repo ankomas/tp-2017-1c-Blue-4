@@ -29,7 +29,7 @@
 #define KCYN  "\x1B[36m"
 #define KWHT  "\x1B[37m"
 
-/* SOCKETS */
+/* SERIALIZAODR DESERIALIZADOR */
 
 package_t serializar(int numArgs, ...)
 {
@@ -80,6 +80,25 @@ package_t serializar(int numArgs, ...)
 	return paqueteRetorno;
 
 }
+
+package_t deserializar(uint32_t *pointer,char *stream){
+	uint32_t tam;
+	void* contenido;
+	package_t res;
+
+	memcpy(&tam,stream+*pointer,sizeof(uint32_t));
+	contenido=malloc(tam);
+	memcpy(contenido,stream+*pointer+sizeof(uint32_t),tam);
+
+	*pointer+=sizeof(uint32_t)+tam;
+
+	res.data=(char*)contenido;
+	res.data_size=tam;
+
+	return res;
+}
+
+/* SOCKETS */
 
 int sendall(uint32_t s, char *buf, uint32_t *len)
 {

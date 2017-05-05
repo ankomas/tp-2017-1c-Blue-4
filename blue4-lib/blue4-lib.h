@@ -47,12 +47,12 @@ typedef struct{
 	* luego los siguientes argumentos deben ser ingresados de la forma "tamanio,dato",
 	* quedando de la siguiente forma:
 	* serializador(cantidad_de_argumentos,tam1,dato1,tam2,dato2,.....)
-	* SIendo la firma la siguiente
+	* Siendo la firma la siguiente
 	* serializador(int args, uint32_t tam1,void* dato1,....)
 	* Retorno: Retorna una estructura del tipo package_t, que almacena el stream y
 	* su tamanio.
 	* Nota: Liberar paquete.data al terminar de utilizarlo.
-	* EJemplo:
+	* Ejemplo:
 	*
 	* 		uint32_t tam1,tam2,dato1;
 	* 		char* dato2;
@@ -61,6 +61,32 @@ typedef struct{
 	* 		res=serializador(4,tam1,&dato1,tam2,dato2);
 	*/
 	package_t serializar(int args, ...);
+
+	/**
+	* @NAME: deserializar
+	* @DESC: Obtiene un argumento dentro de un stream (con el formato de serializacion
+	* de "serializar").
+	* Uso: El primer argumento es un entero que indica donde empieza, dentro del stream,
+	* el dato que se desea obtener dentro del stream, este entero debe ser psado por
+	* referencia ya que la funcion lo actualizara al terminar su ejecucion, posicionandolo
+	* en el siguiente dato para su futuro uso.
+	* El segundo argumento es un Stream.
+	* Retorno: Retorna una estructura del tipo package_t, que almacena el dato y
+	* su tamanio.
+	* Nota: Liberar paquete.data al terminar de utilizarlo.
+	* Ejemplo:
+	*
+	*		uint32_t *dato1,puntero;
+	*		char* dato2
+	*		package_t dato2_p;
+	*		.....
+	*		dato1=(uint32_t*)deserializar(&puntero,package.data).data;
+	*
+	*		dato2_p=deserializar(&puntero,package.data);
+	*		dato2=malloc(dato2_p.data_size);
+	*		dato2=dato2_p.data;
+	*/
+	package_t deserializar(uint32_t *pointer,char *stream);
 
 	/**
 	* @NAME: assert
