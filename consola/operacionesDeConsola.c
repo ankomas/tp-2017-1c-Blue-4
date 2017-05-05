@@ -127,7 +127,7 @@ void menuDeControl()
 void crearMenuPrincipal()
 {
 	int opcion,id;
-	char* rutaPrograma=malloc(100);
+	char rutaPrograma[100];
 
 	do{
 

@@ -34,7 +34,7 @@ void crearHiloPrograma(char* pathProgramaAnsisop)
 	pthread_attr_init(&hiloDetachable);
 	pthread_attr_setdetachstate(&hiloDetachable,PTHREAD_CREATE_DETACHED);
 	// hacer que el hilo se conecte con el kernel y enviarle el codigo de un programa ANSISOP recibiendo de este un PID
-	//printf("el path antes de asignar es: %s \n",pathProgramaAnsisop);
+	printf("el path antes de asignar es: %s \n",pathProgramaAnsisop);
 	dataHilo->path=malloc(strlen(pathProgramaAnsisop)+1);
 	memset(dataHilo->path,'\0',strlen(pathProgramaAnsisop)+1);
 	memcpy(dataHilo->path,pathProgramaAnsisop,strlen(pathProgramaAnsisop));

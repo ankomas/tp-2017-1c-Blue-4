@@ -161,7 +161,7 @@ char* recibirPid(int socket_kernel)
 		// TODO averiguar si esta es la forma correcta de eliminar los recursos de este hilo si no pudo ser creado!!!
 		free(pid_programa);
 		close(socket_kernel);
-		pthread_exit(NULL);
+		//pthread_exit(NULL);
 		return NULL;
 	}
 	return pid_programa;
@@ -316,15 +316,22 @@ int enviarMensajeConCodigoDeOperacion(char codOp[1],int socket,package_t conteni
 			return -1;
 		}
 
-		/*
-		tamanio= sizeof(package_t);
-		envio=sendall(socket,&socket,&tamanio);
+
+		tamanio= sizeof(uint32_t);
+		envio=sendall(socket,(void*)&contenido.data_size,&tamanio);
 		if(envio<0)
 				{
 					printf("fallo el envio del mensaje \n");
 					return -1;
 				}
-		*/
+		tamanio=contenido.data_size;
+		envio=sendall(socket,contenido.data,&tamanio);
+		if(envio<0)
+						{
+							printf("fallo el envio del mensaje \n");
+							return -1;
+						}
+
 		return 0;
 }
 
@@ -342,18 +349,30 @@ void gestionarProgramaAnsisop(dataHilos_t* dataHilo)
 	package_t mensaje;
 
 	char* lecturaDeProgramaAnsisop = leerProgramaAnsisop(pathPrograma);
-	if(lecturaDeProgramaAnsisop!=NULL)
+	if(lecturaDeProgramaAnsisop==NULL)
 	{
+
+		free(dataHilo->path);
+		close(dataHilo->socketKernel);
+		free(dataHilo);
+		pthread_exit(NULL);
+		return;
+	//printf("el mensaje enpaquetado es: \n%s \n",mensaje.data+4);
+	//memcpy(&tamPath,mensaje.data,sizeof(uint32_t));
+	//printf("el tamaño del mensaje enpaquetado es: %d \n",tamPath);
+	}
+	//printf("el paquete es: \n\n %s \n",mensaje);
 	uint32_t tamPath=strlen(lecturaDeProgramaAnsisop);
 	printf("tam de path: %d \n",tamPath);
 	mensaje=serializar(2,tamPath,lecturaDeProgramaAnsisop);
-	printf("el mensaje enpaquetado es: \n%s \n",mensaje.data+4);
-	printf("el tamaño del mensaje enpaquetado es: %d \n",mensaje.data_size);
-	}
-	//printf("el paquete es: \n\n %s \n",mensaje);
 	int respuesta=enviarMensajeConCodigoDeOperacion("A",dataHilo->socketKernel,mensaje);
 	if(respuesta<0)
 	{
+		//TODO cerrar el hilo y liberar recursos
+		free(dataHilo->path);
+		close(dataHilo->socketKernel);
+		free(dataHilo);
+		pthread_exit(NULL);
 		return;
 	}
 	char* pid_programa;
@@ -363,6 +382,10 @@ void gestionarProgramaAnsisop(dataHilos_t* dataHilo)
 	if(pid_programa==NULL)
 	{
 		printf(" No se pudo recibir un pid \n");
+		free(dataHilo->path);
+		close(dataHilo->socketKernel);
+		free(dataHilo);
+		pthread_exit(NULL);
 		return;
 	}
 	dataHilo->pidHilo= atoi(pid_programa);
