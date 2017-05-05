@@ -11,6 +11,30 @@
 #include <stdint.h>
 #include <stdarg.h>
 
+typedef struct {
+	int tipo;
+	int tam;
+}header_t;
+
+/**
+ * @NAME: serializadorTom
+ * @DESC: envia un mensaje serializado
+ * @Uso: 	Parametro 1 (int socket), el socket al que le vamos a enviar el mensaje
+ * 			Parametro 2 (int tipo), el tipo de mensaje (mensaje, archivo, operacion)
+ * 			Parametro 3 (char* mensaje), los datos que se van a enviar
+ * 			Valor de Retorno: -1 para error, 0 para OK
+ */
+int serializadorTom(int, int, char*);
+
+/**
+ * @NAME: desSerializadorTom
+ * @DESC: recibe un mensaje serializado
+ * @Uso: 	Parametro 1 (int socket), el socket que nos va a enviar mensajes serializados
+ * 			Valor de Retorno: char* datos recibidos
+ */
+
+char* desSerializadorTom(int);
+
 typedef struct{
 	uint32_t data_size;
 	char* data;
