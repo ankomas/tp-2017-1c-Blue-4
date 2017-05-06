@@ -12,6 +12,7 @@
 
 char* puerto;
 int marcos, tamMarco, entradasCache, cachePorProceso, retardo;
+void* memoria;
 //esta es mi memoria (Si, Delegue!)
 
 int main(void) {

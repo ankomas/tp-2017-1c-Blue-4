@@ -15,8 +15,10 @@
 #include <netdb.h>
 
 #include <pthread.h>
-#include "blue4-lib.h"
+#include <blue4-lib.h>
 #include "memoria.h"
+#include "operacionesMemoria.h"
+#include "sockets.h"
 
 const char CONSOLA_ID = '1';
 const char KERNEL_ID = '2';
@@ -53,6 +55,42 @@ int handshakeHandler(int i){
 		if(sendall(i,charToString(UMC_ID),&tamHandshake) == 0)
 			printf("Handshake exitoso\n");
 		return 0;
+	}
+}
+
+uint32_t peticionMemoria(uint32_t socket)
+{
+	uint32_t tamanio, bytes, puntero = 0;
+	package_t paquete;
+	char* buffer;
+
+	bytes = recv(socket,&tamanio, 4,0);
+	if(bytes != 4)
+		return -1;
+
+	buffer = malloc(tamanio);
+	bytes = recv(socket,buffer, tamanio,0);
+	if(bytes != tamanio)
+		return -1;
+
+	paquete = deserializar(&puntero, buffer);
+	bytes =*(uint32_t *)paquete.data;
+
+	printf("Se van a reservar %i bytes de memoria para el socket %i\n", bytes, socket);
+
+	//reservarMemoria(bytes);
+
+	free(paquete.data);
+	free(buffer);
+	return 0;
+}
+
+void operacionesMemoria(char* cop, int socket)
+{
+	printf("LLEGUE A OPERACIONES MEMORIA con %c\n", cop[0]);
+	switch(cop[0])
+	{
+	case 'a': peticionMemoria(socket); break;
 	}
 }
 
@@ -128,79 +166,76 @@ int servidor()
     fdmax = listener; // so far, it's this one
 
     // main loop
-    for(;;) {
-        read_fds = master; // copy it
-        if (select(fdmax+1, &read_fds, NULL, NULL, NULL) == -1) {
-            perror("select");
-            exit(4);
-        }
+	while (1) {
+		read_fds = master; // copy it
+		if (select(fdmax + 1, &read_fds, NULL, NULL, NULL) == -1) {
+			perror("select");
+			exit(4);
+		}
 
-        // run through the existing connections looking for data to read
-        for(i = 0; i <= fdmax; i++) {
-            if (FD_ISSET(i, &read_fds)) { // we got one!!
-                if (i == listener) {
-                    // handle new connections
-                    addrlen = sizeof remoteaddr;
-					newfd = accept(listener,
-						(struct sockaddr *)&remoteaddr,
-						&addrlen);
+		// run through the existing connections looking for data to read
+		for (i = 0; i <= fdmax; i++) {
+			if (FD_ISSET(i, &read_fds)) { // we got one!!
+				if (i == listener) {
+					// handle new connections
+					addrlen = sizeof remoteaddr;
+					newfd = accept(listener, (struct sockaddr *) &remoteaddr,&addrlen);
 
 					if (newfd == -1) {
 						perror("accept");
 					} else {
-							FD_SET(newfd, &master); // add to master set
-							if (newfd > fdmax) {    // keep track of the max
-								fdmax = newfd;
-							}
-							printf("selectserver: new connection from %s on "
+						FD_SET(newfd, &master); // add to master set
+						if (newfd > fdmax) {    // keep track of the max
+							fdmax = newfd;
+						}
+						printf("selectserver: new connection from %s on "
 								"socket %d\n",
 								inet_ntop(remoteaddr.ss_family,
-									get_in_addr((struct sockaddr*)&remoteaddr),
-									remoteIP, INET6_ADDRSTRLEN),
-								newfd);
-						if(handshakeHandler(newfd) == -1){
-							send(newfd,"0",1,0);
+										get_in_addr(
+												(struct sockaddr*) &remoteaddr),
+										remoteIP, INET6_ADDRSTRLEN), newfd);
+						if (handshakeHandler(newfd) == -1) {
+							send(newfd, "0", 1, 0);
 							//close(i);
 						}
 
 					}
 
+				} else {
+					// handle data from a client
+					if ((nbytes = recv(i, buf, 1, 0)) <= 0) {
 
-                } else {
-                    // handle data from a client
-                    if ((nbytes = recv(i, buf, sizeof buf,0)) <= 0) {
+						//queue_push(procesosNEW, 2);
 
-                    	//queue_push(procesosNEW, 2);
-
-                    	// umc =
-
-                        // got error or connection closed by client
-                        if (nbytes == 0) {
-                            // connection closed
-                            printf("selectserver: socket %d hung up\n", i);
-                        } else {
-                            perror("recv");
-                        }
-                        close(i); // bye!
-                        FD_CLR(i, &master); // remove from master set
-                    } else {
-                        // we got some data from a client
-                        for(j = 0; j <= fdmax; j++) {
-                            // send to everyone!
-                            if (FD_ISSET(j, &master)) {
-                                // except the listener and ourselves
-                                if (j != listener && j != i) {
-                                    if (sendall(j, buf, (int*)nbytes) == -1) {
-                                        perror("send");
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } // END handle data from client
-            } // END got new incoming connection
-        } // END looping through file descriptors
-    } // END for(;;)--and you thought it would never end!
+						// umc =
+						// got error or connection closed by client
+						if (nbytes == 0) {
+							// connection closed
+							printf("selectserver: socket %d hung up\n", i);
+						} else {
+							perror("recv");
+						}
+						close(i); // bye!
+						FD_CLR(i, &master); // remove from master set
+					} else {
+						operacionesMemoria(buf,i);
+						// we got some data from a client
+						for (j = 0; j <= fdmax; j++) {
+							// send to everyone!
+							if (FD_ISSET(j, &master)) {
+								// except the listener and ourselves
+								if (j != listener && j != i) {
+									if (sendall(j, buf, (int*) nbytes) == -1) {
+										perror("send");
+									}
+								}
+							}
+						}
+					}
+				} // END handle data from client
+			} // END got new incoming connection
+		} // END looping through file descriptors
+	} // END for(;;)--and you thought it would never end!
 
     return 0;
 }

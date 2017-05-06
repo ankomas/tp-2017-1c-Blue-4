@@ -10,6 +10,7 @@
 
 extern char* puerto;
 extern int marcos, tamMarco, entradasCache, cachePorProceso, retardo;
+extern void* memoria;
 
 
 void mostrarMenuMemoria();
