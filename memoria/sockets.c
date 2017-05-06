@@ -63,14 +63,11 @@ uint32_t peticionMemoria(uint32_t socket)
 	uint32_t tamanio, bytes, puntero = 0;
 	package_t paquete;
 	char* buffer;
-
-	bytes = recv(socket,&tamanio, 4,0);
-	if(bytes != 4)
+	if(recv(socket,&tamanio, 4,0) != 4)
 		return -1;
 
 	buffer = malloc(tamanio);
-	bytes = recv(socket,buffer, tamanio,0);
-	if(bytes != tamanio)
+	if(recv(socket,buffer, tamanio,0) != tamanio)
 		return -1;
 
 	paquete = deserializar(&puntero, buffer);
@@ -90,7 +87,7 @@ void operacionesMemoria(char* cop, int socket)
 	printf("LLEGUE A OPERACIONES MEMORIA con %c\n", cop[0]);
 	switch(cop[0])
 	{
-	case 'a': peticionMemoria(socket); break;
+	case 'A': peticionMemoria(socket); break;
 	}
 }
 

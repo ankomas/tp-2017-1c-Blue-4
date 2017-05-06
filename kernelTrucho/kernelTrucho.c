@@ -69,15 +69,13 @@ int conectarseA(char* puerto, char* ip)
 	return serverSocket;
 }
 
-void flocasend(uint32_t i) {
+void solicitarMemoria(uint32_t i, uint32_t data) {
 	package_t paquete;
-	uint32_t data, bytes=-1, contador=1;
-
-	data = 9999;
+	uint32_t bytes=-1, contador=1;
 
 	paquete = serializar(2, sizeof(uint32_t), &data);
 
-	bytes = send(i, "a", 1, 0);
+	bytes = send(i, "A", 1, 0);
 	printf("envie %i bytes en el %i send\n", bytes, contador++);
 	bytes = send(i, &paquete.data_size, sizeof(uint32_t), 0);
 	printf("envie %i bytes en el %i send\n", bytes, contador++);
@@ -108,8 +106,8 @@ int main()
 	uint32_t socket = conectarseA("8085", IPDEFECTO);
 	handshake(socket);
 	printf("socket = %i\n", socket);
-	flocasend(socket);
-	enviarMensajesDelTeclado(socket);
+	solicitarMemoria(socket, 256);
+	//enviarMensajesDelTeclado(socket);
 
 	close(socket);
 	return 0;
