@@ -154,13 +154,14 @@ char* recibirPid(int socket_kernel)
 	memset(pid_programa,'\0',4);
 
 	recv(socket_kernel,pid_programa,4,MSG_WAITALL);
+	//printf("el pid que recibo del kernel es: %s \n",pid_programa);
 
 	if(strcmp(pid_programa,"N")==0)
 	{
 		textoEnColor("El programa NO puede ser iniciado ",0,0);
 		// TODO averiguar si esta es la forma correcta de eliminar los recursos de este hilo si no pudo ser creado!!!
 		free(pid_programa);
-		close(socket_kernel);
+		//close(socket_kernel);
 		//pthread_exit(NULL);
 		return NULL;
 	}
@@ -379,6 +380,7 @@ void gestionarProgramaAnsisop(dataHilos_t* dataHilo)
 
 
 	pid_programa=recibirPid(dataHilo->socketKernel);
+	printf("pid_programa: %s \n",pid_programa);
 	if(pid_programa==NULL)
 	{
 		printf(" No se pudo recibir un pid \n");
