@@ -15,6 +15,7 @@
 #include <netdb.h>
 
 #include <pthread.h>
+#include <blue4-lib.h>
 
 #include "main.h"
 
@@ -393,6 +394,9 @@ int servidor(void)
 									nuevoProceso->tablaArchivos = NULL;
 									nuevoProceso->quantumRestante = 0;
 									queue_push(procesosREADY,nuevoProceso);
+									if(solicitarMemoria(idUMC, pidActual) < 0){
+										log_error(logger,"ERROR, el kernel no pudo solicitar memoria correctamente");
+									}
 									pidActual++;
 									cantidadProgramasEnSistema++;
 								}else{
@@ -402,7 +406,6 @@ int servidor(void)
 								}
 							}
 							// FIN ENVIO DE PID
-
 
                     	// FIN FUNCIONES MANEJADORAS
 

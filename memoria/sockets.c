@@ -63,16 +63,21 @@ uint32_t peticionMemoria(uint32_t socket)
 	uint32_t tamanio, bytes, puntero = 0;
 	package_t paquete;
 	char* buffer;
-	if(recv(socket,&tamanio, 4,0) != 4)
+	if(recv(socket,&tamanio, 4,0) != 4){
+		send(socket,"N",1,0);
 		return -1;
+	}
 
 	buffer = malloc(tamanio);
-	if(recv(socket,buffer, tamanio,0) != tamanio)
+	if(recv(socket,buffer, tamanio,0) != tamanio){
+		send(socket,"N",1,0);
 		return -1;
+	}
 
 	paquete = deserializar(&puntero, buffer);
 	bytes =*(uint32_t *)paquete.data;
 
+	send(socket,"Y",1,0);
 	printf("Se van a reservar %i bytes de memoria para el socket %i\n", bytes, socket);
 
 	//reservarMemoria(bytes);
