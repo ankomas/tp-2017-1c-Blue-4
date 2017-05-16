@@ -8,17 +8,16 @@
 #include <pthread.h>
 #include "configuraciones.h"
 #include "menuMemoria.h"
+#include "operacionesMemoria.h"
 #include "memoria.h"
 
 char* puerto;
 int marcos, tamMarco, entradasCache, cachePorProceso, retardo;
-void* memoria;
-//esta es mi memoria (Si, Delegue!)
 
 int main(void) {
 
 	configurarTodo();
-	void* memoria = malloc(8192); //Se crea un gran frame
+	inicializarMemoria();
 	pthread_t hiloMostrarMenu;
 	pthread_create(&hiloMostrarMenu, NULL, (void *) mostrarMenuMemoria, NULL);
 	servidor(puerto);
