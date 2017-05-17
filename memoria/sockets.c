@@ -19,6 +19,7 @@
 #include "memoria.h"
 #include "operacionesMemoria.h"
 #include "sockets.h"
+#include "configuraciones.h"
 
 const char CONSOLA_ID = '1';
 const char KERNEL_ID = '2';
@@ -125,7 +126,7 @@ int servidor()
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
-	if ((rv = getaddrinfo(NULL, puerto, &hints, &ai)) != 0) {
+	if ((rv = getaddrinfo(NULL, configDeMemoria.puerto, &hints, &ai)) != 0) {
 		fprintf(stderr, "selectserver: %s\n", gai_strerror(rv));
 		exit(1);
 	}

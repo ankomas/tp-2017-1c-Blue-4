@@ -17,11 +17,11 @@
 void modificarRetardo()
 {
 	int nuevoRetardo;
-	printf("El retardo actual es: %i ms\n", retardo);
+	printf("El retardo actual es: %i ms\n", configDeMemoria.retardo);
 	printf("Ingrese el nuevo retardo en ms\n");
 	scanf("%i", &nuevoRetardo);
-	retardo = nuevoRetardo;
-	printf("El nuevo Retardo es: %i\n", retardo);
+	configDeMemoria.retardo = nuevoRetardo;
+	printf("El nuevo Retardo es: %i\n", configDeMemoria.retardo);
 }
 
 void dumpMenu()
