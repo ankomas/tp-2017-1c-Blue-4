@@ -21,18 +21,50 @@
 #include <pthread.h>
 #include "configuraciones.h"
 
-/*
- ===============================================================================================
- Name        : PaginacionInvertida.c
- Author      : Tom
- Version     : 1.0
- Copyright   : Your copyright notice
- Description : La paginacion invertida!
- ===============================================================================================
- */
-
-
 void* memoria;
+
+
+void cargarCodigo(uint32_t marco, uint32_t pagina, void* codigo){
+	memcpy(memoria+marco*configDeMemoria.tamMarco,
+		   codigo+pagina*configDeMemoria.tamMarco,
+			configDeMemoria.tamMarco);
+}
+
+void actualizarTablaDePaginas(uint32_t pid, uint32_t paginasRequeridas,void* codigo){
+	tablaPaginas_t *tablaDePaginas = ObtenerTablaDePaginas();
+	//delegar
+	unsigned marco,pagina = 0;
+	for(marco = 0; marco < configDeMemoria.marcos ; marco++){
+		//delegar
+		if(tablaDePaginas[marco].pid == -2){
+			tablaDePaginas[marco].pid= pid;
+			tablaDePaginas[marco].pagina = pagina;
+			cargarCodigo(marco,pagina,codigo);
+			pagina++;
+		}
+		//
+		if(pagina == paginasRequeridas){
+			actualizarMarcosDisponibles(paginasRequeridas);
+			return;
+		}
+	}
+	//
+
+}
+int marcosSuficientes(int paginasRequeridas){
+	return paginasRequeridas <= configDeMemoria.marcosDisponibles;
+}
+
+void inicializarPrograma(uint32_t pid,uint32_t paginasRequeridas, void* codigo){
+	if(marcosSuficientes(paginasRequeridas)){
+		//pthread_mutex_lock(mutexeameGil);
+		actualizarTablaDePaginas(pid,paginasRequeridas,codigo);
+		//pthread_mutex_unlock(desmutexeameGil)
+	}
+	else{
+		// mandarle error al nucleo!!
+	}
+}
 
 void asignarTamanioAMemoria(){
 	memoria = calloc(configDeMemoria.marcos,configDeMemoria.tamMarco);
@@ -42,7 +74,7 @@ void inicializarTablaDePaginas(tablaPaginas_t* tablaDePaginas){
 	uint32_t marco;
 	for(marco = 0; marco < configDeMemoria.marcos ; marco ++){
 		tablaDePaginas[marco].pid = -2;
-		tablaDePaginas[marco].pagina = -1;
+		tablaDePaginas[marco].pagina = marco;
 	}
 	return;
 }
@@ -89,7 +121,7 @@ void inicializarMemoria(){
 	asignarTamanioAMemoria();
 	cargarTablaDePaginasAMemoria();
 }
-
+/* que carajo estas haciendo
 bloque_t* cargarBloque(bloque_t* bloque,uint32_t tamanio, void* datos){
 	bloque->header.tam = tamanio;
 	bloque->header.disp = '1';
@@ -113,7 +145,7 @@ uint32_t cargarAMemoria(uint32_t tamanio ,void* datos, uint32_t marco){ //Todavi
 	memcpy(memoria+(marco*configDeMemoria.tamMarco), bloque, sizeof(headerB_t) + sizeof(datos));
 	free(bloque);
 	return 0;
-}
+}*/
 
 void mostrarTabla(){
 	int i;
@@ -126,7 +158,7 @@ void mostrarTabla(){
 }
 
 void mostrarDeMemoria(uint32_t marco){
-	//Tiene aritmetica de punteros hasta la muerte! hay que trabajar todo memoria asi? :/
+	//Tiene aritmetica de punteros hasta la muerte! hay que trabajar todo memoria asi? :/ si pelotudo
 	uint32_t carry = 0;
 	uint32_t* leer;
 	void* mostrar;
