@@ -48,12 +48,21 @@ void dumpContenidoM() {};
 void flush() {};
 void memorySize() {};
 void PIDSize() {};
+void cantRunAway(){
+	system("clear");
+	printf("	Saliendo de memoria...\n");
+	sleep(4);
+	printf("\n\n	TE LA CREISTE WE XDXD \n\n\n");
+	sleep(2);
+	printf("\n\n	Nah, enserio, no podes irte!\n");
+}
 
 void mostrarMenuMemoria() {
 	int opcion;
 	while(1)
 	{
-		printf(	"\nIngrese un comando:\n"
+		system("clear");
+		printf(	"Ingrese un comando:\n"
 				"Modificar el retardo: Presione 1\n"
 				"Reportar estado actual: Presione 2\n"
 				"Limpiar el contenido de la cache: Presione 3\n"
@@ -68,8 +77,9 @@ void mostrarMenuMemoria() {
 		case 3: flush(); break;
 		case 4: memorySize(); break;
 		case 5: PIDSize(); break;
+		case 6: cantRunAway();
 		}
-		if(opcion == 6)
-			break;
+		printf("Presione enter para continuar");
+		while ( getchar() != '\n');
 	}
 }
