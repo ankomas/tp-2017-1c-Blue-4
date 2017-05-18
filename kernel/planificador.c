@@ -13,6 +13,15 @@
 
 char *algoritmoPlanificador;
 
+void encolarReady(t_programa* nuevoProceso){
+	//Para encolarlo a Ready hay que tener suficiente memoria
+	//TODO solicitar memoria deberia pasarle el mensaje entero, no el pid
+	if(solicitarMemoria(idUMC, nuevoProceso->id) < 0){
+		log_error(logger,"ERROR, el kernel no pudo solicitar memoria correctamente");
+	} else {
+		queue_push(procesosREADY,nuevoProceso);
+	}
+}
 
 t_cpu* indiceProximaCPULibre(){
 	int indice = 0;

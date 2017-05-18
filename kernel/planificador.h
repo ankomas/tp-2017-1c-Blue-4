@@ -10,6 +10,7 @@
 #include "commons/collections/queue.h"
 #include <stdint.h>
 
+extern t_queue * procesosNEW;
 extern t_queue * procesosREADY;
 extern t_queue * procesosEXEC;
 extern t_queue * procesosBLOCK;

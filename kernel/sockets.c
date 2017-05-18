@@ -169,9 +169,9 @@ int handshakeHandler(int i){
 	uint32_t tamHandshake = 1;
 	if(recvall(i, bufHandshake, sizeof bufHandshake) == 0){
 		if(bufHandshake[0] == CONSOLA_ID){
-			t_consola * nuevaCONSOLA = malloc(sizeof(nuevaCONSOLA));
-			nuevaCONSOLA->id = i;
-			list_add(CONSOLAs,nuevaCONSOLA);
+			t_programa * nuevoPROGRAMA = malloc(sizeof(nuevoPROGRAMA));
+			nuevoPROGRAMA->id = i;
+			list_add(PROGRAMAs,nuevoPROGRAMA);
 			reconozcoCliente = 1;
 		}else if(bufHandshake[0] == CPU_ID){
 			t_cpu * nuevaCPU = malloc(sizeof(nuevaCPU));
@@ -198,20 +198,18 @@ int handshakeHandler(int i){
 	}
 }
 
-void eliminarSiHayCONSOLAs(int i) {
-	if(!list_is_empty(CONSOLAs)){
+void eliminarSiHayPROGRAMAs(int i) {
+	if(!list_is_empty(PROGRAMAs)){
 		int aux = 0;
-		t_consola *consolaAux = list_get(CONSOLAs,aux);
-		while (consolaAux->id != i && aux < list_size(CONSOLAs)){
-			consolaAux = list_get(CONSOLAs,aux);
+		t_programa *programaAux = list_get(PROGRAMAs,aux);
+		while (programaAux->id != i && aux < list_size(PROGRAMAs)){
+			programaAux = list_get(PROGRAMAs,aux);
 			aux++;
-			//testi(consolaAux->id);
 		}
 
-		if(consolaAux->id == i){
-			//testi(consolaAux->id);
-			list_remove(CONSOLAs, aux);
-			log_trace(logger,"Consola eliminada");
+		if(programaAux->id == i){
+			list_remove(PROGRAMAs, aux);
+			log_trace(logger,"Programa eliminado");
 		}
 	}
 
@@ -244,7 +242,7 @@ void liberarRecursos(int i,int codigoError){
 	} else{
 		//Busco a ver si es una cpu o consola
 		eliminarSiHayCPU(i);
-		eliminarSiHayCONSOLAs(i);
+		eliminarSiHayPROGRAMAs(i);
 	}
 }
 
@@ -382,28 +380,28 @@ int servidor(void)
 							// ENVIO DE PID
 							if(buf[0] == 'A'){
 								//Envio PID
+								enviarPID(i);
+								// Los procesos New no estan modelados,porque depende del grado de multiprogramacion
+								t_pcb * nuevoProceso = malloc(sizeof(t_pcb));
+								nuevoProceso->pid=pidActual;
+								nuevoProceso->cantidadPaginasAsignadas = 0;
+								nuevoProceso->exitCode = 0;
+								nuevoProceso->pc=0;
+								nuevoProceso->posicionStack = NULL;
+								nuevoProceso->tablaArchivos = NULL;
+								nuevoProceso->quantumRestante = 0;
+
 								if(gradoMultiprogramacion >= cantidadProgramasEnSistema){
-									enviarPID(i);
-									// Los procesos New no estan modelados,porque depende del grado de multiprogramacion
-									t_pcb * nuevoProceso = malloc(sizeof(t_pcb));
-									nuevoProceso->pid=pidActual;
-									nuevoProceso->cantidadPaginasAsignadas = 0;
-									nuevoProceso->exitCode = 0;
-									nuevoProceso->pc=0;
-									nuevoProceso->posicionStack = NULL;
-									nuevoProceso->tablaArchivos = NULL;
-									nuevoProceso->quantumRestante = 0;
-									queue_push(procesosREADY,nuevoProceso);
-									if(solicitarMemoria(idUMC, pidActual) < 0){
-										log_error(logger,"ERROR, el kernel no pudo solicitar memoria correctamente");
-									}
-									pidActual++;
-									cantidadProgramasEnSistema++;
+									encolarReady(nuevoProceso);
 								}else{
-									if(send(i,"N",1,0) < 1)
-										log_error(logger,"ERROR, el kernel no le pudo enviar el mensaje de que no es posible crear un nuevo programa");
-									log_info(logger,"No se pueden aceptar mas programas debido al grado de multiprogramacion definido.");
+									/*if(send(i,"N",1,0) < 1)
+										log_error(logger,"ERROR, el kernel no le pudo enviar el mensaje de que no es posible crear un nuevo programa");*/
+									queue_push(procesosNEW,nuevoProceso);
+									log_info(logger,"No se pueden aceptar mas programas debido al grado de multiprogramacion definido. Encolando en NEW...");
 								}
+								pidActual++;
+								cantidadProgramasEnSistema++;
+
 							}
 							// FIN ENVIO DE PID
 

@@ -20,7 +20,7 @@
 #include "planificador.h"
 
 extern int cantidadProgramasEnSistema,idFS,idUMC,gradoMultiprogramacion,retardo,quantum;
-extern t_list * CONSOLAs;
+extern t_list * PROGRAMAs;
 extern t_list* CPUs;
 
 
@@ -31,10 +31,10 @@ typedef struct t_cpu {
 	pthread_t hilo;
 } t_cpu;
 
-typedef struct t_consola {
+typedef struct t_programa {
 	uint32_t id;
-	bool disponible;
-} t_consola;
+	void* t_tcb;
+} t_programa;
 
 extern t_log* logger;
 

@@ -29,8 +29,9 @@ int idUMC;
 
 pthread_t hiloPlanificador,hiloConsolaKernel;
 
-t_list * CONSOLAs;
+t_list * PROGRAMAs;
 t_list * CPUs;
+t_queue * procesosNEW;
 t_queue * procesosREADY;
 t_queue * procesosEXEC;
 t_queue * procesosBLOCK;
@@ -42,7 +43,7 @@ void inicializarDatos(){
 	logger = log_create("logger.log",rutaAbsolutaDe("Debug/kernel"),false,LOG_LEVEL_TRACE);
 	log_trace(logger,"Iniciando Kernel...");
 
-	CONSOLAs = list_create();
+	PROGRAMAs = list_create();
 	CPUs = list_create();
 
 	cantidadProgramasEnSistema = 0;
@@ -64,6 +65,7 @@ void inicializarDatos(){
 		log_trace(logger,"Conexion establecida con la Memoria");
 	}
 
+	procesosNEW = queue_create();
 	procesosREADY = queue_create();
 	procesosEXEC = queue_create();
 	procesosBLOCK = queue_create();
