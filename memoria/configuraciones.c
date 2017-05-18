@@ -25,6 +25,7 @@ t_configMemoria obtenerDataConfig()
 	configMemoria.entradasCache = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"), "ENTRADAS_CACHE");
 	configMemoria.cachePorProceso = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"), "CACHE_X_PROC");
 	configMemoria.retardo = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"), "RETARDO_MEMORIA");
+	configMemoria.marcosDisponibles= configMemoria.marcos;
 
 	system("clear");
 	printf("Bienvenido a la memoria!\n\n");

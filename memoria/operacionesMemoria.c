@@ -51,6 +51,17 @@ tablaPaginas_t* crearTablaDePaginas(){
 	inicializarTablaDePaginas(tablaDePaginas);
 	return tablaDePaginas;
 }
+
+int actualizarMarcosDisponibles(int marcosAUsar)
+{
+	if((configDeMemoria.marcosDisponibles-marcosAUsar)>0)
+	{
+		configDeMemoria.marcosDisponibles-=marcosAUsar;
+		return 0;
+	}
+	return -1;
+}
+
 int cuantosMarcosRepresenta(int unTamanio){
 	tamMarco=configDeMemoria.tamMarco;
 	if(unTamanio % tamMarco)
@@ -98,6 +109,7 @@ uint32_t cargarAMemoria(uint32_t tamanio ,void* datos, uint32_t marco){ //Todavi
 		printf("Error al cargar, tamaño > bloque");
 		return -1;
 	}
+
 	memcpy(memoria+(marco*configDeMemoria.tamMarco), bloque, sizeof(headerB_t) + sizeof(datos));
 	free(bloque);
 	return 0;
@@ -120,9 +132,11 @@ void mostrarDeMemoria(uint32_t marco){
 	void* mostrar;
 	tamMarco=configDeMemoria.tamMarco;
 	while((carry) < tamMarco){
-		memcpy(leer, (memoria+(marco*tamMarco)+carry+2), sizeof(uint32_t) );
+		memcpy(leer, (memoria+(marco*tamMarco)+carry+1), sizeof(uint32_t) );
 		printf("Leer es: %d", *leer);
-		if((memoria+(marco*tamMarco)+carry + 1) == '1'){
+		if((memoria+(marco*tamMarco)+carry ) == '1'){
+			mostrar= malloc(*leer+1);
+			memset(mostrar,'\0',*leer+1);
 			memcpy(mostrar, (memoria+(marco*tamMarco)+carry+5), leer);
 			printf("con el carry %d se ve leer%s\n", carry ,mostrar);
 		}else {
