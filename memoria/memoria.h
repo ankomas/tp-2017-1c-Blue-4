@@ -8,8 +8,8 @@
 #ifndef MEMORIA_H_
 #define MEMORIA_H_
 
-extern char* puerto;
-extern int marcos, tamMarco, entradasCache, cachePorProceso, retardo;
+
+pthread_t mutex_tabla, mutex_memoria;
 
 typedef struct {
 	uint32_t pid;

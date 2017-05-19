@@ -1,10 +1,3 @@
-/*
- * operacionesMemoria.c
- *
- *  Created on: 5/5/2017
- *      Author: utnso
- */
-
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -23,50 +16,58 @@
 #include "estructurasAdministrativas.h"
 
 
- tablaPaginas_t* ObtenerTablaDePaginas()
- {
-
+ tablaPaginas_t* obtenerTablaDePaginas(){ //Requiere hacer free
+	 tablaPaginas_t* tablaDePaginas;
+	 int marcosALeer = cuantosMarcosRepresenta(sizeof(tablaPaginas_t)*configDeMemoria.marcos);
+	 tablaDePaginas = malloc(marcosALeer);
+	 memcpy(tablaDePaginas, memoria, marcosALeer);
+	 return tablaDePaginas;
  }
+
 void cargarCodigo(uint32_t marco, uint32_t pagina, void* codigo){
+	//pthread_mutex_lock(mutexMemoria);
 	memcpy(memoria+marco*configDeMemoria.tamMarco,
 		   codigo+pagina*configDeMemoria.tamMarco,
 			configDeMemoria.tamMarco);
+	//pthread_mutex_unlock(mutexMemoria);
 }
 
-void actualizarTablaDePaginas(uint32_t pid, uint32_t paginasRequeridas,void* codigo){
-	tablaPaginas_t *tablaDePaginas = ObtenerTablaDePaginas();
-	//delegar
-	unsigned marco,pagina = 0;
-	for(marco = 0; marco < configDeMemoria.marcos ; marco++){
-		//delegar
+
+
+void cargarPaginaA(tablaPaginas_t *tablaDePaginas,uint32_t pid, uint32_t pagina, unsigned marco){
+	tablaDePaginas[marco].pid= pid;
+	tablaDePaginas[marco].pagina = pagina;
+	return;
+}
+void guardaProcesoEn(tablaPaginas_t *tablaDePaginas, uint32_t pid, uint32_t paginasRequeridas,void* codigo){
+	unsigned marco = 0,pagina = 0;
+	while(pagina < paginasRequeridas){
 		if(tablaDePaginas[marco].pid == -2){
-			tablaDePaginas[marco].pid= pid;
-			tablaDePaginas[marco].pagina = pagina;
+			cargarPaginaA(tablaDePaginas,pid,pagina,marco);
 			cargarCodigo(marco,pagina,codigo);
 			pagina++;
 		}
-		//
-		if(pagina == paginasRequeridas){
-			actualizarMarcosDisponibles(paginasRequeridas);
-			return;
-		}
+		marco++;
 	}
-	//
-
 }
-int marcosSuficientes(int paginasRequeridas){
+void agregarNuevoProceso(uint32_t pid, uint32_t paginasRequeridas,void* codigo){
+	tablaPaginas_t *tablaDePaginas = obtenerTablaDePaginas();
+	guardaProcesoEn(tablaDePaginas,pid,paginasRequeridas,codigo);
+	actualizarMarcosDisponibles(paginasRequeridas);
+	free(tablaDePaginas);
+}
+
+int tieneMarcosSuficientes(int paginasRequeridas){
 	return paginasRequeridas <= configDeMemoria.marcosDisponibles;
 }
 
 void inicializarPrograma(uint32_t pid,uint32_t paginasRequeridas, void* codigo){
-	if(marcosSuficientes(paginasRequeridas)){
+	if(tieneMarcosSuficientes(paginasRequeridas)){
 		//pthread_mutex_lock(mutexeameGil);
-		actualizarTablaDePaginas(pid,paginasRequeridas,codigo);
+		agregarNuevoProceso(pid,paginasRequeridas,codigo);
 		//pthread_mutex_unlock(desmutexeameGil)
 	}
 	else{
-		// mandarle error al nucleo!!
+		// mandarle error al nucleo!! send(sos un boludo y no tenes espacio)
 	}
 }
-
-

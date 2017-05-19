@@ -34,4 +34,13 @@ void mostrarDeMemoria(uint32_t);
  */
 int actualizarMarcosDisponibles(int );
 
+
+/**
+ * Cant de marcos que requiere una cant de memoria
+ * @Parametro: Tamaño
+ * @Valor de Retorno: Entero
+ */
+int cuantosMarcosRepresenta(int);
+
+
 #endif /* ESTRUCTURASADMINISTRATIVAS_H_ */

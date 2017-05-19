@@ -51,7 +51,7 @@ int actualizarMarcosDisponibles(int marcosAUsar)
 }
 
 int cuantosMarcosRepresenta(int unTamanio){
-	tamMarco=configDeMemoria.tamMarco;
+	int tamMarco=configDeMemoria.tamMarco;
 	if(unTamanio % tamMarco)
 		return unTamanio/tamMarco + 1;
 	else
@@ -118,7 +118,7 @@ void mostrarDeMemoria(uint32_t marco){
 	uint32_t carry = 0;
 	uint32_t* leer;
 	void* mostrar;
-	tamMarco=configDeMemoria.tamMarco;
+	int tamMarco=configDeMemoria.tamMarco;
 	while((carry) < tamMarco){
 		memcpy(leer, (memoria+(marco*tamMarco)+carry+1), sizeof(uint32_t) );
 		printf("Leer es: %d", *leer);
