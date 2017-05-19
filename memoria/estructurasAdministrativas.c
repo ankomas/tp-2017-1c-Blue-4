@@ -44,7 +44,9 @@ int actualizarMarcosDisponibles(int marcosAUsar)
 {
 	if((configDeMemoria.marcosDisponibles-marcosAUsar)>0)
 	{
+		printf("marcos antes de actualizar : %d \n",configDeMemoria.marcosDisponibles);
 		configDeMemoria.marcosDisponibles-=marcosAUsar;
+		printf("marcos actualizados : %d \n",configDeMemoria.marcosDisponibles);
 		return 0;
 	}
 	return -1;

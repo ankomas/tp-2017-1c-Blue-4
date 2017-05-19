@@ -29,6 +29,7 @@ void cargarCodigo(uint32_t marco, uint32_t pagina, void* codigo){
 	memcpy(memoria+marco*configDeMemoria.tamMarco,
 		   codigo+pagina*configDeMemoria.tamMarco,
 			configDeMemoria.tamMarco);
+	printf("cargue en memoria : %s \n",codigo);
 	//pthread_mutex_unlock(mutexMemoria);
 }
 
@@ -36,7 +37,9 @@ void cargarCodigo(uint32_t marco, uint32_t pagina, void* codigo){
 
 void cargarPaginaA(tablaPaginas_t *tablaDePaginas,uint32_t pid, uint32_t pagina, unsigned marco){
 	tablaDePaginas[marco].pid= pid;
+	printf("cargue el pid : %d \n",pid);
 	tablaDePaginas[marco].pagina = pagina;
+	printf("cargue la pagina : %d \n",pagina);
 	return;
 }
 void guardaProcesoEn(tablaPaginas_t *tablaDePaginas, uint32_t pid, uint32_t paginasRequeridas,void* codigo){
@@ -66,7 +69,7 @@ void inicializarPrograma(uint32_t pid,uint32_t paginasRequeridas, void* codigo){
 
 	if(tieneMarcosSuficientes(paginasRequeridas)){
 		//pthread_mutex_lock(mutexMemoria);
-		//sendall();
+		printf("tengo marcos suficientes \n");
 		agregarNuevoProceso(pid,paginasRequeridas,codigo);
 		//pthread_mutex_unlock(mutexMemoria);
 	}

@@ -10,6 +10,7 @@
 #include "menuMemoria.h"
 #include "operacionesMemoria.h"
 #include "memoria.h"
+#include "estructurasAdministrativas.h"
 
 char* puerto;
 int marcos, tamMarco, entradasCache, cachePorProceso, retardo;
@@ -18,13 +19,12 @@ int main(void) {
 
 	inicializarDataConfig();
 	inicializarMemoria();
-	//inicializarPrograma(1);
+	//inicializarPrograma(100,1,"HOLA SOY UN CODE ANSISOP");
 	pthread_t hiloMostrarMenu;
 	pthread_create(&hiloMostrarMenu, NULL, (void *) mostrarMenuMemoria, NULL);
 	servidor(puerto);
 	pthread_join(hiloMostrarMenu, NULL);
 	free(memoria);
-
 	return 0;
 
 }
