@@ -77,10 +77,12 @@ void inicializarDatos(){
 }
 
 int main(){
-
 	anuncio(concat(2,"IP a utilizar: ",obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"IP")));
 	anuncio(concat(2,"PUERTO a utilizar: ",obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_PROG")));
+
 	inicializarDatos();
+
+	anuncio(concat(2,"Tamanio de Pagina: ",string_itoa(tamanioPagina)));
 
 	//testi(valorSemaforo("SEM3"));
 

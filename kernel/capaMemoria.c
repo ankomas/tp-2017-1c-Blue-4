@@ -48,18 +48,19 @@ int valorSemaforo(char * unSemaforo){
 	return aux;
 }
 
-int solicitarMemoria(uint32_t i, uint32_t data) {
+int solicitarMemoria(uint32_t i, uint32_t data,uint32_t data2) {
 	package_t paquete;
-	uint32_t bytes=-1, contador=1;
-
-	paquete = serializar(2, sizeof(uint32_t), &data);
-
-	bytes = send(i, "A", 1, 0);
-	printf("envie %i bytes en el %i send\n", bytes, contador++);
-	bytes = send(i, &paquete.data_size, sizeof(uint32_t), 0);
+	uint32_t bytes=-1;
+	char* opcode= malloc(1);
+	opcode[1] = 'A';
+	paquete = serializar(6,1,&opcode, sizeof(uint32_t), string_itoa(data),sizeof(uint32_t), string_itoa(data2));
+	bytes = sendall(i, &paquete.data, &paquete.data_size);
+	testi(bytes);
+	//printf("envie %i bytes en el %i send\n", bytes, contador++);
+	/*bytes = send(i, &paquete.data_size, sizeof(uint32_t), 0);
 	printf("envie %i bytes en el %i send\n", bytes, contador++);
 	bytes = send(i, paquete.data, paquete.data_size, 0);
-	printf("envie %i bytes en el %i send\n", bytes, contador++);
+	printf("envie %i bytes en el %i send\n", bytes, contador++);*/
 
 	char* respuesta = malloc(1);
 	free(paquete.data);

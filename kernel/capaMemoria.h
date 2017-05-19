@@ -16,6 +16,6 @@
 int cantidadElementosArrayConfig(char* unaRuta,char*unId);
 int obtenerTamanioPagina();
 int valorSemaforo(char * unSemaforo);
-int solicitarMemoria(uint32_t i, uint32_t data);
+int solicitarMemoria(uint32_t i, uint32_t data, uint32_t data2);
 
 #endif /* CAPAMEMORIA_H_ */
