@@ -27,4 +27,11 @@ void mostrarDeMemoria(uint32_t);
  * 	No anda bien :/
  */
 
+/**
+ * actualiza los marcos disponibles en mi sistema
+ * @param marcos
+ * @return codigo de exito o error.
+ */
+int actualizarMarcosDisponibles(int );
+
 #endif /* ESTRUCTURASADMINISTRATIVAS_H_ */

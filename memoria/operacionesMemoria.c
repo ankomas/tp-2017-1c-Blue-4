@@ -20,6 +20,7 @@
 #include "memoria.h"
 #include <pthread.h>
 #include "configuraciones.h"
+#include "estructurasAdministrativas.h"
 
 
  tablaPaginas_t* ObtenerTablaDePaginas()
