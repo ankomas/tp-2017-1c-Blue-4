@@ -38,11 +38,10 @@ char* desSerializadorTom(int);
 typedef struct{
 	uint32_t pid;
 	uint32_t pc;
-	void * tablaArchivos;
-	void * posicionStack;
 	uint32_t exitCode;
-	uint32_t cantidadPaginasAsignadas;
-	uint32_t quantumRestante;
+	void * indiceCodigo;
+	void * indiceStack;
+	void * indiceEtiquetas;
 }t_pcb;
 
 typedef struct{

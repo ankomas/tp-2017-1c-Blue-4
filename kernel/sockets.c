@@ -167,11 +167,13 @@ int handshakeHandler(int i){
 	int reconozcoCliente = -1;
 	char bufHandshake[1];
 	uint32_t tamHandshake = 1;
-	if(recvall(i, bufHandshake, sizeof bufHandshake) == 0){
+	if(recvall(i, bufHandshake, sizeof(bufHandshake)) == 0){
 		if(bufHandshake[0] == CONSOLA_ID){
-			t_programa * nuevoPROGRAMA = malloc(sizeof(nuevoPROGRAMA));
-			nuevoPROGRAMA->id = i;
-			list_add(PROGRAMAs,nuevoPROGRAMA);
+			/*t_programa * nuevoPROGRAMA = malloc(sizeof(nuevoPROGRAMA));
+			t_pcb * nuevoPCB = malloc(sizeof(nuevoPCB));
+			nuevoPROGRAMA->pcb = nuevoPCB;
+			nuevoPROGRAMA->pcb->pid = i;
+			list_add(PROGRAMAs,nuevoPROGRAMA);*/
 			reconozcoCliente = 1;
 		}else if(bufHandshake[0] == CPU_ID){
 			t_cpu * nuevaCPU = malloc(sizeof(nuevaCPU));
@@ -202,12 +204,13 @@ void eliminarSiHayPROGRAMAs(int i) {
 	if(!list_is_empty(PROGRAMAs)){
 		int aux = 0;
 		t_programa *programaAux = list_get(PROGRAMAs,aux);
-		while (programaAux->id != i && aux < list_size(PROGRAMAs)){
+		while (programaAux->pcb->pid != i && aux < list_size(PROGRAMAs)){
 			programaAux = list_get(PROGRAMAs,aux);
 			aux++;
 		}
 
-		if(programaAux->id == i){
+		if(programaAux->pcb->pid == i){
+			free(programaAux->pcb);
 			list_remove(PROGRAMAs, aux);
 			log_trace(logger,"Programa eliminado");
 		}
@@ -382,14 +385,19 @@ int servidor(void)
 								//Envio PID
 								enviarPID(i);
 								// Los procesos New no estan modelados,porque depende del grado de multiprogramacion
-								t_pcb * nuevoProceso = malloc(sizeof(t_pcb));
-								nuevoProceso->pid=pidActual;
-								nuevoProceso->cantidadPaginasAsignadas = 0;
-								nuevoProceso->exitCode = 0;
-								nuevoProceso->pc=0;
-								nuevoProceso->posicionStack = NULL;
+								t_pcb * nuevoPCB = malloc(sizeof(t_pcb));
+								t_programa * nuevoProceso = malloc(sizeof(t_programa));
+								nuevoPCB->pid=pidActual;
+								nuevoProceso->paginasCodigo = 0;
+								nuevoPCB->exitCode = 0;
+								nuevoPCB->pc=0;
+								nuevoPCB->indiceCodigo=NULL;
+								nuevoPCB->indiceStack=NULL;
+								nuevoPCB->indiceEtiquetas=NULL;
 								nuevoProceso->tablaArchivos = NULL;
-								nuevoProceso->quantumRestante = 0;
+								nuevoProceso->quantumRestante = quantum;
+								nuevoProceso->pcb = nuevoPCB;
+								list_add(PROGRAMAs,nuevoProceso);
 
 								if(gradoMultiprogramacion >= cantidadProgramasEnSistema){
 									encolarReady(nuevoProceso);

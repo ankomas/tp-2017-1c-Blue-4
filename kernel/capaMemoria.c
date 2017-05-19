@@ -8,10 +8,12 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include "commons/string.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "capaMemoria.h"
+
 
 int cantidadElementosArrayConfig(char* unaRuta,char*unId){
 	int aux = 0;
@@ -21,6 +23,17 @@ int cantidadElementosArrayConfig(char* unaRuta,char*unId){
 	}
 
 	return aux;
+}
+
+int obtenerTamanioPagina(){
+	char*paquete = malloc(4);
+	if(idUMC > 0){
+		send(idUMC,"P",1,0);
+		if(recv(idUMC,paquete,4,MSG_WAITALL) == 4)
+			return atoi(paquete);
+	}
+	log_error(logger,"No se pudo obtener el tamanio de pagina");
+	return -1;
 }
 
 int valorSemaforo(char * unSemaforo){
