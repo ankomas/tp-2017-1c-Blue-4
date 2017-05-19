@@ -16,9 +16,17 @@
 #include "estructurasAdministrativas.h"
 
 
+int tamanioDeTabla(){
+	return sizeof(tablaPaginas_t)*configDeMemoria.marcos;
+}
+
+ int marcosDeTabla(){
+	 return cuantosMarcosRepresenta(tamanioDeTabla());
+ }
+
  tablaPaginas_t* obtenerTablaDePaginas(){ //Requiere hacer free
 	 tablaPaginas_t* tablaDePaginas;
-	 int marcosALeer = cuantosMarcosRepresenta(sizeof(tablaPaginas_t)*configDeMemoria.marcos);
+	 int marcosALeer = marcosDeTabla();
 	 tablaDePaginas = malloc(marcosALeer);
 	 memcpy(tablaDePaginas, memoria, marcosALeer);
 	 return tablaDePaginas;
