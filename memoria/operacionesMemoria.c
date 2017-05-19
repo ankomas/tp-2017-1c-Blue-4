@@ -62,10 +62,13 @@ int tieneMarcosSuficientes(int paginasRequeridas){
 }
 
 void inicializarPrograma(uint32_t pid,uint32_t paginasRequeridas, void* codigo){
+
+
 	if(tieneMarcosSuficientes(paginasRequeridas)){
-		//pthread_mutex_lock(mutexeameGil);
+		//pthread_mutex_lock(mutexMemoria);
+		//sendall();
 		agregarNuevoProceso(pid,paginasRequeridas,codigo);
-		//pthread_mutex_unlock(desmutexeameGil)
+		//pthread_mutex_unlock(mutexMemoria);
 	}
 	else{
 		// mandarle error al nucleo!! send(sos un boludo y no tenes espacio)

@@ -42,5 +42,9 @@ int actualizarMarcosDisponibles(int );
  */
 int cuantosMarcosRepresenta(int);
 
+/**
+ * Funcion creada para inicializar la memoria
+ */
+void inicializarMemoria();
 
 #endif /* ESTRUCTURASADMINISTRATIVAS_H_ */

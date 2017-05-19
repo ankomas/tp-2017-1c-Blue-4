@@ -103,7 +103,8 @@ uint32_t cargarAMemoria(uint32_t tamanio ,void* datos, uint32_t marco){ //Todavi
 	return 0;
 }*/
 
-void mostrarTabla(){
+void mostrarTabla()
+{
 	int i;
 	tablaPaginas_t *tablaDePaginas = calloc(configDeMemoria.marcos,sizeof(tablaPaginas_t));
 	memcpy(tablaDePaginas,memoria,configDeMemoria.marcos * sizeof(tablaPaginas_t));
@@ -112,7 +113,7 @@ void mostrarTabla(){
 	}
 	free(tablaDePaginas);
 }
-
+/*
 void mostrarDeMemoria(uint32_t marco){
 	//Tiene aritmetica de punteros hasta la muerte! hay que trabajar todo memoria asi? :/ si pelotudo
 	uint32_t carry = 0;
@@ -133,3 +134,4 @@ void mostrarDeMemoria(uint32_t marco){
 		carry += *leer+5;
 	}
 }
+*/

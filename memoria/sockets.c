@@ -42,7 +42,7 @@ int handshakeHandler(int i){
 	int reconozcoCliente = -1;
 	char bufHandshake[1];
 	int tamHandshake = 1;
-	if(recvall(i, bufHandshake, sizeof bufHandshake) == 0){
+	if(recvall(i, bufHandshake, sizeof(bufHandshake)) == 0){
 		if(bufHandshake[0] == KERNEL_ID){
 			reconozcoCliente = 1;
 		}
@@ -88,12 +88,22 @@ uint32_t peticionMemoria(uint32_t socket)
 	return 0;
 }
 
+void enviarTamPagina(int socket)
+{
+	char* data;
+	data=string_itoa(configDeMemoria.tamMarco);
+	uint32_t tamanio= sizeof(int);
+
+	sendall(socket,data,&tamanio);
+}
+
 void operacionesMemoria(char* cop, int socket)
 {
 	printf("LLEGUE A OPERACIONES MEMORIA con %c\n", cop[0]);
 	switch(cop[0])
 	{
 	case 'A': peticionMemoria(socket); break;
+	case 'P': enviarTamPagina(socket);break;
 	}
 }
 
@@ -221,6 +231,7 @@ int servidor()
 						close(i); // bye!
 						FD_CLR(i, &master); // remove from master set
 					} else {
+						// la i es el socket_cliente y el buff es lo que envia!!!.
 						operacionesMemoria(buf,i);
 						// we got some data from a client
 						for (j = 0; j <= fdmax; j++) {
