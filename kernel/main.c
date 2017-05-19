@@ -26,6 +26,7 @@ const char UMC_ID_INT = 5;
 int cantidadProgramasEnSistema,gradoMultiprogramacion,retardo,quantum;
 int idFS;
 int idUMC;
+int tamanioPagina;
 
 pthread_t hiloPlanificador,hiloConsolaKernel;
 
@@ -51,6 +52,7 @@ void inicializarDatos(){
 	quantum = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"),"QUANTUM");
 	idFS =  conectar(obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_FS"),  obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"IP_FS"),FS_ID_INT);
 	idUMC = conectar(obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_UMC"), obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"IP_UMC"),UMC_ID_INT);
+	tamanioPagina = obtenerTamanioPagina();
 	retardo = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"),"RETARDO");
 
 	if(idFS <= 0){

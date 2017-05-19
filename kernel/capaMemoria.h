@@ -9,10 +9,12 @@
 #define CAPAMEMORIA_H_
 
 #include "blue4-lib.h"
+#include "main.h"
 #include <stdio.h>
 #include <string.h>
 
 int cantidadElementosArrayConfig(char* unaRuta,char*unId);
+int obtenerTamanioPagina();
 int valorSemaforo(char * unSemaforo);
 int solicitarMemoria(uint32_t i, uint32_t data);
 

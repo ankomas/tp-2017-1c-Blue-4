@@ -31,11 +31,6 @@ typedef struct t_cpu {
 	pthread_t hilo;
 } t_cpu;
 
-typedef struct t_programa {
-	uint32_t id;
-	void* t_tcb;
-} t_programa;
-
 extern t_log* logger;
 
 #endif /* MAIN_H_ */

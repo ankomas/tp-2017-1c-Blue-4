@@ -17,7 +17,15 @@ extern t_queue * procesosEXEC;
 extern t_queue * procesosBLOCK;
 extern t_queue * procesosEXIT;
 
-t_pcb* planificador();
+typedef struct t_programa {
+	void * tablaArchivos;
+	uint32_t quantumRestante;
+	uint32_t paginasCodigo;
+	t_pcb* pcb;
+} t_programa;
+
+t_programa* planificador();
 void *cpu();
+void encolarReady();
 
 #endif /* PLANIFICADOR_H_ */

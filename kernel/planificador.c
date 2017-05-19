@@ -16,7 +16,7 @@ char *algoritmoPlanificador;
 void encolarReady(t_programa* nuevoProceso){
 	//Para encolarlo a Ready hay que tener suficiente memoria
 	//TODO solicitar memoria deberia pasarle el mensaje entero, no el pid
-	if(solicitarMemoria(idUMC, nuevoProceso->id) < 0){
+	if(solicitarMemoria(idUMC, nuevoProceso->pcb->pid) < 0){
 		log_error(logger,"ERROR, el kernel no pudo solicitar memoria correctamente");
 	} else {
 		queue_push(procesosREADY,nuevoProceso);
@@ -69,29 +69,29 @@ void* cpu(t_cpu * cpu){
 	return 0;
 }
 
-t_pcb* planificador(t_pcb* unPCB){
+t_programa* planificador(t_programa* unPrograma){
 	// mutex por haber leido de un archivo que puede ser actualizado hasta antes del recv
 	algoritmoPlanificador = obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"ALGORITMO");
 	printf("algoritmoPlanificador %s\n",algoritmoPlanificador);
 
-	if(unPCB == NULL){
+	if(unPrograma == NULL){
 		t_pcb* aux = queue_pop(procesosREADY);
 		return aux;
 	}
 
 	if(strcmp(algoritmoPlanificador,"RR") == 0){
-		if(unPCB->quantumRestante == 0){
+		if(unPrograma->quantumRestante == 0){
 			if(queue_size(procesosREADY) > 0){
-				t_pcb* aux = queue_pop(procesosREADY);
+				t_programa* aux = queue_pop(procesosREADY);
 				aux->quantumRestante--;
 				return aux;
 			}
 		} else {
-			unPCB->quantumRestante--;
-			return unPCB;
+			unPrograma->quantumRestante--;
+			return unPrograma;
 		}
 	} else if(strcmp(algoritmoPlanificador,"FIFO") == 0){
-		return unPCB;
+		return unPrograma;
 	} else {
 		log_error(logger,"Algoritmo mal cargado al config.cfg");
 	}
