@@ -16,7 +16,7 @@ int marcos, tamMarco, entradasCache, cachePorProceso, retardo;
 
 int main(void) {
 
-	configDeMemoria=obtenerDataConfig();
+	inicializarDataConfig();
 	inicializarMemoria();
 	pthread_t hiloMostrarMenu;
 	pthread_create(&hiloMostrarMenu, NULL, (void *) mostrarMenuMemoria, NULL);

@@ -21,6 +21,6 @@ typedef struct
 }t_configMemoria;
 
 t_configMemoria configDeMemoria;
-t_configMemoria obtenerDataConfig();
+void inicializarDataConfig();
 
 #endif /* CONFIGURACIONES_H_ */

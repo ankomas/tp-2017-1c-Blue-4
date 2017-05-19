@@ -16,29 +16,26 @@
 #include "configuraciones.h"
 
 
-t_configMemoria obtenerDataConfig()
+void inicializarDataConfig()
 {
-	t_configMemoria configMemoria;
-	configMemoria.puerto = obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO");
-	configMemoria.marcos = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"), "MARCOS");
-    configMemoria.tamMarco = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"), "MARCO_SIZE");
-	configMemoria.entradasCache = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"), "ENTRADAS_CACHE");
-	configMemoria.cachePorProceso = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"), "CACHE_X_PROC");
-	configMemoria.retardo = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"), "RETARDO_MEMORIA");
-	configMemoria.marcosDisponibles= configMemoria.marcos;
+	configDeMemoria.puerto = obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO");
+	configDeMemoria.marcos = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"), "MARCOS");
+    configDeMemoria.tamMarco = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"), "MARCO_SIZE");
+	configDeMemoria.entradasCache = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"), "ENTRADAS_CACHE");
+	configDeMemoria.cachePorProceso = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"), "CACHE_X_PROC");
+	configDeMemoria.retardo = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"), "RETARDO_MEMORIA");
+	configDeMemoria.marcosDisponibles= configDeMemoria.marcos;
 
 	system("clear");
 	printf("Bienvenido a la memoria!\n\n");
 	printf("Se han tomado las siguientes configuraciones:\n");
-	printf("Puerto: %s\n", configMemoria.puerto);
-	printf("Marcos: %i\n",configMemoria.marcos);
-	printf("Tamaño de Marco: %i\n", configMemoria.tamMarco);
-	printf("Entradas Cache: %i\n", configMemoria.entradasCache);
-	printf("Cache x proceso: %i\n", configMemoria.cachePorProceso);
-	printf("Retardo: %i\n", configMemoria.retardo);
+	printf("Puerto: %s\n", configDeMemoria.puerto);
+	printf("Marcos: %i\n",configDeMemoria.marcos);
+	printf("Tamaño de Marco: %i\n", configDeMemoria.tamMarco);
+	printf("Entradas Cache: %i\n", configDeMemoria.entradasCache);
+	printf("Cache x proceso: %i\n", configDeMemoria.cachePorProceso);
+	printf("Retardo: %i\n", configDeMemoria.retardo);
 	printf("\nPresione Enter Para continuar\n");
 	while ( getchar() != '\n');
 	system("clear");
-
-	return configMemoria;
 }
