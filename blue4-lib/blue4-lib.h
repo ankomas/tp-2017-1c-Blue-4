@@ -36,6 +36,16 @@ int serializadorTom(int, int, char*);
 char* desSerializadorTom(int);
 
 typedef struct{
+	uint32_t pid;
+	uint32_t pc;
+	void * tablaArchivos;
+	void * posicionStack;
+	uint32_t exitCode;
+	uint32_t cantidadPaginasAsignadas;
+	uint32_t quantumRestante;
+}t_pcb;
+
+typedef struct{
 	uint32_t data_size;
 	char* data;
 }package_t;
