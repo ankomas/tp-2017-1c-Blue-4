@@ -201,7 +201,7 @@ int servidor()
 						if (newfd > fdmax) {    // keep track of the max
 							fdmax = newfd;
 						}
-						printf("selectserver: new connection from %s on "
+						printf("selectserver: nueva conexion de  %s en "
 								"socket %d\n",
 								inet_ntop(remoteaddr.ss_family,
 										get_in_addr(
@@ -224,7 +224,7 @@ int servidor()
 						// got error or connection closed by client
 						if (nbytes == 0) {
 							// connection closed
-							printf("selectserver: socket %d hung up\n", i);
+							printf("selectserver: se desconecto el socket %d \n", i);
 						} else {
 							perror("recv");
 						}

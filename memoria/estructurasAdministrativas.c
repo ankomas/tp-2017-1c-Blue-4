@@ -61,18 +61,22 @@ int cuantosMarcosRepresenta(int unTamanio){
 }
 
 void reservarEstructurasEnTablaDePaginas(tablaPaginas_t* tablaDePaginas){
-	unsigned cantidadMarcos = cuantosMarcosRepresenta(sizeof(tablaDePaginas));
+	unsigned cantidadMarcos = cuantosMarcosRepresenta(sizeof(tablaPaginas_t)*configDeMemoria.marcos);
 	unsigned marco;
+	actualizarMarcosDisponibles(cantidadMarcos);
 	for(marco = 0; marco < cantidadMarcos ; marco++){
 		tablaDePaginas[marco].pid = -1;
-    tablaDePaginas[marco].pagina = marco; // Como son los primeros marcos coinciden con el numero de pagina, solo pasa aca!
+        // Como son los primeros marcos coinciden con el numero de pagina, solo pasa aca!
+        tablaDePaginas[marco].pagina = marco;
+        //printf("tablaDePaginas[marco].pid : %d \n",tablaDePaginas[marco].pid);
+        //printf("tablaDePaginas[marco].pagina : %d \n",tablaDePaginas[marco].pagina);
 	}
 }
 void cargarTablaDePaginasAMemoria(){
 	tablaPaginas_t* tablaDePaginas = crearTablaDePaginas();
 	reservarEstructurasEnTablaDePaginas(tablaDePaginas);
 	memcpy(memoria,tablaDePaginas,configDeMemoria.marcos * sizeof(tablaPaginas_t));
-  free(tablaDePaginas);
+    free(tablaDePaginas);
 }
 
 void inicializarMemoria(){
