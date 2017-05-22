@@ -16,6 +16,7 @@
 
 #include <pthread.h>
 #include <blue4-lib.h>
+#include <commons/string.h>
 #include "memoria.h"
 #include "operacionesMemoria.h"
 #include "sockets.h"
@@ -37,6 +38,9 @@ void *get_in_addr(struct sockaddr *sa)
 	return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
+
+
+
 int handshakeHandler(int i){
 
 	int reconozcoCliente = -1;
@@ -53,11 +57,45 @@ int handshakeHandler(int i){
 	if(reconozcoCliente < 0){
 		return -1;
 	} else {
-		if(sendall(i,charToString(UMC_ID),&tamHandshake) == 0)
+		if(sendall(i,charToString(UMC_ID),(uint32_t*)&tamHandshake) == 0)
 			printf("Handshake exitoso\n");
 		return 0;
 	}
 }
+
+
+
+
+
+uint32_t obtenerNumeroSerializado(uint32_t* puntero,char* buffer)
+{
+	uint32_t pid;
+	package_t paquete;
+	paquete = deserializar(puntero, buffer);
+	pid =*(uint32_t *)paquete.data;
+	free(paquete.data);
+	return pid;
+}
+
+
+
+
+char* obtenerDataSerializada(uint32_t* puntero,char* buffer)
+{
+	uint32_t tamData;
+	package_t paquete;
+	char* data;
+	paquete=deserializar(puntero,buffer);
+	tamData=paquete.data_size;
+	data=malloc(tamData);
+	memcpy(data,paquete.data,tamData);
+	free(paquete.data);
+	return data;
+}
+
+
+
+
 
 uint32_t peticionMemoria(uint32_t socket)
 {
@@ -88,6 +126,54 @@ uint32_t peticionMemoria(uint32_t socket)
 	return 0;
 }
 
+/*
+uint32_t peticionMemoria(uint32_t socket)
+{
+	uint32_t tamanio, pid,paginasRequeridas, puntero = 0;
+	//package_t paquete;
+	char *buffer,*data;
+	if(recv(socket,&tamanio, 4,0) != 4){
+		send(socket,"N",1,0);
+		return -1;
+	}
+
+	buffer = malloc(tamanio);
+	if(recv(socket,buffer, tamanio,0) != tamanio){
+		send(socket,"N",1,0);
+		return -1;
+	}
+
+	pid=obtenerNumeroSerializado(&puntero,buffer);
+	paginasRequeridas=obtenerNumeroSerializado(&puntero,buffer);
+
+	if(!(tieneMarcosSuficientes(paginasRequeridas)))
+	{
+		send(socket,"N",1,0);
+		free(buffer);
+		return 0;
+	}
+
+	send(socket,"Y",1,0);
+	// recibo el tamaño del codigo y el codigo, si es que tengo paginas suficientes!!!
+	//recvall(socket,&tamanio,4);
+	//free(buffer);
+	//buffer = malloc(tamanio);
+	//recvall(socket,buffer,tamanio);
+	//puntero=0;
+	data=obtenerDataSerializada(&puntero,buffer);
+	inicializarPrograma(pid,paginasRequeridas,data);
+	//printf("Se van a reservar %i bytes de memoria para el socket %i\n", bytes, socket);
+
+	//reservarMemoria(bytes);
+
+	free(buffer);
+	return 0;
+}
+*/
+
+
+
+
 void enviarTamPagina(int socket)
 {
 	char* data;
@@ -97,15 +183,25 @@ void enviarTamPagina(int socket)
 	sendall(socket,data,&tamanio);
 }
 
-void operacionesMemoria(char* cop, int socket)
+
+
+
+void operacionesMemoria(dataHilo_t* dataHilo)
 {
-	printf("LLEGUE A OPERACIONES MEMORIA con %c\n", cop[0]);
-	switch(cop[0])
+	int socket=dataHilo->socket;
+	char cop=dataHilo->codOp;
+
+	printf("LLEGUE A OPERACIONES MEMORIA con %c\n", cop);
+	switch(cop)
 	{
 	case 'A': peticionMemoria(socket); break;
 	case 'P': enviarTamPagina(socket);break;
 	}
 }
+
+
+
+
 
 int servidor()
 {
@@ -231,15 +327,26 @@ int servidor()
 						close(i); // bye!
 						FD_CLR(i, &master); // remove from master set
 					} else {
-						// la i es el socket_cliente y el buff es lo que envia!!!.
-						operacionesMemoria(buf,i);
+						// la i es el socket_cliente y el buff es el codigo de operacion!!!.
+						dataHilo_t dataHilo;
+						dataHilo.codOp=buf[0];
+						dataHilo.socket=i;
+						/*
+						dataHilo_t dataHilo;
+						pthread_attr_t hiloDetachable;
+						pthread_t hilo;
+						pthread_attr_init(&hiloDetachable);
+						pthread_attr_setdetachstate(&hiloDetachable,PTHREAD_CREATE_DETACHED);
+						pthread_create(&hilo,&hiloDetachable,(void*)operacionesMemoria,(void*)&dataHilo);
+						*/
+						operacionesMemoria(&dataHilo);
 						// we got some data from a client
 						for (j = 0; j <= fdmax; j++) {
 							// send to everyone!
 							if (FD_ISSET(j, &master)) {
 								// except the listener and ourselves
 								if (j != listener && j != i) {
-									if (sendall(j, buf, (int*) nbytes) == -1) {
+									if (sendall(j, buf, (uint32_t*) nbytes) == -1) {
 										perror("send");
 									}
 								}

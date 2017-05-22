@@ -11,7 +11,13 @@
 int servidor();
 int handshakeHandler(int);
 uint32_t peticionMemoria(uint32_t);
-void operacionesMemoria(char*, int);
+
+typedef struct
+{
+	char codOp;
+	int socket;
+}dataHilo_t;
+void operacionesMemoria(dataHilo_t*);
 
 
 #endif /* SOCKETS_H_ */

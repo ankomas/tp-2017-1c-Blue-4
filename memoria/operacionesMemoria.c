@@ -38,12 +38,12 @@ int tamanioDeTabla(){
 	 memcpy(memoria,tablaDePaginas,tamanioDeTabla);
  }
 
-void cargarCodigo(uint32_t marco, uint32_t pagina, void* codigo){
+void cargarCodigo(uint32_t marco, uint32_t pagina, void* data){
 	//pthread_mutex_lock(mutexMemoria);
 	memcpy(memoria+marco*configDeMemoria.tamMarco,
-		   codigo+pagina*configDeMemoria.tamMarco,
+		   data+pagina*configDeMemoria.tamMarco,
 			configDeMemoria.tamMarco);
-	printf("cargue en memoria : %s \n",codigo);
+	printf("cargue en memoria : %s \n",data);
 	//pthread_mutex_unlock(mutexMemoria);
 }
 
@@ -56,20 +56,20 @@ void cargarPaginaA(tablaPaginas_t *tablaDePaginas,uint32_t pid, uint32_t pagina,
 	printf("cargue la pagina : %d \n",pagina);
 	return;
 }
-void guardaProcesoEn(tablaPaginas_t *tablaDePaginas, uint32_t pid, uint32_t paginasRequeridas,void* codigo){
+void guardaProcesoEn(tablaPaginas_t *tablaDePaginas, uint32_t pid, uint32_t paginasRequeridas,void* data){
 	unsigned marco = 0,pagina = 0;
 	while(pagina < paginasRequeridas){
 		if(tablaDePaginas[marco].pid == -2){
 			cargarPaginaA(tablaDePaginas,pid,pagina,marco);
-			cargarCodigo(marco,pagina,codigo);
+			cargarCodigo(marco,pagina,data);
 			pagina++;
 		}
 		marco++;
 	}
 }
-void agregarNuevoProceso(uint32_t pid, uint32_t paginasRequeridas,void* codigo){
+void agregarNuevoProceso(uint32_t pid, uint32_t paginasRequeridas,void* data){
 	tablaPaginas_t *tablaDePaginas = obtenerTablaDePaginas();
-	guardaProcesoEn(tablaDePaginas,pid,paginasRequeridas,codigo);
+	guardaProcesoEn(tablaDePaginas,pid,paginasRequeridas,data);
 	actualizarMarcosDisponibles(paginasRequeridas);
 	cargarTablaAMemoria(tablaDePaginas);
 	free(tablaDePaginas);
@@ -79,16 +79,12 @@ int tieneMarcosSuficientes(int paginasRequeridas){
 	return paginasRequeridas <= configDeMemoria.marcosDisponibles;
 }
 
-void inicializarPrograma(uint32_t pid,uint32_t paginasRequeridas, void* codigo){
+void inicializarPrograma(uint32_t pid,uint32_t paginasRequeridas, void* data){
 
 
-	if(tieneMarcosSuficientes(paginasRequeridas)){
 		//pthread_mutex_lock(mutexMemoria);
 		printf("tengo marcos suficientes \n");
-		agregarNuevoProceso(pid,paginasRequeridas,codigo);
+		agregarNuevoProceso(pid,paginasRequeridas,data);
 		//pthread_mutex_unlock(mutexMemoria);
-	}
-	else{
-		// mandarle error al nucleo!! send(sos un boludo y no tenes espacio)
-	}
+
 }
