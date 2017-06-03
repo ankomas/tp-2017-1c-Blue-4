@@ -86,3 +86,7 @@ int conectar(char *puerto, char *ip,int id) {
 
 	return socketCliente;
 }
+
+void cerrarConexion(int socket){
+	close(socket);
+}

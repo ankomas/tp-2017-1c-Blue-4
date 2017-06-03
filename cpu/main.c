@@ -5,8 +5,9 @@
  *      Author: utnso
  */
 #include <stdio.h>
-//#include <blue4-lib.h>
+#include <blue4-lib.h>
 #include <commons/config.h>
+#include <parser/metadata_program.h>
 #include "conexiones.h"
 
 #define ID_KERNEL 2
@@ -29,9 +30,10 @@ int main() {
 			ipKernel, puertoKernel, ipMemoria, puertoMemoria);
 
 	printf("Conectando con Kernel...\n");
-	socketKernel=conectar(puertoKernel, ipKernel,ID_KERNEL);
-	//socketMemoria=conectar(puertoMemoria,ipMemoria);
 
+	socketKernel=conectar(puertoKernel, ipKernel,ID_KERNEL);
+
+	cerrarConexion(socketKernel);
 	config_destroy(config);
 	return 0;
 }
