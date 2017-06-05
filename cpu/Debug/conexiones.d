@@ -1,1 +1,0 @@
-conexiones.d: ../conexiones.c

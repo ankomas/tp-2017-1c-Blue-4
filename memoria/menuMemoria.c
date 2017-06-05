@@ -34,11 +34,7 @@ void mostrarTablaDePaginas(){
 	//for(i=0; i<configDeMemoria.marcos;i++)
 	for(i=0; i<50;i++)
 		printf("Marco: %i	 PID: %i	Pagina: %i\n",i,tablaDePaginas[i].pid, tablaDePaginas[i].pagina );
-
-	cargarTablaAMemoria(tablaDePaginas);
-	free(tablaDePaginas);
 }
-
 void dumpEstructuras() { //Falta lista de procesos Activos
 	mostrarTablaDePaginas();
 	//mostrarListaProcesosActivos();
@@ -89,7 +85,6 @@ void cantRunAway(){
 
 void mostrarMenuMemoria() {
 	int opcion;
-	system("clear");
 	while(1)
 	{
 

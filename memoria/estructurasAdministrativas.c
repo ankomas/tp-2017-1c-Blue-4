@@ -108,7 +108,7 @@ uint32_t cargarAMemoria(uint32_t tamanio ,void* datos, uint32_t marco){ //Todavi
 	free(bloque);
 	return 0;
 }*/
-
+/*
 void mostrarTabla()
 {
 	int i;
@@ -118,7 +118,7 @@ void mostrarTabla()
 		printf("PID: %d , Pagina: %d \n", tablaDePaginas[i].pid, tablaDePaginas[i].pagina);
 	}
 	free(tablaDePaginas);
-}
+}*/
 /*
 void mostrarDeMemoria(uint32_t marco){
 	//Tiene aritmetica de punteros hasta la muerte! hay que trabajar todo memoria asi? :/ si pelotudo
@@ -141,3 +141,4 @@ void mostrarDeMemoria(uint32_t marco){
 	}
 }
 */
+

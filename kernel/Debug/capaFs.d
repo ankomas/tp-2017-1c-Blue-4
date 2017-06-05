@@ -1,1 +1,0 @@
-capaFs.d: ../capaFs.c

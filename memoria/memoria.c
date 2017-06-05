@@ -16,10 +16,10 @@ char* puerto;
 int marcos, tamMarco, entradasCache, cachePorProceso, retardo;
 
 int main(void) {
-
+	pthread_mutex_init(&escribiendoMemoria,NULL);
 	inicializarDataConfig();
 	inicializarMemoria();
-	//inicializarPrograma(100,1,"HOLA SOY UN CODE ANSISOP");
+	inicializarPrograma(100,1,"HOLA SOY UN CODE ANSISOP");
 	pthread_t hiloMostrarMenu;
 	pthread_create(&hiloMostrarMenu, NULL, (void *) mostrarMenuMemoria, NULL);
 	servidor(puerto);

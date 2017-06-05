@@ -15,7 +15,6 @@
 #include "configuraciones.h"
 #include "estructurasAdministrativas.h"
 
-
 int tamanioDeTabla(){
 	return sizeof(tablaPaginas_t)*configDeMemoria.marcos;
 }
@@ -25,17 +24,21 @@ int tamanioDeTabla(){
  }
 
  tablaPaginas_t* obtenerTablaDePaginas(){ //Requiere hacer free
-	 tablaPaginas_t* tablaDePaginas;
-	 int marcosALeer = marcosDeTabla()*configDeMemoria.tamMarco;
-	 tablaDePaginas = malloc(marcosALeer);
-	 memcpy(tablaDePaginas, memoria, marcosALeer);
+	 tablaPaginas_t* tablaDePaginas = memoria;
 	 return tablaDePaginas;
  }
 
- void cargarTablaAMemoria(tablaPaginas_t* tablaDePaginas)
- {
-	 int tamanioDeTabla = marcosDeTabla()*configDeMemoria.tamMarco;
-	 memcpy(memoria,tablaDePaginas,tamanioDeTabla);
+ int getMarco(int pid, int pag){
+	 tablaPaginas_t *tdep = obtenerTablaDePaginas();
+	 int i;
+	 if(pid<-1 || pag<0)
+		 return -1;
+	 for(i=0; i<configDeMemoria.marcos; i++){
+		 if(tdep[i].pid == pid){
+			 if(tdep[i].pagina == pag){
+				 return i;}}
+	 }
+	 return -1;
  }
 
 void cargarCodigo(uint32_t marco, uint32_t pagina, void* data){
@@ -71,8 +74,6 @@ void agregarNuevoProceso(uint32_t pid, uint32_t paginasRequeridas,void* data){
 	tablaPaginas_t *tablaDePaginas = obtenerTablaDePaginas();
 	guardaProcesoEn(tablaDePaginas,pid,paginasRequeridas,data);
 	actualizarMarcosDisponibles(paginasRequeridas);
-	cargarTablaAMemoria(tablaDePaginas);
-	free(tablaDePaginas);
 }
 
 int tieneMarcosSuficientes(int paginasRequeridas){
@@ -86,5 +87,18 @@ void inicializarPrograma(uint32_t pid,uint32_t paginasRequeridas, void* data){
 		printf("tengo marcos suficientes \n");
 		agregarNuevoProceso(pid,paginasRequeridas,data);
 		//pthread_mutex_unlock(mutexMemoria);
+}
 
+void* leerMemoria(uint32_t pid,uint32_t pag, uint32_t offset, uint32_t tam){
+	int marco = getMarco(pid, pag);
+	void* datos = malloc(tam);
+	memcpy(datos,memoria+marco*configDeMemoria.tamMarco+offset, tam);
+	return datos;
+}
+
+void escribirMemoria(uint32_t pid, uint32_t pag, uint32_t offset, uint32_t tamData, void *data){
+	int marco = getMarco(pid, pag);
+	pthread_mutex_lock(&escribiendoMemoria);
+	memcpy(memoria+marco*configDeMemoria.tamMarco+offset,data, tamData);
+	pthread_mutex_unlock(&escribiendoMemoria);
 }
