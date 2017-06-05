@@ -79,7 +79,7 @@ uint32_t obtenerNumeroSerializado(uint32_t* puntero,char* buffer)
 
 
 
-
+//TODO liberar la data cuando no se necesite mas!!!
 char* obtenerDataSerializada(uint32_t* puntero,char* buffer)
 {
 	uint32_t tamData;
@@ -93,6 +93,32 @@ char* obtenerDataSerializada(uint32_t* puntero,char* buffer)
 	return data;
 }
 
+
+
+int recibirTamanioBuffer(int socket,uint32_t* tamanioTotalBuffer)
+{
+	int resultado;
+	resultado=recvall(socket,tamanioTotalBuffer,sizeof(uint32_t));
+	return resultado;
+}
+
+//TODO liberar la data cuando no se necesite mas !!!
+char* recibirPaquete(int socket,uint32_t tamanio,int* resultadoDelRecv)
+{
+	char* data=malloc(tamanio);
+	*resultadoDelRecv=recvall(socket,data,tamanio);
+	return data;
+}
+
+int validarRecv(int socket,int resultadoRecv)
+{
+	if(resultadoRecv<0)
+	{
+		send(socket,'N',1,0);
+		return -1;
+	}
+	return 0;
+}
 
 
 
@@ -172,6 +198,57 @@ uint32_t peticionMemoria(uint32_t socket)
 */
 
 
+char* recibir_PID_PAGINA_OFFSET(int socket,uint32_t* pid,uint32_t* pagina,uint32_t* offset,uint32_t* puntero)
+{
+	uint32_t tamanioTotalBuffer;
+		*puntero=0;
+		int resultado;
+		char* buffer;
+		resultado=recibirTamanioBuffer(socket,&tamanioTotalBuffer);
+		if(validarRecv(socket,resultado)<0)return NULL;
+
+		buffer=recibirPaquete(socket,tamanioTotalBuffer,&resultado);
+		if(validarRecv(socket,resultado)<0)
+		{
+			free(buffer);
+			return NULL;
+		}
+
+		*pid=obtenerNumeroSerializado(puntero,buffer);
+		*pagina=obtenerNumeroSerializado(puntero,buffer);
+		*offset=obtenerNumeroSerializado(puntero,buffer);
+		return buffer;
+}
+
+
+void recibir_PID_PAGINA_OFFSET_TAMANIO(int socket,uint32_t* pid,uint32_t* pagina,uint32_t* offset,uint32_t* tamanio)
+{
+	uint32_t puntero;
+	char* buffer=recibir_PID_PAGINA_OFFSET(socket,pid,pagina,offset,&puntero);
+	if(buffer)
+	{
+		*tamanio=obtenerNumeroSerializado(&puntero,buffer);
+		free(buffer);
+		return;
+	}
+	printf("no se pudo recibir: pid,pagina,offset,tamanio  de : %d\n",socket);
+}
+
+
+void recibir_PID_PAGINA_OFFSET_TAMANIO_DATA(int socket,uint32_t* pid,uint32_t* pagina,uint32_t* offset,uint32_t* tamanio,void* data)
+{
+	uint32_t puntero;
+		char* buffer=recibir_PID_PAGINA_OFFSET(socket,pid,pagina,offset,&puntero);
+		if(buffer)
+		{
+			*tamanio=obtenerNumeroSerializado(&puntero,buffer);
+			data=obtenerDataSerializada(&puntero,buffer);
+			free(buffer);
+			return;
+		}
+		printf("no se pudo recibir: pid,pagina,offset,tamanio,data  de : %d\n",socket);
+}
+
 
 
 void enviarTamPagina(int socket)
@@ -185,6 +262,29 @@ void enviarTamPagina(int socket)
 
 
 
+void solicitarBytes(int socket)
+{
+	uint32_t pid,pagina,offset,tamanio;
+	void* data;
+	recibir_PID_PAGINA_OFFSET_TAMANIO(socket,&pid,&pagina,&offset,&tamanio);
+	data=leerMemoria(pid,pagina,offset,tamanio);
+	if(data){
+	sendall(socket,data,&tamanio);
+	}else{
+		send(socket,'N',1,0);
+	}
+}
+
+
+void almacenarBytes(int socket)
+{
+	uint32_t pid,pagina,offset,tamanio;
+	void* data;
+	recibir_PID_PAGINA_OFFSET_TAMANIO_DATA(socket,&pid,&pagina,&offset,&tamanio,data);
+	escribirMemoria(pid,pagina,offset,tamanio,data);
+	//TODO agregar mensaje de error,(falta que escribirMemoria devuelva un valor de exito)
+}
+
 
 void operacionesMemoria(dataHilo_t* dataHilo)
 {
@@ -194,8 +294,11 @@ void operacionesMemoria(dataHilo_t* dataHilo)
 	printf("LLEGUE A OPERACIONES MEMORIA con %c\n", cop);
 	switch(cop)
 	{
-	case 'A': peticionMemoria(socket); break;
+	case 'A': peticionMemoria(socket);break;
 	case 'P': enviarTamPagina(socket);break;
+	case 'R': solicitarBytes(socket);break;
+	case 'W': almacenarBytes(socket);break;
+	default: break;
 	}
 }
 
@@ -331,15 +434,15 @@ int servidor()
 						dataHilo_t dataHilo;
 						dataHilo.codOp=buf[0];
 						dataHilo.socket=i;
-						/*
-						dataHilo_t dataHilo;
+
+						//dataHilo_t dataHilo;
 						pthread_attr_t hiloDetachable;
 						pthread_t hilo;
 						pthread_attr_init(&hiloDetachable);
 						pthread_attr_setdetachstate(&hiloDetachable,PTHREAD_CREATE_DETACHED);
 						pthread_create(&hilo,&hiloDetachable,(void*)operacionesMemoria,(void*)&dataHilo);
-						*/
-						operacionesMemoria(&dataHilo);
+
+						//operacionesMemoria(&dataHilo);
 						// we got some data from a client
 						for (j = 0; j <= fdmax; j++) {
 							// send to everyone!
