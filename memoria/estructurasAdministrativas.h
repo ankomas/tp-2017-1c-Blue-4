@@ -8,12 +8,14 @@
 #ifndef ESTRUCTURASADMINISTRATIVAS_H_
 #define ESTRUCTURASADMINISTRATIVAS_H_
 
-void* memoria;
+void* memoria, *cache;
 
 void inicializarMemoria();
 /*
  * 	Crea la memoria inicializada en pid = -2, y carga la tabla de paginas con pid = -1
  */
+
+void inicializarCache();
 
 uint32_t cargarAMemoria(uint32_t, void*, uint32_t);
 /*

@@ -25,14 +25,14 @@ endif
 all: memoria
 
 dependents:
-	-cd /home/utnso/workspace/tp-2017-1c-Blue-4/commons/Debug && $(MAKE) all
-	-cd /home/utnso/workspace/tp-2017-1c-Blue-4/blue4-lib/Debug && $(MAKE) all
+	-cd /home/utnso/workspace/tp-2017-1c-Blue-4/blue4-lib/Debug && $(MAKE) clean all
+	-cd /home/utnso/workspace/tp-2017-1c-Blue-4/commons/Debug && $(MAKE) clean all
 
 # Tool invocations
-memoria: $(OBJS) $(USER_OBJS) /home/utnso/workspace/tp-2017-1c-Blue-4/commons/Debug/libcommons.so /home/utnso/workspace/tp-2017-1c-Blue-4/blue4-lib/Debug/libblue4-lib.so
+memoria: $(OBJS) $(USER_OBJS) /home/utnso/workspace/tp-2017-1c-Blue-4/blue4-lib/Debug/libblue4-lib.so /home/utnso/workspace/tp-2017-1c-Blue-4/commons/Debug/libcommons.so
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C Linker'
-	gcc -L"/home/utnso/workspace/tp-2017-1c-Blue-4/blue4-lib/Debug" -L"/home/utnso/workspace/tp-2017-1c-Blue-4/commons/Debug" -o "memoria" $(OBJS) $(USER_OBJS) $(LIBS)
+	gcc -L"/home/utnso/workspace/tp-2017-1c-Blue-4/commons/Debug" -L"/home/utnso/workspace/tp-2017-1c-Blue-4/blue4-lib/Debug" -o "memoria" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -43,7 +43,7 @@ clean:
 
 .PHONY: all clean dependents
 .SECONDARY:
-/home/utnso/workspace/tp-2017-1c-Blue-4/commons/Debug/libcommons.so:
 /home/utnso/workspace/tp-2017-1c-Blue-4/blue4-lib/Debug/libblue4-lib.so:
+/home/utnso/workspace/tp-2017-1c-Blue-4/commons/Debug/libcommons.so:
 
 -include ../makefile.targets

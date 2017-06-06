@@ -10,7 +10,7 @@
 
 #include "memoria.h"
 
-pthread_mutex_t escribiendoMemoria;
+pthread_mutex_t escribiendoMemoria, escribiendoMemoriaCache;
 
 void inicializarPrograma(uint32_t ,uint32_t , void* );
 
@@ -27,6 +27,9 @@ void *leerMemoria(uint32_t, uint32_t, uint32_t, uint32_t);
  */
 void escribirMemoria(uint32_t, uint32_t, uint32_t, uint32_t, void*);
 
+void *leerCache(uint32_t, uint32_t, uint32_t, uint32_t);
+
+void escribirCache(uint32_t, uint32_t, uint32_t, uint32_t, void*);
 
 tablaPaginas_t* obtenerTablaDePaginas();
 

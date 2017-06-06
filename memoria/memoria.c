@@ -17,8 +17,10 @@ int marcos, tamMarco, entradasCache, cachePorProceso, retardo;
 
 int main(void) {
 	pthread_mutex_init(&escribiendoMemoria,NULL);
+	pthread_mutex_init(&escribiendoMemoriaCache,NULL);
 	inicializarDataConfig();
 	inicializarMemoria();
+	inicializarCache();
 	inicializarPrograma(100,1,"HOLA SOY UN CODE ANSISOP");
 	pthread_t hiloMostrarMenu;
 	pthread_create(&hiloMostrarMenu, NULL, (void *) mostrarMenuMemoria, NULL);

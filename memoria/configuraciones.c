@@ -25,6 +25,7 @@ void inicializarDataConfig()
 	configDeMemoria.cachePorProceso = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"), "CACHE_X_PROC");
 	configDeMemoria.retardo = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"), "RETARDO_MEMORIA");
 	configDeMemoria.marcosDisponibles= configDeMemoria.marcos;
+	configDeMemoria.cacheDisponible=configDeMemoria.entradasCache;
 
 	system("clear");
 	printf("Bienvenido a la memoria!\n\n");

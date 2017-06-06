@@ -22,6 +22,14 @@
 #include "operacionesMemoria.h"
 #include "estructurasAdministrativas.h"
 
+int cuantosMarcosRepresenta(int unTamanio){
+	int tamMarco=configDeMemoria.tamMarco;
+	if(unTamanio % tamMarco)
+		return unTamanio/tamMarco + 1;
+	else
+		return unTamanio/tamMarco;
+}
+
 void asignarTamanioAMemoria(){
 	memoria = calloc(configDeMemoria.marcos,configDeMemoria.tamMarco);
 }
@@ -34,8 +42,9 @@ void inicializarTablaDePaginas(tablaPaginas_t* tablaDePaginas){
 	}
 	return;
 }
+
 tablaPaginas_t* crearTablaDePaginas(){
-	tablaPaginas_t *tablaDePaginas = calloc(configDeMemoria.marcos,sizeof(tablaPaginas_t));
+	tablaPaginas_t *tablaDePaginas = malloc(tamanioDeTabla());
 	inicializarTablaDePaginas(tablaDePaginas);
 	return tablaDePaginas;
 }
@@ -52,17 +61,9 @@ int actualizarMarcosDisponibles(int marcosAUsar)
 	return -1;
 }
 
-int cuantosMarcosRepresenta(int unTamanio){
-	int tamMarco=configDeMemoria.tamMarco;
-	if(unTamanio % tamMarco)
-		return unTamanio/tamMarco + 1;
-	else
-		return unTamanio/tamMarco;
-}
-
 void reservarEstructurasEnTablaDePaginas(tablaPaginas_t* tablaDePaginas){
-	unsigned cantidadMarcos = cuantosMarcosRepresenta(sizeof(tablaPaginas_t)*configDeMemoria.marcos);
-	unsigned marco;
+	uint32_t cantidadMarcos = cuantosMarcosRepresenta(tamanioDeTabla());
+	uint32_t marco;
 	actualizarMarcosDisponibles(cantidadMarcos);
 	for(marco = 0; marco < cantidadMarcos ; marco++){
 		tablaDePaginas[marco].pid = -1;
@@ -72,10 +73,11 @@ void reservarEstructurasEnTablaDePaginas(tablaPaginas_t* tablaDePaginas){
         //printf("tablaDePaginas[marco].pagina : %d \n",tablaDePaginas[marco].pagina);
 	}
 }
+
 void cargarTablaDePaginasAMemoria(){
 	tablaPaginas_t* tablaDePaginas = crearTablaDePaginas();
 	reservarEstructurasEnTablaDePaginas(tablaDePaginas);
-	memcpy(memoria,tablaDePaginas,configDeMemoria.marcos * sizeof(tablaPaginas_t));
+	memcpy(memoria,tablaDePaginas,tamanioDeTabla());
     free(tablaDePaginas);
 }
 
@@ -83,62 +85,56 @@ void inicializarMemoria(){
 	asignarTamanioAMemoria();
 	cargarTablaDePaginasAMemoria();
 }
-/* que carajo estas haciendo
-bloque_t* cargarBloque(bloque_t* bloque,uint32_t tamanio, void* datos){
-	bloque->header.tam = tamanio;
-	bloque->header.disp = '1';
-	bloque->data = datos;
-	return bloque;
+
+void asignarTamanioACache(){
+	cache = calloc(configDeMemoria.entradasCache, configDeMemoria.tamMarco);
+}
+void inicializarTablaCache(tablaCache_t * tabla){
+	uint32_t marco;
+	contador = 0;
+	for(marco = 0; marco < configDeMemoria.entradasCache; marco++){
+		tabla[marco].pid = -2;
+		tabla[marco].pagina = marco;
+		tabla[marco].counter = contador;
+	}
 }
 
-uint32_t cargarAMemoria(uint32_t tamanio ,void* datos, uint32_t marco){ //Todavia es pequeña, hay que agregarle hash y varias cosas mas
+tablaCache_t * crearTablaCache(){
+	tablaCache_t *tabla = malloc(tamanioDeTablaCache());
+	inicializarTablaCache(tabla);
+	return tabla;
+}
 
-	bloque_t *bloque = malloc(tamanio+5);
-	bloque = cargarBloque(bloque,tamanio, datos);
-	if(marco > configDeMemoria.marcos || marco < 0){
-		printf("Error al cargar, marco inexistente");
-		return -1;
-	}
-	if(tamanio > (configDeMemoria.tamMarco - sizeof(headerB_t))){
-		printf("Error al cargar, tamaño > bloque");
-		return -1;
-	}
-
-	memcpy(memoria+(marco*configDeMemoria.tamMarco), bloque, sizeof(headerB_t) + sizeof(datos));
-	free(bloque);
-	return 0;
-}*/
-/*
-void mostrarTabla()
-{
-	int i;
-	tablaPaginas_t *tablaDePaginas = calloc(configDeMemoria.marcos,sizeof(tablaPaginas_t));
-	memcpy(tablaDePaginas,memoria,configDeMemoria.marcos * sizeof(tablaPaginas_t));
-	for(i=0; i<20; i++){
-		printf("PID: %d , Pagina: %d \n", tablaDePaginas[i].pid, tablaDePaginas[i].pagina);
-	}
-	free(tablaDePaginas);
-}*/
-/*
-void mostrarDeMemoria(uint32_t marco){
-	//Tiene aritmetica de punteros hasta la muerte! hay que trabajar todo memoria asi? :/ si pelotudo
-	uint32_t carry = 0;
-	uint32_t* leer;
-	void* mostrar;
-	int tamMarco=configDeMemoria.tamMarco;
-	while((carry) < tamMarco){
-		memcpy(leer, (memoria+(marco*tamMarco)+carry+1), sizeof(uint32_t) );
-		printf("Leer es: %d", *leer);
-		if((memoria+(marco*tamMarco)+carry ) == '1'){
-			mostrar= malloc(*leer+1);
-			memset(mostrar,'\0',*leer+1);
-			memcpy(mostrar, (memoria+(marco*tamMarco)+carry+5), leer);
-			printf("con el carry %d se ve leer%s\n", carry ,mostrar);
-		}else {
-			printf("con el carry %d paso x un bloque vacio\n", carry);
+int actualizarCacheDisponible(uint32_t marcosAUsar){
+	if((configDeMemoria.cacheDisponible-marcosAUsar)>0)
+		{
+			printf("marcos antes de actualizar : %d \n",configDeMemoria.cacheDisponible);
+			configDeMemoria.cacheDisponible-=marcosAUsar;
+			printf("marcos actualizados : %d \n",configDeMemoria.cacheDisponible);
+			return 0;
 		}
-		carry += *leer+5;
+		return -1;
+}
+
+void reservarEstructurasEnTablaCache(tablaCache_t *tabla){
+	uint32_t cantidadMarcos = cuantosMarcosRepresenta(tamanioDeTablaCache());
+	uint32_t marco;
+	actualizarCacheDisponible(cantidadMarcos);
+	for(marco = 0; marco < cantidadMarcos ; marco++){
+			tabla[marco].pid = -1;
+	        tabla[marco].pagina = marco;
+	        tabla[marco].counter = -1;
 	}
 }
-*/
 
+void cargarTablaDeCache(){
+	tablaCache_t* tabla = crearTablaCache();
+	reservarEstructurasEnTablaCache(tabla);
+	memcpy(cache,tabla,tamanioDeTablaCache());
+	free(tabla);
+}
+
+void inicializarCache(){
+	asignarTamanioACache();
+	cargarTablaDeCache();
+}

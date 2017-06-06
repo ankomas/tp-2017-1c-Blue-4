@@ -18,6 +18,7 @@ typedef struct
 	int cachePorProceso;
 	int retardo;
 	int marcosDisponibles;
+	int cacheDisponible;
 }t_configMemoria;
 
 t_configMemoria configDeMemoria;

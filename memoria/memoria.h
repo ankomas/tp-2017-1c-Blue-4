@@ -10,28 +10,18 @@
 
 
 pthread_t mutex_tabla, mutex_memoria;
+int contador;
 
 typedef struct {
 	uint32_t pid;
 	uint32_t pagina;
 }tablaPaginas_t;
 
-// La memoria esta conformada por paginas de tamaño fijo
-
-typedef struct { // El header contiene la disponibilidad de los datos '0' libre, '1' ocupado y el tamaño del bloque
-	char disp;
-	uint32_t tam;
-}headerB_t;
-
-typedef struct { // Los bloques tienen un header, y los datos
-	headerB_t header;
-	void* data;
-}bloque_t;
-
-typedef struct { // Cada pagina tiene uno o mas bloques
-	bloque_t* bloques;
-}pagina_t;
-
+typedef struct {
+	uint32_t pid;
+	uint32_t pagina;
+	uint32_t counter;
+}tablaCache_t;
 
 
 
