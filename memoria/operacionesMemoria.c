@@ -89,7 +89,7 @@ void cargarCodigo(uint32_t marco, uint32_t pagina, void* data){
 	memcpy(memoria+marco*configDeMemoria.tamMarco,
 		   data+pagina*configDeMemoria.tamMarco,
 			configDeMemoria.tamMarco);
-	printf("cargue en memoria : %s \n",data);
+	printf("cargue en memoria : %s \n",(char*)data);
 	//pthread_mutex_unlock(mutexMemoria);
 }
 
@@ -124,7 +124,6 @@ int tieneMarcosSuficientes(int paginasRequeridas){
 }
 
 void inicializarPrograma(uint32_t pid,uint32_t paginasRequeridas, void* data){
-
 
 		//pthread_mutex_lock(mutexMemoria);
 		printf("tengo marcos suficientes \n");

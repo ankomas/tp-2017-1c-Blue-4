@@ -17,6 +17,7 @@ typedef struct
 	char codOp;
 	int socket;
 }dataHilo_t;
+
 void operacionesMemoria(dataHilo_t*);
 
 

@@ -33,4 +33,11 @@ void escribirCache(uint32_t, uint32_t, uint32_t, uint32_t, void*);
 
 tablaPaginas_t* obtenerTablaDePaginas();
 
+/**
+ *
+ * @param (int marcos) cantidad de marcosa evaluar
+ * @return bool
+ */
+int tieneMarcosSuficientes(int );
+
 #endif /* OPERACIONESMEMORIA_H_ */

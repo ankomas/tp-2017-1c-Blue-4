@@ -93,13 +93,14 @@ char* obtenerDataSerializada(uint32_t* puntero,char* buffer)
 	return data;
 }
 
-
-
-int recibirTamanioBuffer(int socket,uint32_t* tamanioTotalBuffer)
+//TODO liberar el string cuando no se necesite mas !!!
+char* recibirTamanioBuffer(int socket,int* resultado)
 {
-	int resultado;
-	resultado=recvall(socket,tamanioTotalBuffer,sizeof(uint32_t));
-	return resultado;
+	int tambuffer=sizeof(uint32_t)+1;
+	char* buffer=malloc(tambuffer);
+	memset(buffer,'\0',tambuffer);
+	*resultado=recvall(socket,buffer,tambuffer);
+	return buffer;
 }
 
 //TODO liberar la data cuando no se necesite mas !!!
@@ -114,7 +115,7 @@ int validarRecv(int socket,int resultadoRecv)
 {
 	if(resultadoRecv<0)
 	{
-		send(socket,'N',1,0);
+		send(socket,"N",1,0);
 		return -1;
 	}
 	return 0;
@@ -123,7 +124,7 @@ int validarRecv(int socket,int resultadoRecv)
 
 
 
-uint32_t peticionMemoria(uint32_t socket)
+uint32_t peticionMemoria2(uint32_t socket)
 {
 	uint32_t tamanio, bytes, puntero = 0;
 	package_t paquete;
@@ -152,25 +153,49 @@ uint32_t peticionMemoria(uint32_t socket)
 	return 0;
 }
 
-/*
+
+
+char* recibir_PID_PAGINAS(int socket,uint32_t* pid,uint32_t* pagina,uint32_t* puntero)
+{
+	uint32_t tamanioTotalBuffer;
+		*puntero=0;
+		int resultado;
+		char* buffer,*tambuffer_string;
+		tambuffer_string=recibirTamanioBuffer(socket,&resultado);
+		if(validarRecv(socket,resultado)<0)
+		{
+			free(tambuffer_string);
+			return NULL;
+		}
+
+		tamanioTotalBuffer=atoi(tambuffer_string);
+		free(tambuffer_string);
+		buffer=recibirPaquete(socket,tamanioTotalBuffer,&resultado);
+		if(validarRecv(socket,resultado)<0)
+		{
+			free(buffer);
+			return NULL;
+		}
+		*pid=obtenerNumeroSerializado(puntero,buffer);
+		*pagina=obtenerNumeroSerializado(puntero,buffer);
+		return buffer;
+}
+
+
+
+
+
+
 uint32_t peticionMemoria(uint32_t socket)
 {
-	uint32_t tamanio, pid,paginasRequeridas, puntero = 0;
-	//package_t paquete;
+	uint32_t pid,paginasRequeridas, puntero;
 	char *buffer,*data;
-	if(recv(socket,&tamanio, 4,0) != 4){
-		send(socket,"N",1,0);
+	buffer=recibir_PID_PAGINAS(socket,&pid,&paginasRequeridas,&puntero);
+	if(buffer==NULL)
+	{
+		free(buffer);
 		return -1;
 	}
-
-	buffer = malloc(tamanio);
-	if(recv(socket,buffer, tamanio,0) != tamanio){
-		send(socket,"N",1,0);
-		return -1;
-	}
-
-	pid=obtenerNumeroSerializado(&puntero,buffer);
-	paginasRequeridas=obtenerNumeroSerializado(&puntero,buffer);
 
 	if(!(tieneMarcosSuficientes(paginasRequeridas)))
 	{
@@ -178,50 +203,32 @@ uint32_t peticionMemoria(uint32_t socket)
 		free(buffer);
 		return 0;
 	}
-
 	send(socket,"Y",1,0);
-	// recibo el tamaño del codigo y el codigo, si es que tengo paginas suficientes!!!
-	//recvall(socket,&tamanio,4);
-	//free(buffer);
-	//buffer = malloc(tamanio);
-	//recvall(socket,buffer,tamanio);
-	//puntero=0;
 	data=obtenerDataSerializada(&puntero,buffer);
 	inicializarPrograma(pid,paginasRequeridas,data);
-	//printf("Se van a reservar %i bytes de memoria para el socket %i\n", bytes, socket);
-
-	//reservarMemoria(bytes);
-
+	printf("Se van a reservar bytes de memoria para el socket %i\n", socket);
+	free(data);
 	free(buffer);
 	return 0;
 }
-*/
+
 
 
 char* recibir_PID_PAGINA_OFFSET(int socket,uint32_t* pid,uint32_t* pagina,uint32_t* offset,uint32_t* puntero)
 {
-	uint32_t tamanioTotalBuffer;
-		*puntero=0;
-		int resultado;
 		char* buffer;
-		resultado=recibirTamanioBuffer(socket,&tamanioTotalBuffer);
-		if(validarRecv(socket,resultado)<0)return NULL;
-
-		buffer=recibirPaquete(socket,tamanioTotalBuffer,&resultado);
-		if(validarRecv(socket,resultado)<0)
-		{
-			free(buffer);
-			return NULL;
-		}
-
-		*pid=obtenerNumeroSerializado(puntero,buffer);
-		*pagina=obtenerNumeroSerializado(puntero,buffer);
-		*offset=obtenerNumeroSerializado(puntero,buffer);
-		return buffer;
+		buffer=recibir_PID_PAGINAS(socket,pid,pagina,puntero);
+		if(buffer)
+			{
+				*offset=obtenerNumeroSerializado(puntero,buffer);
+				return buffer;
+			}
+		free(buffer);
+		return NULL;
 }
 
 
-void recibir_PID_PAGINA_OFFSET_TAMANIO(int socket,uint32_t* pid,uint32_t* pagina,uint32_t* offset,uint32_t* tamanio)
+int recibir_PID_PAGINA_OFFSET_TAMANIO(int socket,uint32_t* pid,uint32_t* pagina,uint32_t* offset,uint32_t* tamanio)
 {
 	uint32_t puntero;
 	char* buffer=recibir_PID_PAGINA_OFFSET(socket,pid,pagina,offset,&puntero);
@@ -229,24 +236,29 @@ void recibir_PID_PAGINA_OFFSET_TAMANIO(int socket,uint32_t* pid,uint32_t* pagina
 	{
 		*tamanio=obtenerNumeroSerializado(&puntero,buffer);
 		free(buffer);
-		return;
+		return 0;
 	}
 	printf("no se pudo recibir: pid,pagina,offset,tamanio  de : %d\n",socket);
+	free(buffer);
+	return -1;
 }
 
 
-void recibir_PID_PAGINA_OFFSET_TAMANIO_DATA(int socket,uint32_t* pid,uint32_t* pagina,uint32_t* offset,uint32_t* tamanio,void* data)
+char* recibir_PID_PAGINA_OFFSET_TAMANIO_DATA(int socket,uint32_t* pid,uint32_t* pagina,uint32_t* offset,uint32_t* tamanio)
 {
 	uint32_t puntero;
+	void* data;
 		char* buffer=recibir_PID_PAGINA_OFFSET(socket,pid,pagina,offset,&puntero);
 		if(buffer)
 		{
 			*tamanio=obtenerNumeroSerializado(&puntero,buffer);
 			data=obtenerDataSerializada(&puntero,buffer);
 			free(buffer);
-			return;
+			return data;
 		}
 		printf("no se pudo recibir: pid,pagina,offset,tamanio,data  de : %d\n",socket);
+		free(buffer);
+		return NULL;
 }
 
 
@@ -255,9 +267,10 @@ void enviarTamPagina(int socket)
 {
 	char* data;
 	data=string_itoa(configDeMemoria.tamMarco);
-	uint32_t tamanio= sizeof(int);
+	uint32_t tamanio= sizeof(uint32_t);
 
 	sendall(socket,data,&tamanio);
+	free(data);
 }
 
 
@@ -265,13 +278,18 @@ void enviarTamPagina(int socket)
 void solicitarBytes(int socket)
 {
 	uint32_t pid,pagina,offset,tamanio;
+	int resultado;
 	void* data;
-	recibir_PID_PAGINA_OFFSET_TAMANIO(socket,&pid,&pagina,&offset,&tamanio);
+	resultado=recibir_PID_PAGINA_OFFSET_TAMANIO(socket,&pid,&pagina,&offset,&tamanio);
+	if(resultado<0)return;
 	data=leerMemoria(pid,pagina,offset,tamanio);
 	if(data){
-	sendall(socket,data,&tamanio);
+		send(socket,"Y",1,0);
+		sendall(socket,data,&tamanio);
+		free(data);
 	}else{
-		send(socket,'N',1,0);
+		send(socket,"N",1,0);
+		free(data);
 	}
 }
 
@@ -280,9 +298,15 @@ void almacenarBytes(int socket)
 {
 	uint32_t pid,pagina,offset,tamanio;
 	void* data;
-	recibir_PID_PAGINA_OFFSET_TAMANIO_DATA(socket,&pid,&pagina,&offset,&tamanio,data);
-	escribirMemoria(pid,pagina,offset,tamanio,data);
-	//TODO agregar mensaje de error,(falta que escribirMemoria devuelva un valor de exito)
+	data=recibir_PID_PAGINA_OFFSET_TAMANIO_DATA(socket,&pid,&pagina,&offset,&tamanio);
+	if(data)
+	{
+		//TODO agregar mensaje de error,(falta que escribirMemoria devuelva un valor de exito)
+		escribirMemoria(pid,pagina,offset,tamanio,data);
+		free(data);
+		return;
+	}
+	free(data);
 }
 
 
