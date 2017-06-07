@@ -40,4 +40,22 @@ tablaPaginas_t* obtenerTablaDePaginas();
  */
 int tieneMarcosSuficientes(int );
 
+
+/**
+ * funcion que sirve para que el kernel finalize un proceso
+ * setea la tabla de paginas en -2 correspondiente al lugar donde estaba ese pid.
+ *
+ * @param uint32_t pid (identificador unico de un proceso)
+ */
+void finalizarPrograma(uint32_t );
+
+
+/**
+ *
+ * @param uint32_t pid (identificador unico de un proceso)
+ * @param uint32_t paginas requeridas
+ * @return 0 en caso de exito | -1 en caso de error
+ */
+int asignarPaginasAUnProceso(uint32_t ,uint32_t );
+
 #endif /* OPERACIONESMEMORIA_H_ */

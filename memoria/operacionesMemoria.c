@@ -74,7 +74,7 @@ int tamanioDeTablaCache(){
  int getMarco(int pid, int pag){
 	 tablaPaginas_t *tdep = obtenerTablaDePaginas();
 	 int i;
-	 if(pid<-1 || pag<0)
+	 if(pid==-1 || pag<0)
 		 return -1;
 	 for(i=0; i<configDeMemoria.marcos; i++){
 		 if(tdep[i].pid == pid){
@@ -130,6 +130,40 @@ void inicializarPrograma(uint32_t pid,uint32_t paginasRequeridas, void* data){
 		agregarNuevoProceso(pid,paginasRequeridas,data);
 		//pthread_mutex_unlock(mutexMemoria);
 }
+
+
+void finalizarPrograma(uint32_t pid)
+{
+	tablaPaginas_t* tablaDePaginas = obtenerTablaDePaginas();
+	int pagina=0;
+	int marco=getMarco(pid,pagina);
+	while(marco>-1)
+	{
+		tablaDePaginas[marco].pid=-2;
+		tablaDePaginas[marco].pagina=marco;
+		pagina++;
+		marco=getMarco(pid,pagina);
+	}
+}
+
+
+int asignarPaginasAUnProceso(uint32_t pid,uint32_t paginasRequeridas)
+{
+	int contador_paginas=0,marco;
+	tablaPaginas_t* tablaDePaginas=obtenerTablaDePaginas();
+	int resultado=tieneMarcosSuficientes(paginasRequeridas);
+	if(resultado==0)return -1;
+	actualizarMarcosDisponibles(paginasRequeridas);
+	while(contador_paginas<paginasRequeridas)
+	{
+		marco=getMarco(-2,contador_paginas);
+		tablaDePaginas[marco].pid=pid;
+		tablaDePaginas[marco].pagina=contador_paginas;
+		contador_paginas++;
+	}
+	return 0;
+}
+
 
 void* leerMemoria(uint32_t pid,uint32_t pag, uint32_t offset, uint32_t tam){
 	int marco = getMarco(pid, pag);

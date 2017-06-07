@@ -30,6 +30,7 @@ int main(void) {
 
 	inicializarEstructurasAdministrativas();
 	//inicializarPrograma(100,1,"HOLA SOY UN CODE ANSISOP");
+	//asignarPaginasAUnProceso(100,20);
 	pthread_t hiloMostrarMenu;
 	pthread_create(&hiloMostrarMenu, NULL, (void *) mostrarMenuMemoria, NULL);
 	servidor(puerto);
