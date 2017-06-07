@@ -84,6 +84,8 @@ void cargarTablaDePaginasAMemoria(){
 void inicializarMemoria(){
 	asignarTamanioAMemoria();
 	cargarTablaDePaginasAMemoria();
+	maxPA = configDeMemoria.marcos - cuantosMarcosRepresenta(tamanioDeTabla());
+	procesosActivos = calloc(maxPA, sizeof(procesoActivo_t));
 }
 
 void asignarTamanioACache(){

@@ -12,6 +12,10 @@
 
 pthread_mutex_t escribiendoMemoria, escribiendoMemoriaCache;
 
+uint32_t tamanioDeTabla();
+
+uint32_t tamanioDeTablaCache();
+
 void inicializarPrograma(uint32_t ,uint32_t , void* );
 
 

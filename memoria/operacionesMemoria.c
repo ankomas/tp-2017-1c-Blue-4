@@ -15,11 +15,11 @@
 #include "configuraciones.h"
 #include "estructurasAdministrativas.h"
 
-int tamanioDeTabla(){
+uint32_t tamanioDeTabla(){
 	return sizeof(tablaPaginas_t)*configDeMemoria.marcos;
 }
 
-int tamanioDeTablaCache(){
+uint32_t tamanioDeTablaCache(){
 	return sizeof(tablaCache_t)*configDeMemoria.entradasCache;
 }
 
@@ -41,7 +41,7 @@ int tamanioDeTablaCache(){
 	 return tabla;
  }
 
- int proximoCache(){
+ int lru(){
 	 tablaCache_t* tabla = obtenerTablaCache();
 	 int marco, minV=0, minM=-1;
 	 for(marco = 0; marco < configDeMemoria.entradasCache; marco++){
@@ -71,6 +71,63 @@ int tamanioDeTablaCache(){
 	return -1;
 }
 
+
+ int marcosTabla(){
+ 	return cuantosMarcosRepresenta(tamanioDeTabla());
+ }
+
+ int tratarColision(int hash)
+ {
+ 	if(hash<configDeMemoria.marcos)
+   	return hash++;
+   else
+   	return marcosTabla();
+ }
+
+
+ int funcionDeHash(pid, pag){
+ 	return (pid*10+pag)%(maxPA) + marcosTabla();
+ }
+
+ int getMarco(uint32_t pid,uint32_t pagina)
+ {
+ 	// el hash representa el indice en la tabla que seria igual al marco
+ 	int hash,i=0;
+   tablaPaginas_t* tablaDePaginas= obtenerTablaDePaginas();
+ 	hash=funcionDeHash(pid,pagina);
+
+   while(tablaDePaginas[hash].pid!=pid || tablaDePaginas[hash].pagina!=pagina){
+   hash = tratarColision(hash);
+   i++;
+
+   if(i>=maxPA){
+   	return -1; }//NO EXISTE EL PUTO PID CON LA PAGINA, PELOTUDO =)
+
+   }
+   return hash;
+ }
+
+ int marcoVacio(int marco){
+ 	tablaPaginas_t *tablaDePaginas = obtenerTablaDePaginas();
+ 	return tablaDePaginas[marco].pid == -2;
+ }
+
+int nuevoMarco(uint32_t pid, uint32_t pagina) {
+	// el hash representa el indice en la tabla que seria igual al marco
+	int hash, i = 0;
+	hash = funcionDeHash(pid, pagina);
+	while (!marcoVacio(hash)) {
+		hash = tratarColision(hash);
+		i++;
+
+		if (i >= maxPA)
+			return -1; //NO HAY MARCOS VACIOS ._.
+
+	}
+	return hash;
+}
+
+ /*
  int getMarco(int pid, int pag){
 	 tablaPaginas_t *tdep = obtenerTablaDePaginas();
 	 int i;
@@ -83,6 +140,7 @@ int tamanioDeTablaCache(){
 	 }
 	 return -1;
  }
+ */
 
 void cargarCodigo(uint32_t marco, uint32_t pagina, void* data){
 	//pthread_mutex_lock(mutexMemoria);
@@ -93,29 +151,27 @@ void cargarCodigo(uint32_t marco, uint32_t pagina, void* data){
 	//pthread_mutex_unlock(mutexMemoria);
 }
 
-
-
-void cargarPaginaA(tablaPaginas_t *tablaDePaginas,uint32_t pid, uint32_t pagina, unsigned marco){
+void cargarPaginaATabla(uint32_t pid, uint32_t pagina, unsigned marco){
+	tablaPaginas_t *tablaDePaginas = obtenerTablaDePaginas();
 	tablaDePaginas[marco].pid= pid;
 	printf("cargue el pid : %d \n",pid);
 	tablaDePaginas[marco].pagina = pagina;
 	printf("cargue la pagina : %d \n",pagina);
 	return;
 }
-void guardaProcesoEn(tablaPaginas_t *tablaDePaginas, uint32_t pid, uint32_t paginasRequeridas,void* data){
-	unsigned marco = 0,pagina = 0;
-	while(pagina < paginasRequeridas){
-		if(tablaDePaginas[marco].pid == -2){
-			cargarPaginaA(tablaDePaginas,pid,pagina,marco);
-			cargarCodigo(marco,pagina,data);
-			pagina++;
-		}
-		marco++;
+
+void guardaProcesoEn(uint32_t pid, uint32_t paginasRequeridas, void* data) {
+	uint32_t marco, pagina = 0;
+	while (pagina < paginasRequeridas) {
+		marco = nuevoMarco(pid, pagina);
+		cargarPaginaATabla(pid, pagina, marco);
+		cargarCodigo(marco, pagina, data);
+		pagina++;
 	}
+	marco++;
 }
 void agregarNuevoProceso(uint32_t pid, uint32_t paginasRequeridas,void* data){
-	tablaPaginas_t *tablaDePaginas = obtenerTablaDePaginas();
-	guardaProcesoEn(tablaDePaginas,pid,paginasRequeridas,data);
+	guardaProcesoEn(pid,paginasRequeridas,data);
 	actualizarMarcosDisponibles(paginasRequeridas);
 }
 
@@ -165,7 +221,7 @@ int asignarPaginasAUnProceso(uint32_t pid,uint32_t paginasRequeridas)
 }
 
 
-void* leerMemoria(uint32_t pid,uint32_t pag, uint32_t offset, uint32_t tam){
+void* leerMemoria(uint32_t pid,uint32_t pag, uint32_t offset, uint32_t tam){ //REQUIERE FREE
 	int marco = getMarco(pid, pag);
 	void* datos = malloc(tam);
 	memcpy(datos,memoria+marco*configDeMemoria.tamMarco+offset, tam);

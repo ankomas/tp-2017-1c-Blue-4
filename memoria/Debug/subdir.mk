@@ -9,8 +9,7 @@ C_SRCS += \
 ../memoria.c \
 ../menuMemoria.c \
 ../operacionesMemoria.c \
-../sockets.c \
-../tests.c 
+../sockets.c 
 
 OBJS += \
 ./configuraciones.o \
@@ -18,8 +17,7 @@ OBJS += \
 ./memoria.o \
 ./menuMemoria.o \
 ./operacionesMemoria.o \
-./sockets.o \
-./tests.o 
+./sockets.o 
 
 C_DEPS += \
 ./configuraciones.d \
@@ -27,8 +25,7 @@ C_DEPS += \
 ./memoria.d \
 ./menuMemoria.d \
 ./operacionesMemoria.d \
-./sockets.d \
-./tests.d 
+./sockets.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
