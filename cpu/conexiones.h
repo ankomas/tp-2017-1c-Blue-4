@@ -12,6 +12,7 @@ struct data_socket crearSocket(int, char* );
 int enviarMensaje(int ,char*,int );
 int conectar(char* , char* ,int );
 void cerrarConexion(int );
+void standby(int );
 
 
 

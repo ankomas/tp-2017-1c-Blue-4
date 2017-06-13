@@ -14,6 +14,9 @@
 #include <sys/types.h>
 #include <netdb.h>
 
+#define ID_KERNEL 2
+#define ID_MEMORIA 5
+
 struct addrinfo *crear_addrinfo_socket(char* ip, char* puerto) {
 	int status;
 	struct addrinfo hints;
@@ -71,6 +74,13 @@ int conectar(char *puerto, char *ip,int id) {
 	int socketCliente = crear_socket(servinfo);
 
 	printf("Socket creado: %i\n", socketCliente);
+	printf("Comensando conexion a ");
+	printf("IP: %s, PUERTO: %s, ",ip,puerto);
+	if(id==ID_KERNEL)
+		printf("PROCESO: KERNEL\n");
+	if(id==ID_MEMORIA)
+		printf("PROCESO: MEMORIA\n");
+
 	if (connect(socketCliente, servinfo->ai_addr, servinfo->ai_addrlen) != 0) {
 		perror("No se pudo conectar");
 		return -1;
@@ -89,4 +99,17 @@ int conectar(char *puerto, char *ip,int id) {
 
 void cerrarConexion(int socket){
 	close(socket);
+}
+
+void standby(int socket){
+	char op;
+	if(send(socket,"0",1,0)<1){
+		perror("No se pudo enviar");
+		return;
+	}
+	printf("A la espera del kernel...\n");
+	if(recv(socket,&op,1,MSG_WAITALL)<1){
+		perror("No se pudo recibir");
+		return;
+	}
 }

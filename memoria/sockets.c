@@ -47,7 +47,7 @@ int handshakeHandler(int i){
 	char bufHandshake[1];
 	int tamHandshake = 1;
 	if(recvall(i, bufHandshake, sizeof(bufHandshake)) == 0){
-		if(bufHandshake[0] == KERNEL_ID){
+		if(bufHandshake[0] == KERNEL_ID || bufHandshake[0] == CPU_ID){
 			reconozcoCliente = 1;
 		}
 	} else {
