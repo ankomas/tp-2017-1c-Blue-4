@@ -36,16 +36,25 @@ int obtenerTamanioPagina(){
 	return -1;
 }
 
-int valorSemaforo(char * unSemaforo){
+void inicializarSemaforos() {
 	char** sem_ids = obtenerConfiguracionArray(rutaAbsolutaDe("config.cfg"),"SEM_IDS");
+	char** sem_init = obtenerConfiguracionArray(rutaAbsolutaDe("config.cfg"),"SEM_INIT");
 	int aux = 0;
 
-
-	while (strcmp(sem_ids[aux],unSemaforo) != 0){
+	while (sem_ids[aux]){
+		dictionary_put(semaforos,sem_ids[aux],sem_init[aux]);
 		aux++;
 	}
+}
 
-	return aux;
+void inicializarVariablesCompartidas() {
+	char** varCompartidas_ids = obtenerConfiguracionArray(rutaAbsolutaDe("config.cfg"),"SEM_IDS");
+	int aux = 0;
+
+	while (varCompartidas_ids[aux]){
+		dictionary_put(semaforos,varCompartidas_ids[aux],0);
+		aux++;
+	}
 }
 
 int solicitarMemoria(uint32_t i, uint32_t data,uint32_t data2) {

@@ -32,6 +32,8 @@ pthread_t hiloPlanificador,hiloConsolaKernel;
 
 t_list * PROGRAMAs;
 t_list * CPUs;
+t_dictionary * semaforos;
+t_dictionary * variablesCompartidas;
 t_queue * procesosNEW;
 t_queue * procesosREADY;
 t_queue * procesosEXEC;
@@ -46,6 +48,10 @@ void inicializarDatos(){
 
 	PROGRAMAs = list_create();
 	CPUs = list_create();
+	semaforos = dictionary_create();
+	variablesCompartidas = dictionary_create();
+	inicializarSemaforos();
+	inicializarVariablesCompartidas();
 
 	cantidadProgramasEnSistema = 0;
 	gradoMultiprogramacion = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"),"GRADO_MULTIPROG");

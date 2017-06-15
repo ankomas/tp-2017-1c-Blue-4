@@ -1313,3 +1313,24 @@
 [TRACE] 22:35:21:696 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(22474:22474): Se realizo el Handshake con exito con 7
 [TRACE] 22:35:23:697 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(22474:22474): CPU eliminada
 [TRACE] 22:37:23:414 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(22474:22474): Se realizo el Handshake con exito con 7
+[TRACE] 01:30:48:903 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(3054:3054): Iniciando Kernel...
+[ERROR] 01:30:48:903 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(3054:3054): No se pudo obtener el tamanio de pagina
+[ERROR] 01:30:48:903 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(3054:3054): No se pudo conectar al FileSystem
+[ERROR] 01:30:48:903 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(3054:3054): No se pudo conectar a la Memoria
+[TRACE] 01:33:32:999 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(3331:3331): Iniciando Kernel...
+[TRACE] 01:33:32:1 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(3331:3331): Conexion establecida con el FileSystem
+[TRACE] 01:33:32:1 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(3331:3331): Conexion establecida con la Memoria
+[TRACE] 01:34:35:162 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(3331:3331): Se realizo el Handshake con exito con 7
+[TRACE] 01:34:35:163 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(3331:3331): Un nuevo proceso ha sido creado
+[TRACE] 02:13:34:447 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(4028:4028): Iniciando Kernel...
+[TRACE] 02:13:34:450 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(4028:4028): Conexion establecida con el FileSystem
+[TRACE] 02:13:34:450 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(4028:4028): Conexion establecida con la Memoria
+[TRACE] 02:15:26:671 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(4133:4133): Iniciando Kernel...
+[TRACE] 02:15:26:675 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(4133:4133): Conexion establecida con el FileSystem
+[TRACE] 02:15:26:675 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(4133:4133): Conexion establecida con la Memoria
+[TRACE] 02:15:43:164 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(4168:4168): Iniciando Kernel...
+[TRACE] 02:15:43:171 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(4168:4168): Conexion establecida con el FileSystem
+[TRACE] 02:15:43:171 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(4168:4168): Conexion establecida con la Memoria
+[TRACE] 02:16:11:367 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(4213:4213): Iniciando Kernel...
+[TRACE] 02:16:11:373 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(4213:4213): Conexion establecida con el FileSystem
+[TRACE] 02:16:11:373 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(4213:4213): Conexion establecida con la Memoria
