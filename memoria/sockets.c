@@ -318,7 +318,7 @@ void operacionesMemoria(dataHilo_t* dataHilo)
 	printf("LLEGUE A OPERACIONES MEMORIA con %c\n", cop);
 	switch(cop)
 	{
-	case 'A': peticionMemoria(socket);break;
+	case 'A': peticionMemoria2(socket);break;
 	case 'P': enviarTamPagina(socket);break;
 	case 'R': solicitarBytes(socket);break;
 	case 'W': almacenarBytes(socket);break;
