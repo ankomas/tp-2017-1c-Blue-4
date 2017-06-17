@@ -60,11 +60,14 @@ void inicializarVariablesCompartidas() {
 int solicitarMemoria(uint32_t i, uint32_t data,uint32_t data2) {
 	package_t paquete;
 	uint32_t bytes=-1;
-	char* opcode= malloc(1);
-	opcode[1] = 'A';
-	paquete = serializar(6,1,&opcode, sizeof(uint32_t), string_itoa(data),sizeof(uint32_t), string_itoa(data2));
-	bytes = sendall(i, &paquete.data, &paquete.data_size);
+	uint32_t tamOpCode = 1;
+	paquete = serializar(4,sizeof(uint32_t), &data,sizeof(uint32_t), &data2);
+	if(sendall(i,"A",&tamOpCode) < 0)
+		return -1;
+	if(sendall(i, paquete.data, &paquete.data_size) < 0)
+		return -1;
 	testi(bytes);
+
 	//printf("envie %i bytes en el %i send\n", bytes, contador++);
 	/*bytes = send(i, &paquete.data_size, sizeof(uint32_t), 0);
 	printf("envie %i bytes en el %i send\n", bytes, contador++);
@@ -83,4 +86,8 @@ int solicitarMemoria(uint32_t i, uint32_t data,uint32_t data2) {
 		}
 	}
 }
+
+/*int liberarPagina(){
+
+}*/
 
