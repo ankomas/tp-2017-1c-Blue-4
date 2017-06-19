@@ -14,6 +14,8 @@
 #define ID_MEMORIA 5
 
 int main() {
+	testPCB();
+	return 0;
 	//int socketKernel,socketMemoria;
 	char *ipKernel, *ipMemoria, *puertoKernel, *puertoMemoria;
 	t_config* config;
