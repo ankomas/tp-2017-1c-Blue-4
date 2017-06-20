@@ -1742,3 +1742,32 @@
 [ERROR] 02:24:47:990 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27661:27661): No se pudo obtener el tamanio de pagina
 [TRACE] 02:24:47:991 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27661:27661): Conexion establecida con el FileSystem
 [ERROR] 02:24:47:992 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27661:27661): No se pudo conectar a la Memoria
+[TRACE] 02:33:01:397 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27730:27730): Iniciando Kernel...
+[ERROR] 02:33:01:439 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27730:27730): No se pudo obtener el tamanio de pagina
+[TRACE] 02:33:01:441 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27730:27730): Conexion establecida con el FileSystem
+[ERROR] 02:33:01:441 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27730:27730): No se pudo conectar a la Memoria
+[TRACE] 02:34:17:527 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27847:27847): Iniciando Kernel...
+[ERROR] 02:34:17:570 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27847:27847): No se pudo obtener el tamanio de pagina
+[TRACE] 02:34:17:571 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27847:27847): Conexion establecida con el FileSystem
+[ERROR] 02:34:17:571 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27847:27847): No se pudo conectar a la Memoria
+[TRACE] 02:35:24:616 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27868:27868): Iniciando Kernel...
+[TRACE] 02:35:24:649 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27868:27868): Conexion establecida con el FileSystem
+[TRACE] 02:35:24:650 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27868:27868): Conexion establecida con la Memoria
+[TRACE] 02:36:13:856 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27868:27868): Se realizo el Handshake con exito con 7
+[TRACE] 02:36:13:863 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27868:27868): Un nuevo proceso ha sido creado
+[ERROR] 02:36:13:907 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27868:27868): ERROR, el kernel no pudo solicitar memoria correctamente
+[TRACE] 02:36:49:947 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27868:27868): Se realizo el Handshake con exito con 7
+[TRACE] 02:36:49:948 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27868:27868): Un nuevo proceso ha sido creado
+[TRACE] 02:36:49:995 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27868:27868): Nuevo proceso encolado en READY
+[TRACE] 02:36:56:458 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27868:27868): Se realizo el Handshake con exito con 8
+[TRACE] 02:36:56:459 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27868:27868): Un nuevo proceso ha sido creado
+[TRACE] 02:36:56:499 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27868:27868): Nuevo proceso encolado en READY
+[TRACE] 02:37:21:170 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27868:27868): Se realizo el Handshake con exito con 7
+[TRACE] 02:37:21:171 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27868:27868): Un nuevo proceso ha sido creado
+[INFO] 02:37:21:174 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27868:27868): No se pueden aceptar mas programas debido al grado de multiprogramacion definido. Encolando en NEW...
+[TRACE] 02:37:26:314 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27868:27868): Se realizo el Handshake con exito con 8
+[TRACE] 02:37:26:315 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27868:27868): Un nuevo proceso ha sido creado
+[INFO] 02:37:26:316 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27868:27868): No se pueden aceptar mas programas debido al grado de multiprogramacion definido. Encolando en NEW...
+[TRACE] 02:37:34:419 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27868:27868): Se realizo el Handshake con exito con 8
+[TRACE] 02:37:34:420 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27868:27868): Un nuevo proceso ha sido creado
+[INFO] 02:37:34:421 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(27868:27868): No se pueden aceptar mas programas debido al grado de multiprogramacion definido. Encolando en NEW...

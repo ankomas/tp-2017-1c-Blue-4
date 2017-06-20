@@ -246,8 +246,10 @@ char * rutaAbsoluta(){
 
 char * rutaAbsolutaDe(char * archivo){
 	char * unaRuta = string_new();
-	string_append(&unaRuta,rutaAbsoluta());
+	char * laRutaAbsoluta = rutaAbsoluta();
+	string_append(&unaRuta,laRutaAbsoluta);
 	string_append(&unaRuta,archivo);
+	free(laRutaAbsoluta);
 	return unaRuta;
 }
 
