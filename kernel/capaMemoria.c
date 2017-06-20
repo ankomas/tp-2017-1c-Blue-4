@@ -66,7 +66,6 @@ int solicitarMemoria(uint32_t i, uint32_t data,uint32_t data2) {
 		return -1;
 	if(sendall(i, paquete.data, &paquete.data_size) < 0)
 		return -1;
-	testi(bytes);
 
 	//printf("envie %i bytes en el %i send\n", bytes, contador++);
 	/*bytes = send(i, &paquete.data_size, sizeof(uint32_t), 0);

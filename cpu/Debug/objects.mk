@@ -4,5 +4,5 @@
 
 USER_OBJS :=
 
-LIBS := -lblue4-lib -lparser -lcommons
+LIBS := -lparser -lcommons -lblue4-lib
 
