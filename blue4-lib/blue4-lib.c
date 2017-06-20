@@ -232,9 +232,11 @@ char * rutaAbsoluta(){
 		char *p = cwd;
 		// strlen(p)-6 es donde estaria la palabra: Debug
 		if(string_ends_with(cwd,"/Debug"))
-			p[strlen(p)-5] = 0;
-
-		return p;
+			p[strlen(p)-5] = '\0';
+			char * ret = malloc(strlen(p)+1);
+			*ret = '\0';
+			string_append(&ret,p);
+		return ret;
 	}
 	else {
 		perror("Error al obtener una ruta absoluta");
@@ -244,8 +246,10 @@ char * rutaAbsoluta(){
 
 char * rutaAbsolutaDe(char * archivo){
 	char * unaRuta = string_new();
-	string_append(&unaRuta,rutaAbsoluta());
+	char * laRutaAbsoluta = rutaAbsoluta();
+	string_append(&unaRuta,laRutaAbsoluta);
 	string_append(&unaRuta,archivo);
+	free(laRutaAbsoluta);
 	return unaRuta;
 }
 

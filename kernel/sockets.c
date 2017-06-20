@@ -421,7 +421,7 @@ int servidor(void)
                             if (FD_ISSET(j, &master)) {
                                 // except the listener and ourselves
                                 if (j != listener && j != i) {
-                                    if (sendall(j, buf, (uint32_t*)nbytes) == -1) {
+                                    if (sendall(j, buf, (uint32_t*)&nbytes) == -1) {
                                         perror("send");
                                     }
                                 }
