@@ -4,21 +4,10 @@
  *  Created on: 5/4/2017
  *      Author: utnso
  */
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-
-#include <sys/types.h>
-#include <netdb.h>
-#include <blue4-lib.h>
-#include <parser/metadata_program.h>
-#include <commons/collections/list.h>
-
 #define ID_KERNEL 2
 #define ID_MEMORIA 5
+
+#include "conexiones.h"
 
 static const char* PROGRAMA =
 		"begin\n"
@@ -37,62 +26,7 @@ static const char* PROGRAMA =
 		"end\n"
 		"\n";
 
-typedef struct{
-	uint32_t pag;
-	uint32_t off;
-	uint32_t size;
-}t_pos;
-
-typedef struct{
-	char id;
-	t_pos pos;
-}t_var;
-
-typedef struct{
-	t_list *args;
-	t_list *vars;
-	uint32_t retPos;
-	t_pos retVar;
-}t_stack;
-
-typedef struct{
-	uint32_t pid;
-	uint32_t pc;
-	uint32_t sp;
-	uint32_t cantPagCod;
-
-	uint32_t indiceCodigoSize;
-	t_intructions* indiceCodigo;
-
-	uint32_t indiceEtiquetasSize;
-	char* indiceEtiquetas;
-
-	uint32_t indiceStackSize;
-	t_stack* indiceStack;
-
-	uint32_t exitCode;
-}t_pcb2;
-
-package_t serializarPCB(t_pcb2 pcb){
-	package_t paquete,etiquetasP;
-
-	paquete=serializar(24,
-			4,&pcb.pid,
-			4,&pcb.pc,
-			4,&pcb.sp,
-			4,&pcb.cantPagCod,
-			4,&pcb.indiceCodigoSize,
-			sizeof(t_intructions)*pcb.indiceCodigoSize,pcb.indiceCodigo,
-			4,&pcb.indiceEtiquetasSize,
-			pcb.indiceEtiquetasSize,pcb.indiceEtiquetas,
-			4,&pcb.indiceStackSize,
-			pcb.indiceStackSize,pcb.indiceStack,
-			4,&pcb.exitCode);
-
-	return paquete;
-}
-
-void testPCB(){
+t_pcb2 testPCB(){
 	int i;
 	t_pcb2 pcb;
 	t_intructions intructions;
@@ -121,6 +55,8 @@ void testPCB(){
 	pcb.indiceStack=NULL;
 
 	pcb.exitCode=0;
+
+	return pcb;
 
 }
 

@@ -6,16 +6,19 @@
 C_SRCS += \
 ../conexiones.c \
 ../main.c \
+../pcb.c \
 ../primitivas.c 
 
 OBJS += \
 ./conexiones.o \
 ./main.o \
+./pcb.o \
 ./primitivas.o 
 
 C_DEPS += \
 ./conexiones.d \
 ./main.d \
+./pcb.d \
 ./primitivas.d 
 
 
