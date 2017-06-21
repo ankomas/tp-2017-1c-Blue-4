@@ -170,6 +170,7 @@ void guardaProcesoEn(uint32_t pid, uint32_t paginasRequeridas, void* data) {
 	}
 	marco++;
 }
+
 void agregarNuevoProceso(uint32_t pid, uint32_t paginasRequeridas,void* data){
 	guardaProcesoEn(pid,paginasRequeridas,data);
 	actualizarMarcosDisponibles(paginasRequeridas);
@@ -180,46 +181,65 @@ int tieneMarcosSuficientes(int paginasRequeridas){
 }
 
 void inicializarPrograma(uint32_t pid,uint32_t paginasRequeridas, void* data){
-
-		//pthread_mutex_lock(mutexMemoria);
-		printf("tengo marcos suficientes \n");
-		agregarNuevoProceso(pid,paginasRequeridas,data);
-		//pthread_mutex_unlock(mutexMemoria);
+	//pthread_mutex_lock(mutexMemoria);
+	agregar_DataDeProcesoActivo(pid,paginasRequeridas);
+	printf("tengo marcos suficientes \n");
+	agregarNuevoProceso(pid,paginasRequeridas,data);
+	//pthread_mutex_unlock(mutexMemoria);
 }
 
 
 void finalizarPrograma(uint32_t pid)
 {
 	tablaPaginas_t* tablaDePaginas = obtenerTablaDePaginas();
-	int pagina=0;
+	int pagina,paginasMaximas,i=0;
+	pagina=obtener_PaginaDeInicioDeProcesoActivo(pid);
 	int marco=getMarco(pid,pagina);
-	while(marco>-1)
+	paginasMaximas=obtener_ProximaPaginaAAsignar(pid);
+	while(i<paginasMaximas)
 	{
 		tablaDePaginas[marco].pid=-2;
 		tablaDePaginas[marco].pagina=marco;
 		pagina++;
+		i++;
 		marco=getMarco(pid,pagina);
 	}
+	eliminar_DataDeProcesoActivo(pid);
 }
 
 
 int asignarPaginasAUnProceso(uint32_t pid,uint32_t paginasRequeridas)
 {
-	int contador_paginas=0,marco;
-	tablaPaginas_t* tablaDePaginas=obtenerTablaDePaginas();
+	int pagina,marco,i=0;
+	tablaPaginas_t* tablaDePaginas;
 	int resultado=tieneMarcosSuficientes(paginasRequeridas);
 	if(resultado==0)return -1;
+	tablaDePaginas=obtenerTablaDePaginas();
 	actualizarMarcosDisponibles(paginasRequeridas);
-	while(contador_paginas<paginasRequeridas)
+	pagina=obtener_ProximaPaginaAAsignar(pid);
+	while(i<paginasRequeridas)
 	{
-		marco=getMarco(-2,contador_paginas);
+		marco=getMarco(-2,pagina);
 		tablaDePaginas[marco].pid=pid;
-		tablaDePaginas[marco].pagina=contador_paginas;
-		contador_paginas++;
+		tablaDePaginas[marco].pagina=pagina;
+		pagina++;
 	}
+	aumentar_PaginasActualesDeProcesoActivo(pid,paginasRequeridas);
 	return 0;
 }
 
+
+
+int eliminarPaginaDeUnProceso(uint32_t pid,uint32_t paginaAEliminar)
+{
+	tablaPaginas_t* tablaDePaginas;
+	int marco = getMarco(pid,paginaAEliminar);
+	if(marco<0)return -1;
+	tablaDePaginas[marco].pid= -2;
+	tablaDePaginas[marco].pagina= -2;
+	disminuir_PaginasActualesDeProcesoActivo(pid,paginaAEliminar);
+	return 0;
+}
 
 void* leerMemoria(uint32_t pid,uint32_t pag, uint32_t offset, uint32_t tam){ //REQUIERE FREE
 	int marco = getMarco(pid, pag);

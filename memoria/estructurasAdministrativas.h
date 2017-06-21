@@ -59,7 +59,7 @@ pthread_mutex_t mutex_procesosActivos;
  * @param uint32_t pid
  * @return 0 (en caso de exito) | -1(en caso de error)
  */
-uint32_t listar_DataDeProceso(uint32_t );
+uint32_t listar_DataDeProcesoActivo(uint32_t );
 
 
 /**
@@ -75,7 +75,7 @@ uint32_t listar_DataDeTodosLosProcesosActivos();
  * @param pid
  * @return 0 (en caso de exito) | -1(en caso de error)
  */
-uint32_t obtener_paginasActualesDe(uint32_t );
+uint32_t obtener_paginasActualesDeProcesoActivo(uint32_t );
 
 
 /**
@@ -84,7 +84,7 @@ uint32_t obtener_paginasActualesDe(uint32_t );
  * @param paginasAActualizar
  * @return 0 (en caso de exito) | -1(en caso de error)
  */
-uint32_t aumentarPaginasActuales(uint32_t ,uint32_t );
+uint32_t aumentar_PaginasActualesDeProcesoActivo(uint32_t ,uint32_t );
 
 
 /**
@@ -92,16 +92,38 @@ uint32_t aumentarPaginasActuales(uint32_t ,uint32_t );
  * @param pid
  * @return 0 (en caso de exito) | -1(en caso de error)
  */
-uint32_t eliminar_DataDeProcesosActivos(uint32_t );
+uint32_t eliminar_DataDeProcesoActivo(uint32_t );
 
 
 /**
  * Agrega la data (pid y paginas actuales ) de un proceso
  * @param pid
  * @param paginasActuales
- * @return
+ * @return 0 (en caso de exito) | -1(en caso de error)
  */
 uint32_t agregar_DataDeProcesoActivo(uint32_t ,uint32_t );
 
+/**
+ * Disminuye las paginas actuales de un proceso activo
+ * @param uint32_t pid
+ * @param uint32_t pagina que se desea disminuir
+ * @return 0 (en caso de exito) | -1(en caso de error)
+ */
+uint32_t disminuir_PaginasActualesDeProcesoActivo(uint32_t ,uint32_t );
+
+
+/**
+ * Obtiene la pagina de inicio de un proceso activo
+ * @param uint32_t pid
+ * @return 0 (en caso de exito) | -1(en caso de error)
+ */
+uint32_t obtener_PaginaDeInicioDeProcesoActivo(uint32_t );
+
+/**
+ * Obtiene la proxima pagina a asignar
+ * @param uint32_t pid
+ * @return 0 (en caso de exito) | -1(en caso de error)
+ */
+uint32_t obtener_ProximaPaginaAAsignar(uint32_t );
 
 #endif /* ESTRUCTURASADMINISTRATIVAS_H_ */
