@@ -83,8 +83,9 @@ void inicializarDatos(){
 }
 
 int main(){
+	anuncio("\n-- Datos del sistema --");
 	anuncio(concat(2,"IP a utilizar: ",obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"IP")));
-	anuncio(concat(2,"PUERTO a utilizar: ",obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_PROG")));
+	anuncio(concat(2,"Puerto a utilizar: ",obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_PROG")));
 
 	inicializarDatos();
 

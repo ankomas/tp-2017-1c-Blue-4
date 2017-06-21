@@ -404,9 +404,9 @@ void gestionarProgramaAnsisop(dataHilos_t* dataHilo)
 	while(1)
 	{
 
-		sleep(50);
+		sleep(500);
 
-		printf("NO FUNCIONA EL PTHREAD_CLOSE() \n");
+		//printf("NO FUNCIONA EL PTHREAD_CLOSE() \n");
 
 	}
 

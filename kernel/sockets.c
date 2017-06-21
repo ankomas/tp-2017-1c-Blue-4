@@ -387,24 +387,27 @@ int servidor(void)
 								// Los procesos New no estan modelados,porque depende del grado de multiprogramacion
 								t_pcb * nuevoPCB = malloc(sizeof(t_pcb));
 								t_programa * nuevoProceso = malloc(sizeof(t_programa));
+
 								nuevoPCB->pid=pidActual;
-								nuevoProceso->paginasCodigo = 0;
 								nuevoPCB->exitCode = 0;
 								nuevoPCB->pc=0;
 								nuevoPCB->indiceCodigo=NULL;
 								nuevoPCB->indiceStack=NULL;
 								nuevoPCB->indiceEtiquetas=NULL;
+
+								nuevoProceso->paginasCodigo = 0;
 								nuevoProceso->tablaArchivos = NULL;
 								nuevoProceso->quantumRestante = quantum;
 								nuevoProceso->pcb = nuevoPCB;
+
 								list_add(PROGRAMAs,nuevoProceso);
 
 								if(gradoMultiprogramacion >= cantidadProgramasEnSistema){
-									encolarReady(nuevoProceso);
+									encolarReady(nuevoPCB);
 								}else{
 									/*if(send(i,"N",1,0) < 1)
 										log_error(logger,"ERROR, el kernel no le pudo enviar el mensaje de que no es posible crear un nuevo programa");*/
-									queue_push(procesosNEW,nuevoProceso);
+									queue_push(procesosNEW,nuevoPCB);
 									log_info(logger,"No se pueden aceptar mas programas debido al grado de multiprogramacion definido. Encolando en NEW...");
 								}
 								pidActual++;
@@ -421,7 +424,7 @@ int servidor(void)
                             if (FD_ISSET(j, &master)) {
                                 // except the listener and ourselves
                                 if (j != listener && j != i) {
-                                    if (sendall(j, buf, (uint32_t*)nbytes) == -1) {
+                                    if (sendall(j, buf, (uint32_t*)&nbytes) == -1) {
                                         perror("send");
                                     }
                                 }
