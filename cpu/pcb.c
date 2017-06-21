@@ -31,20 +31,23 @@ t_stack *stack_create(t_list *args, t_list *vars, uint32_t retPos, t_pos retVar)
 	return new;
 }
 
-char *intructionsAStream(t_intructions* instructions,uint32_t size){
+package_t intructionsAStream(t_intructions* instructions,uint32_t size){
 	int i,offset=0;
 	char *paquete=NULL;
+	package_t res;
 
 	paquete=malloc(sizeof(t_intructions)*size);
 
 	for(i=0;i<size;i++){
-		memcpy(paquete+offset,&instructions->start,sizeof(t_puntero_instruccion));
+		memcpy(paquete+offset,&instructions[i].start,sizeof(t_puntero_instruccion));
 		offset+=sizeof(t_puntero_instruccion);
-		memcpy(paquete+offset,&instructions->offset,sizeof(t_size));
+		memcpy(paquete+offset,&instructions[i].offset,sizeof(t_size));
 		offset+=sizeof(t_size);
 	}
 
-	return paquete;
+	res.data=paquete;
+	res.data_size=offset;
+	return res;
 }
 
 t_intructions *streamAIntructions(char* paquete,uint32_t size){
@@ -142,7 +145,7 @@ package_t stackAStream(t_list *stackLista){
 	return res;
 }
 
-t_list *streamAStack(char *paquete,uint32_t size){
+t_list *streamAStack(char *paquete){
 	t_list *stack=list_create();
 	t_list *args=NULL;
 	t_list *vars=NULL;
@@ -211,31 +214,102 @@ t_list *streamAStack(char *paquete,uint32_t size){
 
 
 package_t serializarPCB(t_pcb2 pcb){
-	package_t paquete,etiquetasP;
-	char *indiceCodigo=NULL;
+	package_t paquete;
+	package_t indiceCodigo,stack;
 
 	indiceCodigo=intructionsAStream(pcb.indiceCodigo,pcb.indiceCodigoSize);
+	stack=stackAStream(pcb.indiceStack);
 
-	paquete=serializar(18,
-			4,&pcb.pid,
-			4,&pcb.pc,
-			4,&pcb.sp,
-			4,&pcb.cantPagCod,
+	paquete=serializar(20,
+			sizeof(uint32_t),&pcb.pid,
+			sizeof(uint32_t),&pcb.pc,
+			sizeof(uint32_t),&pcb.sp,
+			sizeof(uint32_t),&pcb.cantPagCod,
 
-			4,&pcb.indiceCodigoSize,
-			sizeof(t_intructions)*pcb.indiceCodigoSize,pcb.indiceCodigo,
+			sizeof(uint32_t),&pcb.indiceCodigoSize,
+			indiceCodigo.data_size,indiceCodigo.data,
 
-			4,&pcb.indiceEtiquetasSize,
+			//4,&stack.data_size,
+			stack.data_size,stack.data,
+
+			sizeof(uint32_t),&pcb.indiceEtiquetasSize,
 			pcb.indiceEtiquetasSize,pcb.indiceEtiquetas,
 
-			4,&pcb.exitCode);
-/*
-	indiceCodigoAStream(pcb.indiceCodigoSize,pcb.indiceCodigo);
-	4,&pcb.indiceCodigoSize,
-	sizeof(t_intructions)*pcb.indiceCodigoSize,pcb.indiceCodigo,
+			sizeof(uint32_t),&pcb.exitCode);
+	free(indiceCodigo.data);
+	free(stack.data);
 
-	4,&pcb.indiceStackSize,
-	pcb.indiceStackSize,pcb.indiceStack,
-*/
 	return paquete;
+}
+
+t_pcb2 deserializarPCB(char* paquete){
+	uint32_t pointer=0;
+	t_pcb2 res;
+	package_t paux;
+
+	printf("|||||||||||DESERIALIZADOR||||||||||||\n");
+
+	paux=deserializar(&pointer,paquete);
+	res.pid=*(uint32_t*)paux.data;
+
+	free(paux.data);
+
+	paux=deserializar(&pointer,paquete);
+	res.pc=*(uint32_t*)paux.data;
+
+	free(paux.data);
+
+	printf("Instruccion inicio: %i\n",res.pc);
+
+	paux=deserializar(&pointer,paquete);
+	res.sp=*(uint32_t*)paux.data;
+
+	free(paux.data);
+
+	paux=deserializar(&pointer,paquete);
+	res.cantPagCod=*(uint32_t*)paux.data;
+
+	free(paux.data);
+
+	paux=deserializar(&pointer,paquete);
+	res.indiceCodigoSize=*(uint32_t*)paux.data;
+
+	free(paux.data);
+
+	printf("Instrucciones size: %i\n",res.indiceCodigoSize);
+
+	paux=deserializar(&pointer,paquete);
+	res.indiceCodigo=streamAIntructions(paux.data,res.indiceCodigoSize);
+
+	//int i;
+	//for(i=0;i<res.indiceCodigoSize;i++)
+	//	printf("Start: %i Offset: %i\n",res.indiceCodigo[i].start,res.indiceCodigo[i].offset);
+
+	free(paux.data);
+
+	paux=deserializar(&pointer,paquete);
+	res.indiceStack=streamAStack(paux.data);
+
+	free(paux.data);
+
+	paux=deserializar(&pointer,paquete);
+	res.indiceEtiquetasSize=*(uint32_t*)paux.data;
+
+	free(paux.data);
+
+	printf("Indice etiquetas size: %i\n",res.indiceEtiquetasSize);
+
+	paux=deserializar(&pointer,paquete);
+	res.indiceEtiquetas=paux.data;
+
+	paux=deserializar(&pointer,paquete);
+	//memcpy(&res.exitCode,paux.data,4);
+	res.exitCode=*(uint32_t*)paux.data;
+
+	free(paux.data);
+
+	printf("exitCODE: %i\n",res.exitCode);
+
+	printf("|||||||||||DESERIALIZADOR||||||||||||\n");
+	return res;
 }

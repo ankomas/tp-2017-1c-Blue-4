@@ -25,15 +25,15 @@ endif
 all: cpu
 
 dependents:
-	-cd /home/utnso/workspace/tp-2017-1c-Blue-4/blue4-lib/Debug && $(MAKE) all
 	-cd /home/utnso/workspace/tp-2017-1c-Blue-4/commons/Debug && $(MAKE) all
 	-cd /home/utnso/workspace/tp-2017-1c-Blue-4/parser/Debug && $(MAKE) all
+	-cd /home/utnso/workspace/tp-2017-1c-Blue-4/blue4-lib/Debug && $(MAKE) all
 
 # Tool invocations
-cpu: $(OBJS) $(USER_OBJS) /home/utnso/workspace/tp-2017-1c-Blue-4/blue4-lib/Debug/libblue4-lib.so /home/utnso/workspace/tp-2017-1c-Blue-4/commons/Debug/libcommons.so /home/utnso/workspace/tp-2017-1c-Blue-4/parser/Debug/libparser.so
+cpu: $(OBJS) $(USER_OBJS) /home/utnso/workspace/tp-2017-1c-Blue-4/commons/Debug/libcommons.so /home/utnso/workspace/tp-2017-1c-Blue-4/parser/Debug/libparser.so /home/utnso/workspace/tp-2017-1c-Blue-4/blue4-lib/Debug/libblue4-lib.so
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C Linker'
-	gcc -L"/home/utnso/workspace/tp-2017-1c-Blue-4/parser/Debug" -L"/home/utnso/workspace/tp-2017-1c-Blue-4/commons/Debug" -L"/home/utnso/workspace/tp-2017-1c-Blue-4/blue4-lib/Debug" -o "cpu" $(OBJS) $(USER_OBJS) $(LIBS)
+	gcc -L"/home/utnso/workspace/tp-2017-1c-Blue-4/blue4-lib/Debug" -L"/home/utnso/workspace/tp-2017-1c-Blue-4/parser/Debug" -L"/home/utnso/workspace/tp-2017-1c-Blue-4/commons/Debug" -o "cpu" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -44,8 +44,8 @@ clean:
 
 .PHONY: all clean dependents
 .SECONDARY:
-/home/utnso/workspace/tp-2017-1c-Blue-4/blue4-lib/Debug/libblue4-lib.so:
 /home/utnso/workspace/tp-2017-1c-Blue-4/commons/Debug/libcommons.so:
 /home/utnso/workspace/tp-2017-1c-Blue-4/parser/Debug/libparser.so:
+/home/utnso/workspace/tp-2017-1c-Blue-4/blue4-lib/Debug/libblue4-lib.so:
 
 -include ../makefile.targets

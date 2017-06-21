@@ -53,7 +53,7 @@ void testSerializarStack(){
 
 	printf("Paquete size: %i\n",paquete.data_size);
 
-	lista_de_stacks=streamAStack(paquete.data,paquete.data_size);
+	lista_de_stacks=streamAStack(paquete.data);
 
 	stack_pos_cero=list_get(lista_de_stacks,0);
 
@@ -77,7 +77,8 @@ void testSerializarStack(){
 }
 
 int main() {
-	testSerializarStack();
+	//testSerializarStack();
+	testPCB();
 	return 0;
 	//int socketKernel,socketMemoria;
 	char *ipKernel, *ipMemoria, *puertoKernel, *puertoMemoria;

@@ -44,13 +44,12 @@ typedef struct{
 	uint32_t indiceEtiquetasSize;
 	char* indiceEtiquetas;
 
-	uint32_t indiceStackSize;
 	t_list* indiceStack;
 
 	uint32_t exitCode;
 }t_pcb2;
 
-t_pcb2 pcb;
+t_pcb2 pcb_global;
 
 //Listas
 void var_destroy(t_var *self);
@@ -59,7 +58,8 @@ void stack_destroy(t_stack *self);
 t_stack *stack_create(t_list *args, t_list *vars, uint32_t retPos, t_pos retVar);
 
 package_t stackAStream(t_list *stackLista);
-t_list *streamAStack(char *paquete,uint32_t size);
+t_list *streamAStack(char *paquete);
 package_t serializarPCB(t_pcb2 pcb);
+t_pcb2 deserializarPCB(char* paquete);
 
 #endif /* PCB_H_ */
