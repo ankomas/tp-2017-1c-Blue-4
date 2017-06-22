@@ -187,6 +187,16 @@ char* concat(int n_args, ...){
         return unaRuta;
 }
 
+char * intToStream(uint32_t unNumero){
+	char* dataString = malloc(5);
+	char* dataStream = malloc(4);
+	memset(dataString,0,5);
+	dataString = string_itoa(unNumero);
+	memcpy(dataStream,dataString,4);
+	free(dataString);
+	return dataStream;
+}
+
 void killme(){
 	char* killme = string_new();
 	strcpy(killme, "kill -9 ");

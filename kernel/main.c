@@ -27,6 +27,7 @@ int cantidadProgramasEnSistema,gradoMultiprogramacion,retardo,quantum;
 int idFS;
 int idUMC;
 int tamanioPagina;
+int tamanioStack;
 
 pthread_t hiloPlanificador,hiloConsolaKernel;
 
@@ -56,8 +57,10 @@ void inicializarDatos(){
 	cantidadProgramasEnSistema = 0;
 	gradoMultiprogramacion = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"),"GRADO_MULTIPROG");
 	quantum = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"),"QUANTUM");
+	tamanioStack = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"),"STACK_SIZE");
 	idFS =  conectar(obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_FS"),  obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"IP_FS"),FS_ID_INT);
 	idUMC = conectar(obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_UMC"), obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"IP_UMC"),UMC_ID_INT);
+	test( obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_UMC") );
 	tamanioPagina = obtenerTamanioPagina();
 	retardo = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"),"RETARDO");
 
@@ -83,8 +86,9 @@ void inicializarDatos(){
 }
 
 int main(){
+	anuncio("\n-- Datos del sistema --");
 	anuncio(concat(2,"IP a utilizar: ",obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"IP")));
-	anuncio(concat(2,"PUERTO a utilizar: ",obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_PROG")));
+	anuncio(concat(2,"Puerto a utilizar: ",obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_PROG")));
 
 	inicializarDatos();
 

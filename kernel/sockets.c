@@ -380,23 +380,52 @@ int servidor(void)
 
                     	// FUNCIONES MANEJADORAS
 
-							// ENVIO DE PID
+							// INICIALIZO PROGRAMA
 							if(buf[0] == 'A'){
-								//Envio PID
+
+								//Recibo codigo
+								char* tamanioCodigoString = malloc(4+1);
+								memset(tamanioCodigoString,0,5);
+								if(recv(i,tamanioCodigoString,4,MSG_WAITALL) < 0)
+									printf("Error al recibir el tamanio de codigo");
+								uint32_t tamanioCodigo = atoi(tamanioCodigoString);
+								printf("tamanio codigo de %i: %i",i,tamanioCodigo);
+								char* codigo = malloc(tamanioCodigo);
+								if(recv(i,codigo,tamanioCodigo,MSG_WAITALL) < 0)
+									printf("Error al recibir el codigo");
+
+
+								//Envio PID a consola
 								enviarPID(i);
-								// Los procesos New no estan modelados,porque depende del grado de multiprogramacion
+
+
+								// Inicializo el Programa y su PCB
 								t_pcb * nuevoPCB = malloc(sizeof(t_pcb));
 								t_programa * nuevoProceso = malloc(sizeof(t_programa));
+
 								nuevoPCB->pid=pidActual;
-								nuevoProceso->paginasCodigo = 0;
 								nuevoPCB->exitCode = 0;
 								nuevoPCB->pc=0;
 								nuevoPCB->indiceCodigo=NULL;
 								nuevoPCB->indiceStack=NULL;
 								nuevoPCB->indiceEtiquetas=NULL;
+
+								nuevoProceso->paginasCodigo = 0;
 								nuevoProceso->tablaArchivos = NULL;
 								nuevoProceso->quantumRestante = quantum;
 								nuevoProceso->pcb = nuevoPCB;
+
+								uint32_t cantidadPaginasCodigo = 0;
+								if(tamanioPagina == -1)
+									anuncio("No se pueden cargar procesos porque la memoria no esta conectada");
+								else if(tamanioPagina == 0)
+									anuncio("El tamanio de una pagina no puede ser 0");
+								else
+									cantidadPaginasCodigo = tamanioCodigo/tamanioPagina;
+
+								if(cantidadPaginasCodigo == 0)
+									killme();
+
 								list_add(PROGRAMAs,nuevoProceso);
 
 								if(gradoMultiprogramacion >= cantidadProgramasEnSistema){
@@ -404,7 +433,7 @@ int servidor(void)
 								}else{
 									/*if(send(i,"N",1,0) < 1)
 										log_error(logger,"ERROR, el kernel no le pudo enviar el mensaje de que no es posible crear un nuevo programa");*/
-									queue_push(procesosNEW,nuevoProceso);
+									queue_push(procesosNEW,nuevoPCB);
 									log_info(logger,"No se pueden aceptar mas programas debido al grado de multiprogramacion definido. Encolando en NEW...");
 								}
 								pidActual++;

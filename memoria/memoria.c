@@ -37,6 +37,21 @@ void testLecturaMemoria()
 		printf("la wea dice: %s\n",(char*)leerMemoria(100,18,0,16));
 }
 
+
+void testFuncionesAProcesosActivos()
+{
+	agregar_DataDeProcesoActivo(200,5);
+	agregar_DataDeProcesoActivo(300,1);
+	agregar_DataDeProcesoActivo(400,3);
+	eliminar_DataDeProcesoActivo(300);
+	aumentar_PaginasActualesDeProcesoActivo(400,5);
+	printf("las paginas totales con el aumento de paginas es : %d \n",obtener_paginasActualesDeProcesoActivo(400));
+	listar_DataDeTodosLosProcesosActivos();
+	printf("termino de listar todos los procesos \n");
+	printf("empiezo a listar un proceso especifico \n");
+	listar_DataDeProcesoActivo(200);
+}
+
 int main(void) {
 
 	inicializarEstructurasAdministrativas();

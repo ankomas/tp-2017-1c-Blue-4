@@ -57,21 +57,31 @@ void inicializarVariablesCompartidas() {
 	}
 }
 
-int solicitarMemoria(uint32_t i, uint32_t data,uint32_t data2) {
+int inicializarEnMemoria(uint32_t i, uint32_t pid,uint32_t paginasNecesarias) {
 	package_t paquete;
-	uint32_t bytes=-1;
 	uint32_t tamOpCode = 1;
-	paquete = serializar(4,sizeof(uint32_t), &data,sizeof(uint32_t), &data2);
-	if(sendall(i,"A",&tamOpCode) < 0)
+	uint32_t tamPID = sizeof(uint32_t);
+	char* stream;
+
+	/*paquete = serializar(4,sizeof(uint32_t), &pid,sizeof(uint32_t), &paginasNecesarias);
+	if(sendall(i,"I",&tamOpCode) < 0)
 		return -1;
 	if(sendall(i, paquete.data, &paquete.data_size) < 0)
-		return -1;
+		return -1;*/
 
-	//printf("envie %i bytes en el %i send\n", bytes, contador++);
-	/*bytes = send(i, &paquete.data_size, sizeof(uint32_t), 0);
-	printf("envie %i bytes en el %i send\n", bytes, contador++);
-	bytes = send(i, paquete.data, paquete.data_size, 0);
-	printf("envie %i bytes en el %i send\n", bytes, contador++);*/
+	if(sendall(i,"I",&tamOpCode) < 0)
+		return -1;
+	char* streamTamPID = intToStream(tamPID);
+	anuncio(streamTamPID);
+	if(sendall(i, streamTamPID, &paquete.data_size) < 0)
+		return -1;
+	free(streamTamPID);
+
+	char* streamPID = intToStream(pid);
+	anuncio(streamPID);
+	if(sendall(i, streamPID, &paquete.data_size) < 0)
+		return -1;
+	free(streamPID);
 
 	char* respuesta = malloc(1);
 	free(paquete.data);

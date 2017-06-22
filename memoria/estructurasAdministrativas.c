@@ -90,6 +90,8 @@ void inicializarProcesosActivos()
 	{
 		procesosActivos[i].pid=-2;
 		procesosActivos[i].paginas=-2;
+		procesosActivos[i].paginaDeInicio=-2;
+		procesosActivos[i].proximaPaginaAAsignar=-2;
 		i++;
 	}
 }
@@ -192,6 +194,35 @@ uint32_t obtener_PosicionProcesoActivo(uint32_t pid)
 	return -1;
 }
 
+
+void actualizar_PaginaDeInicioDeProcesoActivo(uint32_t posicionProceso,uint32_t valor)
+{
+	procesosActivos[posicionProceso].paginaDeInicio+=valor;
+}
+
+uint32_t obtener_PaginaDeInicioDeProcesoActivo(uint32_t pid)
+{
+	uint32_t paginaDeInicio;
+	uint32_t posicion_PidBuscado=obtener_PosicionProcesoActivo(pid);
+	if(posicion_PidBuscado<0)return -1;
+	pthread_mutex_lock(&mutex_procesosActivos);
+	paginaDeInicio=procesosActivos[posicion_PidBuscado].paginaDeInicio;
+	pthread_mutex_unlock(&mutex_procesosActivos);
+	return paginaDeInicio;
+}
+
+uint32_t obtener_ProximaPaginaAAsignar(uint32_t pid)
+{
+	uint32_t proximaPagina;
+	uint32_t posicion_PidBuscado=obtener_PosicionProcesoActivo(pid);
+	if(posicion_PidBuscado<0)return -1;
+	pthread_mutex_lock(&mutex_procesosActivos);
+	proximaPagina=procesosActivos[posicion_PidBuscado].proximaPaginaAAsignar;
+	pthread_mutex_unlock(&mutex_procesosActivos);
+	return proximaPagina;
+}
+
+
 uint32_t agregar_DataDeProcesoActivo(uint32_t pid,uint32_t paginasActuales)
 {
 	uint32_t posicionLibre;
@@ -200,41 +231,62 @@ uint32_t agregar_DataDeProcesoActivo(uint32_t pid,uint32_t paginasActuales)
 	pthread_mutex_lock(&mutex_procesosActivos);
 	procesosActivos[posicionLibre].pid=pid;
 	procesosActivos[posicionLibre].paginas=paginasActuales;
+	procesosActivos[posicionLibre].paginaDeInicio=0;
+	procesosActivos[posicionLibre].proximaPaginaAAsignar=paginasActuales;
 	pthread_mutex_unlock(&mutex_procesosActivos);
 	return 0;
 }
 
 
-uint32_t eliminar_DataDeProcesosActivos(uint32_t pid)
+uint32_t eliminar_DataDeProcesoActivo(uint32_t pid)
 {
 	uint32_t posicion_PidBuscado=obtener_PosicionProcesoActivo(pid);
 	if(posicion_PidBuscado<0)return -1;
 	pthread_mutex_lock(&mutex_procesosActivos);
 	procesosActivos[posicion_PidBuscado].pid=-2;
 	procesosActivos[posicion_PidBuscado].paginas=-2;
+	procesosActivos[posicion_PidBuscado].paginaDeInicio=-2;
+	procesosActivos[posicion_PidBuscado].proximaPaginaAAsignar=-2;
 	pthread_mutex_unlock(&mutex_procesosActivos);
 	return 0;
 }
 
 
-uint32_t aumentarPaginasActuales(uint32_t pid,uint32_t paginasAActualizar)
+uint32_t aumentar_PaginasActualesDeProcesoActivo(uint32_t pid,uint32_t paginas)
 {
 	uint32_t posicion_PidBuscado=obtener_PosicionProcesoActivo(pid);
 	if(posicion_PidBuscado<0)return -1;
 	pthread_mutex_lock(&mutex_procesosActivos);
-	procesosActivos[posicion_PidBuscado].paginas+=paginasAActualizar;
+	procesosActivos[posicion_PidBuscado].paginas+=paginas;
+	procesosActivos[posicion_PidBuscado].proximaPaginaAAsignar+=paginas;
 	pthread_mutex_unlock(&mutex_procesosActivos);
 	return 0;
 }
 
 
-uint32_t obtener_paginasActualesDe(uint32_t pid)
+uint32_t disminuir_PaginasActualesDeProcesoActivo(uint32_t pid,uint32_t pagina)
 {
+	uint32_t paginaDeInicio;
 	uint32_t posicion_PidBuscado=obtener_PosicionProcesoActivo(pid);
 	if(posicion_PidBuscado<0)return -1;
 	pthread_mutex_lock(&mutex_procesosActivos);
-	return procesosActivos[posicion_PidBuscado].paginas;
+	procesosActivos[posicion_PidBuscado].paginas-=1;
+	paginaDeInicio=procesosActivos[posicion_PidBuscado].paginaDeInicio;
+	if(pagina==paginaDeInicio)
+		actualizar_PaginaDeInicioDeProcesoActivo(posicion_PidBuscado,1);
 	pthread_mutex_unlock(&mutex_procesosActivos);
+	return 0;
+}
+
+uint32_t obtener_paginasActualesDeProcesoActivo(uint32_t pid)
+{
+	uint32_t paginas;
+	uint32_t posicion_PidBuscado=obtener_PosicionProcesoActivo(pid);
+	if(posicion_PidBuscado<0)return -1;
+	pthread_mutex_lock(&mutex_procesosActivos);
+	paginas = procesosActivos[posicion_PidBuscado].paginas;
+	pthread_mutex_unlock(&mutex_procesosActivos);
+	return paginas;
 }
 
 uint32_t listar_DataDeTodosLosProcesosActivos()
@@ -257,7 +309,7 @@ uint32_t listar_DataDeTodosLosProcesosActivos()
 }
 
 
-uint32_t listar_DataDeProceso(uint32_t pid)
+uint32_t listar_DataDeProcesoActivo(uint32_t pid)
 {
 	uint32_t posicionProceso=obtener_PosicionProcesoActivo(pid);
 	if(posicionProceso<0)return -1;

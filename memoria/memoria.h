@@ -26,6 +26,8 @@ typedef struct {
 typedef struct{
 	uint32_t pid;
 	uint32_t paginas;
+	uint32_t paginaDeInicio;
+	uint32_t proximaPaginaAAsignar;
 }procesoActivo_t;
 
 procesoActivo_t* procesosActivos; //Array de procesos Activos
