@@ -307,31 +307,30 @@ char* serializar_msj(char* path,char codigoOp[1])
  */
 
 
-int enviarMensajeConCodigoDeOperacion(char codOp[1],int socket,package_t contenido)
+int enviarMensajeConCodigoDeOperacion(char codOp[1],int socket,char* contenido,uint32_t tamContenido)
 {
 	uint32_t tamanio=1;
 		int envio=sendall(socket,codOp,&tamanio);
-		if(envio<0)
-		{
+		if(envio<0){
 			textoEnColor("fallo el envio del mensaje ",0,0);
 			return -1;
 		}
 
-
 		tamanio= sizeof(uint32_t);
-		envio=sendall(socket,(void*)&contenido.data_size,&tamanio);
-		if(envio<0)
-				{
-					printf("fallo el envio del mensaje \n");
-					return -1;
-				}
-		tamanio=contenido.data_size;
-		envio=sendall(socket,contenido.data,&tamanio);
-		if(envio<0)
-						{
-							printf("fallo el envio del mensaje \n");
-							return -1;
-						}
+		char*stream = intToStream(tamContenido);
+		envio=sendall(socket,stream,&tamanio);
+		free(stream);
+		if(envio<0){
+			printf("fallo el envio del mensaje \n");
+			return -1;
+		}
+
+		tamanio=tamContenido;
+		envio=sendall(socket,contenido,&tamanio);
+		if(envio<0){
+			printf("fallo el envio del mensaje \n");
+			return -1;
+		}
 
 		return 0;
 }
@@ -363,10 +362,7 @@ void gestionarProgramaAnsisop(dataHilos_t* dataHilo)
 	//printf("el tamaño del mensaje enpaquetado es: %d \n",tamPath);
 	}
 	//printf("el paquete es: \n\n %s \n",mensaje);
-	uint32_t tamPath=strlen(lecturaDeProgramaAnsisop);
-	printf("tam de path: %d \n",tamPath);
-	mensaje=serializar(2,tamPath,lecturaDeProgramaAnsisop);
-	int respuesta=enviarMensajeConCodigoDeOperacion("A",dataHilo->socketKernel,mensaje);
+	int respuesta=enviarMensajeConCodigoDeOperacion("A",dataHilo->socketKernel,lecturaDeProgramaAnsisop,strlen(lecturaDeProgramaAnsisop));
 	if(respuesta<0)
 	{
 		//TODO cerrar el hilo y liberar recursos
