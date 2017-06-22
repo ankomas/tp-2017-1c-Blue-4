@@ -128,6 +128,12 @@ typedef struct{
 	char* concat(int n_args, ...);
 
 	/**
+	* @NAME: intToStream
+	* @DESC: Pasa un int a un stream
+	*/
+	char * intToStream(uint32_t unNumero);
+
+	/**
 	* @NAME: killme
 	* @DESC: mata el proceso actual
 	*/
