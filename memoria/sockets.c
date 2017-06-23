@@ -186,30 +186,27 @@ char* recibir_PID_PAGINAS(int socket,uint32_t* pid,uint32_t* pagina,uint32_t* pu
 
 
 
-uint32_t peticionMemoria(uint32_t socket)
+void peticionMemoria(uint32_t socket)
 {
 	uint32_t pid,paginasRequeridas, puntero;
-	char *buffer,*data;
+	char *buffer;
 	buffer=recibir_PID_PAGINAS(socket,&pid,&paginasRequeridas,&puntero);
 	if(buffer==NULL)
 	{
+		send(socket,"N",1,0);
 		free(buffer);
-		return -1;
+		return ;
 	}
-
+	free(buffer);
 	if(!(tieneMarcosSuficientes(paginasRequeridas)))
 	{
 		send(socket,"N",1,0);
-		free(buffer);
-		return 0;
+		return ;
 	}
 	send(socket,"Y",1,0);
-	data=obtenerDataSerializada(&puntero,buffer);
-	inicializarPrograma(pid,paginasRequeridas,data);
-	printf("Se van a reservar bytes de memoria para el socket %i\n", socket);
-	free(data);
-	free(buffer);
-	return 0;
+	// TODO arreglar inicializarPrograma
+	//inicializarPrograma(pid,paginasRequeridas);
+	printf("Se van a reservar bytes de memoria para el proceso %i\n", pid);
 }
 
 
@@ -296,13 +293,19 @@ void solicitarBytes(int socket)
 
 void almacenarBytes(int socket)
 {
-	uint32_t pid,pagina,offset,tamanio;
+	uint32_t pid,pagina,offset,tamanio,resultado;
 	void* data;
 	data=recibir_PID_PAGINA_OFFSET_TAMANIO_DATA(socket,&pid,&pagina,&offset,&tamanio);
 	if(data)
 	{
-		//TODO agregar mensaje de error,(falta que escribirMemoria devuelva un valor de exito)
-		escribirMemoria(pid,pagina,offset,tamanio,data);
+		resultado=escribirMemoria(pid,pagina,offset,tamanio,data);
+		if(resultado<0)
+		{
+			send(socket,"N",1,0);
+			free(data);
+			return;
+		}
+		send(socket,"Y",1,0);
 		free(data);
 		return;
 	}

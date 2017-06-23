@@ -10,7 +10,7 @@
 
 int servidor();
 int handshakeHandler(int);
-uint32_t peticionMemoria(uint32_t);
+void peticionMemoria(uint32_t);
 
 typedef struct
 {

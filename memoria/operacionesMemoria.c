@@ -189,12 +189,13 @@ void inicializarPrograma(uint32_t pid,uint32_t paginasRequeridas, void* data){
 }
 
 
-void finalizarPrograma(uint32_t pid)
+uint32_t finalizarPrograma(uint32_t pid)
 {
 	tablaPaginas_t* tablaDePaginas = obtenerTablaDePaginas();
 	int pagina,paginasMaximas,i=0;
 	pagina=obtener_PaginaDeInicioDeProcesoActivo(pid);
 	int marco=getMarco(pid,pagina);
+	if(marco<0)return -1;
 	paginasMaximas=obtener_ProximaPaginaAAsignar(pid);
 	while(i<paginasMaximas)
 	{
@@ -208,6 +209,7 @@ void finalizarPrograma(uint32_t pid)
 		marco=getMarco(pid,pagina);
 	}
 	eliminar_DataDeProcesoActivo(pid);
+	return 0;
 }
 
 
@@ -236,6 +238,7 @@ int asignarPaginasAUnProceso(uint32_t pid,uint32_t paginasRequeridas)
 int eliminarPaginaDeUnProceso(uint32_t pid,uint32_t paginaAEliminar)
 {
 	tablaPaginas_t* tablaDePaginas;
+	tablaDePaginas=obtenerTablaDePaginas();
 	int marco = getMarco(pid,paginaAEliminar);
 	if(marco<0)return -1;
 	tablaDePaginas[marco].pid= -2;
@@ -246,16 +249,19 @@ int eliminarPaginaDeUnProceso(uint32_t pid,uint32_t paginaAEliminar)
 
 void* leerMemoria(uint32_t pid,uint32_t pag, uint32_t offset, uint32_t tam){ //REQUIERE FREE
 	int marco = getMarco(pid, pag);
+	if(marco<0)return NULL;
 	void* datos = malloc(tam);
 	memcpy(datos,memoria+marco*configDeMemoria.tamMarco+offset, tam);
 	return datos;
 }
 
-void escribirMemoria(uint32_t pid, uint32_t pag, uint32_t offset, uint32_t tamData, void *data){
+uint32_t escribirMemoria(uint32_t pid, uint32_t pag, uint32_t offset, uint32_t tamData, void *data){
 	int marco = getMarco(pid, pag);
+	if(marco<0)return -1;
 	pthread_mutex_lock(&escribiendoMemoria);
 	memcpy(memoria+marco*configDeMemoria.tamMarco+offset,data, tamData);
 	pthread_mutex_unlock(&escribiendoMemoria);
+	return 0;
 }
 
 void* leerCache(uint32_t pid,uint32_t pag, uint32_t offset, uint32_t tam){
