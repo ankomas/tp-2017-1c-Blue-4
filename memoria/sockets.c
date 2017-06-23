@@ -319,6 +319,7 @@ void operacionesMemoria(dataHilo_t* dataHilo)
 	switch(cop)
 	{
 	case 'A': peticionMemoria2(socket);break;
+	case 'I': peticionMemoria(socket);break;
 	case 'P': enviarTamPagina(socket);break;
 	case 'R': solicitarBytes(socket);break;
 	case 'W': almacenarBytes(socket);break;
@@ -427,12 +428,12 @@ int servidor()
 						printf("selectserver: nueva conexion de  %s en "
 								"socket %d\n",
 								inet_ntop(remoteaddr.ss_family,
-										get_in_addr(
-												(struct sockaddr*) &remoteaddr),
+										get_in_addr((struct sockaddr*) &remoteaddr),
 										remoteIP, INET6_ADDRSTRLEN), newfd);
 						if (handshakeHandler(newfd) == -1) {
 							send(newfd, "0", 1, 0);
-							//close(i);
+							close(newfd);  // Le cierro la conexion al intruso
+							FD_CLR(newfd, &master); // lo elimino de la lista maestra de FD
 						}
 
 					}
@@ -442,8 +443,6 @@ int servidor()
 					if ((nbytes = recv(i, buf, 1, 0)) <= 0) {
 
 						//queue_push(procesosNEW, 2);
-
-						// umc =
 						// got error or connection closed by client
 						if (nbytes == 0) {
 							// connection closed

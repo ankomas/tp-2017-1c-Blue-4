@@ -55,10 +55,10 @@ void testFuncionesAProcesosActivos()
 int main(void) {
 
 	inicializarEstructurasAdministrativas();
-	testLecturaMemoria();
+	//testLecturaMemoria();
 	pthread_t hiloMostrarMenu;
 	pthread_create(&hiloMostrarMenu, NULL, (void *) mostrarMenuMemoria, NULL);
-	servidor(puerto);
+	servidor();
 	pthread_join(hiloMostrarMenu, NULL);
 	free(memoria);
 	return 0;
