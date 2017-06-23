@@ -57,6 +57,7 @@ t_var *var_create(char id, t_pos pos);
 void stack_destroy(t_stack *self);
 t_stack *stack_create(t_list *args, t_list *vars, uint32_t retPos, t_pos retVar);
 
+t_pos setPos(uint32_t pag,uint32_t off, uint32_t size);
 package_t stackAStream(t_list *stackLista);
 t_list *streamAStack(char *paquete);
 package_t serializarPCB(t_pcb2 pcb);

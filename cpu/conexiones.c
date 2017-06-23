@@ -68,8 +68,6 @@ t_pcb2 testPCB(){
 	printf("PAQUETE SIZE: %i\n",paquete.data_size);
 	pcb2=deserializarPCB(paquete.data);
 
-	list_destroy_and_destroy_elements(args,(void*)var_destroy);
-	list_destroy_and_destroy_elements(vars,(void*)var_destroy);
 	list_destroy_and_destroy_elements(pcb.indiceStack,(void*)stack_destroy);
 
 	free(pcb.indiceCodigo);
@@ -92,9 +90,8 @@ t_pcb2 testPCB(){
 	args=aux->args;
 	vars=aux->vars;
 
-	list_destroy_and_destroy_elements(args,(void*)var_destroy);
-	list_destroy_and_destroy_elements(vars,(void*)var_destroy);
 	list_destroy_and_destroy_elements(pcb2.indiceStack,(void*)stack_destroy);
+
 	free(pcb2.indiceCodigo);
 	free(pcb2.indiceEtiquetas);
 
@@ -218,6 +215,14 @@ void elegirFuncion(char op,int socket){
 		printf("Error: COP invalido.\n");
 		break;
 	}
+}
+
+int pedirAMemoria(t_pos pos){
+	return -1;
+}
+
+int asignarAMemoria(t_pos pos,int variable){
+	return -1;
 }
 
 void standby(int socket){
