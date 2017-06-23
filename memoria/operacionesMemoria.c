@@ -198,8 +198,11 @@ void finalizarPrograma(uint32_t pid)
 	paginasMaximas=obtener_ProximaPaginaAAsignar(pid);
 	while(i<paginasMaximas)
 	{
+		if(marco >=0)
+		{
 		tablaDePaginas[marco].pid=-2;
 		tablaDePaginas[marco].pagina=marco;
+		}
 		pagina++;
 		i++;
 		marco=getMarco(pid,pagina);
