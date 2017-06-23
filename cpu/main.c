@@ -24,14 +24,6 @@ void testSerializarStack(){
 	t_pos pos;
 	uint32_t retVaroffset_stack_cero;
 
-	bool _pertenece(void *elem){
-		if(elem){
-		free(elem);
-		elem=NULL;
-		}
-		return true;
-	}
-
 	stack=list_create();
 	vars=list_create();
 	args=list_create();
@@ -47,8 +39,6 @@ void testSerializarStack(){
 
 	paquete=stackAStream(stack);
 
-	list_destroy_and_destroy_elements(vars,(void*)var_destroy);
-	list_destroy_and_destroy_elements(args,(void*)var_destroy);
 	list_destroy_and_destroy_elements(stack,(void*)stack_destroy);
 
 	printf("Paquete size: %i\n",paquete.data_size);
@@ -68,8 +58,6 @@ void testSerializarStack(){
 	printf("offset: %i\n",retVaroffset_stack_cero);
 	printf("vars id: %c\n",stack_cero_vars->id);
 
-	list_destroy_and_destroy_elements(vars,(void*)var_destroy);
-	list_destroy_and_destroy_elements(args,(void*)var_destroy);
 	list_destroy_and_destroy_elements(lista_de_stacks,(void*)stack_destroy);
 
 	free(paquete.data);
@@ -77,7 +65,7 @@ void testSerializarStack(){
 }
 
 int main() {
-	//testSerializarStack();
+	testSerializarStack();
 	testPCB();
 	return 0;
 	//int socketKernel,socketMemoria;

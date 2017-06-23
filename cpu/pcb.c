@@ -7,6 +7,16 @@
 
 #include "pcb.h"
 
+t_pos setPos(uint32_t pag,uint32_t off, uint32_t size){
+	t_pos pos={pag,off,size};
+	return pos;
+}
+
+void setExitCode(t_pcb2 *pcb,char *msg,uint32_t exitCode){
+	printf("PCB EXIT CODE %i: %s",exitCode,msg);
+	pcb->exitCode=exitCode;
+}
+
 void var_destroy(t_var *self){
 	free(self);
 }
@@ -19,6 +29,8 @@ t_var *var_create(char id, t_pos pos){
 }
 
 void stack_destroy(t_stack *self){
+	list_destroy_and_destroy_elements(self->args,(void*)var_destroy);
+	list_destroy_and_destroy_elements(self->vars,(void*)var_destroy);
 	free(self);
 }
 
@@ -247,7 +259,7 @@ t_pcb2 deserializarPCB(char* paquete){
 	t_pcb2 res;
 	package_t paux;
 
-	printf("|||||||||||DESERIALIZADOR||||||||||||\n");
+	//printf("|||||||||||DESERIALIZADOR||||||||||||\n");
 
 	paux=deserializar(&pointer,paquete);
 	res.pid=*(uint32_t*)paux.data;
@@ -259,7 +271,7 @@ t_pcb2 deserializarPCB(char* paquete){
 
 	free(paux.data);
 
-	printf("Instruccion inicio: %i\n",res.pc);
+	//printf("Instruccion inicio: %i\n",res.pc);
 
 	paux=deserializar(&pointer,paquete);
 	res.sp=*(uint32_t*)paux.data;
@@ -276,7 +288,7 @@ t_pcb2 deserializarPCB(char* paquete){
 
 	free(paux.data);
 
-	printf("Instrucciones size: %i\n",res.indiceCodigoSize);
+	//printf("Instrucciones size: %i\n",res.indiceCodigoSize);
 
 	paux=deserializar(&pointer,paquete);
 	res.indiceCodigo=streamAIntructions(paux.data,res.indiceCodigoSize);
@@ -297,7 +309,7 @@ t_pcb2 deserializarPCB(char* paquete){
 
 	free(paux.data);
 
-	printf("Indice etiquetas size: %i\n",res.indiceEtiquetasSize);
+	//printf("Indice etiquetas size: %i\n",res.indiceEtiquetasSize);
 
 	paux=deserializar(&pointer,paquete);
 	res.indiceEtiquetas=paux.data;
@@ -308,8 +320,25 @@ t_pcb2 deserializarPCB(char* paquete){
 
 	free(paux.data);
 
-	printf("exitCODE: %i\n",res.exitCode);
+	//printf("exitCODE: %i\n",res.exitCode);
 
-	printf("|||||||||||DESERIALIZADOR||||||||||||\n");
+	//printf("|||||||||||DESERIALIZADOR||||||||||||\n");
 	return res;
+}
+
+
+void addVarStack(t_pcb2 pcb,int indiceStack, t_var *var){
+	t_stack *stack;
+	t_list *vars;
+	stack=list_get(pcb.indiceStack,indiceStack);
+	vars=stack->vars;
+	list_add(vars,var);
+}
+
+void addArgStack(t_pcb2 pcb,int indiceStack, t_var *var){
+	t_stack *stack;
+	t_list *args;
+	stack=list_get(pcb.indiceStack,indiceStack);
+	args=stack->args;
+	list_add(args,var);
 }
