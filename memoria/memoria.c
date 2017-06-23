@@ -28,7 +28,7 @@ void inicializarEstructurasAdministrativas()
 
 void testLecturaMemoria()
 {
-		inicializarPrograma(100,1,"HOLA SOY UN CODE ANSISOP");
+		inicializarPrograma(100,1);
 		printf("la wea dice: %s\n",(char*)leerMemoria(100,0,0,25));
 		escribirMemoria(100,0,0,20,"tu vieja en tanga me gusta");
 		printf("la wea dice: %s\n",(char*)leerMemoria(100,0,0,20));

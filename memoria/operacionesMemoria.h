@@ -16,25 +16,26 @@ uint32_t tamanioDeTabla();
 
 uint32_t tamanioDeTablaCache();
 
-void inicializarPrograma(uint32_t ,uint32_t , void* );
+void inicializarPrograma(uint32_t ,uint32_t);
 
 
 /**
- * LeerMemoria(pid, pag, offset, tamañoLectura)
+ * Leer (pid, pag, offset, tamañoLectura)
+ * lee de memoria o cache
  * @return void* memoriaBuscada en caso de exito || NULL en caso de error
  */
-void *leerMemoria(uint32_t, uint32_t, uint32_t, uint32_t);
+void *leer(uint32_t, uint32_t, uint32_t, uint32_t);
 
 /**
  * escribirMemoria(pid, pag, offset, tamañoEscritura, datosAEscribir)
- * Escribe la memoria
+ * Escribe la memoria y el cache
  * @return 0 en caso de exito || -1 en caso de error
  */
+int escribir(uint32_t, uint32_t, uint32_t, uint32_t, void*);
+
+void *leerMemoria(uint32_t, uint32_t, uint32_t, uint32_t);
+
 uint32_t escribirMemoria(uint32_t, uint32_t, uint32_t, uint32_t, void*);
-
-void *leerCache(uint32_t, uint32_t, uint32_t, uint32_t);
-
-void escribirCache(uint32_t, uint32_t, uint32_t, uint32_t, void*);
 
 tablaPaginas_t* obtenerTablaDePaginas();
 

@@ -157,8 +157,6 @@ void inicializarCache(){
 	cargarTablaDeCache();
 }
 
-
-
 uint32_t obtener_PosicionLibre()
 {
 	uint32_t i=0;

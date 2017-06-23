@@ -41,6 +41,8 @@ uint32_t tamanioDeTablaCache(){
 	 return tabla;
  }
 
+
+
  int lru(){
 	 tablaCache_t* tabla = obtenerTablaCache();
 	 int marco, minV=0, minM=-1;
@@ -56,12 +58,24 @@ uint32_t tamanioDeTablaCache(){
 		 return -1;
  }
 
+ void actualizarCounterMarco(uint32_t marco){
+	 tablaCache_t* tabla = obtenerTablaCache();
+	 tabla[marco].counter = contador++ ;
+ }
+
+ void escribirCache(uint32_t marco,uint32_t offset,uint32_t tamData, void *data){
+ 	pthread_mutex_lock(&escribiendoMemoriaCache);
+ 	memcpy(cache+marco*configDeMemoria.tamMarco+offset,data, tamData);
+ 	actualizarCounterMarco(marco);
+ 	pthread_mutex_unlock(&escribiendoMemoriaCache);
+ }
+
  int getMarcoCache(int pid, int pag) {
 	tablaCache_t *tabla = obtenerTablaCache();
 	int i;
 	if (pid < -1 || pag < 0)
 		return -1;
-	for (i = 0; i < configDeMemoria.marcos; i++) {
+	for (i = 0; i < configDeMemoria.entradasCache; i++) {
 		if (tabla[i].pid == pid) {
 			if (tabla[i].pagina == pag) {
 				return i;
@@ -71,6 +85,9 @@ uint32_t tamanioDeTablaCache(){
 	return -1;
 }
 
+uint32_t estaEnCache(uint32_t pid, uint32_t pag){
+	return getMarcoCache(pid, pag) >= -1;
+}
 
  int marcosTabla(){
  	return cuantosMarcosRepresenta(tamanioDeTabla());
@@ -160,19 +177,17 @@ void cargarPaginaATabla(uint32_t pid, uint32_t pagina, unsigned marco){
 	return;
 }
 
-void guardaProcesoEn(uint32_t pid, uint32_t paginasRequeridas, void* data) {
+void guardaProcesoEn(uint32_t pid, uint32_t paginasRequeridas) {
 	uint32_t marco, pagina = 0;
 	while (pagina < paginasRequeridas) {
 		marco = nuevoMarco(pid, pagina);
 		cargarPaginaATabla(pid, pagina, marco);
-		cargarCodigo(marco, pagina, data);
 		pagina++;
 	}
-	marco++;
 }
 
-void agregarNuevoProceso(uint32_t pid, uint32_t paginasRequeridas,void* data){
-	guardaProcesoEn(pid,paginasRequeridas,data);
+void agregarNuevoProceso(uint32_t pid, uint32_t paginasRequeridas){
+	guardaProcesoEn(pid,paginasRequeridas);
 	actualizarMarcosDisponibles(paginasRequeridas);
 }
 
@@ -180,11 +195,11 @@ int tieneMarcosSuficientes(int paginasRequeridas){
 	return paginasRequeridas <= configDeMemoria.marcosDisponibles;
 }
 
-void inicializarPrograma(uint32_t pid,uint32_t paginasRequeridas, void* data){
+void inicializarPrograma(uint32_t pid,uint32_t paginasRequeridas){
 	//pthread_mutex_lock(mutexMemoria);
 	agregar_DataDeProcesoActivo(pid,paginasRequeridas);
 	printf("tengo marcos suficientes \n");
-	agregarNuevoProceso(pid,paginasRequeridas,data);
+	agregarNuevoProceso(pid,paginasRequeridas);
 	//pthread_mutex_unlock(mutexMemoria);
 }
 
@@ -247,6 +262,8 @@ int eliminarPaginaDeUnProceso(uint32_t pid,uint32_t paginaAEliminar)
 	return 0;
 }
 
+
+
 void* leerMemoria(uint32_t pid,uint32_t pag, uint32_t offset, uint32_t tam){ //REQUIERE FREE
 	int marco = getMarco(pid, pag);
 	if(marco<0)return NULL;
@@ -264,18 +281,35 @@ uint32_t escribirMemoria(uint32_t pid, uint32_t pag, uint32_t offset, uint32_t t
 	return 0;
 }
 
-void* leerCache(uint32_t pid,uint32_t pag, uint32_t offset, uint32_t tam){
+void* leerCache(uint32_t pid,uint32_t pag, uint32_t offset, uint32_t tam){ //NECESITA UN FREE :D
 	uint32_t marco = getMarcoCache(pid, pag);
 	void* datos = malloc(tam);
 	memcpy(datos,cache+marco*configDeMemoria.tamMarco+offset, tam);
+	actualizarCounterMarco(marco);
 	return datos;
 }
 
-void escribirCache(uint32_t pid, uint32_t pag, uint32_t offset, uint32_t tamData, void *data){
-	int marco = getMarcoCache(pid, pag);
-	pthread_mutex_lock(&escribiendoMemoriaCache);
-	memcpy(cache+marco*configDeMemoria.tamMarco+offset,data, tamData);
-	pthread_mutex_unlock(&escribiendoMemoriaCache);
+int agregarProcesoACache(int pid, int pag){
+	 int marco = lru();
+	 void* data = leerMemoria(pid, pag, 0, configDeMemoria.tamMarco);
+	 escribirCache(marco, 0, configDeMemoria.tamMarco, data);
+	 return marco;
+}
+
+void* leer(uint32_t pid,uint32_t pag, uint32_t offset, uint32_t tam){ // SIGUE NECESITANDO UN FREE
+	if(estaEnCache(pid, pag))
+		return leerCache(pid, pag, offset, tam);
+	else
+		return leerMemoria(pid, pag, offset, tam);
+}
+
+int escribir(uint32_t pid, uint32_t pag, uint32_t offset, uint32_t tamData, void *data){
+	int e = escribirMemoria(pid,pag,offset,tamData,data);
+	if(estaEnCache(pid,pag))
+		escribirCache(getMarcoCache(pid,pag),offset,tamData,data);
+	else
+		agregarProcesoACache(pid, pag);
+	return e;
 }
 
 /*int buscarB(int pid, int pag) {
