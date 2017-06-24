@@ -410,7 +410,6 @@ int servidor(void)
 								nuevoPCB->indiceStack=NULL;
 								nuevoPCB->indiceEtiquetas=NULL;
 
-								nuevoProceso->paginasCodigo = 0;
 								nuevoProceso->tablaArchivos = NULL;
 								nuevoProceso->quantumRestante = quantum;
 								nuevoProceso->pcb = nuevoPCB;
@@ -421,10 +420,12 @@ int servidor(void)
 								else if(tamanioPagina == 0)
 									anuncio("El tamanio de una pagina no puede ser 0");
 								else
-									cantidadPaginasCodigo = tamanioCodigo/tamanioPagina;
+									cantidadPaginasCodigo = (tamanioCodigo/tamanioPagina)+1;
 
 								if(cantidadPaginasCodigo == 0)
 									killme();
+
+								nuevoProceso->paginasCodigo = cantidadPaginasCodigo;
 
 								list_add(PROGRAMAs,nuevoProceso);
 
