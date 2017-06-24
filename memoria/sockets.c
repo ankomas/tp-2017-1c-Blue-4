@@ -65,6 +65,16 @@ int handshakeHandler(int i){
 
 
 
+int validarRecv(int socket,int resultadoRecv)
+{
+	if(resultadoRecv<0)
+	{
+		send(socket,"N",1,0);
+		return -1;
+	}
+	return 0;
+}
+
 
 
 uint32_t obtenerNumeroSerializado(uint32_t* puntero,char* buffer)
@@ -96,11 +106,34 @@ char* obtenerDataSerializada(uint32_t* puntero,char* buffer)
 //TODO liberar el string cuando no se necesite mas !!!
 char* recibirTamanioBuffer(int socket,int* resultado)
 {
+	printf("entro a recibir tamanio buffer \n");
 	int tambuffer=sizeof(uint32_t)+1;
 	char* buffer=malloc(tambuffer);
 	memset(buffer,'\0',tambuffer);
 	*resultado=recvall(socket,buffer,tambuffer);
+	printf("salgo de recibir tamanio buffer \n");
 	return buffer;
+}
+
+
+uint32_t recibirTamanioBuffer2(int socket)
+{
+	int resultado;
+	uint32_t tamanioTotal;
+	printf("entro a recibir tamanio buffer \n");
+	int tambuffer=sizeof(uint32_t);
+	char* buffer=malloc(tambuffer);
+	memset(buffer,'\0',tambuffer);
+	resultado=recvall(socket,buffer,tambuffer);
+	if(validarRecv(socket,resultado)<0)
+	{
+		free(buffer);
+		return -1;
+	}
+	memcpy(&tamanioTotal,buffer,tambuffer);
+	free(buffer);
+	printf("salgo de recibir tamanio buffer \n");
+	return tamanioTotal;
 }
 
 //TODO liberar la data cuando no se necesite mas !!!
@@ -109,16 +142,6 @@ char* recibirPaquete(int socket,uint32_t tamanio,int* resultadoDelRecv)
 	char* data=malloc(tamanio);
 	*resultadoDelRecv=recvall(socket,data,tamanio);
 	return data;
-}
-
-int validarRecv(int socket,int resultadoRecv)
-{
-	if(resultadoRecv<0)
-	{
-		send(socket,"N",1,0);
-		return -1;
-	}
-	return 0;
 }
 
 
@@ -161,7 +184,9 @@ char* recibir_PID_PAGINAS(int socket,uint32_t* pid,uint32_t* pagina,uint32_t* pu
 		*puntero=0;
 		int resultado;
 		char* buffer,*tambuffer_string;
+
 		tambuffer_string=recibirTamanioBuffer(socket,&resultado);
+		printf("sali de recibir tamanio buffer \n");
 		if(validarRecv(socket,resultado)<0)
 		{
 			free(tambuffer_string);
@@ -170,6 +195,10 @@ char* recibir_PID_PAGINAS(int socket,uint32_t* pid,uint32_t* pagina,uint32_t* pu
 
 		tamanioTotalBuffer=atoi(tambuffer_string);
 		free(tambuffer_string);
+
+		//tamanioTotalBuffer=recibirTamanioBuffer2(socket);
+		//if(tamanioTotalBuffer<0)return NULL;
+
 		buffer=recibirPaquete(socket,tamanioTotalBuffer,&resultado);
 		if(validarRecv(socket,resultado)<0)
 		{
@@ -190,7 +219,9 @@ void peticionMemoria(uint32_t socket)
 {
 	uint32_t pid,paginasRequeridas, puntero;
 	char *buffer;
+	printf("entro a recibir paginas \n");
 	buffer=recibir_PID_PAGINAS(socket,&pid,&paginasRequeridas,&puntero);
+	printf("sali de aca papurri \n");
 	if(buffer==NULL)
 	{
 		send(socket,"N",1,0);
