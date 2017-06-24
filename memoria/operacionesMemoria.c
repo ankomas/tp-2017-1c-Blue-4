@@ -208,6 +208,7 @@ uint32_t finalizarPrograma(uint32_t pid)
 {
 	tablaPaginas_t* tablaDePaginas = obtenerTablaDePaginas();
 	int pagina,paginasMaximas,i=0;
+	uint32_t paginasTotales;
 	pagina=obtener_PaginaDeInicioDeProcesoActivo(pid);
 	int marco=getMarco(pid,pagina);
 	if(marco<0)return -1;
@@ -223,6 +224,7 @@ uint32_t finalizarPrograma(uint32_t pid)
 		i++;
 		marco=getMarco(pid,pagina);
 	}
+	obtener_PosicionProcesoActivo(pid);
 	eliminar_DataDeProcesoActivo(pid);
 	return 0;
 }
@@ -239,7 +241,7 @@ int asignarPaginasAUnProceso(uint32_t pid,uint32_t paginasRequeridas)
 	pagina=obtener_ProximaPaginaAAsignar(pid);
 	while(i<paginasRequeridas)
 	{
-		marco=getMarco(-2,pagina);
+		marco=nuevoMarco(pid,pagina);
 		tablaDePaginas[marco].pid=pid;
 		tablaDePaginas[marco].pagina=pagina;
 		pagina++;

@@ -61,6 +61,13 @@ int actualizarMarcosDisponibles(int marcosAUsar)
 	return -1;
 }
 
+void aumentarMarcosDisponibles(int marcosAAumentar)
+{
+	printf("marcos antes de actualizar : %d \n",configDeMemoria.marcosDisponibles);
+	configDeMemoria.marcosDisponibles+=marcosAAumentar;
+	printf("marcos actualizados : %d \n",configDeMemoria.marcosDisponibles);
+}
+
 void reservarEstructurasEnTablaDePaginas(tablaPaginas_t* tablaDePaginas){
 	uint32_t cantidadMarcos = cuantosMarcosRepresenta(tamanioDeTabla());
 	uint32_t marco;

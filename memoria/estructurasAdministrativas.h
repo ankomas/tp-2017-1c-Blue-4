@@ -38,6 +38,12 @@ int actualizarMarcosDisponibles(int );
 
 
 /**
+ * Aumenta los marcos disponilbles de la memoria
+ * @param cantidad de marcos que se desea aumentar
+ */
+void aumentarMarcosDisponibles(int );
+
+/**
  * Cant de marcos que requiere una cant de memoria
  * @Parametro: Tamaño
  * @Valor de Retorno: Entero
