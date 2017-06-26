@@ -57,19 +57,19 @@ void inicializarVariablesCompartidas() {
 	}
 }
 
-int guardarEnMemoria(uint32_t i, uint32_t pid,uint32_t paginaInicial,uint32_t offset,uint32_t tamanioContenido,char*contenido) {
+int guardarEnMemoria(uint32_t i, uint32_t pid,uint32_t pagina,uint32_t offset,uint32_t tamanioContenido,char*contenido) {
 	package_t paquete;
 	uint32_t tamOpCode = 1;
 	uint32_t tamInt = sizeof(uint32_t);
 	char *streamPID = intToStream(pid);
-	char *streamPaginaInicial = intToStream(paginaInicial);
+	char *streamPagina = intToStream(pagina);
 	char *streamOffset = intToStream(offset);
 	char *streamTamanioContenido = intToStream(tamanioContenido);
 
 	//[Identificador del Programa], [#página], [offset], [tamaño] y [buffer]
 	paquete = serializar(10,
 			tamInt,streamPID,
-			tamInt,streamPaginaInicial,
+			tamInt,streamPagina,
 			tamInt,streamOffset,
 			tamInt,streamTamanioContenido,
 			tamanioContenido,contenido
@@ -91,7 +91,7 @@ int guardarEnMemoria(uint32_t i, uint32_t pid,uint32_t paginaInicial,uint32_t of
 	free(paquete.data);
 
 	free(streamPID);
-	free(streamPaginaInicial);
+	free(streamPagina);
 	free(streamOffset);
 	free(streamTamanioContenido);
 

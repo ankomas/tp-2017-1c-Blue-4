@@ -19,9 +19,20 @@ void encolarReady(t_programa* nuevoProceso){
 	//Para encolarlo a Ready hay que tener suficiente memoria
 	if(inicializarEnMemoria(idUMC, nuevoProceso->pcb->pid,paginasNecesarias) >= 0){
 		// Guardo las paginas del codigo
-		if(guardarEnMemoria(idUMC, nuevoProceso->pcb->pid,0,0,nuevoProceso->paginasCodigo,nuevoProceso->codigo) >= 0){
+		int resultadoGuardarEnMemoria = -1;
+		int contadorPaginas = 0;
+		while(contadorPaginas < nuevoProceso->paginasCodigo){
+			resultadoGuardarEnMemoria = guardarEnMemoria(idUMC, nuevoProceso->pcb->pid,0,0,nuevoProceso->paginasCodigo,nuevoProceso->codigo);
+			contadorPaginas++;
+		}
+		if(resultadoGuardarEnMemoria == 0){
 			// Guardo las paginas del stack en las paginas siguientes codigo
-			if(guardarEnMemoria(idUMC, nuevoProceso->pcb->pid,nuevoProceso->paginasCodigo+1,0,tamanioStack,nuevoProceso->codigo) >= 0){
+			contadorPaginas = 0;
+			while(contadorPaginas < nuevoProceso->paginasCodigo){
+				resultadoGuardarEnMemoria = guardarEnMemoria(idUMC, nuevoProceso->pcb->pid,nuevoProceso->paginasCodigo+1,0,tamanioStack,"");
+				contadorPaginas++;
+			}
+			if(resultadoGuardarEnMemoria == 0){
 				queue_push(procesosREADY,nuevoProceso);
 				error = 0;
 			}
