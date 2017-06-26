@@ -60,31 +60,31 @@ void inicializarVariablesCompartidas() {
 int inicializarEnMemoria(uint32_t i, uint32_t pid,uint32_t paginasNecesarias) {
 	package_t paquete;
 	uint32_t tamOpCode = 1;
-	uint32_t tamPID = sizeof(uint32_t);
-	char* stream;
+	uint32_t tamInt = sizeof(uint32_t);
+	char *streamPID = intToStream(pid);
+	char *streamCantPaginas = intToStream(paginasNecesarias);
 
-	/*paquete = serializar(4,sizeof(uint32_t), &pid,sizeof(uint32_t), &paginasNecesarias);
+	paquete = serializar(4,tamInt, streamPID,tamInt, streamCantPaginas);
+	char* streamTamPaquete = intToStream(paquete.data_size);
+
+	// Envio de opcode
 	if(sendall(i,"I",&tamOpCode) < 0)
 		return -1;
+
+	// Envio de tamanio de paquete
+	if(sendall(i, streamTamPaquete, &tamInt) < 0)
+		return -1;
+	free(streamTamPaquete);
+
+	// Envio de paquete
 	if(sendall(i, paquete.data, &paquete.data_size) < 0)
-		return -1;*/
+		return -1;
+	free(paquete.data);
 
-	if(sendall(i,"I",&tamOpCode) < 0)
-		return -1;
-	char* streamTamPID = intToStream(tamPID);
-	anuncio(streamTamPID);
-	if(sendall(i, streamTamPID, &paquete.data_size) < 0)
-		return -1;
-	free(streamTamPID);
-
-	char* streamPID = intToStream(pid);
-	anuncio(streamPID);
-	if(sendall(i, streamPID, &paquete.data_size) < 0)
-		return -1;
 	free(streamPID);
+	free(streamCantPaginas);
 
 	char* respuesta = malloc(1);
-	free(paquete.data);
 	if(recv(i,respuesta,1,0) < 1){
 		return -1;
 	} else {
@@ -94,6 +94,7 @@ int inicializarEnMemoria(uint32_t i, uint32_t pid,uint32_t paginasNecesarias) {
 			return 0;
 		}
 	}
+	free(respuesta);
 }
 
 /*int liberarPagina(){
