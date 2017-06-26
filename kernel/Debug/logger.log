@@ -413,3 +413,54 @@
 [ERROR] 04:18:52:885 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(14939:14939): No se pudo conectar a la Memoria
 [TRACE] 04:18:56:870 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(14939:14939): Se realizo el Handshake con exito con 7
 [TRACE] 04:18:56:904 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(14939:14939): Un nuevo proceso ha sido creado
+[TRACE] 02:19:36:895 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(18775:18775): Iniciando Kernel...
+[ERROR] 02:19:36:938 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(18775:18775): No se pudo obtener el tamanio de pagina
+[TRACE] 02:19:36:940 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(18775:18775): Conexion establecida con el FileSystem
+[ERROR] 02:19:36:940 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(18775:18775): No se pudo conectar a la Memoria
+[TRACE] 02:20:03:672 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(18791:18791): Iniciando Kernel...
+[TRACE] 02:20:03:706 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(18791:18791): Conexion establecida con el FileSystem
+[TRACE] 02:20:03:706 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(18791:18791): Conexion establecida con la Memoria
+[TRACE] 02:22:02:807 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(18791:18791): Se realizo el Handshake con exito con 7
+[TRACE] 02:22:02:845 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(18791:18791): Un nuevo proceso ha sido creado
+[TRACE] 02:24:07:27 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(18874:18874): Iniciando Kernel...
+[TRACE] 02:24:08:61 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(18874:18874): Conexion establecida con el FileSystem
+[TRACE] 02:24:08:61 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(18874:18874): Conexion establecida con la Memoria
+[TRACE] 02:24:47:391 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(18874:18874): Se realizo el Handshake con exito con 7
+[TRACE] 02:24:47:429 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(18874:18874): Un nuevo proceso ha sido creado
+[TRACE] 02:25:22:28 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(18938:18938): Iniciando Kernel...
+[TRACE] 02:25:23:61 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(18938:18938): Conexion establecida con el FileSystem
+[TRACE] 02:25:23:62 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(18938:18938): Conexion establecida con la Memoria
+[TRACE] 02:25:28:309 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(18938:18938): Se realizo el Handshake con exito con 7
+[TRACE] 02:25:28:353 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(18938:18938): Un nuevo proceso ha sido creado
+[ERROR] 02:25:28:381 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(18938:18938): ERROR, el kernel no pudo solicitar memoria correctamente
+[TRACE] 02:26:38:16 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(2006:2006): Iniciando Kernel...
+[ERROR] 02:26:39:58 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(2006:2006): No se pudo obtener el tamanio de pagina
+[TRACE] 02:26:39:59 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(2006:2006): Conexion establecida con el FileSystem
+[ERROR] 02:26:39:59 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(2006:2006): No se pudo conectar a la Memoria
+[TRACE] 02:26:45:614 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(2015:2015): Iniciando Kernel...
+[TRACE] 02:26:45:648 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(2015:2015): Conexion establecida con el FileSystem
+[TRACE] 02:26:45:648 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(2015:2015): Conexion establecida con la Memoria
+[TRACE] 02:26:49:227 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(2015:2015): Se realizo el Handshake con exito con 7
+[TRACE] 02:26:49:266 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(2015:2015): Un nuevo proceso ha sido creado
+[ERROR] 02:26:49:283 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(2015:2015): ERROR, el kernel no pudo solicitar memoria correctamente
+[TRACE] 02:31:03:899 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(3898:3898): Iniciando Kernel...
+[TRACE] 02:31:03:932 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(3898:3898): Conexion establecida con el FileSystem
+[TRACE] 02:31:03:933 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(3898:3898): Conexion establecida con la Memoria
+[TRACE] 02:31:07:574 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(3898:3898): Se realizo el Handshake con exito con 7
+[TRACE] 02:31:07:612 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(3898:3898): Un nuevo proceso ha sido creado
+[ERROR] 02:31:07:647 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(3898:3898): ERROR, el kernel no pudo solicitar memoria correctamente
+[TRACE] 02:31:25:234 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(14719:14719): Iniciando Kernel...
+[TRACE] 02:31:25:268 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(14719:14719): Conexion establecida con el FileSystem
+[TRACE] 02:31:25:268 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(14719:14719): Conexion establecida con la Memoria
+[TRACE] 02:31:36:861 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(14719:14719): Se realizo el Handshake con exito con 7
+[TRACE] 02:31:36:898 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(14719:14719): Un nuevo proceso ha sido creado
+[ERROR] 02:31:36:909 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(14719:14719): ERROR, el kernel no pudo solicitar memoria correctamente
+[TRACE] 02:32:40:638 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(14984:14984): Iniciando Kernel...
+[ERROR] 02:32:40:680 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(14984:14984): No se pudo obtener el tamanio de pagina
+[TRACE] 02:32:40:681 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(14984:14984): Conexion establecida con el FileSystem
+[ERROR] 02:32:40:681 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(14984:14984): No se pudo conectar a la Memoria
+[TRACE] 02:32:45:595 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(14993:14993): Iniciando Kernel...
+[TRACE] 02:32:45:628 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(14993:14993): Conexion establecida con el FileSystem
+[TRACE] 02:32:45:629 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(14993:14993): Conexion establecida con la Memoria
+[TRACE] 02:32:51:42 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(14993:14993): Se realizo el Handshake con exito con 7
+[TRACE] 02:32:51:78 /home/utnso/workspace/tp-2017-1c-Blue-4/kernel/Debug/kernel/(14993:14993): Un nuevo proceso ha sido creado
