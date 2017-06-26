@@ -15,12 +15,20 @@ char *algoritmoPlanificador;
 
 void encolarReady(t_programa* nuevoProceso){
 	uint32_t paginasNecesarias = nuevoProceso->paginasCodigo+tamanioStack;
+	uint32_t error = 1;
 	//Para encolarlo a Ready hay que tener suficiente memoria
-	if(inicializarEnMemoria(idUMC, nuevoProceso->pcb->pid,paginasNecesarias) < 0){
+	if(inicializarEnMemoria(idUMC, nuevoProceso->pcb->pid,paginasNecesarias) >= 0){
+		// Guardo las paginas del codigo
+		if(guardarEnMemoria(idUMC, nuevoProceso->pcb->pid,0,0,nuevoProceso->paginasCodigo,nuevoProceso->codigo) >= 0){
+			// Guardo las paginas del stack en las paginas siguientes codigo
+			if(guardarEnMemoria(idUMC, nuevoProceso->pcb->pid,nuevoProceso->paginasCodigo+1,0,tamanioStack,nuevoProceso->codigo) >= 0){
+				queue_push(procesosREADY,nuevoProceso);
+				error = 0;
+			}
+		}
+	}
+	if(error == 1){
 		log_error(logger,"ERROR, el kernel no pudo solicitar memoria correctamente");
-	} else {
-		log_trace(logger,"Nuevo proceso encolado en READY");
-		queue_push(procesosREADY,nuevoProceso);
 	}
 }
 

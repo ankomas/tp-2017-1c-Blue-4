@@ -57,6 +57,56 @@ void inicializarVariablesCompartidas() {
 	}
 }
 
+int guardarEnMemoria(uint32_t i, uint32_t pid,uint32_t paginaInicial,uint32_t offset,uint32_t tamanioContenido,char*contenido) {
+	package_t paquete;
+	uint32_t tamOpCode = 1;
+	uint32_t tamInt = sizeof(uint32_t);
+	char *streamPID = intToStream(pid);
+	char *streamPaginaInicial = intToStream(paginaInicial);
+	char *streamOffset = intToStream(offset);
+	char *streamTamanioContenido = intToStream(tamanioContenido);
+
+	//[Identificador del Programa], [#página], [offset], [tamaño] y [buffer]
+	paquete = serializar(10,
+			tamInt,streamPID,
+			tamInt,streamPaginaInicial,
+			tamInt,streamOffset,
+			tamInt,streamTamanioContenido,
+			tamanioContenido,contenido
+			);
+	char* streamTamPaquete = intToStream(paquete.data_size);
+
+	// Envio de opcode
+	if(sendall(i,"W",&tamOpCode) < 0)
+		return -1;
+
+	// Envio de tamanio de paquete
+	if(sendall(i, streamTamPaquete, &tamInt) < 0)
+		return -1;
+	free(streamTamPaquete);
+
+	// Envio de paquete
+	if(sendall(i, paquete.data, &paquete.data_size) < 0)
+		return -1;
+	free(paquete.data);
+
+	free(streamPID);
+	free(streamPaginaInicial);
+	free(streamOffset);
+	free(streamTamanioContenido);
+
+	char* respuesta = malloc(1);
+	if(recv(i,respuesta,1,0) < 1){
+		return -1;
+	} else {
+		if(respuesta[0] == 'N'){
+			return -1;
+		} else {
+			return 0;
+		}
+	}
+}
+
 int inicializarEnMemoria(uint32_t i, uint32_t pid,uint32_t paginasNecesarias) {
 	package_t paquete;
 	uint32_t tamOpCode = 1;
@@ -94,7 +144,6 @@ int inicializarEnMemoria(uint32_t i, uint32_t pid,uint32_t paginasNecesarias) {
 			return 0;
 		}
 	}
-	free(respuesta);
 }
 
 /*int liberarPagina(){

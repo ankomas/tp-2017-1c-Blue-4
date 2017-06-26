@@ -21,6 +21,7 @@ typedef struct t_programa {
 	void * tablaArchivos;
 	uint32_t quantumRestante;
 	uint32_t paginasCodigo;
+	char* codigo;
 	t_pcb* pcb;
 } t_programa;
 

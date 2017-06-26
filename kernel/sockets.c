@@ -425,6 +425,7 @@ int servidor(void)
 								if(cantidadPaginasCodigo == 0)
 									killme();
 
+								nuevoProceso->codigo = codigo;
 								nuevoProceso->paginasCodigo = cantidadPaginasCodigo;
 
 								list_add(PROGRAMAs,nuevoProceso);
