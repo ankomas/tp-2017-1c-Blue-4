@@ -10,6 +10,7 @@
 
 
 pthread_t mutex_tabla, mutex_memoria;
+pthread_mutex_t mutex_operacion;
 int contador;
 
 typedef struct {

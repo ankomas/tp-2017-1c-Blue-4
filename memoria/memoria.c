@@ -21,6 +21,7 @@ void inicializarEstructurasAdministrativas()
 	pthread_mutex_init(&escribiendoMemoria,NULL);
 	pthread_mutex_init(&escribiendoMemoriaCache,NULL);
 	pthread_mutex_init(&mutex_procesosActivos,NULL);
+	pthread_mutex_init(&mutex_operacion,NULL);
 	inicializarDataConfig();
 	inicializarMemoria();
 	inicializarCache();

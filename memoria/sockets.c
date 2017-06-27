@@ -149,6 +149,7 @@ char* recibirPaquete(int socket,uint32_t tamanio,int* resultadoDelRecv)
 	printf("entro al recvall \n");
 	printf("se va a recibir data de socket : %d ,tamanio: %d \n",socket,tamanio);
 	*resultadoDelRecv=recvall(socket,data,tamanio);
+	testi(*resultadoDelRecv);
 	printf("sali del recvall \n");
 	return data;
 }
@@ -362,6 +363,7 @@ void almacenarBytes(int socket)
 
 void operacionesMemoria(dataHilo_t* dataHilo)
 {
+	pthread_mutex_lock(&mutex_operacion);
 	int socket=dataHilo->socket;
 	char cop=dataHilo->codOp;
 
@@ -375,6 +377,7 @@ void operacionesMemoria(dataHilo_t* dataHilo)
 	case 'W': almacenarBytes(socket);break;
 	default: break;
 	}
+	pthread_mutex_unlock(&mutex_operacion);
 }
 
 
