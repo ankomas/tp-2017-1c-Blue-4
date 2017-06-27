@@ -102,18 +102,22 @@ char* obtenerDataSerializada(uint32_t* puntero,char* buffer)
 	free(paquete.data);
 	return data;
 }
-
 //TODO liberar el string cuando no se necesite mas !!!
 char* recibirTamanioBuffer(int socket,int* resultado)
 {
 	printf("entro a recibir tamanio buffer \n");
-	int tambuffer=sizeof(uint32_t)+1;
+	int tambuffer=sizeof(uint32_t);
 	char* buffer=malloc(tambuffer);
+	char* buffer_string=malloc(tambuffer+1);
 	memset(buffer,'\0',tambuffer);
+	memset(buffer_string,'\0',tambuffer+1);
 	*resultado=recvall(socket,buffer,tambuffer);
+	memcpy(buffer_string,buffer,tambuffer);
+	free(buffer);
 	printf("salgo de recibir tamanio buffer \n");
-	return buffer;
+	return buffer_string;
 }
+
 
 
 uint32_t recibirTamanioBuffer2(int socket)
