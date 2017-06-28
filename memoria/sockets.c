@@ -194,7 +194,7 @@ char* recibir_PID_PAGINAS(int socket,uint32_t* pid,uint32_t* pagina,uint32_t* pu
 		*puntero=0;
 		int resultado;
 		char* buffer,*tambuffer_string;
-
+/*
 		tambuffer_string=recibirTamanioBuffer(socket,&resultado);
 		printf("sali de recibir tamanio buffer \n");
 		if(validarRecv(socket,resultado)<0)
@@ -206,9 +206,9 @@ char* recibir_PID_PAGINAS(int socket,uint32_t* pid,uint32_t* pagina,uint32_t* pu
 		tamanioTotalBuffer=atoi(tambuffer_string);
 		free(tambuffer_string);
 		printf("sali del atoi(tambuffer_string) \n");
-
-		//tamanioTotalBuffer=recibirTamanioBuffer2(socket);
-		//if(tamanioTotalBuffer<0)return NULL;
+*/
+		tamanioTotalBuffer=recibirTamanioBuffer2(socket);
+		if(tamanioTotalBuffer<0)return NULL;
 
 		printf("el tamaño del paquete es: %d \n",tamanioTotalBuffer);
 		buffer=recibirPaquete(socket,tamanioTotalBuffer,&resultado);
