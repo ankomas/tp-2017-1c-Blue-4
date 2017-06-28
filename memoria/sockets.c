@@ -211,6 +211,7 @@ char* recibir_PID_PAGINAS(int socket,uint32_t* pid,uint32_t* pagina,uint32_t* pu
 		if(tamanioTotalBuffer<0)return NULL;
 
 		printf("el tamaño del paquete es: %d \n",tamanioTotalBuffer);
+		usleep(10000);
 		buffer=recibirPaquete(socket,tamanioTotalBuffer,&resultado);
 		printf("entro al if del validar  recv \n");
 		if(validarRecv(socket,resultado)<0)
@@ -363,7 +364,7 @@ void almacenarBytes(int socket)
 
 void operacionesMemoria(dataHilo_t* dataHilo)
 {
-	//pthread_mutex_lock(&mutex_operacion);
+	pthread_mutex_lock(&mutex_operacion);
 	int socket=dataHilo->socket;
 	char cop=dataHilo->codOp;
 
@@ -377,7 +378,7 @@ void operacionesMemoria(dataHilo_t* dataHilo)
 	case 'W': almacenarBytes(socket);break;
 	default: break;
 	}
-	//pthread_mutex_unlock(&mutex_operacion);
+	pthread_mutex_unlock(&mutex_operacion);
 }
 
 
@@ -395,7 +396,7 @@ int servidor()
     struct sockaddr_storage remoteaddr; // client address
     socklen_t addrlen;
 
-    char buf[1];    // buffer for client data
+    char buf;    // buffer for client data
     int nbytes;
 
 	char remoteIP[INET6_ADDRSTRLEN];
@@ -493,7 +494,7 @@ int servidor()
 
 				} else {
 					// handle data from a client
-					if ((nbytes = recv(i, buf, 1, 0)) <= 0) {
+					if ((nbytes = recv(i, &buf, 1, 0)) <= 0) {
 
 						//queue_push(procesosNEW, 2);
 						// got error or connection closed by client
@@ -507,20 +508,20 @@ int servidor()
 						FD_CLR(i, &master); // remove from master set
 					} else {
 						// la i es el socket_cliente y el buff es el codigo de operacion!!!.
-						pthread_mutex_lock(&mutex_operacion);
+						//pthread_mutex_lock(&mutex_operacion);
 						char * opCode = malloc(1);
-						opCode[0] = buf[0];
-						dataHilo_t dataHilo;
-						dataHilo.codOp=opCode[0];
-						dataHilo.socket=i;
+						opCode[0] = buf;
+						dataHilo_t *dataHilo = malloc(sizeof(dataHilo_t));
+						dataHilo->codOp=opCode[0];
+						dataHilo->socket=i;
 
 						//dataHilo_t dataHilo;
 						pthread_attr_t hiloDetachable;
 						pthread_t hilo;
 						pthread_attr_init(&hiloDetachable);
 						pthread_attr_setdetachstate(&hiloDetachable,PTHREAD_CREATE_DETACHED);
-						pthread_create(&hilo,&hiloDetachable,(void*)operacionesMemoria,(void*)&dataHilo);
-						pthread_mutex_unlock(&mutex_operacion);
+						pthread_create(&hilo,&hiloDetachable,(void*)operacionesMemoria,(void*)dataHilo);
+						//pthread_mutex_unlock(&mutex_operacion);
 						//operacionesMemoria(&dataHilo);
 						// we got some data from a client
 						for (j = 0; j <= fdmax; j++) {
@@ -528,7 +529,7 @@ int servidor()
 							if (FD_ISSET(j, &master)) {
 								// except the listener and ourselves
 								if (j != listener && j != i) {
-									if (sendall(j, buf, (uint32_t*) nbytes) == -1) {
+									if (sendall(j, &buf, (uint32_t*) nbytes) == -1) {
 										perror("send");
 									}
 								}
