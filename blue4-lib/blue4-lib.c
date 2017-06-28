@@ -114,6 +114,12 @@ int sendall(uint32_t s, char *buf, uint32_t *len)
         total += n;
         bytesleft -= n;
     }
+    test("------");
+    test(concat(2,"Cantidad enviada:",string_itoa(total)));
+    int prueba;
+    memcpy(&prueba, buf, sizeof (int));
+    test(concat(2,"Estoy enviando:",string_itoa(prueba)));
+    test("------");
 
     *len = total; // return number actually sent here
 
@@ -127,11 +133,21 @@ int recvall(uint32_t s, char *buf, uint32_t len)
 	uint32_t n;
 
     while(total < len) {
-        n = recv(s, buf+total, bytesleft, MSG_WAITALL);
+    	test("Entro al while");
+    	test(concat(2,"me faltan recibir: ",string_itoa(bytesleft)));
+        n = recv(s, buf+total, bytesleft, 0);
+        test("Despues del recv");
         if (n == -1) { break; }
         total += n;
         bytesleft -= n;
     }
+
+    test("------");
+    test(concat(2,"Cantidad recibida:",string_itoa(total)));
+    int prueba;
+    memcpy(&prueba, buf, sizeof (int));
+    test(concat(2,"Estoy recibiendo:",string_itoa(prueba)));
+    test("------");
 
     len = total; // return number actually sent here
 
@@ -263,7 +279,9 @@ char * rutaAbsolutaDe(char * archivo){
 }
 
 void test(char * aString){
+	pthread_mutex_lock(&mutex_test);
 	printf("%s[Test] Resultado: %s %s \n",KBOL,aString,KNRM);
+	pthread_mutex_unlock(&mutex_test);
 }
 
 void testi(int aInt){

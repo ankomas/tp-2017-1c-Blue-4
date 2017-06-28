@@ -10,6 +10,9 @@
 
 #include <stdint.h>
 #include <stdarg.h>
+#include <pthread.h>
+
+pthread_mutex_t mutex_test;
 
 typedef struct {
 	int tipo;

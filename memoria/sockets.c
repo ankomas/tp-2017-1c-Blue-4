@@ -364,7 +364,7 @@ void almacenarBytes(int socket)
 
 void operacionesMemoria(dataHilo_t* dataHilo)
 {
-	pthread_mutex_lock(&mutex_operacion);
+	//pthread_mutex_lock(&mutex_operacion);
 	int socket=dataHilo->socket;
 	char cop=dataHilo->codOp;
 
@@ -378,7 +378,7 @@ void operacionesMemoria(dataHilo_t* dataHilo)
 	case 'W': almacenarBytes(socket);break;
 	default: break;
 	}
-	pthread_mutex_unlock(&mutex_operacion);
+	//pthread_mutex_unlock(&mutex_operacion);
 }
 
 
@@ -516,13 +516,13 @@ int servidor()
 						dataHilo->socket=i;
 
 						//dataHilo_t dataHilo;
-						pthread_attr_t hiloDetachable;
+						/*pthread_attr_t hiloDetachable;
 						pthread_t hilo;
 						pthread_attr_init(&hiloDetachable);
 						pthread_attr_setdetachstate(&hiloDetachable,PTHREAD_CREATE_DETACHED);
 						pthread_create(&hilo,&hiloDetachable,(void*)operacionesMemoria,(void*)dataHilo);
-						//pthread_mutex_unlock(&mutex_operacion);
-						//operacionesMemoria(&dataHilo);
+						pthread_mutex_unlock(&mutex_operacion);*/
+						operacionesMemoria(dataHilo);
 						// we got some data from a client
 						for (j = 0; j <= fdmax; j++) {
 							// send to everyone!

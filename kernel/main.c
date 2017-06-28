@@ -47,6 +47,8 @@ void inicializarDatos(){
 	logger = log_create("logger.log",rutaAbsolutaDe("Debug/kernel"),false,LOG_LEVEL_TRACE);
 	log_trace(logger,"Iniciando Kernel...");
 
+	pthread_mutex_init(&mutex_test,NULL);
+
 	PROGRAMAs = list_create();
 	CPUs = list_create();
 	semaforos = dictionary_create();
