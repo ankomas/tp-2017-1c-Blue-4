@@ -188,12 +188,9 @@ char* concat(int n_args, ...){
 }
 
 char * intToStream(uint32_t unNumero){
-	char* dataString = malloc(5);
 	char* dataStream = malloc(4);
-	memset(dataString,0,5);
-	dataString = string_itoa(unNumero);
-	memcpy(dataStream,dataString,4);
-	free(dataString);
+	memset(dataStream,0,sizeof(unNumero));
+	memcpy(dataStream,&unNumero,sizeof(unNumero));
 	return dataStream;
 }
 
