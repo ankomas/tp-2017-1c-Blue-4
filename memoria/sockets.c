@@ -363,7 +363,7 @@ void almacenarBytes(int socket)
 
 void operacionesMemoria(dataHilo_t* dataHilo)
 {
-	pthread_mutex_lock(&mutex_operacion);
+	//pthread_mutex_lock(&mutex_operacion);
 	int socket=dataHilo->socket;
 	char cop=dataHilo->codOp;
 
@@ -377,7 +377,7 @@ void operacionesMemoria(dataHilo_t* dataHilo)
 	case 'W': almacenarBytes(socket);break;
 	default: break;
 	}
-	pthread_mutex_unlock(&mutex_operacion);
+	//pthread_mutex_unlock(&mutex_operacion);
 }
 
 
@@ -507,8 +507,11 @@ int servidor()
 						FD_CLR(i, &master); // remove from master set
 					} else {
 						// la i es el socket_cliente y el buff es el codigo de operacion!!!.
+						pthread_mutex_lock(&mutex_operacion);
+						char * opCode = malloc(1);
+						opCode[0] = buf[0];
 						dataHilo_t dataHilo;
-						dataHilo.codOp=buf[0];
+						dataHilo.codOp=opCode[0];
 						dataHilo.socket=i;
 
 						//dataHilo_t dataHilo;
@@ -517,7 +520,7 @@ int servidor()
 						pthread_attr_init(&hiloDetachable);
 						pthread_attr_setdetachstate(&hiloDetachable,PTHREAD_CREATE_DETACHED);
 						pthread_create(&hilo,&hiloDetachable,(void*)operacionesMemoria,(void*)&dataHilo);
-
+						pthread_mutex_unlock(&mutex_operacion);
 						//operacionesMemoria(&dataHilo);
 						// we got some data from a client
 						for (j = 0; j <= fdmax; j++) {
