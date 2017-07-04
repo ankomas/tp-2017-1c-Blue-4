@@ -4,18 +4,21 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../capaMemoria.c \
 ../conexiones.c \
 ../main.c \
 ../pcb.c \
 ../primitivas.c 
 
 OBJS += \
+./capaMemoria.o \
 ./conexiones.o \
 ./main.o \
 ./pcb.o \
 ./primitivas.o 
 
 C_DEPS += \
+./capaMemoria.d \
 ./conexiones.d \
 ./main.d \
 ./pcb.d \

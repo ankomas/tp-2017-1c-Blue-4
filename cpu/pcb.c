@@ -4,6 +4,9 @@
  *  Created on: 19/6/2017
  *      Author: utnso
  */
+#include <stdio.h>
+#include <stdint.h>
+#include <parser/metadata_program.h>
 
 #include "pcb.h"
 
@@ -232,11 +235,13 @@ package_t serializarPCB(t_pcb2 pcb){
 	indiceCodigo=intructionsAStream(pcb.indiceCodigo,pcb.indiceCodigoSize);
 	stack=stackAStream(pcb.indiceStack);
 
-	paquete=serializar(20,
+	paquete=serializar(22,
 			sizeof(uint32_t),&pcb.pid,
 			sizeof(uint32_t),&pcb.pc,
 			sizeof(uint32_t),&pcb.sp,
 			sizeof(uint32_t),&pcb.cantPagCod,
+
+			sizeof(t_pos),&pcb.ultimaPosUsada,
 
 			sizeof(uint32_t),&pcb.indiceCodigoSize,
 			indiceCodigo.data_size,indiceCodigo.data,
@@ -280,6 +285,11 @@ t_pcb2 deserializarPCB(char* paquete){
 
 	paux=deserializar(&pointer,paquete);
 	res.cantPagCod=*(uint32_t*)paux.data;
+
+	free(paux.data);
+
+	paux=deserializar(&pointer,paquete);
+	res.ultimaPosUsada=*(t_pos*)paux.data;
 
 	free(paux.data);
 
