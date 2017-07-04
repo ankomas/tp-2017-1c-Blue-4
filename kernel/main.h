@@ -18,6 +18,7 @@
 #include "consolaKernel.h"
 #include "sockets.h"
 #include "planificador.h"
+#include "heap.h"
 
 extern int cantidadProgramasEnSistema,idFS,idUMC,gradoMultiprogramacion,retardo,quantum,tamanioPagina,tamanioStack;
 extern t_list * PROGRAMAs;

@@ -7,6 +7,7 @@ C_SRCS += \
 ../capaFs.c \
 ../capaMemoria.c \
 ../consolaKernel.c \
+../heap.c \
 ../main.c \
 ../planificador.c \
 ../sockets.c 
@@ -15,6 +16,7 @@ OBJS += \
 ./capaFs.o \
 ./capaMemoria.o \
 ./consolaKernel.o \
+./heap.o \
 ./main.o \
 ./planificador.o \
 ./sockets.o 
@@ -23,6 +25,7 @@ C_DEPS += \
 ./capaFs.d \
 ./capaMemoria.d \
 ./consolaKernel.d \
+./heap.d \
 ./main.d \
 ./planificador.d \
 ./sockets.d 
