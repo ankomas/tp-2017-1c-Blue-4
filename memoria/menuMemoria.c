@@ -32,8 +32,15 @@ void mostrarTablaDePaginas(){
 	int i;
 	tablaPaginas_t* tablaDePaginas = obtenerTablaDePaginas();
 	//for(i=0; i<configDeMemoria.marcos;i++)
-	for(i=0; i<50;i++)
-		printf("Marco: %i	 PID: %i	Pagina: %i\n",i,tablaDePaginas[i].pid, tablaDePaginas[i].pagina );
+	int marcosUtilizados=configDeMemoria.marcos-configDeMemoria.marcosDisponibles;
+	if(marcosUtilizados==0)marcosUtilizados=configDeMemoria.marcos;
+	printf("Se mostrara a continuacion solo los marcos que se esten usando en la tabla de paginas:\n\n");
+	for(i=0; i<50;i++){
+		if(tablaDePaginas[i].pid!=-2)
+		{
+			printf("Marco: %i	 PID: %i	Pagina: %i\n",i,tablaDePaginas[i].pid, tablaDePaginas[i].pagina );
+		}
+	}
 }
 void dumpEstructuras() { //Falta lista de procesos Activos
 	mostrarTablaDePaginas();
@@ -85,10 +92,10 @@ void cantRunAway(){
 
 void mostrarMenuMemoria() {
 	int opcion;
-	while(1)
+	do
 	{
 
-		printf(	"Ingrese un comando:\n"
+		printf(	"Ingrese un comando:\n\n"
 				"Modificar el retardo: Presione 1\n"
 				"Reportar estado actual: Presione 2\n"
 				"Limpiar el contenido de la cache: Presione 3\n"
@@ -106,6 +113,7 @@ void mostrarMenuMemoria() {
 		case 5: PIDSize(); break;
 		case 6: system("clear"); break;
 		case 7: cantRunAway(); break;
+		default:break;
 		}
-	}
+	}while(opcion!=8);
 }

@@ -120,10 +120,10 @@ char* recibirTamanioBuffer(int socket,int* resultado)
 
 
 
-uint32_t recibirTamanioBuffer2(int socket)
+uint32_t recibirUint32_t(int socket)
 {
 	int resultado;
-	uint32_t tamanioTotal;
+	uint32_t uint;
 	printf("entro a recibir tamanio buffer \n");
 	uint32_t tambuffer=sizeof(uint32_t);
 	char* buffer=malloc(tambuffer);
@@ -134,12 +134,11 @@ uint32_t recibirTamanioBuffer2(int socket)
 		free(buffer);
 		return -1;
 	}
-	memcpy(&tamanioTotal,buffer,tambuffer);
+	memcpy(&uint,buffer,tambuffer);
 	//tamanioTotal=*(uint32_t*)buffer;
 	free(buffer);
-	printf("salgo de recibir tamanio buffer \n");
-	printf("tam_paquete: %u \n",tamanioTotal);
-	return tamanioTotal;
+	printf("se recibio: %u \n",uint);
+	return uint;
 }
 
 //TODO liberar la data cuando no se necesite mas !!!
@@ -193,25 +192,12 @@ char* recibir_PID_PAGINAS(int socket,uint32_t* pid,uint32_t* pagina,uint32_t* pu
 	uint32_t tamanioTotalBuffer;
 		*puntero=0;
 		int resultado;
-		char* buffer,*tambuffer_string;
-/*
-		tambuffer_string=recibirTamanioBuffer(socket,&resultado);
-		printf("sali de recibir tamanio buffer \n");
-		if(validarRecv(socket,resultado)<0)
-		{
-			free(tambuffer_string);
-			return NULL;
-		}
-		printf("entro al atoi(tambuffer_string) \n");
-		tamanioTotalBuffer=atoi(tambuffer_string);
-		free(tambuffer_string);
-		printf("sali del atoi(tambuffer_string) \n");
-*/
-		tamanioTotalBuffer=recibirTamanioBuffer2(socket);
+		char* buffer;
+		tamanioTotalBuffer=recibirUint32_t(socket);
 		if(tamanioTotalBuffer<0)return NULL;
 
 		printf("el tamaño del paquete es: %d \n",tamanioTotalBuffer);
-		usleep(10000);
+		//usleep(10000);
 		buffer=recibirPaquete(socket,tamanioTotalBuffer,&resultado);
 		printf("entro al if del validar  recv \n");
 		if(validarRecv(socket,resultado)<0)
@@ -237,13 +223,10 @@ void peticionMemoria(uint32_t socket)
 {
 	uint32_t pid,paginasRequeridas, puntero;
 	char *buffer;
-	printf("entro a recibir paginas \n");
 	buffer=recibir_PID_PAGINAS(socket,&pid,&paginasRequeridas,&puntero);
-	printf("sali de aca papurri \n");
 	if(buffer==NULL)
 	{
 		send(socket,"N",1,0);
-		free(buffer);
 		return ;
 	}
 	free(buffer);
@@ -253,9 +236,8 @@ void peticionMemoria(uint32_t socket)
 		return ;
 	}
 	send(socket,"Y",1,0);
-	// TODO arreglar inicializarPrograma
-	//inicializarPrograma(pid,paginasRequeridas);
 	printf("Se van a reservar bytes de memoria para el proceso %i\n", pid);
+	inicializarPrograma(pid,paginasRequeridas);
 }
 
 
@@ -269,7 +251,6 @@ char* recibir_PID_PAGINA_OFFSET(int socket,uint32_t* pid,uint32_t* pagina,uint32
 				*offset=obtenerNumeroSerializado(puntero,buffer);
 				return buffer;
 			}
-		free(buffer);
 		return NULL;
 }
 
@@ -285,7 +266,6 @@ int recibir_PID_PAGINA_OFFSET_TAMANIO(int socket,uint32_t* pid,uint32_t* pagina,
 		return 0;
 	}
 	printf("no se pudo recibir: pid,pagina,offset,tamanio  de : %d\n",socket);
-	free(buffer);
 	return -1;
 }
 
@@ -303,7 +283,6 @@ char* recibir_PID_PAGINA_OFFSET_TAMANIO_DATA(int socket,uint32_t* pid,uint32_t* 
 			return data;
 		}
 		printf("no se pudo recibir: pid,pagina,offset,tamanio,data  de : %d\n",socket);
-		free(buffer);
 		return NULL;
 }
 
@@ -335,7 +314,6 @@ void solicitarBytes(int socket)
 		free(data);
 	}else{
 		send(socket,"N",1,0);
-		free(data);
 	}
 }
 
@@ -358,9 +336,71 @@ void almacenarBytes(int socket)
 		free(data);
 		return;
 	}
-	free(data);
+	// log_error()
 }
 
+
+void agregarPaginasA(int socket)
+{
+	uint32_t pid,paginasRequeridas, puntero;
+	int resultado;
+		char *buffer;
+		buffer=recibir_PID_PAGINAS(socket,&pid,&paginasRequeridas,&puntero);
+		if(buffer==NULL)
+		{
+			send(socket,"N",1,0);
+			return ;
+		}
+		free(buffer);
+		resultado=asignarPaginasAUnProceso(pid,paginasRequeridas);
+		if(resultado<0)
+		{
+			send(socket,"N",1,0);
+			return;
+		}
+		send(socket,"Y",1,0);
+		printf("Se agregaron paginas para el proceso %i\n", pid);
+}
+
+
+void darFinA(int socket)
+{
+	uint32_t pid;
+	int resultado;
+	pid=recibirUint32_t(socket);
+	if(pid<0)return;
+	resultado=finalizarPrograma(pid);
+	if(resultado<0)
+	{
+		send(socket,"N",1,0);
+		return;
+	}
+		send(socket,"Y",1,0);
+	printf("Se finalizo el proceso %i\n", pid);
+}
+
+
+void eliminarPaginaDe(int socket)
+{
+	uint32_t pid,paginaRequeridas, puntero;
+	int resultado;
+	char *buffer;
+	buffer=recibir_PID_PAGINAS(socket,&pid,&paginaRequeridas,&puntero);
+	if(buffer==NULL)
+	{
+		send(socket,"N",1,0);
+		return ;
+	}
+	free(buffer);
+	resultado=eliminarPaginaDeUnProceso(pid,paginaRequeridas);
+	if(resultado<0)
+	{
+		send(socket,"N",1,0);
+		return;
+	}
+	send(socket,"Y",1,0);
+	printf("Se elimino una pagina del proceso: %i\n", pid);
+}
 
 void operacionesMemoria(dataHilo_t* dataHilo)
 {
@@ -371,12 +411,14 @@ void operacionesMemoria(dataHilo_t* dataHilo)
 	printf("LLEGUE A OPERACIONES MEMORIA con %c\n", cop);
 	switch(cop)
 	{
-	case 'A': peticionMemoria2(socket);break;
-	case 'I': peticionMemoria(socket);break;
-	case 'P': enviarTamPagina(socket);break;
-	case 'R': solicitarBytes(socket);break;
-	case 'W': almacenarBytes(socket);break;
-	default: break;
+		case 'A': agregarPaginasA(socket);break;
+		case 'E': eliminarPaginaDe(socket);break;
+		case 'F': darFinA(socket);break;
+		case 'I': peticionMemoria(socket);break;
+		case 'P': enviarTamPagina(socket);break;
+		case 'R': solicitarBytes(socket);break;
+		case 'W': almacenarBytes(socket);break;
+		default: break;
 	}
 	//pthread_mutex_unlock(&mutex_operacion);
 }

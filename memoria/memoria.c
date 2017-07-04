@@ -28,6 +28,12 @@ void inicializarEstructurasAdministrativas()
 	inicializarCache();
 }
 
+void eliminarEstructurasAdministrativas()
+{
+	free(memoria);
+	free(procesosActivos);
+}
+
 void testLecturaMemoria()
 {
 		inicializarPrograma(100,1);
@@ -62,7 +68,7 @@ int main(void) {
 	pthread_create(&hiloMostrarMenu, NULL, (void *) mostrarMenuMemoria, NULL);
 	servidor();
 	pthread_join(hiloMostrarMenu, NULL);
-	free(memoria);
+	eliminarEstructurasAdministrativas();
 	return 0;
 
 }
