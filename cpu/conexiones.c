@@ -7,6 +7,20 @@
 #define ID_KERNEL 2
 #define ID_MEMORIA 5
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+
+#include <sys/types.h>
+#include <netdb.h>
+#include <blue4-lib.h>
+#include <parser/metadata_program.h>
+#include <commons/collections/list.h>
+
+#include "capaMemoria.h"
+#include "primitivas.h"
 #include "conexiones.h"
 
 static const char* PROGRAMA =
@@ -31,7 +45,7 @@ t_pcb2 testPCB(){
 	t_pcb2 pcb;
 	//t_intructions intructions;
 	t_metadata_program *metadata;
-	t_pos pos;
+	t_pos pos={97,98,99};
 	t_list *args,*vars;
 	char *programa=strdup(PROGRAMA);
 	metadata=metadata_desde_literal(programa);
@@ -40,6 +54,8 @@ t_pcb2 testPCB(){
 	pcb.pc=metadata->instruccion_inicio;
 	pcb.sp=0;
 	pcb.cantPagCod=2;
+
+	pcb.ultimaPosUsada=pos;
 
 	pcb.indiceCodigoSize=metadata->instrucciones_size;
 	pcb.indiceCodigo=metadata->instrucciones_serializado;
@@ -84,6 +100,8 @@ t_pcb2 testPCB(){
 	printf("Indice etiquetas size: %i\n",pcb2.indiceEtiquetasSize);
 
 	printf("Posicion de doble: %i\n",metadata_buscar_etiqueta("doble",pcb2.indiceEtiquetas,pcb2.indiceEtiquetasSize));
+
+	printf("Ultima pos usada: %i %i %i\n",pcb2.ultimaPosUsada.pag,pcb2.ultimaPosUsada.off,pcb2.ultimaPosUsada.size);
 
 	t_stack *aux;
 	aux=list_get(pcb2.indiceStack,0);
@@ -189,20 +207,42 @@ void cerrarConexion(int socket){
 	close(socket);
 }
 
+char *const lineaEnPrograma(char *prgrama, t_puntero_instruccion inicioDeLaInstruccion, t_size tamanio) {
+	char *aRetornar = calloc(1, 100);
+	memcpy(aRetornar, prgrama + inicioDeLaInstruccion, tamanio);
+	return aRetornar;
+}
+
+void ejecutarPCB(t_pcb2 *pcb, int socket){
+	char* programa=pedirProgramaAMemoria(pcb,socket);
+	char* const linea = lineaEnPrograma(programa,
+			pcb->indiceCodigo[pcb->pc].start,
+			pcb->indiceCodigo[pcb->pc].offset);
+
+	printf("\t Evaluando -> %s", linea);
+	//analizadorLinea(linea, &funciones, &kernel_functions);
+	free(linea);
+	free(programa);
+	pcb->pc++;
+}
+
 void recibirPCB(int socket){
-	uint32_t tam,puntero;
+	uint32_t tam;
 	char* buffer;
 	package_t paquete;
 
+	buffer=malloc(sizeof(uint32_t));
 	if(recv(socket,buffer,4,0)==-1){
 		perror("Error al recibir tamanio en recibirPCB");
 		return;
 	}
+	memcpy(&tam,buffer,4);
+	buffer=realloc(buffer,tam);
+	recv(socket,buffer,tam,0);
 
-	puntero=0;
+	pcb_global=deserializarPCB(buffer);
 
-	paquete=deserializar(buffer,&puntero);
-
+	ejecutarPCB(&pcb_global,socket);
 
 }
 

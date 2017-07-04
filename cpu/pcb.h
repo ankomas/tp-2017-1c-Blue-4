@@ -8,9 +8,6 @@
 #ifndef PCB_H_
 #define PCB_H_
 
-#include <stdio.h>
-#include <stdint.h>
-#include <parser/metadata_program.h>
 #include <commons/collections/list.h>
 #include <blue4-lib.h>
 
@@ -38,6 +35,8 @@ typedef struct{
 	uint32_t sp;
 	uint32_t cantPagCod;
 
+	t_pos ultimaPosUsada;
+
 	uint32_t indiceCodigoSize;
 	t_intructions* indiceCodigo;
 
@@ -56,6 +55,7 @@ void var_destroy(t_var *self);
 t_var *var_create(char id, t_pos pos);
 void stack_destroy(t_stack *self);
 t_stack *stack_create(t_list *args, t_list *vars, uint32_t retPos, t_pos retVar);
+void setExitCode(t_pcb2 *pcb,char *msg,uint32_t exitCode);
 
 t_pos setPos(uint32_t pag,uint32_t off, uint32_t size);
 package_t stackAStream(t_list *stackLista);
