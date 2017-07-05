@@ -22,12 +22,14 @@ void encolarReady(t_programa* nuevoProceso){
 		int resultadoGuardarEnMemoria = -1;
 		int contadorPaginas = 0;
 		while(contadorPaginas < nuevoProceso->paginasCodigo){
-			resultadoGuardarEnMemoria = guardarEnMemoria(idUMC, nuevoProceso->pcb->pid,0,0,nuevoProceso->paginasCodigo,nuevoProceso->codigo);
+			//resultadoGuardarEnMemoria = guardarEnMemoria(idUMC, nuevoProceso->pcb->pid,0,0,nuevoProceso->paginasCodigo,nuevoProceso->codigo);
+			resultadoGuardarEnMemoria = guardarEnMemoria(idUMC, nuevoProceso->pcb->pid,0,0,tamanioPagina,nuevoProceso->codigo+contadorPaginas*tamanioPagina);
 			contadorPaginas++;
 		}
 		if(resultadoGuardarEnMemoria == 0){
 			// Guardo las paginas del stack en las paginas siguientes codigo
 			contadorPaginas = 0;
+			//todo paginasCodigo?, tamStack es la cantidad de paginas?, hace falta inicializar el stack? o solo reservar las paginas alcanza?
 			while(contadorPaginas < nuevoProceso->paginasCodigo){
 				resultadoGuardarEnMemoria = guardarEnMemoria(idUMC, nuevoProceso->pcb->pid,nuevoProceso->paginasCodigo+1,0,tamanioStack,"");
 				contadorPaginas++;

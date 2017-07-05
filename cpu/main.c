@@ -12,6 +12,8 @@
 
 #include "conexiones.h"
 #include "pcb.h"
+#include "primitivas.h"
+#include "test.h"
 
 #define ID_KERNEL 2
 #define ID_MEMORIA 5
@@ -65,7 +67,22 @@ void testSerializarStack(){
 
 }
 
+void initFunciones(){
+	AnSISOP_funciones f={
+			.AnSISOP_definirVariable		= dummy_definirVariable,
+			.AnSISOP_obtenerPosicionVariable= dummy_obtenerPosicionVariable,
+			.AnSISOP_finalizar 				= dummy_finalizar,
+			.AnSISOP_dereferenciar			= dummy_dereferenciar,
+			.AnSISOP_asignar				= dummy_asignar,
+
+	};
+	AnSISOP_kernel j = {};
+	funciones=f;
+	kernel_functions=j;
+}
+
 int main() {
+	initFunciones();
 	testSerializarStack();
 	testPCB();
 	return 0;

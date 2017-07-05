@@ -61,17 +61,19 @@ int guardarEnMemoria(uint32_t i, uint32_t pid,uint32_t pagina,uint32_t offset,ui
 	package_t paquete;
 	uint32_t tamOpCode = 1;
 	uint32_t tamInt = sizeof(uint32_t);
+	//todo hacen falta los siguientes string?
 	char *streamPID = intToStream(pid);
 	char *streamPagina = intToStream(pagina);
 	char *streamOffset = intToStream(offset);
 	char *streamTamanioContenido = intToStream(tamanioContenido);
 
 	//[Identificador del Programa], [#página], [offset], [tamaño] y [buffer]
+	printf("PID: %i, PAGINA: %i, OFFSET: %i, TAMANIO: %i\n",pid,pagina,offset,tamanioContenido);
 	paquete = serializar(10,
-			tamInt,streamPID,
-			tamInt,streamPagina,
-			tamInt,streamOffset,
-			tamInt,streamTamanioContenido,
+			tamInt,&pid,
+			tamInt,&pagina,
+			tamInt,&offset,
+			tamInt,&tamanioContenido,
 			tamanioContenido,contenido
 			);
 	char* streamTamPaquete = intToStream(paquete.data_size);

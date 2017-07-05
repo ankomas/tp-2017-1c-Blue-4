@@ -363,7 +363,7 @@ int servidor(void)
 
                 } else {
                     // handle data from a client
-                    if ((nbytes = recv(i, buf, sizeof buf,MSG_WAITALL)) <= 0) {
+                    if ((nbytes = recv(i, buf, sizeof(buf),MSG_WAITALL)) <= 0) {
 
                         // got error or connection closed by client
                         if (nbytes == 0) {
@@ -384,13 +384,24 @@ int servidor(void)
 							if(buf[0] == 'A'){
 
 								//Recibo codigo
-								char* tamanioCodigoString = malloc(4+1);
-								memset(tamanioCodigoString,0,5);
+								printf("Codigo OP: A\n");
+								char* tamanioCodigoString = malloc(4/*+1*/);
+								//memset(tamanioCodigoString,0,5);
 								if(recv(i,tamanioCodigoString,4,MSG_WAITALL) < 0)
 									printf("Error al recibir el tamanio de codigo");
-								uint32_t tamanioCodigo = atoi(tamanioCodigoString);
-								printf("tamanio codigo de %i: %i",i,tamanioCodigo);
-								char* codigo = malloc(tamanioCodigo);
+								uint32_t tamanioCodigo;/* = atoi(tamanioCodigoString);*/
+								memcpy(&tamanioCodigo,tamanioCodigoString,4);
+								printf("Tamanio codigo de %i: %i\n",i,tamanioCodigo);
+								char* codigo;/* = malloc(tamanioCodigo);*/
+
+								//todo verificar logica
+								//reserva cant paginas * tamanio pagina, llena el contenido de ceros
+
+								if(tamanioCodigo%tamanioPagina!=0)
+									codigo=calloc(1,((tamanioCodigo/tamanioPagina)+1)*tamanioPagina);
+								else
+									codigo=calloc(1,(tamanioCodigo/tamanioPagina)*tamanioPagina);
+
 								if(recv(i,codigo,tamanioCodigo,MSG_WAITALL) < 0)
 									printf("Error al recibir el codigo");
 
@@ -419,14 +430,22 @@ int servidor(void)
 									anuncio("No se pueden cargar procesos porque la memoria no esta conectada");
 								else if(tamanioPagina == 0)
 									anuncio("El tamanio de una pagina no puede ser 0");
-								else
-									cantidadPaginasCodigo = (tamanioCodigo/tamanioPagina)+1;
+								else{
+									//todo verificar logica
+									if(tamanioCodigo%tamanioPagina!=0)
+										cantidadPaginasCodigo = (tamanioCodigo/tamanioPagina)+1;
+									else
+										cantidadPaginasCodigo = tamanioCodigo/tamanioPagina;
+								}
+
+								printf("PID: %i, Cantidad de paginas de codigo: %i\n",nuevoPCB->pid,cantidadPaginasCodigo);
 
 								if(cantidadPaginasCodigo == 0)
 									killme();
 
 								nuevoProceso->codigo = codigo;
 								nuevoProceso->paginasCodigo = cantidadPaginasCodigo;
+
 
 								list_add(PROGRAMAs,nuevoProceso);
 

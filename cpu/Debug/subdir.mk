@@ -4,25 +4,31 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../capaKernel.c \
 ../capaMemoria.c \
 ../conexiones.c \
 ../main.c \
 ../pcb.c \
-../primitivas.c 
+../primitivas.c \
+../test.c 
 
 OBJS += \
+./capaKernel.o \
 ./capaMemoria.o \
 ./conexiones.o \
 ./main.o \
 ./pcb.o \
-./primitivas.o 
+./primitivas.o \
+./test.o 
 
 C_DEPS += \
+./capaKernel.d \
 ./capaMemoria.d \
 ./conexiones.d \
 ./main.d \
 ./pcb.d \
-./primitivas.d 
+./primitivas.d \
+./test.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

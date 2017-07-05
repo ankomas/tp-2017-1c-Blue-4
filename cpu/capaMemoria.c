@@ -73,6 +73,8 @@ char* pedirProgramaAMemoria(t_pcb2 *pcb,int socket){
 
 		memcpy(res+offset,paquete.data,paquete.data_size);
 		offset=size;
+
+		free(paquete.data);
 	}
 
 	return res;
