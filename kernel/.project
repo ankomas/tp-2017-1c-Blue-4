@@ -5,6 +5,7 @@
 	<projects>
 		<project>blue4-lib</project>
 		<project>commons</project>
+		<project>parser</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

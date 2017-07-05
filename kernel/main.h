@@ -19,12 +19,14 @@
 #include "sockets.h"
 #include "planificador.h"
 #include "heap.h"
+#include "pcb.h"
 
 extern int cantidadProgramasEnSistema,idFS,idUMC,gradoMultiprogramacion,retardo,quantum,tamanioPagina,tamanioStack;
 extern t_list * PROGRAMAs;
 extern t_list* CPUs;
 extern t_dictionary * semaforos;
 extern t_dictionary * variablesCompartidas;
+
 
 
 typedef struct t_cpu {

@@ -9,6 +9,7 @@ C_SRCS += \
 ../consolaKernel.c \
 ../heap.c \
 ../main.c \
+../pcb.c \
 ../planificador.c \
 ../sockets.c 
 
@@ -18,6 +19,7 @@ OBJS += \
 ./consolaKernel.o \
 ./heap.o \
 ./main.o \
+./pcb.o \
 ./planificador.o \
 ./sockets.o 
 
@@ -27,6 +29,7 @@ C_DEPS += \
 ./consolaKernel.d \
 ./heap.d \
 ./main.d \
+./pcb.d \
 ./planificador.d \
 ./sockets.d 
 
@@ -35,7 +38,7 @@ C_DEPS += \
 %.o: ../%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C Compiler'
-	gcc -I"/home/utnso/workspace/tp-2017-1c-Blue-4/commons" -I"/home/utnso/workspace/tp-2017-1c-Blue-4/blue4-lib" -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	gcc -I"/home/utnso/workspace/tp-2017-1c-Blue-4/parser" -I"/home/utnso/workspace/tp-2017-1c-Blue-4/commons" -I"/home/utnso/workspace/tp-2017-1c-Blue-4/blue4-lib" -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
