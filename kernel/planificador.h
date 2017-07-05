@@ -10,6 +10,7 @@
 #include "commons/collections/queue.h"
 #include <stdint.h>
 #include <blue4-lib.h>
+#include "pcb.h"
 
 extern t_queue * procesosNEW;
 extern t_queue * procesosREADY;

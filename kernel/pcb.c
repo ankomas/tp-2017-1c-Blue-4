@@ -15,7 +15,7 @@ t_pos setPos(uint32_t pag,uint32_t off, uint32_t size){
 	return pos;
 }
 
-void setExitCode(t_pcb2 *pcb,char *msg,uint32_t exitCode){
+void setExitCode(t_pcb *pcb,char *msg,uint32_t exitCode){
 	printf("PCB EXIT CODE %i: %s",exitCode,msg);
 	pcb->exitCode=exitCode;
 }
@@ -228,7 +228,7 @@ t_list *streamAStack(char *paquete){
 }
 
 
-package_t serializarPCB(t_pcb2 pcb){
+package_t serializarPCB(t_pcb pcb){
 	package_t paquete;
 	package_t indiceCodigo,stack;
 
@@ -259,9 +259,9 @@ package_t serializarPCB(t_pcb2 pcb){
 	return paquete;
 }
 
-t_pcb2 deserializarPCB(char* paquete){
+t_pcb deserializarPCB(char* paquete){
 	uint32_t pointer=0;
-	t_pcb2 res;
+	t_pcb res;
 	package_t paux;
 
 	//printf("|||||||||||DESERIALIZADOR||||||||||||\n");
@@ -337,7 +337,7 @@ t_pcb2 deserializarPCB(char* paquete){
 }
 
 
-void addVarStack(t_pcb2 pcb,int indiceStack, t_var *var){
+void addVarStack(t_pcb pcb,int indiceStack, t_var *var){
 	t_stack *stack;
 	t_list *vars;
 	stack=list_get(pcb.indiceStack,indiceStack);
@@ -345,7 +345,7 @@ void addVarStack(t_pcb2 pcb,int indiceStack, t_var *var){
 	list_add(vars,var);
 }
 
-void addArgStack(t_pcb2 pcb,int indiceStack, t_var *var){
+void addArgStack(t_pcb pcb,int indiceStack, t_var *var){
 	t_stack *stack;
 	t_list *args;
 	stack=list_get(pcb.indiceStack,indiceStack);

@@ -68,22 +68,35 @@ t_cpu* indiceProximaCPULibre(){
 
 void* cpu(t_cpu * cpu){
 	printf("cpu: %i\n",cpu->id);
-	t_pcb * proximoProceso;
+	t_programa * proximoPrograma;
+	proximoPrograma = planificador(NULL);
 	while(1){
 		//TODO falta mutex en todos los accesos a las colas
+		if(proximoPrograma != 0){
+			t_pcb proximoPCB = *(proximoPrograma->pcb);
+			package_t paquete = serializarPCB(proximoPCB);
+			char* streamTamPaquete = intToStream(paquete.data_size);
+			//send al proximoProceso->id
+			send(cpu->id,"0",1,0);
 
-		proximoProceso = planificador(NULL);
-		//send al proximoProceso->id
-		//TODO verificar el recv
-		//recv(cpuLibre->id,tamPaquete,3,MSG_WAITALL);
-		if(1 == 2){
-			//TODO checkear errores en el futuro
-			pthread_exit(NULL);
-		} else if(1==3){
-			//checkear si termino bien para limpiar estructuras
-			pthread_exit(NULL);
+			if(sendall(cpu->id, streamTamPaquete, &paquete.data_size) < 0)
+				return 0;
+			if(sendall(cpu->id, paquete.data, &paquete.data_size) < 0)
+				return 0;
+
+			//TODO verificar el recv
+			//recv(cpuLibre->id,tamPaquete,3,MSG_WAITALL);
+			if(1 == 2){
+				//TODO checkear errores en el futuro
+				pthread_exit(NULL);
+			} else if(1==3){
+				//checkear si termino bien para limpiar estructuras
+				pthread_exit(NULL);
+			} else {
+				proximoPrograma = planificador(proximoPrograma);
+			}
 		} else {
-			planificador(proximoProceso);
+			proximoPrograma = planificador(NULL);
 		}
 
 		usleep(10000000);
@@ -98,8 +111,12 @@ t_programa* planificador(t_programa* unPrograma){
 	printf("algoritmoPlanificador %s\n",algoritmoPlanificador);
 
 	if(unPrograma == NULL){
-		t_pcb* aux = queue_pop(procesosREADY);
-		return aux;
+		if(queue_size(procesosREADY) > 0){
+			t_programa* aux = queue_pop(procesosREADY);
+			return aux;
+		} else {
+			return 0;
+		}
 	}
 
 	if(strcmp(algoritmoPlanificador,"RR") == 0){
