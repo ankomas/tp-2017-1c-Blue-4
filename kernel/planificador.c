@@ -10,6 +10,7 @@
 #include <pthread.h>
 #include "planificador.h"
 #include "main.h"
+#include <sys/socket.h>
 
 char *algoritmoPlanificador;
 
@@ -70,6 +71,7 @@ void* cpu(t_cpu * cpu){
 	printf("cpu: %i\n",cpu->id);
 	t_programa * proximoPrograma;
 	proximoPrograma = planificador(NULL);
+	log_trace(logger,"*");
 	while(1){
 		//TODO falta mutex en todos los accesos a las colas
 		if(proximoPrograma != 0){
@@ -79,13 +81,23 @@ void* cpu(t_cpu * cpu){
 			//send al proximoProceso->id
 			send(cpu->id,"0",1,0);
 
+			anuncio("***");
+			anuncio(streamTamPaquete);
 			if(sendall(cpu->id, streamTamPaquete, &paquete.data_size) < 0)
 				return 0;
+			anuncio(paquete.data);
 			if(sendall(cpu->id, paquete.data, &paquete.data_size) < 0)
 				return 0;
+			anuncio("***");
 
 			//TODO verificar el recv
-			//recv(cpuLibre->id,tamPaquete,3,MSG_WAITALL);
+			char*res = malloc(1);
+			recv(cpu->id,res,1,MSG_WAITALL);
+
+			// Esta F debe ser reemplazada por el codigo que devuelva la cpu, cuando finalice tiene que limpiar las estructuras
+			if(res[0] == 'F')
+				usleep(1000000000000);
+
 			if(1 == 2){
 				//TODO checkear errores en el futuro
 				pthread_exit(NULL);
@@ -93,6 +105,7 @@ void* cpu(t_cpu * cpu){
 				//checkear si termino bien para limpiar estructuras
 				pthread_exit(NULL);
 			} else {
+				//TODO El planificador debe desencolar procesos ya terminados
 				proximoPrograma = planificador(proximoPrograma);
 			}
 		} else {

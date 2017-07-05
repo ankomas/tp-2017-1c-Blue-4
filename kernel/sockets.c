@@ -415,11 +415,16 @@ int servidor(void)
 								t_pcb * nuevoPCB = malloc(sizeof(t_pcb));
 								t_programa * nuevoProceso = malloc(sizeof(t_programa));
 
+								// Inicializo Metadata
+								t_list *stack;
+								stack=list_create();
+								// Fin Inicializo Metadata
+
 								nuevoPCB->pid=pidActual;
 								nuevoPCB->exitCode = 0;
 								nuevoPCB->pc=0;
 								nuevoPCB->indiceCodigo=NULL;
-								nuevoPCB->indiceStack=NULL;
+								nuevoPCB->indiceStack=stack;
 								nuevoPCB->indiceEtiquetas=NULL;
 
 								nuevoProceso->tablaArchivos = NULL;
