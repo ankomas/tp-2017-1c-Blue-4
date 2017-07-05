@@ -16,15 +16,16 @@ char *algoritmoPlanificador;
 void encolarReady(t_programa* nuevoProceso){
 	uint32_t paginasNecesarias = nuevoProceso->paginasCodigo+tamanioStack;
 	uint32_t error = 1;
+	uint32_t offset=0;
 	//Para encolarlo a Ready hay que tener suficiente memoria
 	if(inicializarEnMemoria(idUMC, nuevoProceso->pcb->pid,paginasNecesarias) >= 0){
 		// Guardo las paginas del codigo
 		int resultadoGuardarEnMemoria = -1;
 		int contadorPaginas = 0;
 		while(contadorPaginas < nuevoProceso->paginasCodigo){
-			//resultadoGuardarEnMemoria = guardarEnMemoria(idUMC, nuevoProceso->pcb->pid,0,0,nuevoProceso->paginasCodigo,nuevoProceso->codigo);
-			resultadoGuardarEnMemoria = guardarEnMemoria(idUMC, nuevoProceso->pcb->pid,0,0,tamanioPagina,nuevoProceso->codigo+contadorPaginas*tamanioPagina);
+			resultadoGuardarEnMemoria = guardarEnMemoria(idUMC, nuevoProceso->pcb->pid,contadorPaginas,0,tamanioPagina,nuevoProceso->codigo+offset);
 			contadorPaginas++;
+			offset+=tamanioPagina;
 		}
 		if(resultadoGuardarEnMemoria == 0){
 			// Guardo las paginas del stack en las paginas siguientes codigo

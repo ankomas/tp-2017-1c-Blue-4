@@ -69,6 +69,14 @@ int guardarEnMemoria(uint32_t i, uint32_t pid,uint32_t pagina,uint32_t offset,ui
 
 	//[Identificador del Programa], [#página], [offset], [tamaño] y [buffer]
 	printf("PID: %i, PAGINA: %i, OFFSET: %i, TAMANIO: %i\n",pid,pagina,offset,tamanioContenido);
+/*
+	int wtf;
+	char *wtf2=contenido;
+	printf("\n");
+	for(wtf=0;wtf<256;wtf++)
+		printf("%c",wtf2[wtf]);
+	printf("\n");
+*/
 	paquete = serializar(10,
 			tamInt,&pid,
 			tamInt,&pagina,
@@ -88,6 +96,7 @@ int guardarEnMemoria(uint32_t i, uint32_t pid,uint32_t pagina,uint32_t offset,ui
 	free(streamTamPaquete);
 
 	// Envio de paquete
+
 	if(sendall(i, paquete.data, &paquete.data_size) < 0)
 		return -1;
 	free(paquete.data);

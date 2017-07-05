@@ -308,6 +308,14 @@ void solicitarBytes(int socket)
 	resultado=recibir_PID_PAGINA_OFFSET_TAMANIO(socket,&pid,&pagina,&offset,&tamanio);
 	if(resultado<0)return;
 	data=leerMemoria(pid,pagina,offset,tamanio);
+/*
+	int wtf;
+	char *wtf2=(char*)data;
+	printf("\n");
+	for(wtf=0;wtf<tamanio;wtf++)
+		printf("%c",wtf2[wtf]);
+	printf("\n");
+*/
 	if(data){
 		send(socket,"Y",1,0);
 		sendall(socket,data,&tamanio);
@@ -325,6 +333,14 @@ void almacenarBytes(int socket)
 	data=recibir_PID_PAGINA_OFFSET_TAMANIO_DATA(socket,&pid,&pagina,&offset,&tamanio);
 	if(data)
 	{
+/*
+		int wtf;
+		char *wtf2=(char*)data;
+		printf("\n");
+		for(wtf=0;wtf<256;wtf++)
+			printf("%c",wtf2[wtf]);
+		printf("\n");
+*/
 		resultado=escribirMemoria(pid,pagina,offset,tamanio,data);
 		if(resultado<0)
 		{
@@ -566,7 +582,7 @@ int servidor()
 						pthread_mutex_unlock(&mutex_operacion);*/
 						operacionesMemoria(dataHilo);
 						// we got some data from a client
-						for (j = 0; j <= fdmax; j++) {
+						/*for (j = 0; j <= fdmax; j++) {
 							// send to everyone!
 							if (FD_ISSET(j, &master)) {
 								// except the listener and ourselves
@@ -576,7 +592,7 @@ int servidor()
 									}
 								}
 							}
-						}
+						}*/
 					}
 				} // END handle data from client
 			} // END got new incoming connection

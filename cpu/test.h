@@ -9,5 +9,6 @@
 #define TEST_H_
 
 t_pcb2 testPCB();
+void testTraerCodigo(int i);
 
 #endif /* TEST_H_ */

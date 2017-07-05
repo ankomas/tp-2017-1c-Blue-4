@@ -35,7 +35,7 @@ void mostrarTablaDePaginas(){
 	int marcosUtilizados=configDeMemoria.marcos-configDeMemoria.marcosDisponibles;
 	if(marcosUtilizados==0)marcosUtilizados=configDeMemoria.marcos;
 	printf("Se mostrara a continuacion solo los marcos que se esten usando en la tabla de paginas:\n\n");
-	for(i=0; i<50;i++){
+	for(i=0; i<100;i++){
 		if(tablaDePaginas[i].pid!=-2)
 		{
 			printf("Marco: %i	 PID: %i	Pagina: %i\n",i,tablaDePaginas[i].pid, tablaDePaginas[i].pagina );

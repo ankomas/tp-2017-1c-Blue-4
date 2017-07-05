@@ -82,10 +82,10 @@ void initFunciones(){
 }
 
 int main() {
-	initFunciones();
+	/*initFunciones();
 	testSerializarStack();
 	testPCB();
-	return 0;
+	return 0;*/
 	//int socketKernel,socketMemoria;
 	char *ipKernel, *ipMemoria, *puertoKernel, *puertoMemoria;
 	t_config* config;
@@ -106,6 +106,8 @@ int main() {
 	memoria=conectar(puertoMemoria, ipMemoria,ID_MEMORIA);
 	kernel=conectar(puertoKernel, ipKernel,ID_KERNEL);
 
+	testTraerCodigo(memoria);
+	return 0;
 	standby(kernel);
 
 	cerrarConexion(kernel);

@@ -401,6 +401,7 @@ int servidor(void)
 									codigo=calloc(1,((tamanioCodigo/tamanioPagina)+1)*tamanioPagina);
 								else
 									codigo=calloc(1,(tamanioCodigo/tamanioPagina)*tamanioPagina);
+								//codigo=calloc(1,tamanioCodigo);
 
 								if(recv(i,codigo,tamanioCodigo,MSG_WAITALL) < 0)
 									printf("Error al recibir el codigo");
@@ -444,6 +445,13 @@ int servidor(void)
 									killme();
 
 								nuevoProceso->codigo = codigo;
+							/*
+								int wtf;
+								printf("\n");
+								for(wtf=0;wtf<535;wtf++)
+									printf("%c",nuevoProceso->codigo[wtf]);
+								printf("\n");
+								*/
 								nuevoProceso->paginasCodigo = cantidadPaginasCodigo;
 
 
@@ -466,7 +474,7 @@ int servidor(void)
                     	// FIN FUNCIONES MANEJADORAS
 
                         // we got some data from a client
-                        for(j = 0; j <= fdmax; j++) {
+                        /*for(j = 0; j <= fdmax; j++) {
                             // send to everyone!
                             if (FD_ISSET(j, &master)) {
                                 // except the listener and ourselves
@@ -476,7 +484,7 @@ int servidor(void)
                                     }
                                 }
                             }
-                        }
+                        }*/
                     }
                 } // END handle data from client
             } // END got new incoming connection

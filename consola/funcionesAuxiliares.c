@@ -233,8 +233,9 @@ char* leerProgramaAnsisop(char* ruta)
 {
 
 	FILE* programa;
-	char* contenido=malloc(200);
-	memset(contenido,'\0',200);
+	char* contenido;/*malloc(200);*/
+	int size;
+
 	//printf("ruta en leerPrograma : %s \n",ruta);
 
 	programa = fopen(ruta,"r");
@@ -245,9 +246,16 @@ char* leerProgramaAnsisop(char* ruta)
 		return NULL;
 	}
 
+	fseek(programa, 0L, SEEK_END);
+	size = ftell(programa);
+	rewind(programa);
+
+	contenido=malloc(size);
+	memset(contenido,'\0',size);
+
 	while(!feof(programa))
 	{
-		fread(contenido,200,1,programa);
+		fread(contenido,size,1,programa);
 	}
 
 	//printf("el contenido es : \n\n%s \n",contenido);

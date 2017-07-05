@@ -10,6 +10,8 @@
 #include <commons/collections/list.h>
 #include "pcb.h"
 #include "primitivas.h"
+#include "capaMemoria.h"
+#include "conexiones.h"
 
 static const char* PROGRAMA2 =
 		"begin\n"
@@ -177,3 +179,23 @@ char *const conseguirDatosDeLaMemoriaMock(char *prgrama, t_puntero_instruccion i
 	return aRetornar;
 }
 */
+
+void testTraerCodigo(int i){
+	t_pcb2 pcb;
+	char *buffer;
+	int j;
+	pcb.pid=100;
+	pcb.cantPagCod=3;
+
+	tamPag_global=256;
+	buffer=pedirProgramaAMemoria(&pcb,i);
+	printf("\n");
+	printf("\n");
+	printf("Buffer: \n%s",buffer);
+	printf("\n");
+	printf("\n");
+	for(j=0;j<pcb.cantPagCod*tamPag_global;j++)
+		printf("%c",buffer[j]);
+	printf("\n");
+	printf("\n");
+}
