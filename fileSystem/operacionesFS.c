@@ -17,8 +17,19 @@
 #include <commons/string.h>
 #include <blue4-lib.h>
 #include "arquitecturaFS.h"
+#include "operacionesFS.h"
 
 //Algunas Funciones estan completas, ninguna esta probada!
+
+char* rutaArchivo(char* path){
+	return rutaEnPuntoMontaje("/Archivos", path);
+}
+
+char* rutaBloque(char* path){
+	return rutaEnPuntoMontaje("/Bloques", path);
+}
+
+
 
 int archivoValido(char* path){
 	FILE* archivo;
@@ -36,8 +47,26 @@ int validarArchivo(char* path){ //Completa!
 		return 0;
 }
 
-void crearArchivo(char* path){ //No sabia que hacer
+int asignarBloque( char* path){
+	int bloque = getBloqueLibre();
+	if(bloque < 0)
+		return -1;
+	ocuparBloque(bloque);
+	return bloque;
+}
 
+int crearArchivo(char* path){ //No sabia que hacer
+	if(validarArchivo(path) == 0)
+		return -1;
+	char* bloques= "BLOQUES=";
+	FILE* archivo;
+	archivo = fopen(rutaArchivo(path), "wb");
+	fwrite("TAMANIO=0\n" ,1 ,9, archivo);
+	char* bloque = asignarBloque(path);
+	string_append(&bloques, bloque);
+	fwrite(bloques, 1, sizeof(*bloques), archivo);
+	fclose(archivo);
+	return 0;
 }
 
 int borrar(char* path){ //No esta Completa! Falta borrar su metadata y cambiar los bits en el bitmap
@@ -54,6 +83,7 @@ char* obtenerDatos(char* path, int offset, int tam){ //Completa! Requiere Free!
 	archivo = fopen(rutaArchivo(path), "rb");
 	fseek(archivo, offset, SEEK_SET);
 	fread(buffer, 1, tam, archivo);
+	fclose(archivo);
 	return buffer;
 }
 
@@ -63,6 +93,7 @@ void guardarDatos(char* path, int offset, int tam, char* buffer){ //Completa!
 	archivo = fopen(rutaArchivo(path), "wb");
 	fseek(archivo, offset, SEEK_SET);
 	fwrite(buffer, 1, tam, archivo);
+	fclose(archivo);
 }
 
 

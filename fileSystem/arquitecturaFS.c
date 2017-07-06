@@ -18,16 +18,11 @@
 #include <blue4-lib.h>
 #include "arquitecturaFS.h"
 
-char* rutaEnPuntoMontaje(char* path){
+char* rutaEnPuntoMontaje(char* carpeta, char* path){
 	char* ruta = string_new();
 	string_append(&ruta,configFS.puntoMontaje);
+	string_append(&ruta,carpeta);
 	string_append(&ruta,path);
-	return ruta;
-}
-
-char* rutaArchivo(char* path){
-	char* ruta = rutaEnPuntoMontaje("/Archivos");
-	string_append(&ruta, path);
 	return ruta;
 }
 
@@ -39,7 +34,7 @@ void leerConfig(){
 }
 
 void leerMetadata(){
-	char* ruta = rutaEnPuntoMontaje("/Metadata/Metadata.bin");
+	char* ruta = rutaEnPuntoMontaje("/Metadata","/Metadata.bin");
 	configFS.tamBloque = obtenerConfiguracion(ruta,"TAMANIO_BLOQUES");
 	configFS.bloques = obtenerConfiguracion(ruta,"CANTIDAD_BLOQUES");
 	free(ruta);
@@ -54,7 +49,7 @@ void inicializarFS(){
 
 FILE* abrirBitmap(char* modo){
 	FILE* bitmap;
-	bitmap = fopen(rutaEnPuntoMontaje("/Metadata/Bitmap.bin"), modo);
+	bitmap = fopen(rutaEnPuntoMontaje("/Metadata","/Bitmap.bin"), modo);
 	return bitmap;
 }
 
@@ -66,4 +61,23 @@ int bloqueLibre(int bloque){
 	return bit == 0;
 }
 
+int getBloqueLibre(){
+	FILE* bitmap = abrirBitmap("rb");
+	int bloque = 0;
+	while(fgetc(bitmap) != '0' && bloque < configFS.bloques)
+		bloque++;
+	fclose(bitmap);
+	if(bloque == configFS.bloques)
+		return -1;
+	else
+		return bloque;
+}
+
+void ocuparBloque(int bloque){
+	FILE* bitmap = abrirBitmap("wb");
+	fseek(bitmap, bloque, SEEK_SET);
+	//fwrite("1", 1, 1, bitmap);
+	fclose(bitmap);
+
+}
 
