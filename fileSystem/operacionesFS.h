@@ -8,6 +8,12 @@
 #ifndef OPERACIONESFS_H_
 #define OPERACIONESFS_H_
 
+typedef struct{
+	int tam;
+	int* bloques;
+}dataArchivo_t;
+
+
 
 /**
  * Valida si existe un archivo
@@ -20,8 +26,9 @@ int validarArchivo(char*);
 /**
  * Crea un archivo
  * Parametro: char* path	-> Ubicacion del archivo
+ * Retorno: -1 para error, 0 para OK!
  */
-void crearArchivo(char*);
+int crearArchivo(char*);
 
 /**
  * Borra un archivo y todo lo relacionado con el

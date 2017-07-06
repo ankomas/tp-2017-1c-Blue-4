@@ -11,6 +11,12 @@
 
 int main(void) {
 	inicializarFS();
+	printf("bloqueLibre(0) = %i\n", bloqueLibre(0));
+	printf("bloqueLibre(1) = %i\n", bloqueLibre(1));
+	printf("getBloqueLibre() = %i\n", getBloqueLibre());
+	//ocuparBloque(getBloqueLibre());
+	//printf("ocuparBloque(getBloqueLibre())");
+	printf("getBloqueLibre() = %i\n", getBloqueLibre());
 	servidor();
 
 	return 0;
