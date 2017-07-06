@@ -22,6 +22,27 @@
 #include "operacionesMemoria.h"
 #include "estructurasAdministrativas.h"
 
+
+void texto_en_color(char * aString){
+	pthread_mutex_lock(&mutex_test);
+	printf("%s  %s %s \n",KCYN,aString,KNRM);
+	pthread_mutex_unlock(&mutex_test);
+}
+
+void texto_en_color_de_error(char * aString){
+	pthread_mutex_lock(&mutex_test);
+	printf("%s [ERROR]: %s %s \n",KRED,aString,KNRM);
+	pthread_mutex_unlock(&mutex_test);
+}
+
+
+void texto_en_color_de_exito(char * aString,int variable){
+	pthread_mutex_lock(&mutex_test);
+	printf("%s [EXITO] %s: %d %s \n",KGRN,aString,variable,KNRM);
+	pthread_mutex_unlock(&mutex_test);
+}
+
+
 int cuantosMarcosRepresenta(int unTamanio){
 	int tamMarco=configDeMemoria.tamMarco;
 	if(unTamanio % tamMarco)
@@ -177,7 +198,7 @@ uint32_t obtener_PosicionLibre()
 		pthread_mutex_unlock(&mutex_procesosActivos);
 		i++;
 	}
-	printf("No hay mas espacio para procesos activos!!!\n");
+	//printf("No hay mas espacio para procesos activos!!!\n");
 	return -1;
 }
 
@@ -195,7 +216,7 @@ uint32_t obtener_PosicionProcesoActivo(uint32_t pid)
 		pthread_mutex_unlock(&mutex_procesosActivos);
 		i++;
 	}
-	printf("No se encuentra al proceso buscado");
+	//printf("No se encuentra al proceso buscado");
 	return -1;
 }
 
@@ -209,7 +230,7 @@ uint32_t obtener_PaginaDeInicioDeProcesoActivo(uint32_t pid)
 {
 	uint32_t paginaDeInicio;
 	uint32_t posicion_PidBuscado=obtener_PosicionProcesoActivo(pid);
-	if(posicion_PidBuscado<0)return -1;
+	if(posicion_PidBuscado==-1)return -1;
 	pthread_mutex_lock(&mutex_procesosActivos);
 	paginaDeInicio=procesosActivos[posicion_PidBuscado].paginaDeInicio;
 	pthread_mutex_unlock(&mutex_procesosActivos);
@@ -220,7 +241,7 @@ uint32_t obtener_ProximaPaginaAAsignar(uint32_t pid)
 {
 	uint32_t proximaPagina;
 	uint32_t posicion_PidBuscado=obtener_PosicionProcesoActivo(pid);
-	if(posicion_PidBuscado<0)return -1;
+	if(posicion_PidBuscado==-1)return -1;
 	pthread_mutex_lock(&mutex_procesosActivos);
 	proximaPagina=procesosActivos[posicion_PidBuscado].proximaPaginaAAsignar;
 	pthread_mutex_unlock(&mutex_procesosActivos);
@@ -232,7 +253,7 @@ uint32_t agregar_DataDeProcesoActivo(uint32_t pid,uint32_t paginasActuales)
 {
 	uint32_t posicionLibre;
 	posicionLibre=obtener_PosicionLibre();
-	if(posicionLibre<0)return -1;
+	if(posicionLibre==-1)return -1;
 	pthread_mutex_lock(&mutex_procesosActivos);
 	procesosActivos[posicionLibre].pid=pid;
 	procesosActivos[posicionLibre].paginas=paginasActuales;
@@ -246,7 +267,7 @@ uint32_t agregar_DataDeProcesoActivo(uint32_t pid,uint32_t paginasActuales)
 uint32_t eliminar_DataDeProcesoActivo(uint32_t pid)
 {
 	uint32_t posicion_PidBuscado=obtener_PosicionProcesoActivo(pid);
-	if(posicion_PidBuscado<0)return -1;
+	if(posicion_PidBuscado==-1)return -1;
 	pthread_mutex_lock(&mutex_procesosActivos);
 	procesosActivos[posicion_PidBuscado].pid=-2;
 	procesosActivos[posicion_PidBuscado].paginas=-2;
@@ -260,7 +281,7 @@ uint32_t eliminar_DataDeProcesoActivo(uint32_t pid)
 uint32_t aumentar_PaginasActualesDeProcesoActivo(uint32_t pid,uint32_t paginas)
 {
 	uint32_t posicion_PidBuscado=obtener_PosicionProcesoActivo(pid);
-	if(posicion_PidBuscado<0)return -1;
+	if(posicion_PidBuscado==-1)return -1;
 	pthread_mutex_lock(&mutex_procesosActivos);
 	procesosActivos[posicion_PidBuscado].paginas+=paginas;
 	procesosActivos[posicion_PidBuscado].proximaPaginaAAsignar+=paginas;
@@ -273,7 +294,7 @@ uint32_t disminuir_PaginasActualesDeProcesoActivo(uint32_t pid,uint32_t pagina)
 {
 	uint32_t paginaDeInicio;
 	uint32_t posicion_PidBuscado=obtener_PosicionProcesoActivo(pid);
-	if(posicion_PidBuscado<0)return -1;
+	if(posicion_PidBuscado==-1)return -1;
 	pthread_mutex_lock(&mutex_procesosActivos);
 	procesosActivos[posicion_PidBuscado].paginas-=1;
 	paginaDeInicio=procesosActivos[posicion_PidBuscado].paginaDeInicio;
@@ -287,7 +308,7 @@ uint32_t obtener_paginasActualesDeProcesoActivo(uint32_t pid)
 {
 	uint32_t paginas;
 	uint32_t posicion_PidBuscado=obtener_PosicionProcesoActivo(pid);
-	if(posicion_PidBuscado<0)return -1;
+	if(posicion_PidBuscado==-1)return -1;
 	pthread_mutex_lock(&mutex_procesosActivos);
 	paginas = procesosActivos[posicion_PidBuscado].paginas;
 	pthread_mutex_unlock(&mutex_procesosActivos);
@@ -302,8 +323,8 @@ uint32_t listar_DataDeTodosLosProcesosActivos()
 		pthread_mutex_lock(&mutex_procesosActivos);
 		if(procesosActivos[i].pid != -2)
 		{
-			printf("pid_procesoActivo : %d \n",procesosActivos[i].pid);
-			printf("paginasActuales_procesoActivo : %d \n\n",procesosActivos[i].paginas);
+			printf("Pid_procesoActivo : %d \n",procesosActivos[i].pid);
+			printf("PaginasActuales_procesoActivo : %d \n\n",procesosActivos[i].paginas);
 			numeroProcesos++;
 		}
 		pthread_mutex_unlock(&mutex_procesosActivos);
@@ -317,10 +338,10 @@ uint32_t listar_DataDeTodosLosProcesosActivos()
 uint32_t listar_DataDeProcesoActivo(uint32_t pid)
 {
 	uint32_t posicionProceso=obtener_PosicionProcesoActivo(pid);
-	if(posicionProceso<0)return -1;
+	if(posicionProceso==-1)return -1;
 	pthread_mutex_lock(&mutex_procesosActivos);
-	printf("pid_procesoActivo : %d \n",procesosActivos[posicionProceso].pid);
-	printf("pid_procesoActivo : %d \n\n",procesosActivos[posicionProceso].paginas);
+	printf("Pid de proceso : %d \n",procesosActivos[posicionProceso].pid);
+	printf("El proceso ocupa  %d frames \n\n",procesosActivos[posicionProceso].paginas);
 	pthread_mutex_unlock(&mutex_procesosActivos);
 	return 0;
 }

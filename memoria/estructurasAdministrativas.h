@@ -8,7 +8,38 @@
 #ifndef ESTRUCTURASADMINISTRATIVAS_H_
 #define ESTRUCTURASADMINISTRATIVAS_H_
 
+
+#define KNRM  "\x1B[0m"
+#define KBOL  "\x1B[1m"
+#define KRED  "\x1B[31m"
+#define KGRN  "\x1B[32m"
+#define KYEL  "\x1B[33m"
+#define KBLU  "\x1B[34m"
+#define KMAG  "\x1B[35m"
+#define KCYN  "\x1B[36m"
+#define KWHT  "\x1B[37m"
+
 void* memoria, *cache;
+
+/**
+ * Da color a un string (en color cyan).
+ * @param string
+ */
+void texto_en_color(char * );
+
+/**
+ * Da color a un string (en color rojo).
+ * @param string
+ */
+void texto_en_color_de_error(char * );
+
+/**
+ * Da color a un string junto con una variable (en color verde).
+ * @param aString
+ * @param variable
+ */
+void texto_en_color_de_exito(char * ,int );
+
 
 void inicializarMemoria();
 /*
