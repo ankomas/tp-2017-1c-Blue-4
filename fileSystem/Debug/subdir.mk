@@ -4,16 +4,22 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../arquitecturaFS.c \
 ../conexiones.c \
-../main.c 
+../main.c \
+../operacionesFS.c 
 
 OBJS += \
+./arquitecturaFS.o \
 ./conexiones.o \
-./main.o 
+./main.o \
+./operacionesFS.o 
 
 C_DEPS += \
+./arquitecturaFS.d \
 ./conexiones.d \
-./main.d 
+./main.d \
+./operacionesFS.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

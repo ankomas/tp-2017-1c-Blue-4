@@ -6,13 +6,15 @@
 #include <blue4-lib.h>
 #include <commons/config.h>
 #include "conexiones.h"
+#include "arquitecturaFS.h"
 
 
 int main(void) {
-
-	anuncio(concat(2,"Puerto: ",obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO")));
-	anuncio(concat(2,"Punto de Montaje: ",obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUNTO_MONTAJE")));
-
+	inicializarFS();
+	printf("Bloque 0: %i, Bloque 1: %i\n", bloqueLibre(0), bloqueLibre(1));
+	ocuparBitmap(1);
+	liberarBitmap(0);
+	printf("Bloque 0: %i, Bloque 1: %i\n", bloqueLibre(0), bloqueLibre(1));
 	servidor();
 
 	return 0;
