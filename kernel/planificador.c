@@ -28,19 +28,19 @@ void encolarReady(t_programa* nuevoProceso){
 			contadorPaginas++;
 			offset+=tamanioPagina;
 		}
-		if(resultadoGuardarEnMemoria == 0){
+		//if(resultadoGuardarEnMemoria == 0){
 			// Guardo las paginas del stack en las paginas siguientes codigo
-			contadorPaginas = 0;
+			//contadorPaginas = 0;
 			//todo paginasCodigo?, tamStack es la cantidad de paginas?, hace falta inicializar el stack? o solo reservar las paginas alcanza?
-			while(contadorPaginas < nuevoProceso->paginasCodigo){
+			/*while(contadorPaginas < tamanioStack){
 				resultadoGuardarEnMemoria = guardarEnMemoria(idUMC, nuevoProceso->pcb->pid,nuevoProceso->paginasCodigo+1,0,tamanioStack,"");
 				contadorPaginas++;
-			}
+			}*/
 			if(resultadoGuardarEnMemoria == 0){
 				queue_push(procesosREADY,nuevoProceso);
 				error = 0;
 			}
-		}
+		//}
 	}
 	if(error == 1){
 		log_error(logger,"ERROR, el kernel no pudo solicitar memoria correctamente");
