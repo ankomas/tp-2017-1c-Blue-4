@@ -127,7 +127,7 @@ uint32_t estaEnCache(uint32_t pid, uint32_t pag){
 
    if(i>=maxPA){
 		pthread_mutex_unlock(&mutex_tablaDePaginas);
-   	return -1; }//NO EXISTE EL PUTO PID CON LA PAGINA, PELOTUDO =)
+   	return -1; }//NO EXISTE EL PID PAPURRI ?)
 
    }
 	pthread_mutex_unlock(&mutex_tablaDePaginas);
@@ -136,10 +136,11 @@ uint32_t estaEnCache(uint32_t pid, uint32_t pag){
 
  int marcoVacio(int marco){
  	tablaPaginas_t *tablaDePaginas = obtenerTablaDePaginas();
- 	//fixme revisar mutex
-	//pthread_mutex_lock(&mutex_tablaDePaginas);
- 	return tablaDePaginas[marco].pid == -2;
-	//pthread_mutex_unlock(&mutex_tablaDePaginas);
+ 	int resultado;
+	pthread_mutex_lock(&mutex_tablaDePaginas);
+	resultado=tablaDePaginas[marco].pid== -2;
+	pthread_mutex_unlock(&mutex_tablaDePaginas);
+ 	return resultado;
  }
 
 int nuevoMarco(uint32_t pid, uint32_t pagina) {
