@@ -24,9 +24,9 @@ void inicializarFS();
 
 
 /**
- * Agrega el path a la ruta del puntoMontaje
+ * Agrega el path a la carpeta de archivos
  */
-char* rutaEnPuntoMontaje(char*);
+char* rutaArchivo(char*);
 
 /**
  * BloqueLibre(int bloque)

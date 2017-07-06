@@ -57,13 +57,12 @@ char* obtenerDatos(char* path, int offset, int tam){ //Completa! Requiere Free!
 	return buffer;
 }
 
-int guardarDatos(char* path, int offset, int tam, char* buffer){ //Completa!
+void guardarDatos(char* path, int offset, int tam, char* buffer){ //Completa!
 	validarArchivo(path);
 	FILE* archivo;
 	archivo = fopen(rutaArchivo(path), "wb");
 	fseek(archivo, offset, SEEK_SET);
 	fwrite(buffer, 1, tam, archivo);
-	return 0;
 }
 
 

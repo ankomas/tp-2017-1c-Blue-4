@@ -25,6 +25,12 @@ char* rutaEnPuntoMontaje(char* path){
 	return ruta;
 }
 
+char* rutaArchivo(char* path){
+	char* ruta = rutaEnPuntoMontaje("/Archivos");
+	string_append(&ruta, path);
+	return ruta;
+}
+
 void leerConfig(){
 	configFS.puntoMontaje = malloc(100);
 	configFS.puntoMontaje = obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUNTO_MONTAJE");
@@ -57,22 +63,7 @@ int bloqueLibre(int bloque){
 	fseek(bitmap, bloque, SEEK_SET);
 	int bit = fgetc(bitmap) - '0';
 	fclose(bitmap);
-	return bit;
+	return bit == 0;
 }
-
-void ocuparBitmap(int bloque){
-	FILE* bitmap = abrirBitmap("wb");
-	fseek(bitmap, bloque, SEEK_SET);
-	fwrite('1',1,1,bitmap);
-	fclose(bitmap);
-}
-
-void liberarBitmap(int bloque){
-	FILE* bitmap = abrirBitmap("wb");
-	fseek(bitmap, bloque, SEEK_SET);
-	fwrite('0',1,1,bitmap);
-	fclose(bitmap);
-}
-
 
 

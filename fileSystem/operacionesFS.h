@@ -9,5 +9,45 @@
 #define OPERACIONESFS_H_
 
 
+/**
+ * Valida si existe un archivo
+ * Parametro: char* path	-> Ubicacion del archivo
+ *
+ * Retorno: int 			-> -1 archivo no encontrado, 0 OK!
+ */
+int validarArchivo(char*);
+
+/**
+ * Crea un archivo
+ * Parametro: char* path	-> Ubicacion del archivo
+ */
+void crearArchivo(char*);
+
+/**
+ * Borra un archivo y todo lo relacionado con el
+ * Parametro: char* path	-> Ubicacion del archivo
+ *
+ * Retorno: int				-> 1 si lo pudo borrar, 0 si no
+ */
+int borrar(char* );
+
+/**
+ * Lee parte de un archivo
+ * Parametros:	char* path	-> Ubicacion del archivo
+ * 				int offset	-> Desplazamiento
+ * 				int tam		-> Cantidad de bytes a leer
+ *
+ * Retorno: char*	-> Stream deseado!
+ */
+char* obtenerDatos(char*, int, int);
+
+/**
+ * Escribe un archivo
+ * Parametros: 	char* path	-> Ubicacion del archivo
+ * 				int offset	-> Desplazamiento
+ * 				int tam		-> Cantidad de bytes a escribir
+ * 				char* buffer-> Datos a escribir
+ */
+void guardarDatos(char*, int, int, char*);
 
 #endif /* OPERACIONESFS_H_ */
