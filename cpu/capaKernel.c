@@ -22,6 +22,15 @@
 #include "capaKernel.h"
 #include "test.h"
 
+#define RED   "\x1B[31m"
+#define GRN   "\x1B[32m"
+#define YEL   "\x1B[33m"
+#define BLU   "\x1B[34m"
+#define MAG   "\x1B[35m"
+#define CYN   "\x1B[36m"
+#define WHT   "\x1B[37m"
+#define RESET "\x1B[0m"
+
 char* const lineaEnPrograma(t_pcb2* pcb,t_puntero_instruccion inicioDeLaInstruccion, t_size tamanio) {
 	char* aRetornar;
 	//aRetornar=pedirLineaAMemoria(pcb,inicioDeLaInstruccion,tamanio);
@@ -35,7 +44,7 @@ void ejecutarPCB(t_pcb2 *pcb, int socket){
 			pcb->indiceCodigo[pcb->pc].start,
 			pcb->indiceCodigo[pcb->pc].offset);
 
-	printf("\t Evaluando -> %s", linea);
+	printf("\t Evaluando -> " BLU "%s" RESET, linea);
 	analizadorLinea(linea, &funciones, &kernel_functions);
 	//test_asignadoCorrecto();
 	free(linea);
@@ -44,7 +53,7 @@ void ejecutarPCB(t_pcb2 *pcb, int socket){
 
 void recibirPCB(int socket){
 	uint32_t tam;
-	char* buffer;
+	char* buffer=NULL;
 	package_t paquete;
 
 	buffer=malloc(sizeof(uint32_t));
@@ -53,6 +62,7 @@ void recibirPCB(int socket){
 		return;
 	}
 	memcpy(&tam,buffer,4);
+	printf("RECIBIENDO PCB, TAMANIO DEL PAQUETE: %i\n",tam);
 	buffer=realloc(buffer,tam);
 	recv(socket,buffer,tam,0);
 
@@ -72,8 +82,8 @@ void enviarPCB(int socket){
 	send(socket,"Y",1,0);
 	send(socket,&paquete.data_size,sizeof(uint32_t),0);
 	enviado=send(socket,paquete.data,paquete.data_size,0);
-	while(enviado<paquete.data_size){
+	/*while(enviado<paquete.data_size){
 		enviado=send(socket,paquete.data,paquete.data_size-enviado,0);
-	}
+	}*/
 }
 

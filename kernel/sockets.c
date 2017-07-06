@@ -175,13 +175,17 @@ int handshakeHandler(int i){
 			nuevoPROGRAMA->pcb = nuevoPCB;
 			nuevoPROGRAMA->pcb->pid = i;
 			list_add(PROGRAMAs,nuevoPROGRAMA);*/
+			if(sendall(i,"2",&tamHandshake) == 0)
+				log_trace(logger, concat(2,"Se realizo el Handshake con exito con ",string_itoa(i)) );
 			reconozcoCliente = 1;
 		}else if(bufHandshake[0] == CPU_ID){
-			t_cpu * nuevaCPU = malloc(sizeof(nuevaCPU));
+			t_cpu * nuevaCPU = malloc(sizeof(t_cpu));
 			nuevaCPU->id = i;
-			nuevaCPU->programaEnEjecucion = 0;
+			nuevaCPU->programaEnEjecucion = NULL;
 			nuevaCPU->disponible = true;
 			pthread_t thread;
+			if(sendall(i,"2",&tamHandshake) == 0)
+				log_trace(logger, concat(2,"Se realizo el Handshake con exito con ",string_itoa(i)) );
 			pthread_create(&thread, NULL, cpu,nuevaCPU);
 			//nuevaCPU->hilo = crearHiloCPU(nuevaCPU);
 			list_add(CPUs,nuevaCPU);
@@ -195,8 +199,9 @@ int handshakeHandler(int i){
 	if(reconozcoCliente < 0){
 		return -1;
 	} else {
-		if(sendall(i,charToString(KERNEL_ID),&tamHandshake) == 0)
-			log_trace(logger, concat(2,"Se realizo el Handshake con exito con ",string_itoa(i)) );
+		//fixme antes habia un chartostring de KERNEL_ID pero jodia el valgrind, nojodan el valgrind, hardcodie el 2
+		//if(sendall(i,"2",&tamHandshake) == 0)
+		//	log_trace(logger, concat(2,"Se realizo el Handshake con exito con ",string_itoa(i)) );
 		return 0;
 	}
 }
@@ -364,6 +369,12 @@ int servidor(void)
 
                 } else {
                     // handle data from a client
+                	bool _esCpuX(t_cpu* cpu){
+                		return cpu->id==i;
+                	}
+                	if(list_any_satisfy(CPUs,(void*)_esCpuX)){
+                		continue;
+                	}
                     if ((nbytes = recv(i, buf, sizeof(buf),MSG_WAITALL)) <= 0) {
 
                         // got error or connection closed by client

@@ -134,14 +134,15 @@ int asignarAMemoria(t_pos pos,int variable){
 }
 
 void standby(int socket){
-	char op;
-	while(1){
+	char op;/*
 	if(send(socket,"0",1,0)<1){
 		perror("No se pudo enviar");
 		return;
-	}
+	}*/
+	while(1){
+
 	printf("A la espera del kernel...\n");
-	if(recv(socket,&op,1,0)<1){
+	if(recv(socket,&op,1,MSG_WAITALL)<1){
 		perror("No se pudo recibir");
 		return;
 	}

@@ -108,6 +108,7 @@ int main() {
 	tamPag_global=pedirTamGlobal(memoria);
 	printf("Tamanio de pagina: %i\n",tamPag_global);
 	kernel=conectar(puertoKernel, ipKernel,ID_KERNEL);
+	maxStack_global=2;
 
 	//testTraerCodigo(memoria);
 	//return 0;

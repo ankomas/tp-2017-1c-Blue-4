@@ -77,16 +77,16 @@ void* cpu(t_cpu * cpu){
 		if(proximoPrograma != 0){
 			t_pcb proximoPCB = *(proximoPrograma->pcb);
 			package_t paquete = serializarPCB(proximoPCB);
-			uint32_t tamUint=sizeof(uint32_t);
+			uint32_t tamUint=sizeof(uint32_t),tamChar=1;
 			char* streamTamPaquete = intToStream(paquete.data_size);
 			//send al proximoProceso->id
-			send(cpu->id,"0",1,0);
-
-			anuncio("***");
-			anuncio(streamTamPaquete);
+			if(sendall(cpu->id, "0", &tamChar) < 0)
+				return 0;
+			//anuncio("***");
+			//anuncio(streamTamPaquete);
 			if(sendall(cpu->id, streamTamPaquete, &tamUint) < 0)
 				return 0;
-			anuncio(paquete.data);
+			//anuncio(paquete.data);
 			if(sendall(cpu->id, paquete.data, &paquete.data_size) < 0)
 				return 0;
 			anuncio("***");
@@ -125,7 +125,7 @@ void* cpu(t_cpu * cpu){
 			proximoPrograma = planificador(NULL);
 		}
 
-		usleep(10000000);
+		usleep(1000000);
 	}
 
 	return 0;

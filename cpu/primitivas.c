@@ -17,10 +17,12 @@ t_puntero posAPuntero(t_pos pos,uint32_t tamPag){
 }
 
 t_pos punteroAPos(t_puntero puntero, uint32_t tamPag){
+	printf("PUNTERO A POS: %i\n",puntero);
 	t_pos pos;
 	pos.pag = puntero/tamPag;
 	pos.off = puntero - tamPag * pos.pag;
 	pos.size = 0;
+	printf("POS: %i, OFF: %i, SIZE:%i\n",pos.pag,pos.off,pos.size);
 	return pos;
 }
 
@@ -54,6 +56,7 @@ t_puntero dummy_definirVariable(t_nombre_variable variable){
 		list_add(pcb_global.indiceStack,(void*)stack_create(args,vars,0,pos));
 		pcb_global.sp=1;
 		pos=pcb_global.ultimaPosUsada;//va a ser 0 0 0
+		pos.pag=pcb_global.cantPagCod;
 	}else{
 		stack=list_get(pcb_global.indiceStack,pcb_global.sp-1);
 		args=stack->args;
@@ -61,9 +64,9 @@ t_puntero dummy_definirVariable(t_nombre_variable variable){
 		pos=proxPos(pcb_global.ultimaPosUsada,tamPag_global);
 	}
 
-	if(pos.pag>maxStack_global){
+	if(pos.pag>maxStack_global+pcb_global.cantPagCod){
 		printf("ERROR: stack overflow\n");
-		setExitCode(&pcb_global,"stack overflow",10);
+		setExitCode(&pcb_global,"stack overflow\n",10);
 		return STACK_OVERFLOW;
 	}
 
@@ -81,7 +84,7 @@ t_puntero dummy_definirVariable(t_nombre_variable variable){
 t_puntero dummy_obtenerPosicionVariable(t_nombre_variable variable) {
 	t_var *var=NULL;
 
-	printf("Obtener posicion de %c\n", variable);
+	printf("Llamada a OBTENER POSICION VARIABLE %c\n", variable);
 
 	int _is_the_one(t_var *v){
 		return v->id==variable;
@@ -94,9 +97,10 @@ t_puntero dummy_obtenerPosicionVariable(t_nombre_variable variable) {
 	var=list_find(pcb_global.indiceStack,(void*)_buscar_variable);
 
 	if(var){
+		printf("Posicion de %c: %i\n",variable,posAPuntero(var->pos,tamPag_global));
 		return posAPuntero(var->pos,tamPag_global);
 	}else{
-		setExitCode(&pcb_global,"no existe variable",11);
+		setExitCode(&pcb_global,"no existe variable\n",11);
 		return NO_EXISTE_VARIABLE;
 	}
 }
@@ -111,13 +115,13 @@ t_valor_variable dummy_dereferenciar(t_puntero puntero) {
 
 	pos=punteroAPos(puntero,tamPag_global);
 
-	printf("Dereferenciar Pag %i Off %i/n",pos.pag,pos.off);
+	printf("Llamada a DEREFERENCIAR Pag %i Off %i/n",pos.pag,pos.off);
 
 	res=pedirAMemoria(&pcb_global,pos);
 
 	if(res==-1){
-		printf("ERROR: fallo al leer en memoria");
-		setExitCode(&pcb_global,"fallo al leer en memoria",11);
+		printf("ERROR: fallo al leer en memoria\n");
+		setExitCode(&pcb_global,"fallo al leer en memoria\n",11);
 		return NO_EXISTE_VARIABLE;
 	}
 
@@ -130,7 +134,7 @@ void dummy_asignar(t_puntero puntero, t_valor_variable variable) {
 
 	pos=punteroAPos(puntero,tamPag_global);
 
-	printf("Asignando en Pag %i Off %i el valor %d\n", pos.pag,pos.off, variable);
+	printf("Llamada a ASIGNAR en Pag %i Off %i el valor %d\n", pos.pag,pos.off, variable);
 
 	res=asignarAMemoria(pos,variable);
 

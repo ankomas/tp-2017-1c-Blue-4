@@ -207,10 +207,11 @@ void testTraerLinea(int i){
 	pcb.cantPagCod=3;
 
 	tamPag_global=256;
-	buffer=pedirLineaAMemoria(&pcb,0,50);
+	buffer=pedirLineaAMemoria(&pcb,25,16);
 	printf("\n");
+	printf("%s",buffer);
 	printf("\n");
-	for(j=0;j<50;j++)
+	for(j=0;j<16;j++)
 		printf("%c",buffer[j]);
 	printf("\n");
 	printf("\n");

@@ -11,6 +11,7 @@
 #include "pcb.h"
 
 t_pcb2 testPCB();
+void testTraerLinea(int i);
 void testTraerCodigo(int i);
 void test_asignadoCorrecto();
 
