@@ -7,8 +7,12 @@
 
 #include "heap.h"
 
-void iniciarPaginaHeap(){
-
+void iniciarPaginaHeap(pagina* unaPagina){
+	heapMetadata *nuevoMetadata = malloc(sizeof(heapMetadata));
+	nuevoMetadata->isFree = true;
+	nuevoMetadata->size = tamanioPagina-sizeof(heapMetadata);
+	testi(nuevoMetadata->size);
+	unaPagina->contenido = nuevoMetadata;
 }
 
 void guardarDataHeap(){
