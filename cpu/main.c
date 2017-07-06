@@ -13,6 +13,7 @@
 #include "conexiones.h"
 #include "pcb.h"
 #include "primitivas.h"
+#include "capaMemoria.h"
 #include "test.h"
 
 #define ID_KERNEL 2
@@ -105,12 +106,14 @@ int main() {
 
 	memoria=conectar(puertoMemoria, ipMemoria,ID_MEMORIA);
 	tamPag_global=pedirTamGlobal(memoria);
+	printf("Tamanio de pagina: %i\n",tamPag_global);
 	kernel=conectar(puertoKernel, ipKernel,ID_KERNEL);
 
 	//testTraerCodigo(memoria);
 	//return 0;
-	testTraerLinea(memoria);
-	return 0;
+	//testTraerLinea(memoria);
+	//return 0;
+	initFunciones();
 	standby(kernel);
 
 	cerrarConexion(kernel);

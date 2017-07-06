@@ -21,19 +21,15 @@
 #include "conexiones.h"
 #include "capaMemoria.h"
 
-uint32_t pedirTamGlobal(int socket){
-	uint32_t res;
+int pedirTamGlobal(int memoria){
 	char*paquete = malloc(4);
-	if(socket > 0){
-		send(socket,"P",1,0);
-		if(recv(socket,paquete,4,MSG_WAITALL) == 4){
-			memcpy(&res,paquete,4);
-			free(paquete);
-			return res;
-		}
+	if(memoria > 0){
+		send(memoria,"P",1,0);
+		if(recv(memoria,paquete,4,MSG_WAITALL) == 4)
+			return atoi(paquete);
 	}
 	printf("No se pudo obtener el tamanio de pagina");
-	return 0;
+	return -1;
 }
 
 int cargarDeMemoria(int socket,uint32_t pid,uint32_t pag, uint32_t off,uint32_t size, package_t* paqueteParametro){
@@ -112,7 +108,7 @@ char* pedirLineaAMemoria(t_pcb2* pcb,uint32_t start,uint32_t off){
 	sizeTotal=off; // 9
 
 	while(sizeTotal){
-		printf("Pidiendo codigo, size restante: %i\n",sizeTotal);
+		printf("Pidiendo linea, size restante: %i\n",sizeTotal);
 		printf("Socket: %i, PID: %i, tamGlob: %i\n",memoria,pcb->pid,tamPag_global);
 
 		size=substraer(&sizeTotal,tamPag-offsetPag); // 16 - 9 = 7

@@ -265,14 +265,17 @@ t_pcb2 deserializarPCB(char* paquete){
 	package_t paux;
 
 	//printf("|||||||||||DESERIALIZADOR||||||||||||\n");
+	printf("Deserializando PCB:\n");
 
 	paux=deserializar(&pointer,paquete);
 	res.pid=*(uint32_t*)paux.data;
+	printf("PID: %i\n",res.pid);
 
 	free(paux.data);
 
 	paux=deserializar(&pointer,paquete);
 	res.pc=*(uint32_t*)paux.data;
+	printf("PC: %i\n",res.pc);
 
 	free(paux.data);
 
@@ -280,6 +283,7 @@ t_pcb2 deserializarPCB(char* paquete){
 
 	paux=deserializar(&pointer,paquete);
 	res.sp=*(uint32_t*)paux.data;
+	printf("SP: %i\n",res.pc);
 
 	free(paux.data);
 
@@ -327,6 +331,7 @@ t_pcb2 deserializarPCB(char* paquete){
 	paux=deserializar(&pointer,paquete);
 	//memcpy(&res.exitCode,paux.data,4);
 	res.exitCode=*(uint32_t*)paux.data;
+	printf("Exit Code: %i\n",res.exitCode);
 
 	free(paux.data);
 

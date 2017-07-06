@@ -112,6 +112,7 @@ void elegirFuncion(char op,int socket){
 	switch(op){
 	case '0':
 		recibirPCB(socket);
+		enviarPCB(socket);
 		break;
 	default:
 		printf("Error: COP invalido.\n");
@@ -140,7 +141,7 @@ void standby(int socket){
 		return;
 	}
 	printf("A la espera del kernel...\n");
-	if(recv(socket,&op,1,MSG_WAITALL)<1){
+	if(recv(socket,&op,1,0)<1){
 		perror("No se pudo recibir");
 		return;
 	}

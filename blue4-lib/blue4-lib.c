@@ -95,7 +95,7 @@ package_t deserializar(uint32_t *pointer,char *stream){
 	res.data=(char*)contenido;
 	res.data_size=tam;
 
-	printf("tam: %i, pointer: %i\n",tam,*pointer);
+	//printf("tam: %i, pointer: %i\n",tam,*pointer);
 
 	return res;
 }

@@ -9,5 +9,6 @@
 #define CAPAKERNEL_H_
 
 void recibirPCB(int socket);
+void enviarPCB(int socket);
 
 #endif /* CAPAKERNEL_H_ */

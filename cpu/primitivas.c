@@ -46,20 +46,20 @@ t_puntero dummy_definirVariable(t_nombre_variable variable){
 	t_list *args,*vars;
 	t_pos pos;
 
-	printf("Llamada a DEFINIR VARIABLE\nNombre variable: %c",variable);
+	printf("Llamada a DEFINIR VARIABLE\nNombre variable: %c\n",variable);
 
 	if(pcb_global.sp==0){
 		args=list_create();
 		vars=list_create();
 		list_add(pcb_global.indiceStack,(void*)stack_create(args,vars,0,pos));
 		pcb_global.sp=1;
+		pos=pcb_global.ultimaPosUsada;//va a ser 0 0 0
 	}else{
-		stack=list_get(pcb_global.indiceStack,pcb_global.sp);
+		stack=list_get(pcb_global.indiceStack,pcb_global.sp-1);
 		args=stack->args;
 		vars=stack->vars;
+		pos=proxPos(pcb_global.ultimaPosUsada,tamPag_global);
 	}
-
-	pos=proxPos(pcb_global.ultimaPosUsada,tamPag_global);
 
 	if(pos.pag>maxStack_global){
 		printf("ERROR: stack overflow\n");
@@ -68,6 +68,7 @@ t_puntero dummy_definirVariable(t_nombre_variable variable){
 	}
 
 	pcb_global.ultimaPosUsada=pos;
+	printf("Pos asignada a %c: %i\n",variable,posAPuntero(pos,tamPag_global));
 
 	if(esArg(variable))
 		list_add(args,(void*)var_create(variable,pos));

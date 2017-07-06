@@ -8,10 +8,12 @@
 #include <blue4-lib.h>
 #include <parser/metadata_program.h>
 #include <commons/collections/list.h>
-#include "pcb.h"
+#include "test.h"
+
 #include "primitivas.h"
 #include "capaMemoria.h"
 #include "conexiones.h"
+
 
 static const char* PROGRAMA2 =
 		"begin\n"
@@ -212,4 +214,19 @@ void testTraerLinea(int i){
 		printf("%c",buffer[j]);
 	printf("\n");
 	printf("\n");
+}
+
+void test_asignadoCorrecto(){
+	t_list *vars;
+	t_stack *stack;
+	t_var *var1, *var2;
+
+	stack=list_get(pcb_global.indiceStack,0);
+	vars=stack->vars;
+	var1=list_get(vars,0);
+	var2=list_get(vars,1);
+
+	printf("TEST DEFINIR VARIABLE: \n");
+	printf("VAR 1: %c POS: %i %i %i\n",var1->id,var1->pos.pag,var1->pos.off,var1->pos.size);
+	printf("VAR 2: %c POS: %i %i %i\n",var2->id,var2->pos.pag,var2->pos.off,var2->pos.size);
 }

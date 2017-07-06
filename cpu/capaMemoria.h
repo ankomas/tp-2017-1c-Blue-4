@@ -10,7 +10,7 @@
 
 #include <blue4-lib.h>
 
-uint32_t pedirTamGlobal(int socket);
+int pedirTamGlobal(int socket);
 int cargarDeMemoria(int socket,uint32_t pid,uint32_t pag, uint32_t off,uint32_t size, package_t* paqueteParametro);
 char* pedirProgramaAMemoria(t_pcb2 *pcb,int socket);
 char* pedirLineaAMemoria(t_pcb2* pcb,uint32_t start,uint32_t off);

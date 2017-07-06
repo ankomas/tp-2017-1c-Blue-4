@@ -93,11 +93,23 @@ void* cpu(t_cpu * cpu){
 
 			//TODO verificar el recv
 			char*res = malloc(1);
+			uint32_t tamARecibir=0;
 			recv(cpu->id,res,1,MSG_WAITALL);
 
-			// Esta F debe ser reemplazada por el codigo que devuelva la cpu, cuando finalice tiene que limpiar las estructuras
-			if(res[0] == 'F')
-				usleep(1000000000000);
+			// Esta Y debe ser reemplazada por el codigo que devuelva la cpu, cuando finalice tiene que limpiar las estructuras
+			if(res[0] == 'Y'){
+				anuncio("PCB RECIBIDO DEL CPU");
+
+				recv(cpu->id,&tamARecibir,sizeof(uint32_t),0);
+				res=realloc(res,tamARecibir);
+
+				printf("Tam a recibir: %i\n",tamARecibir);
+
+				recv(cpu->id,res,tamARecibir,0);
+				*(proximoPrograma->pcb)=deserializarPCB(res);
+
+				//usleep(1000000000000);
+			}
 
 			if(1 == 2){
 				//TODO checkear errores en el futuro

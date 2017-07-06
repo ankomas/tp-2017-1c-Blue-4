@@ -20,10 +20,12 @@
 #include "primitivas.h"
 #include "capaMemoria.h"
 #include "capaKernel.h"
+#include "test.h"
 
-char *const lineaEnPrograma(t_pcb2* pcb,t_puntero_instruccion inicioDeLaInstruccion, t_size tamanio) {
+char* const lineaEnPrograma(t_pcb2* pcb,t_puntero_instruccion inicioDeLaInstruccion, t_size tamanio) {
 	char* aRetornar;
-	//cargarDeMemoria(socket, pcb->pid,i, 0,tamPag_global,&paquete);
+	//aRetornar=pedirLineaAMemoria(pcb,inicioDeLaInstruccion,tamanio);
+	aRetornar=pedirLineaAMemoria(pcb,inicioDeLaInstruccion,tamanio);
 	return aRetornar;
 }
 
@@ -34,7 +36,8 @@ void ejecutarPCB(t_pcb2 *pcb, int socket){
 			pcb->indiceCodigo[pcb->pc].offset);
 
 	printf("\t Evaluando -> %s", linea);
-	//analizadorLinea(linea, &funciones, &kernel_functions);
+	analizadorLinea(linea, &funciones, &kernel_functions);
+	//test_asignadoCorrecto();
 	free(linea);
 	pcb->pc++;
 }
@@ -58,5 +61,19 @@ void recibirPCB(int socket){
 
 	ejecutarPCB(&pcb_global,socket);
 
+}
+
+void enviarPCB(int socket){
+	package_t paquete;
+	uint32_t enviado=0;
+
+	paquete=serializarPCB(pcb_global);
+	printf("ENVIAR PCB, TAMANIO DEL PAQUETE: %i\n",paquete.data_size);
+	send(socket,"Y",1,0);
+	send(socket,&paquete.data_size,sizeof(uint32_t),0);
+	enviado=send(socket,paquete.data,paquete.data_size,0);
+	while(enviado<paquete.data_size){
+		enviado=send(socket,paquete.data,paquete.data_size-enviado,0);
+	}
 }
 

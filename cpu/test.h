@@ -8,7 +8,10 @@
 #ifndef TEST_H_
 #define TEST_H_
 
+#include "pcb.h"
+
 t_pcb2 testPCB();
 void testTraerCodigo(int i);
+void test_asignadoCorrecto();
 
 #endif /* TEST_H_ */
