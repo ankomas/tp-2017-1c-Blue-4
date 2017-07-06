@@ -21,22 +21,21 @@
 #include "capaMemoria.h"
 #include "capaKernel.h"
 
-char *const lineaEnPrograma(char *prgrama, t_puntero_instruccion inicioDeLaInstruccion, t_size tamanio) {
-	char *aRetornar = calloc(1, 100);
-	memcpy(aRetornar, prgrama + inicioDeLaInstruccion, tamanio);
+char *const lineaEnPrograma(t_pcb2* pcb,t_puntero_instruccion inicioDeLaInstruccion, t_size tamanio) {
+	char* aRetornar;
+	//cargarDeMemoria(socket, pcb->pid,i, 0,tamPag_global,&paquete);
 	return aRetornar;
 }
 
 void ejecutarPCB(t_pcb2 *pcb, int socket){
-	char* programa=pedirProgramaAMemoria(pcb,socket);
-	char* const linea = lineaEnPrograma(programa,
+	//char* programa=pedirProgramaAMemoria(pcb,socket);
+	char* const linea = lineaEnPrograma(pcb,
 			pcb->indiceCodigo[pcb->pc].start,
 			pcb->indiceCodigo[pcb->pc].offset);
 
 	printf("\t Evaluando -> %s", linea);
 	//analizadorLinea(linea, &funciones, &kernel_functions);
 	free(linea);
-	free(programa);
 	pcb->pc++;
 }
 
@@ -55,6 +54,7 @@ void recibirPCB(int socket){
 	recv(socket,buffer,tam,0);
 
 	pcb_global=deserializarPCB(buffer);
+	free(buffer);
 
 	ejecutarPCB(&pcb_global,socket);
 

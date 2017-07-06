@@ -104,9 +104,12 @@ int main() {
 	printf("||||||||||||||||||||||||||||||\n");
 
 	memoria=conectar(puertoMemoria, ipMemoria,ID_MEMORIA);
+	tamPag_global=pedirTamGlobal(memoria);
 	kernel=conectar(puertoKernel, ipKernel,ID_KERNEL);
 
-	testTraerCodigo(memoria);
+	//testTraerCodigo(memoria);
+	//return 0;
+	testTraerLinea(memoria);
 	return 0;
 	standby(kernel);
 

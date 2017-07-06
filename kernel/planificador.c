@@ -77,13 +77,14 @@ void* cpu(t_cpu * cpu){
 		if(proximoPrograma != 0){
 			t_pcb proximoPCB = *(proximoPrograma->pcb);
 			package_t paquete = serializarPCB(proximoPCB);
+			uint32_t tamUint=sizeof(uint32_t);
 			char* streamTamPaquete = intToStream(paquete.data_size);
 			//send al proximoProceso->id
 			send(cpu->id,"0",1,0);
 
 			anuncio("***");
 			anuncio(streamTamPaquete);
-			if(sendall(cpu->id, streamTamPaquete, &paquete.data_size) < 0)
+			if(sendall(cpu->id, streamTamPaquete, &tamUint) < 0)
 				return 0;
 			anuncio(paquete.data);
 			if(sendall(cpu->id, paquete.data, &paquete.data_size) < 0)

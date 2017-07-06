@@ -21,11 +21,28 @@
 #include "conexiones.h"
 #include "capaMemoria.h"
 
+uint32_t pedirTamGlobal(int socket){
+	uint32_t res;
+	char*paquete = malloc(4);
+	if(socket > 0){
+		send(socket,"P",1,0);
+		if(recv(socket,paquete,4,MSG_WAITALL) == 4){
+			memcpy(&res,paquete,4);
+			free(paquete);
+			return res;
+		}
+	}
+	printf("No se pudo obtener el tamanio de pagina");
+	return 0;
+}
+
 int cargarDeMemoria(int socket,uint32_t pid,uint32_t pag, uint32_t off,uint32_t size, package_t* paqueteParametro){
 	uint32_t tamARecibir,pointer=0;
 	package_t paquete;
 	char* res;
 	//mandar cop y paquete
+	printf("Leyendo de memoria:\n");
+	printf("PAG: %i, OFF: %i, SIZE: %i\n",pag,off,size);
 	paquete=serializar(8,
 			sizeof(uint32_t),&pid,
 			sizeof(uint32_t),&pag,
@@ -69,6 +86,50 @@ int cargarDeMemoria(int socket,uint32_t pid,uint32_t pag, uint32_t off,uint32_t 
 	paqueteParametro->data=res;
 
 	return 0;
+}
+
+int substraer(int* from,int size){
+	uint32_t res;
+	if(*from-size<0){
+		res=*from;
+		*from=0;
+		return res;
+	}
+	else{
+		*from-=size;
+		return size;
+	}
+}
+
+char* pedirLineaAMemoria(t_pcb2* pcb,uint32_t start,uint32_t off){
+	package_t paquete;
+	int i=0,pag,offsetPag,sizeTotal,size,tamPag=tamPag_global;
+	uint32_t offset=0;
+	char* res=NULL;
+
+	pag=start/tamPag_global; // 9 / 16 = 0
+	offsetPag=start%tamPag_global; // 9 % 16 = 9
+	sizeTotal=off; // 9
+
+	while(sizeTotal){
+		printf("Pidiendo codigo, size restante: %i\n",sizeTotal);
+		printf("Socket: %i, PID: %i, tamGlob: %i\n",memoria,pcb->pid,tamPag_global);
+
+		size=substraer(&sizeTotal,tamPag-offsetPag); // 16 - 9 = 7
+
+		cargarDeMemoria(memoria, pcb->pid,pag+i, offsetPag,size,&paquete);
+		res=realloc(res,paquete.data_size+offset);
+
+		memcpy(res+offset,paquete.data,paquete.data_size);
+
+		free(paquete.data);
+
+		offset+=paquete.data_size;
+		offsetPag=0;
+		i++;
+	}
+
+	return res;
 }
 
 char* pedirProgramaAMemoria(t_pcb2 *pcb,int socket){

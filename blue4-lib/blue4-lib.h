@@ -37,7 +37,7 @@ int serializadorTom(int, int, char*);
  */
 
 char* desSerializadorTom(int);
-
+/*
 typedef struct{
 	uint32_t pid;
 	uint32_t pc;
@@ -46,6 +46,7 @@ typedef struct{
 	void * indiceStack;
 	void * indiceEtiquetas;
 }t_pcb;
+*/
 
 typedef struct{
 	uint32_t data_size;

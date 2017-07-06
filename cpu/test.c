@@ -191,10 +191,24 @@ void testTraerCodigo(int i){
 	buffer=pedirProgramaAMemoria(&pcb,i);
 	printf("\n");
 	printf("\n");
-	printf("Buffer: \n%s",buffer);
-	printf("\n");
-	printf("\n");
 	for(j=0;j<pcb.cantPagCod*tamPag_global;j++)
+		printf("%c",buffer[j]);
+	printf("\n");
+	printf("\n");
+}
+
+void testTraerLinea(int i){
+	t_pcb2 pcb;
+	char *buffer;
+	int j;
+	pcb.pid=100;
+	pcb.cantPagCod=3;
+
+	tamPag_global=256;
+	buffer=pedirLineaAMemoria(&pcb,0,50);
+	printf("\n");
+	printf("\n");
+	for(j=0;j<50;j++)
 		printf("%c",buffer[j]);
 	printf("\n");
 	printf("\n");

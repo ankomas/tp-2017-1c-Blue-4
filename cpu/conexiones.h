@@ -20,7 +20,7 @@ struct data_socket crearSocket(int, char* );
 int enviarMensaje(int ,char*,int );
 int conectar(char* , char* ,int );
 void cerrarConexion(int );
-int pedirAMemoria(t_pos pos);
+int pedirAMemoria(t_pcb2* pcb,t_pos pos);
 int asignarAMemoria(t_pos pos,int variable);
 void standby(int );
 t_pcb2 testPCB();

@@ -136,9 +136,10 @@ uint32_t estaEnCache(uint32_t pid, uint32_t pag){
 
  int marcoVacio(int marco){
  	tablaPaginas_t *tablaDePaginas = obtenerTablaDePaginas();
-	pthread_mutex_lock(&mutex_tablaDePaginas);
+ 	//fixme revisar mutex
+	//pthread_mutex_lock(&mutex_tablaDePaginas);
  	return tablaDePaginas[marco].pid == -2;
-	pthread_mutex_unlock(&mutex_tablaDePaginas);
+	//pthread_mutex_unlock(&mutex_tablaDePaginas);
  }
 
 int nuevoMarco(uint32_t pid, uint32_t pagina) {
@@ -292,7 +293,7 @@ void* leerMemoria(uint32_t pid,uint32_t pag, uint32_t offset, uint32_t tam){ //R
 	void* datos = malloc(tam);
 	pthread_mutex_lock(&escribiendoMemoria);
 	memcpy(datos,memoria+marco*configDeMemoria.tamMarco+offset, tam);
-	pthread_mutex_lock(&escribiendoMemoria);
+	pthread_mutex_unlock(&escribiendoMemoria);
 	return datos;
 }
 
