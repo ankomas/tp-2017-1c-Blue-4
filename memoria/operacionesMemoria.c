@@ -47,10 +47,12 @@ uint32_t tamanioDeTablaCache(){
 	 tablaCache_t* tabla = obtenerTablaCache();
 	 int marco, minV=0, minM=-1;
 	 for(marco = 0; marco < configDeMemoria.entradasCache; marco++){
+			pthread_mutex_lock(&mutex_tablaCache);
 		 if(tabla[marco].counter != -1 && tabla[marco].counter < minV){
 			 minV = tabla[marco].counter;
 			 minM = marco;
 		 }
+			pthread_mutex_unlock(&mutex_tablaCache);
 	 }
 	 if(minM > 0 && minM < configDeMemoria.entradasCache)
 		 return minM;
@@ -60,7 +62,9 @@ uint32_t tamanioDeTablaCache(){
 
  void actualizarCounterMarco(uint32_t marco){
 	 tablaCache_t* tabla = obtenerTablaCache();
-	 tabla[marco].counter = contador++ ;
+	pthread_mutex_lock(&mutex_tablaCache);
+	tabla[marco].counter = contador++;
+	pthread_mutex_unlock(&mutex_tablaCache);
  }
 
  void escribirCache(uint32_t marco,uint32_t offset,uint32_t tamData, void *data){
@@ -76,11 +80,14 @@ uint32_t tamanioDeTablaCache(){
 	if (pid < -1 || pag < 0)
 		return -1;
 	for (i = 0; i < configDeMemoria.entradasCache; i++) {
+		pthread_mutex_lock(&mutex_tablaCache);
 		if (tabla[i].pid == pid) {
 			if (tabla[i].pagina == pag) {
+				pthread_mutex_unlock(&mutex_tablaCache);
 				return i;
 			}
 		}
+		pthread_mutex_unlock(&mutex_tablaCache);
 	}
 	return -1;
 }
@@ -113,20 +120,27 @@ uint32_t estaEnCache(uint32_t pid, uint32_t pag){
    tablaPaginas_t* tablaDePaginas= obtenerTablaDePaginas();
  	hash=funcionDeHash(pid,pagina);
 
+	pthread_mutex_lock(&mutex_tablaDePaginas);
    while(tablaDePaginas[hash].pid!=pid || tablaDePaginas[hash].pagina!=pagina){
    hash = tratarColision(hash);
    i++;
 
    if(i>=maxPA){
-   	return -1; }//NO EXISTE EL PUTO PID CON LA PAGINA, PELOTUDO =)
+		pthread_mutex_unlock(&mutex_tablaDePaginas);
+   	return -1; }//NO EXISTE EL PID PAPURRI ?)
 
    }
+	pthread_mutex_unlock(&mutex_tablaDePaginas);
    return hash;
  }
 
  int marcoVacio(int marco){
  	tablaPaginas_t *tablaDePaginas = obtenerTablaDePaginas();
- 	return tablaDePaginas[marco].pid == -2;
+ 	int resultado;
+	pthread_mutex_lock(&mutex_tablaDePaginas);
+	resultado=tablaDePaginas[marco].pid== -2;
+	pthread_mutex_unlock(&mutex_tablaDePaginas);
+ 	return resultado;
  }
 
 int nuevoMarco(uint32_t pid, uint32_t pagina) {
@@ -170,10 +184,12 @@ void cargarCodigo(uint32_t marco, uint32_t pagina, void* data){
 
 void cargarPaginaATabla(uint32_t pid, uint32_t pagina, unsigned marco){
 	tablaPaginas_t *tablaDePaginas = obtenerTablaDePaginas();
+	pthread_mutex_lock(&mutex_tablaDePaginas);
 	tablaDePaginas[marco].pid= pid;
 	printf("cargue el pid : %d \n",pid);
 	tablaDePaginas[marco].pagina = pagina;
 	printf("cargue la pagina : %d \n",pagina);
+	pthread_mutex_unlock(&mutex_tablaDePaginas);
 	return;
 }
 
@@ -217,8 +233,10 @@ uint32_t finalizarPrograma(uint32_t pid)
 	{
 		if(marco >=0)
 		{
+		pthread_mutex_lock(&mutex_tablaDePaginas);
 		tablaDePaginas[marco].pid=-2;
 		tablaDePaginas[marco].pagina=marco;
+		pthread_mutex_unlock(&mutex_tablaDePaginas);
 		}
 		pagina++;
 		i++;
@@ -242,8 +260,10 @@ int asignarPaginasAUnProceso(uint32_t pid,uint32_t paginasRequeridas)
 	while(i<paginasRequeridas)
 	{
 		marco=nuevoMarco(pid,pagina);
+		pthread_mutex_lock(&mutex_tablaDePaginas);
 		tablaDePaginas[marco].pid=pid;
 		tablaDePaginas[marco].pagina=pagina;
+		pthread_mutex_unlock(&mutex_tablaDePaginas);
 		pagina++;
 	}
 	aumentar_PaginasActualesDeProcesoActivo(pid,paginasRequeridas);
@@ -258,8 +278,10 @@ int eliminarPaginaDeUnProceso(uint32_t pid,uint32_t paginaAEliminar)
 	tablaDePaginas=obtenerTablaDePaginas();
 	int marco = getMarco(pid,paginaAEliminar);
 	if(marco<0)return -1;
+	pthread_mutex_lock(&mutex_tablaDePaginas);
 	tablaDePaginas[marco].pid= -2;
 	tablaDePaginas[marco].pagina= -2;
+	pthread_mutex_unlock(&mutex_tablaDePaginas);
 	disminuir_PaginasActualesDeProcesoActivo(pid,paginaAEliminar);
 	return 0;
 }
@@ -270,7 +292,9 @@ void* leerMemoria(uint32_t pid,uint32_t pag, uint32_t offset, uint32_t tam){ //R
 	int marco = getMarco(pid, pag);
 	if(marco<0)return NULL;
 	void* datos = malloc(tam);
+	pthread_mutex_lock(&escribiendoMemoria);
 	memcpy(datos,memoria+marco*configDeMemoria.tamMarco+offset, tam);
+	pthread_mutex_unlock(&escribiendoMemoria);
 	return datos;
 }
 
@@ -286,7 +310,9 @@ uint32_t escribirMemoria(uint32_t pid, uint32_t pag, uint32_t offset, uint32_t t
 void* leerCache(uint32_t pid,uint32_t pag, uint32_t offset, uint32_t tam){ //NECESITA UN FREE :D
 	uint32_t marco = getMarcoCache(pid, pag);
 	void* datos = malloc(tam);
+	pthread_mutex_lock(&escribiendoMemoriaCache);
 	memcpy(datos,cache+marco*configDeMemoria.tamMarco+offset, tam);
+	pthread_mutex_unlock(&escribiendoMemoriaCache);
 	actualizarCounterMarco(marco);
 	return datos;
 }

@@ -112,7 +112,7 @@ t_valor_variable dummy_dereferenciar(t_puntero puntero) {
 
 	printf("Dereferenciar Pag %i Off %i/n",pos.pag,pos.off);
 
-	res=pedirAMemoria(pos);
+	res=pedirAMemoria(&pcb_global,pos);
 
 	if(res==-1){
 		printf("ERROR: fallo al leer en memoria");

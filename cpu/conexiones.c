@@ -81,7 +81,7 @@ int conectar(char *puerto, char *ip,int id) {
 	int socketCliente = crear_socket(servinfo);
 
 	printf("Socket creado: %i\n", socketCliente);
-	printf("Comensando conexion a ");
+	printf("Comenzando conexion a ");
 	printf("IP: %s, PUERTO: %s, ",ip,puerto);
 	if(id==ID_KERNEL)
 		printf("PROCESO: KERNEL\n");
@@ -119,8 +119,13 @@ void elegirFuncion(char op,int socket){
 	}
 }
 
-int pedirAMemoria(t_pos pos){
-	return -1;
+int pedirAMemoria(t_pcb2* pcb,t_pos pos){
+	int res=0;
+	package_t paquete;
+	cargarDeMemoria(memoria, pcb->pid,pos.pag, pos.off,pos.size,&paquete);
+	memcpy(res,paquete.data,pos.size);
+	free(paquete.data);
+	return res;
 }
 
 int asignarAMemoria(t_pos pos,int variable){

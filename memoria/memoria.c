@@ -23,6 +23,8 @@ void inicializarEstructurasAdministrativas()
 	pthread_mutex_init(&mutex_procesosActivos,NULL);
 	pthread_mutex_init(&mutex_operacion,NULL);
 	pthread_mutex_init(&mutex_test,NULL);
+	pthread_mutex_init(&mutex_tablaDePaginas,NULL);
+	pthread_mutex_init(&mutex_tablaCache,NULL);
 	inicializarDataConfig();
 	inicializarMemoria();
 	inicializarCache();
@@ -64,6 +66,7 @@ int main(void) {
 
 	inicializarEstructurasAdministrativas();
 	//testLecturaMemoria();
+	//inicializarPrograma(100,8);
 	pthread_t hiloMostrarMenu;
 	pthread_create(&hiloMostrarMenu, NULL, (void *) mostrarMenuMemoria, NULL);
 	servidor();

@@ -14,6 +14,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 
+//#include <parser/metadata_program.h>
 #include <pthread.h>
 #include <blue4-lib.h>
 
@@ -417,15 +418,22 @@ int servidor(void)
 
 								// Inicializo Metadata
 								t_list *stack;
+								t_metadata_program* metadata;
+								t_pos ultimaPos={0,0,0};
+								metadata=metadata_desde_literal(codigo);
 								stack=list_create();
 								// Fin Inicializo Metadata
 
 								nuevoPCB->pid=pidActual;
+								nuevoPCB->pc=metadata->instruccion_inicio;
+								nuevoPCB->sp=0;
 								nuevoPCB->exitCode = 0;
-								nuevoPCB->pc=0;
-								nuevoPCB->indiceCodigo=NULL;
+								nuevoPCB->ultimaPosUsada=ultimaPos;
+								nuevoPCB->indiceCodigoSize=metadata->instrucciones_size;
+								nuevoPCB->indiceCodigo=metadata->instrucciones_serializado;
 								nuevoPCB->indiceStack=stack;
-								nuevoPCB->indiceEtiquetas=NULL;
+								nuevoPCB->indiceEtiquetasSize=metadata->etiquetas_size;
+								nuevoPCB->indiceEtiquetas=metadata->etiquetas;
 
 								nuevoProceso->tablaArchivos = NULL;
 								nuevoProceso->quantumRestante = quantum;
@@ -458,6 +466,7 @@ int servidor(void)
 								printf("\n");
 								*/
 								nuevoProceso->paginasCodigo = cantidadPaginasCodigo;
+								nuevoProceso->pcb->cantPagCod= cantidadPaginasCodigo;
 
 
 								list_add(PROGRAMAs,nuevoProceso);

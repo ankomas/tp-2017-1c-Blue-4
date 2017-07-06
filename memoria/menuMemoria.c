@@ -5,6 +5,7 @@
  *      Author: utnso
  */
 #include <stdio.h>
+#include <string.h>
 #include <arpa/inet.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -19,13 +20,14 @@
 void modificarRetardo()
 {
 	int nuevoRetardo;
-	printf("El retardo actual es: %i ms\n", configDeMemoria.retardo);
-	printf("Ingrese el nuevo retardo en ms\n");
+	texto_en_color_de_exito("El retardo actual es", configDeMemoria.retardo);
+	texto_en_color("\nIngrese el nuevo retardo en ms");
 	scanf("%i", &nuevoRetardo);
 	configDeMemoria.retardo = nuevoRetardo;
-	printf("El nuevo Retardo es: %i\n", configDeMemoria.retardo);
+	texto_en_color_de_exito("El nuevo Retardo es", configDeMemoria.retardo);
 }
 
+//TODO falta hacer este metodo (sigue la misma logica que el dump del contenido de memoria)
 void dumpCache() {};
 
 void mostrarTablaDePaginas(){
@@ -34,29 +36,118 @@ void mostrarTablaDePaginas(){
 	//for(i=0; i<configDeMemoria.marcos;i++)
 	int marcosUtilizados=configDeMemoria.marcos-configDeMemoria.marcosDisponibles;
 	if(marcosUtilizados==0)marcosUtilizados=configDeMemoria.marcos;
-	printf("Se mostrara a continuacion solo los marcos que se esten usando en la tabla de paginas:\n\n");
-	for(i=0; i<100;i++){
+	texto_en_color("Se mostrara a continuacion solo los marcos que se esten usando en la tabla de paginas:\n\n");
+	for(i=0; i<marcosUtilizados;i++){
 		if(tablaDePaginas[i].pid!=-2)
 		{
-			printf("Marco: %i	 PID: %i	Pagina: %i\n",i,tablaDePaginas[i].pid, tablaDePaginas[i].pagina );
+			pthread_mutex_lock(&mutex_test);
+			printf("%s Marco: %i	 PID: %i	Pagina: %i %s \n",KGRN,i,tablaDePaginas[i].pid, tablaDePaginas[i].pagina,KNRM );
+			pthread_mutex_unlock(&mutex_test);
 		}
 	}
 }
-void dumpEstructuras() { //Falta lista de procesos Activos
+void dumpEstructuras() {
 	mostrarTablaDePaginas();
-	//mostrarListaProcesosActivos();
-};
+	texto_en_color("\nA conticuacion se mostrara el estado de los procesos activos: \n\n");
+	uint32_t resultadoDelListado = listar_DataDeTodosLosProcesosActivos();
+	if(resultadoDelListado==-1)
+	{
+		texto_en_color_de_error("No existen procesos activos de momento \n\n");
+		return;
+	}
+}
 
 
+void impresionDeLecturaDeDataDePaginas(int i,uint32_t paginas,uint32_t pid)
+{
+	int aciertos=0;
+	char* data;
+	char* data_string;
+	while(i<paginas)
+		{
+			data=leerMemoria(pid,i,0,configDeMemoria.tamMarco);
+			if(data)
+			{
+				data_string=malloc(configDeMemoria.tamMarco+1);
+				memset(data_string,'\0',configDeMemoria.tamMarco+1);
+				memcpy(data_string,data,configDeMemoria.tamMarco);
+				free(data);
+				pthread_mutex_lock(&mutex_test);
+				printf("%s El PID: %d posee en memoria: %s %s \n",KGRN,pid,data,KNRM);
+				pthread_mutex_unlock(&mutex_test);
+				aciertos++;
+				free(data_string);
+			}
+			i++;
+		}
+		if(aciertos==0)texto_en_color_de_error("El proceso no posee ninguna pagina");
+}
+
+
+void contenidoDeTodosLosProcesos()
+{
+	int i=0,aciertos=0;
+	uint32_t pid,paginas;
+	while(i<maxPA)
+	{
+		pthread_mutex_lock(&mutex_procesosActivos);
+		pid = procesosActivos[i].pid;
+		pthread_mutex_unlock(&mutex_procesosActivos);
+		if(pid!=-2)
+		{
+			paginas=obtener_paginasActualesDeProcesoActivo(pid);
+			impresionDeLecturaDeDataDePaginas(i,paginas,pid);
+			aciertos++;
+		}
+		i++;
+	}
+	if(aciertos==0)texto_en_color_de_error("No se registra algun proceso en la memoria \n");
+}
+
+
+void contenidoPorPID()
+{
+	int pid,i=0;
+	uint32_t paginas;
+	texto_en_color("ingrese PID:");
+	scanf("%d",&pid);
+	paginas=obtener_paginasActualesDeProcesoActivo(pid);
+	if(paginas==-1)
+	{
+		texto_en_color_de_error("El PID ingresado no es valido \n");
+		return;
+	}
+	impresionDeLecturaDeDataDePaginas(i,paginas,pid);
+
+}
 
 void dumpContenido() { //BIEEEEN RANCIO
-	printf("La memoria contiene %s", (char*) memoria);
-};
+	char opcion[1];
+	do{
+
+		texto_en_color("indique la accion que desea realizar: \n");
+		texto_en_color("1- Informar los datos almacenados en la memoria de todos los procesos ");
+		texto_en_color("2- Informar los datos almacenados en la memoria de un proceso en particular");
+		texto_en_color("3- Ir al menu principal \n");
+
+		scanf("%s",opcion);
+		switch(opcion[0])
+			{
+				case '1': contenidoDeTodosLosProcesos(); break;
+				case '2': contenidoPorPID(); break;
+				case '3': break;
+				default : break;
+			}
+		}while(opcion[0]!='3');
+	/*
+	printf("La memoria contiene %s \n\n", (char*) memoria);
+	*/
+}
 
 void dump()
 {
 	int opcion; //int PID;
-	printf(	"Reportar estado actual de:\n"
+	texto_en_color(	"Reportar estado actual de:\n"
 			"Cache: Presione 1\n"
 			"Estructuras de memoria: Presione 2\n"
 			"Contenido de memoria: Presione 3\n");
@@ -75,11 +166,67 @@ void dump()
 	}
 }
 
-// Estas funciones no estan implementadas
 
-void flush() {};
-void memorySize() {};
-void PIDSize() {};
+void flush()
+{
+	int entradasCache=configDeMemoria.entradasCache;
+	tablaCache_t* tablaCache = (tablaCache_t*)cache;
+	uint32_t marcos_EstructurasAdministrativas = cuantosMarcosRepresenta(tamanioDeTablaCache());
+	int i=marcos_EstructurasAdministrativas;
+	texto_en_color("Limpiando la memoria cache........ \n\n");
+	while(i<entradasCache)
+	{
+		//printf("el pid de la cache es: %d \n",tablaCache[i].pid);
+		tablaCache[i].pid=-2;
+		tablaCache[i].pagina=i;
+		i++;
+	}
+	texto_en_color("Limpieza de cache terminada\n\n");
+}
+
+void sizeMemory()
+{
+	int framesTotales = configDeMemoria.marcos;
+	int framesDisponibles = configDeMemoria.marcosDisponibles;
+	int framesOcupados = framesTotales-framesDisponibles;
+	texto_en_color_de_exito("Los frames totales en la memoria son",framesTotales);
+	texto_en_color_de_exito("Los frames disponibles en la memoria son",framesDisponibles);
+	texto_en_color_de_exito("Los frames ocupados en la memoria son",framesOcupados);
+}
+
+
+void sizePID()
+{
+	int resultado;
+	int pid;
+	texto_en_color("ingrese PID");
+	scanf("%d",&pid);
+	resultado=listar_DataDeProcesoActivo(pid);
+	if(resultado==-1)texto_en_color_de_error("No existe un proceso con el PID ingresado \n");
+}
+
+
+void size()
+{
+	char opcion[1];
+	do{
+
+		texto_en_color("indique la accion que desea realizar: \n");
+		texto_en_color("1- Informar el tamaño de la memoria");
+		texto_en_color("2- Informar el tamaño de un proceso en particular");
+		texto_en_color("3- Ir al menu principal \n");
+
+		scanf("%s",opcion);
+		switch(opcion[0])
+				{
+				case '1': sizeMemory(); break;
+				case '2': sizePID(); break;
+				case '3': break;
+				default : break;
+				}
+	}while(opcion[0]!='3');
+}
+
 
 void cantRunAway(){
 	system("clear");
@@ -91,29 +238,26 @@ void cantRunAway(){
 }
 
 void mostrarMenuMemoria() {
-	int opcion;
+	char opcion[1];
 	do
 	{
 
-		printf(	"Ingrese un comando:\n\n"
+		texto_en_color(	"Ingrese un comando:\n\n"
 				"Modificar el retardo: Presione 1\n"
 				"Reportar estado actual: Presione 2\n"
 				"Limpiar el contenido de la cache: Presione 3\n"
-				"Indicar el tamaño de la memoria: Presione 4\n"
-				"Indicar el tamaño de un proceso: Presione 5\n"
-				"Para limpiar la pantalla: Presione 6\n"
-				"Para salir del menu: Presione 7\n");
-		scanf("%d", &opcion);
-		switch(opcion)
+				"Indicar  tipos de tamaños en cuanto a la memoria y algun proceso: Presione 4\n"
+				"Para limpiar la pantalla: Presione 5\n");
+		scanf("%s", opcion);
+		switch(opcion[0])
 		{
-		case 1: modificarRetardo(); break;
-		case 2: dump(); break;
-		case 3: flush(); break;
-		case 4: memorySize(); break;
-		case 5: PIDSize(); break;
-		case 6: system("clear"); break;
-		case 7: cantRunAway(); break;
+		case '1': modificarRetardo(); break;
+		case '2': dump(); break;
+		case '3': flush(); break;
+		case '4': size(); break;
+		case '5': system("clear"); break;
+		//case '7': cantRunAway(); break;
 		default:break;
 		}
-	}while(opcion!=8);
+	}while(1);
 }

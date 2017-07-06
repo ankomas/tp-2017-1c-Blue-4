@@ -11,6 +11,7 @@
 #include "memoria.h"
 
 pthread_mutex_t escribiendoMemoria, escribiendoMemoriaCache;
+pthread_mutex_t mutex_tablaDePaginas,mutex_tablaCache;
 
 uint32_t tamanioDeTabla();
 
