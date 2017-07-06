@@ -17,7 +17,6 @@ typedef struct heapMetadata{
 
 typedef struct pagina{
 	void*contenido;
-	uint32_t tamanio;
 }pagina;
 
 #endif /* HEAP_H_ */
