@@ -140,13 +140,13 @@ void standby(int socket){
 		return;
 	}*/
 	while(1){
-
-	printf("A la espera del kernel...\n");
-	if(recv(socket,&op,1,MSG_WAITALL)<1){
-		perror("No se pudo recibir");
-		return;
-	}
-
-	elegirFuncion(op,socket);
+		printf("A la espera del kernel...\n");
+		if(recv(socket,&op,1,MSG_WAITALL)<1){
+			perror("No se pudo recibir");
+			return;
+		}else{
+			send(socket,"Y",1,0);
+			elegirFuncion(op,socket);
+		}
 	}
 }

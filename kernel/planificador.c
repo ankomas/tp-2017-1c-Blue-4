@@ -68,10 +68,15 @@ t_cpu* indiceProximaCPULibre(){
 }
 
 void* cpu(t_cpu * cpu){
+	void liberarCPU(){
+		eliminarSiHayCPU(cpu->id);
+		pthread_exit(&cpu->hilo);
+	}
+
 	printf("cpu: %i\n",cpu->id);
 	t_programa * proximoPrograma;
 	proximoPrograma = planificador(NULL);
-	log_trace(logger,"*");
+	char*res = malloc(1);
 	while(1){
 		//TODO falta mutex en todos los accesos a las colas
 		if(proximoPrograma != 0){
@@ -80,43 +85,56 @@ void* cpu(t_cpu * cpu){
 			uint32_t tamUint=sizeof(uint32_t),tamChar=1;
 			char* streamTamPaquete = intToStream(paquete.data_size);
 			//send al proximoProceso->id
+			anuncio("aaaa");
 			if(sendall(cpu->id, "0", &tamChar) < 0)
-				return 0;
-			//anuncio("***");
-			//anuncio(streamTamPaquete);
-			if(sendall(cpu->id, streamTamPaquete, &tamUint) < 0)
-				return 0;
-			//anuncio(paquete.data);
-			if(sendall(cpu->id, paquete.data, &paquete.data_size) < 0)
-				return 0;
-			anuncio("***");
+				liberarCPU();
 
-			//TODO verificar el recv
-			char*res = malloc(1);
-			uint32_t tamARecibir=0;
 			recv(cpu->id,res,1,MSG_WAITALL);
+			if(res[0]!= 'Y')
+				liberarCPU();
 
-			// Esta Y debe ser reemplazada por el codigo que devuelva la cpu, cuando finalice tiene que limpiar las estructuras
-			if(res[0] == 'Y'){
-				anuncio("PCB RECIBIDO DEL CPU");
+			if(sendall(cpu->id, streamTamPaquete, &tamUint) < 0)
+				liberarCPU();
 
-				recv(cpu->id,&tamARecibir,sizeof(uint32_t),0);
-				res=realloc(res,tamARecibir);
+			recv(cpu->id,res,1,MSG_WAITALL);
+			if(res[0]!= 'Y')
+				liberarCPU();
 
-				printf("Tam a recibir: %i\n",tamARecibir);
+			if(sendall(cpu->id, paquete.data, &paquete.data_size) < 0)
+				liberarCPU();
 
-				recv(cpu->id,res,tamARecibir,0);
+			recv(cpu->id,res,1,MSG_WAITALL);
+			if(res[0]!= 'Y')
+				liberarCPU();
+
+			uint32_t tamARecibir=0;
+
+
+			// Esta Y debe ser reemplazada por el codigo que devuelva la cpu, cuando finalice tiene que limpiar las estructuras incluyendo cpu
+
+			if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),0) <= 0)
+				pthread_exit(&cpu->hilo);
+
+			res=realloc(res,tamARecibir);
+
+			printf("Tam a recibir: %i\n",tamARecibir);
+
+			anuncio("PCB RECIBIDO DEL CPU");
+
+			if(recv(cpu->id,res,tamARecibir,0) <= 0)
+				pthread_exit(&cpu->hilo);
+			else
 				*(proximoPrograma->pcb)=deserializarPCB(res);
 
-				//usleep(1000000000000);
-			}
+			//usleep(1000000000000);
+
 
 			if(1 == 2){
 				//TODO checkear errores en el futuro
-				pthread_exit(NULL);
+				pthread_exit(&cpu->hilo);
 			} else if(1==3){
 				//checkear si termino bien para limpiar estructuras
-				pthread_exit(NULL);
+				pthread_exit(&cpu->hilo);
 			} else {
 				//TODO El planificador debe desencolar procesos ya terminados
 				proximoPrograma = planificador(proximoPrograma);
@@ -125,7 +143,7 @@ void* cpu(t_cpu * cpu){
 			proximoPrograma = planificador(NULL);
 		}
 
-		usleep(5000000);
+		usleep(500000);
 	}
 
 	return 0;

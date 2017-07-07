@@ -60,16 +60,19 @@ void recibirPCB(int socket){
 	if(recv(socket,buffer,4,0)==-1){
 		perror("Error al recibir tamanio en recibirPCB");
 		return;
+	}else{
+		send(socket,"Y",1,0);
 	}
+
 	memcpy(&tam,buffer,4);
 	printf("RECIBIENDO PCB, TAMANIO DEL PAQUETE: %i\n",tam);
 	buffer=realloc(buffer,tam);
-	recv(socket,buffer,tam,0);
-
-	pcb_global=deserializarPCB(buffer);
-	free(buffer);
-
-	ejecutarPCB(&pcb_global,socket);
+	if(recv(socket,buffer,tam,0) > 0 ){
+		send(socket,"Y",1,0);
+		pcb_global=deserializarPCB(buffer);
+		free(buffer);
+		ejecutarPCB(&pcb_global,socket);
+	}
 
 }
 
@@ -79,7 +82,6 @@ void enviarPCB(int socket){
 
 	paquete=serializarPCB(pcb_global);
 	printf("ENVIAR PCB, TAMANIO DEL PAQUETE: %i\n",paquete.data_size);
-	send(socket,"Y",1,0);
 	send(socket,&paquete.data_size,sizeof(uint32_t),0);
 	enviado=send(socket,paquete.data,paquete.data_size,0);
 	/*while(enviado<paquete.data_size){

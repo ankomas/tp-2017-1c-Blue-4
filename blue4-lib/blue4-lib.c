@@ -114,12 +114,10 @@ int sendall(uint32_t s, char *buf, uint32_t *len)
         total += n;
         bytesleft -= n;
     }
-    test("------");
     test(concat(2,"Cantidad enviada:",string_itoa(total)));
     int prueba;
     memcpy(&prueba, buf, sizeof (int));
   //  test(concat(2,"Estoy enviando:",string_itoa(prueba)));
-    test("------");
 
     *len = total; // return number actually sent here
 
