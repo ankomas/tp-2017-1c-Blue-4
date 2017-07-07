@@ -46,7 +46,7 @@ typedef struct{
 
 	t_list* indiceStack;
 
-	uint32_t exitCode;
+	int32_t exitCode;
 }t_pcb;
 
 t_pcb pcb_global;
