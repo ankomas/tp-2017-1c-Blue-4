@@ -11,7 +11,7 @@
 
 pthread_t mutex_tabla, mutex_memoria;
 pthread_mutex_t mutex_operacion;
-int contador;
+int32_t contador;
 
 typedef struct {
 	uint32_t pid;
@@ -21,7 +21,7 @@ typedef struct {
 typedef struct {
 	uint32_t pid;
 	uint32_t pagina;
-	uint32_t counter;
+	int32_t counter;
 }tablaCache_t;
 
 typedef struct{

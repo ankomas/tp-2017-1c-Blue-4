@@ -43,22 +43,27 @@ uint32_t tamanioDeTablaCache(){
 
 
 
- int lru(){
-	 tablaCache_t* tabla = obtenerTablaCache();
-	 int marco, minV=0, minM=-1;
-	 for(marco = 0; marco < configDeMemoria.entradasCache; marco++){
-			pthread_mutex_lock(&mutex_tablaCache);
-		 if(tabla[marco].counter != -1 && tabla[marco].counter < minV){
-			 minV = tabla[marco].counter;
-			 minM = marco;
-		 }
-			pthread_mutex_unlock(&mutex_tablaCache);
-	 }
-	 if(minM > 0 && minM < configDeMemoria.entradasCache)
-		 return minM;
-	 else
-		 return -1;
- }
+ int lru() { //ACA PASA ALGO MUY TURBIO!
+	printf("Bienvenido a LRU\n");
+	tablaCache_t* tabla = obtenerTablaCache();
+	int marco, minV = 99999, minM = -2;
+	for (marco = 1; marco < configDeMemoria.entradasCache; marco++) {
+		pthread_mutex_lock(&mutex_tablaCache);
+		printf("Marco: %i, PID: %i, Counter: %i\n", marco, tabla[marco].pid,
+				tabla[marco].counter);
+		printf("minV: %i, minM: %i\n", minV, minM);
+		printf("Valor del if1: %i\n", ((tabla[marco].pid) >= 0) );
+		printf("Valor del if2: %i\n", tabla[marco].counter < minV );
+		if (tabla[marco].pid >= 0 && tabla[marco].counter < minV) {
+			printf("Entre a la asignacion\n");
+			minV = tabla[marco].counter;
+			minM = marco;
+		}
+		pthread_mutex_unlock(&mutex_tablaCache);
+	}
+	printf("Devuelvo Marco: %i\n", minM);
+	return minM;
+}
 
  void actualizarCounterMarco(uint32_t marco){
 	 tablaCache_t* tabla = obtenerTablaCache();
@@ -78,7 +83,7 @@ uint32_t tamanioDeTablaCache(){
 	tablaCache_t *tabla = obtenerTablaCache();
 	int i;
 	if (pid < -1 || pag < 0)
-		return -1;
+		return -2;
 	for (i = 0; i < configDeMemoria.entradasCache; i++) {
 		pthread_mutex_lock(&mutex_tablaCache);
 		if (tabla[i].pid == pid) {
@@ -89,7 +94,7 @@ uint32_t tamanioDeTablaCache(){
 		}
 		pthread_mutex_unlock(&mutex_tablaCache);
 	}
-	return -1;
+	return -2;
 }
 
 uint32_t estaEnCache(uint32_t pid, uint32_t pag){
@@ -322,13 +327,15 @@ void* leerCache(uint32_t pid,uint32_t pag, uint32_t offset, uint32_t tam){ //NEC
 
 int nuevoMarcoDelMismoProceso(int pid){
 	tablaCache_t* tabla = obtenerTablaCache();
-	int marco, paginas=0, contador= 0, marcoNuevo= -1;
+	int marco, paginas=0, counter= 0, marcoNuevo= -1;
 	for(marco=0; marco < configDeMemoria.entradasCache; marco++){
 		pthread_mutex_lock(&mutex_tablaCache);
-		if(tabla[marco].pid == pid && (contador == 0 || tabla[marco].counter < contador)){
-			marcoNuevo = marco;
+		if(tabla[marco].pid == pid){
 			paginas++;
-			contador = tabla[marco].counter;
+			if(counter == 0 || tabla[marco].counter < counter){
+				marcoNuevo = marco;
+				counter = tabla[marco].counter;
+			}
 		}
 		pthread_mutex_unlock(&mutex_tablaCache);
 	}
@@ -337,13 +344,54 @@ int nuevoMarcoDelMismoProceso(int pid){
 	return marcoNuevo;
 }
 
+int buscarMarcoVacioCache(){
+	tablaCache_t* tabla = obtenerTablaCache();
+	int marco=0;
+	while(marco<configDeMemoria.entradasCache){
+		if(tabla[marco].pid == -2)
+			return marco;
+		marco++;
+	}
+	return -2;
+}
+
+int NPAC(int pid, int pag){
+	int marco;
+	tablaCache_t* tabla = obtenerTablaCache();
+	marco = buscarMarcoVacioCache();
+	printf("Marco Vacio: %i\n", marco);
+	printf("Asigno ese marco a la tdepC\n");
+	tabla[marco].pid = pid;
+	tabla[marco].pagina = pag;
+	tabla[marco].counter = contador++;
+	printf("Marco: %i, PID: %i ,Pagina: %i, Contador: %i\n", marco, pid, pag, contador);
+	return marco;
+}
+
 int agregarProcesoACache(int pid, int pag){
 	int marco = nuevoMarcoDelMismoProceso(pid);
-	if(marco < 0)
-		marco = lru();
+	printf("Step 1: Marco = %i\n", marco);
+	if(marco < 0){
+		if(configDeMemoria.cacheDisponible > 0){
+			printf("Step 2: BuscarMarcoVacioCache()\n");
+			marco = buscarMarcoVacioCache();
+					configDeMemoria.cacheDisponible--;}
+		else {
+			printf("Step 3: LRU()\n");
+			marco = lru();}
+
+	}
+	tablaCache_t* tabla = obtenerTablaCache();
+	tabla[marco].pid = pid;
+	tabla[marco].pagina = pag;
+	tabla[marco].counter = contador++;
+	return marco;
+}
+
+void copiarMemoriaACache(int pid, int pag){
+	int marco = getMarcoCache(pid, pag);
 	void* data = leerMemoria(pid, pag, 0, configDeMemoria.tamMarco);
 	escribirCache(marco, 0, configDeMemoria.tamMarco, data);
-	return marco;
 }
 
 void* leer(uint32_t pid,uint32_t pag, uint32_t offset, uint32_t tam){ // SIGUE NECESITANDO UN FREE
@@ -357,8 +405,10 @@ int escribir(uint32_t pid, uint32_t pag, uint32_t offset, uint32_t tamData, void
 	int e = escribirMemoria(pid,pag,offset,tamData,data);
 	if(estaEnCache(pid,pag))
 		escribirCache(getMarcoCache(pid,pag),offset,tamData,data);
-	else
+	else{
 		agregarProcesoACache(pid, pag);
+		copiarMemoriaACache(pid, pag);
+	}
 	return e;
 }
 

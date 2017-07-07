@@ -137,7 +137,7 @@ void asignarTamanioACache(){
 }
 void inicializarTablaCache(tablaCache_t * tabla){
 	uint32_t marco;
-	contador = 0;
+	contador = -99999;
 	for(marco = 0; marco < configDeMemoria.entradasCache; marco++){
 		tabla[marco].pid = -2;
 		tabla[marco].pagina = marco;

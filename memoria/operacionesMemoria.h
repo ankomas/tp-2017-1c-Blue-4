@@ -38,6 +38,10 @@ void *leerMemoria(uint32_t, uint32_t, uint32_t, uint32_t);
 
 uint32_t escribirMemoria(uint32_t, uint32_t, uint32_t, uint32_t, void*);
 
+void *leerCache(uint32_t, uint32_t, uint32_t, uint32_t);
+
+void escribirCache(uint32_t, uint32_t, uint32_t, void*);
+
 tablaPaginas_t* obtenerTablaDePaginas();
 
 /**
@@ -73,6 +77,10 @@ int asignarPaginasAUnProceso(uint32_t ,uint32_t );
  * @return 0 en caso de exito || -1 en caso de error
  */
 int eliminarPaginaDeUnProceso(uint32_t ,uint32_t );
+
+int agregarProcesoACache(int, int);
+int NPAC(int, int);
+int nuevoMarcoDelMismoProceso(int pid);
 
 void mostrarCache();
 
