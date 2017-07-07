@@ -125,7 +125,7 @@ void* cpu(t_cpu * cpu){
 			proximoPrograma = planificador(NULL);
 		}
 
-		usleep(1000000);
+		usleep(5000000);
 	}
 
 	return 0;

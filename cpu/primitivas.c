@@ -7,10 +7,17 @@
 
 #include <parser/metadata_program.h>
 #include <parser/parser.h>
-
-
 #include "conexiones.h"
 #include "primitivas.h"
+
+#define RED   "\x1B[31m"
+#define GRN   "\x1B[32m"
+#define YEL   "\x1B[33m"
+#define BLU   "\x1B[34m"
+#define MAG   "\x1B[35m"
+#define CYN   "\x1B[36m"
+#define WHT   "\x1B[37m"
+#define RESET "\x1B[0m"
 
 t_puntero posAPuntero(t_pos pos,uint32_t tamPag){
 	return pos.pag*tamPag+pos.off;
@@ -48,7 +55,7 @@ t_puntero dummy_definirVariable(t_nombre_variable variable){
 	t_list *args,*vars;
 	t_pos pos;
 
-	printf("Llamada a DEFINIR VARIABLE\nNombre variable: %c\n",variable);
+	printf("Llamada a "YEL"DEFINIR VARIABLE\n"RESET"Nombre variable: %c\n",variable);
 
 	if(pcb_global.sp==0){
 		args=list_create();
@@ -67,6 +74,7 @@ t_puntero dummy_definirVariable(t_nombre_variable variable){
 	if(pos.pag>maxStack_global+pcb_global.cantPagCod){
 		printf("ERROR: stack overflow\n");
 		setExitCode(&pcb_global,"stack overflow\n",10);
+		printf("\n");
 		return STACK_OVERFLOW;
 	}
 
@@ -77,30 +85,35 @@ t_puntero dummy_definirVariable(t_nombre_variable variable){
 		list_add(args,(void*)var_create(variable,pos));
 	else
 		list_add(vars,(void*)var_create(variable,pos));
-
+	printf("\n");
 	return posAPuntero(pos,tamPag_global);
 }
 
 t_puntero dummy_obtenerPosicionVariable(t_nombre_variable variable) {
 	t_var *var=NULL;
 
-	printf("Llamada a OBTENER POSICION VARIABLE %c\n", variable);
+	printf("Llamada a " YEL"OBTENER POSICION VARIABLE"RESET" %c\n", variable);
 
 	int _is_the_one(t_var *v){
-		return v->id==variable;
+		bool res=v->id==variable;
+		if(res)
+			var=v;
+		return res;
 	}
 
 	int _buscar_variable(t_stack *s){
 		return(list_find(s->args,(void*)_is_the_one)||list_find(s->vars,(void*)_is_the_one));
 	}
 
-	var=list_find(pcb_global.indiceStack,(void*)_buscar_variable);
+	list_find(pcb_global.indiceStack,(void*)_buscar_variable);
 
 	if(var){
-		printf("Posicion de %c: %i\n",variable,posAPuntero(var->pos,tamPag_global));
+		printf("Posicion de %c: %i\n",var->id,posAPuntero(var->pos,tamPag_global));
+		printf("\n");
 		return posAPuntero(var->pos,tamPag_global);
 	}else{
 		setExitCode(&pcb_global,"no existe variable\n",11);
+		printf("\n");
 		return NO_EXISTE_VARIABLE;
 	}
 }
@@ -115,16 +128,18 @@ t_valor_variable dummy_dereferenciar(t_puntero puntero) {
 
 	pos=punteroAPos(puntero,tamPag_global);
 
-	printf("Llamada a DEREFERENCIAR Pag %i Off %i/n",pos.pag,pos.off);
-
+	printf("Llamada a "YEL"DEREFERENCIAR"RESET" Pag %i Off %i\n",pos.pag,pos.off);
+	pos.size=4;
 	res=pedirAMemoria(&pcb_global,pos);
 
 	if(res==-1){
 		printf("ERROR: fallo al leer en memoria\n");
 		setExitCode(&pcb_global,"fallo al leer en memoria\n",11);
+		printf("\n");
 		return NO_EXISTE_VARIABLE;
 	}
-
+	printf("Valor obtenido en DEREFERENCIAR: %i\n",res);
+	printf("\n");
 	return res;
 }
 
@@ -134,12 +149,12 @@ void dummy_asignar(t_puntero puntero, t_valor_variable variable) {
 
 	pos=punteroAPos(puntero,tamPag_global);
 
-	printf("Llamada a ASIGNAR en Pag %i Off %i el valor %d\n", pos.pag,pos.off, variable);
-
+	printf("Llamada a "YEL"ASIGNAR"RESET" en Pag %i Off %i el valor %d\n", pos.pag,pos.off, variable);
+	pos.size=4;
 	res=asignarAMemoria(pos,variable);
 
 	if(res==-1){
-		printf("ERROR: fallo al escribir en memoria\n");
-		setExitCode(&pcb_global,"fallo al escribir en memoria",12);
+		//printf("ERROR: fallo al escribir en memoria\n");
+		setExitCode(&pcb_global,"fallo al escribir en memoria\n",12);
 	}
 }

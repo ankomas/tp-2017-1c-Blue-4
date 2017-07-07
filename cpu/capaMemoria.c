@@ -32,6 +32,76 @@ int pedirTamGlobal(int memoria){
 	return -1;
 }
 
+int guardarEnMemoria(uint32_t i, uint32_t pid,uint32_t pagina,uint32_t offset,uint32_t tamanioContenido,char*contenido) {
+	package_t paquete;
+	uint32_t tamOpCode = 1;
+	uint32_t tamInt = sizeof(uint32_t);
+	char* respuesta = malloc(1);
+	//todo hacen falta los siguientes string?
+	//sip, en pos de la expresividad
+	/*char *streamPID = intToStream(pid);
+	char *streamPagina = intToStream(pagina);
+	char *streamOffset = intToStream(offset);
+	char *streamTamanioContenido = intToStream(tamanioContenido);*/
+
+	//[Identificador del Programa], [#página], [offset], [tamaño] y [buffer]
+	printf("GUARDANDO EN MEMORIA:\n");
+	printf("PID: %i, PAGINA: %i, OFFSET: %i, TAMANIO: %i\n",pid,pagina,offset,tamanioContenido);
+/*
+	int wtf;
+	char *wtf2=contenido;
+	printf("\n");
+	for(wtf=0;wtf<256;wtf++)
+		printf("%c",wtf2[wtf]);
+	printf("\n");
+*/
+	paquete = serializar(10,
+			tamInt,&pid,
+			tamInt,&pagina,
+			tamInt,&offset,
+			tamInt,&tamanioContenido,
+			tamanioContenido,contenido
+			);
+	//char* streamTamPaquete = intToStream(paquete.data_size);
+
+	// Envio de opcode
+	/*if(sendall(i,"W",&tamOpCode) < 0)
+		return -1;*/
+	send(i,"W",1,0);
+
+	// Envio de tamanio de paquete
+	/*if(sendall(i, streamTamPaquete, &tamInt) < 0)
+		return -1;
+	free(streamTamPaquete);*/
+	send(i,&paquete.data_size,sizeof(uint32_t),0);
+
+	// Envio de paquete
+
+	/*if(sendall(i, paquete.data, &paquete.data_size) < 0)
+		return -1;*/
+	send(i,paquete.data,paquete.data_size,0);
+	free(paquete.data);
+/*
+	free(streamPID);
+	free(streamPagina);
+	free(streamOffset);
+	free(streamTamanioContenido);
+*/
+
+	if(recv(i,respuesta,1,0) < 1){
+		free(respuesta);
+		return -1;
+	} else {
+		if(respuesta[0] == 'N'){
+			free(respuesta);
+			return -1;
+		} else {
+			free(respuesta);
+			return 0;
+		}
+	}
+}
+
 int cargarDeMemoria(int socket,uint32_t pid,uint32_t pag, uint32_t off,uint32_t size, package_t* paqueteParametro){
 	uint32_t tamARecibir,pointer=0;
 	package_t paquete;
