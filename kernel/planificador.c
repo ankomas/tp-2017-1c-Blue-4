@@ -10,7 +10,41 @@
 #include <pthread.h>
 #include "planificador.h"
 #include "main.h"
+#include "error.h"
 #include <sys/socket.h>
+
+const int EXIT_OK = 1;
+//El programa finalizó correctamente.
+
+const int EXIT_RESOURCES_NOT_ASSIGNED = -1;
+//No se pudieron reservar recursos para ejecutar el programa.
+
+const int EXIT_FILE_DOES_NOT_EXIST = -2;
+//El programa intentó acceder a un archivo que no existe.
+
+const int EXIT_UNAUTHORIZED_READ = -3;
+//El programa intentó leer un archivo sin permisos.
+
+const int EXIT_UNAUTHORIZED_WRITE = -4;
+//El programa intentó escribir un archivo sin permisos.
+
+const int EXIT_MEMORY_EXCEPTION = -5;
+//Excepción de memoria.
+
+const int EXIT_CONSOLE_DISCONNECTED = -6;
+//Finalizado a través de desconexión de consola.
+
+const int EXIT_CONSOLE_TERMINATED = -7;
+//Finalizado a través del comando Finalizar Programa de la consola.
+
+const int EXIT_MAX_SIZE_PAGE_OVERFLOW = -8;
+//Se intentó reservar más memoria que el tamaño de una página
+
+const int EXIT_MAX_AMOUNT_PAGES_PROCESS = -9;
+//No se pueden asignar más páginas al proceso
+
+const int EXIT_NOT_DEFINED = -20;
+//Error sin definición
 
 char *algoritmoPlanificador;
 
@@ -114,7 +148,7 @@ void* cpu(t_cpu * cpu){
 			// Esta Y debe ser reemplazada por el codigo que devuelva la cpu, cuando finalice tiene que limpiar las estructuras incluyendo cpu
 
 			if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),0) <= 0)
-				pthread_exit(&cpu->hilo);
+				liberarCPU(proximoPrograma);
 
 			res=realloc(res,tamARecibir);
 
@@ -123,23 +157,22 @@ void* cpu(t_cpu * cpu){
 			anuncio("PCB RECIBIDO DEL CPU");
 
 			if(recv(cpu->id,res,tamARecibir,0) <= 0)
-				pthread_exit(&cpu->hilo);
+				liberarCPU(proximoPrograma);
 			else
 				*(proximoPrograma->pcb)=deserializarPCB(res);
 
-			//usleep(1000000000000);
-
-
-			if(1 == 2){
+			if(proximoPrograma->pcb->exitCode == EXIT_OK){
+				anuncio("Programa finalizo con exito");
+				liberarCPU(proximoPrograma);
 				//TODO checkear errores en el futuro
-				pthread_exit(&cpu->hilo);
-			} else if(1==3){
-				//checkear si termino bien para limpiar estructuras
-				pthread_exit(&cpu->hilo);
+			} else if(proximoPrograma->pcb->exitCode < 0){
+				anuncio(concat(2,"Ocurrio un error #",string_itoa(proximoPrograma->pcb->exitCode)));
+				liberarCPU(proximoPrograma);
 			} else {
 				//TODO El planificador debe desencolar procesos ya terminados
 				proximoPrograma = planificador(proximoPrograma);
 			}
+
 		} else {
 			proximoPrograma = planificador(NULL);
 		}
