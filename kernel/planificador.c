@@ -68,7 +68,8 @@ t_cpu* indiceProximaCPULibre(){
 }
 
 void* cpu(t_cpu * cpu){
-	void liberarCPU(){
+	void liberarCPU(t_programa* programaDeCPU){
+		eliminarSiHayPROGRAMAs(programaDeCPU);
 		eliminarSiHayCPU(cpu->id);
 		pthread_exit(&cpu->hilo);
 	}
@@ -87,25 +88,25 @@ void* cpu(t_cpu * cpu){
 			//send al proximoProceso->id
 			anuncio("aaaa");
 			if(sendall(cpu->id, "0", &tamChar) < 0)
-				liberarCPU();
+				liberarCPU(proximoPrograma);
 
 			recv(cpu->id,res,1,MSG_WAITALL);
 			if(res[0]!= 'Y')
-				liberarCPU();
+				liberarCPU(proximoPrograma);
 
 			if(sendall(cpu->id, streamTamPaquete, &tamUint) < 0)
-				liberarCPU();
+				liberarCPU(proximoPrograma);
 
 			recv(cpu->id,res,1,MSG_WAITALL);
 			if(res[0]!= 'Y')
-				liberarCPU();
+				liberarCPU(proximoPrograma);
 
 			if(sendall(cpu->id, paquete.data, &paquete.data_size) < 0)
-				liberarCPU();
+				liberarCPU(proximoPrograma);
 
 			recv(cpu->id,res,1,MSG_WAITALL);
 			if(res[0]!= 'Y')
-				liberarCPU();
+				liberarCPU(proximoPrograma);
 
 			uint32_t tamARecibir=0;
 
