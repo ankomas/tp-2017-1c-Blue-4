@@ -20,39 +20,6 @@
 
 #include "main.h"
 
-const int EXIT_OK;
-//El programa finalizó correctamente.
-
-const int EXIT_RESOURCES_NOT_ASSIGNED = -1;
-//No se pudieron reservar recursos para ejecutar el programa.
-
-const int EXIT_FILE_DOES_NOT_EXIST = -2;
-//El programa intentó acceder a un archivo que no existe.
-
-const int EXIT_UNAUTHORIZED_READ = -3;
-//El programa intentó leer un archivo sin permisos.
-
-const int EXIT_UNAUTHORIZED_WRITE = -4;
-//El programa intentó escribir un archivo sin permisos.
-
-const int EXIT_MEMORY_EXCEPTION = -5;
-//Excepción de memoria.
-
-const int EXIT_CONSOLE_DISCONNECTED = -6;
-//Finalizado a través de desconexión de consola.
-
-const int EXIT_CONSOLE_TERMINATED = -7;
-//Finalizado a través del comando Finalizar Programa de la consola.
-
-const int EXIT_MAX_SIZE_PAGE_OVERFLOW = -8;
-//Se intentó reservar más memoria que el tamaño de una página
-
-const int EXIT_MAX_AMOUNT_PAGES_PROCESS = -9;
-//No se pueden asignar más páginas al proceso
-
-const int EXIT_NOT_DEFINED = -20;
-//Error sin definición
-
 uint32_t pidActual = 100;
 
 /* CLIENTE */
