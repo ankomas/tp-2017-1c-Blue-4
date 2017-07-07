@@ -283,7 +283,7 @@ t_pcb2 deserializarPCB(char* paquete){
 
 	paux=deserializar(&pointer,paquete);
 	res.sp=*(uint32_t*)paux.data;
-	printf("SP: %i\n",res.pc);
+	printf("SP: %i\n",res.sp);
 
 	free(paux.data);
 
