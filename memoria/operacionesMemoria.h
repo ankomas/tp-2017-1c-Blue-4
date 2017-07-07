@@ -74,4 +74,6 @@ int asignarPaginasAUnProceso(uint32_t ,uint32_t );
  */
 int eliminarPaginaDeUnProceso(uint32_t ,uint32_t );
 
+void mostrarCache();
+
 #endif /* OPERACIONESMEMORIA_H_ */

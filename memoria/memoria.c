@@ -47,6 +47,17 @@ void testLecturaMemoria()
 		printf("la wea dice: %s\n",(char*)leerMemoria(100,18,0,16));
 }
 
+void testLecturaPosta()
+{
+	inicializarPrograma(100,1);
+	printf("la wea dice: %s\n",(char*)leer(100,0,0,25));
+	escribir(100,0,0,20,"tu vieja en tanga me gusta");
+	printf("la wea dice: %s\n",(char*)leer(100,0,0,20));
+	asignarPaginasAUnProceso(100,20);
+	escribir(100,18,0,16,"salva es re mani");
+	printf("la wea dice: %s\n",(char*)leer(100,18,0,16));
+}
+
 
 void testFuncionesAProcesosActivos()
 {
@@ -65,8 +76,11 @@ void testFuncionesAProcesosActivos()
 int main(void) {
 
 	inicializarEstructurasAdministrativas();
-	//testLecturaMemoria();
+	inicializarPrograma(1,3);
+	asignarPaginasAUnProceso(1,2);
+	//testLecturaPosta();
 	//inicializarPrograma(100,8);
+	//escribir(100,0,0,4, "Hola");
 	pthread_t hiloMostrarMenu;
 	pthread_create(&hiloMostrarMenu, NULL, (void *) mostrarMenuMemoria, NULL);
 	servidor();

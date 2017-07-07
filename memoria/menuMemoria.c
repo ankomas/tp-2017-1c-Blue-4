@@ -28,7 +28,9 @@ void modificarRetardo()
 }
 
 //TODO falta hacer este metodo (sigue la misma logica que el dump del contenido de memoria)
-void dumpCache() {};
+void dumpCache() {
+	mostrarCache();
+};
 
 void mostrarTablaDePaginas(){
 	int i;
@@ -37,7 +39,7 @@ void mostrarTablaDePaginas(){
 	int marcosUtilizados=configDeMemoria.marcos-configDeMemoria.marcosDisponibles;
 	if(marcosUtilizados==0)marcosUtilizados=configDeMemoria.marcos;
 	texto_en_color("Se mostrara a continuacion solo los marcos que se esten usando en la tabla de paginas:\n\n");
-	for(i=0; i<marcosUtilizados;i++){
+	for(i=0; i<configDeMemoria.marcos;i++){
 		if(tablaDePaginas[i].pid!=-2)
 		{
 			pthread_mutex_lock(&mutex_test);
