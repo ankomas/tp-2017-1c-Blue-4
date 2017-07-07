@@ -19,4 +19,6 @@ typedef struct pagina{
 	void*contenido;
 }pagina;
 
+void iniciarPaginaHeap(pagina* unaPagina);
+
 #endif /* HEAP_H_ */

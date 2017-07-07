@@ -12,7 +12,9 @@ void iniciarPaginaHeap(pagina* unaPagina){
 	nuevoMetadata->isFree = true;
 	nuevoMetadata->size = tamanioPagina-sizeof(heapMetadata);
 	testi(nuevoMetadata->size);
+	unaPagina->contenido = calloc(tamanioPagina,1);
 	unaPagina->contenido = nuevoMetadata;
+	anuncio(unaPagina->contenido);
 }
 
 void guardarDataHeap(){

@@ -92,6 +92,9 @@ int main(){
 	anuncio(concat(2,"IP a utilizar: ",obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"IP")));
 	anuncio(concat(2,"Puerto a utilizar: ",obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_PROG")));
 
+	pagina* unaPagina = malloc(sizeof(pagina));
+	iniciarPaginaHeap(unaPagina);
+
 	inicializarDatos();
 
 	anuncio(concat(2,"Tamanio de Pagina: ",string_itoa(tamanioPagina)));

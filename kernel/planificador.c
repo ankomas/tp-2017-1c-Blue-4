@@ -143,36 +143,36 @@ void* cpu(t_cpu * cpu){
 				liberarCPU(proximoPrograma);
 
 			uint32_t tamARecibir=0;
+			recv(cpu->id,res,1,MSG_WAITALL);
 
-
-			// Esta Y debe ser reemplazada por el codigo que devuelva la cpu, cuando finalice tiene que limpiar las estructuras incluyendo cpu
-
-			if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),0) <= 0)
-				liberarCPU(proximoPrograma);
-
-			res=realloc(res,tamARecibir);
-
-			printf("Tam a recibir: %i\n",tamARecibir);
-
-			anuncio("PCB RECIBIDO DEL CPU");
-
-			if(recv(cpu->id,res,tamARecibir,0) <= 0)
-				liberarCPU(proximoPrograma);
-			else
-				*(proximoPrograma->pcb)=deserializarPCB(res);
-
-			if(proximoPrograma->pcb->exitCode == EXIT_OK){
-				anuncio("Programa finalizo con exito");
-				liberarCPU(proximoPrograma);
-				//TODO checkear errores en el futuro
-			} else if(proximoPrograma->pcb->exitCode < 0){
-				anuncio(concat(2,"Ocurrio un error #",string_itoa(proximoPrograma->pcb->exitCode)));
+			// Verifico si aun le falta ejecutar al proceso
+			if(res[0]!= 'F'){
+				if(proximoPrograma->pcb->exitCode == EXIT_OK){
+					anuncio("Programa finalizo con exito");
+				} else if(proximoPrograma->pcb->exitCode < 0){
+					anuncio(concat(2,"Ocurrio un error #",string_itoa(proximoPrograma->pcb->exitCode)));
+				}
 				liberarCPU(proximoPrograma);
 			} else {
+				if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),0) <= 0)
+					liberarCPU(proximoPrograma);
+
+				res=realloc(res,tamARecibir);
+
+				printf("Tam a recibir: %i\n",tamARecibir);
+
+				anuncio("PCB RECIBIDO DEL CPU");
+
+				if(recv(cpu->id,res,tamARecibir,0) <= 0)
+					liberarCPU(proximoPrograma);
+				else
+					*(proximoPrograma->pcb)=deserializarPCB(res);
+
 				//TODO El planificador debe desencolar procesos ya terminados
 				proximoPrograma = planificador(proximoPrograma);
 			}
 
+			// Esta Y debe ser reemplazada por el codigo que devuelva la cpu, cuando finalice tiene que limpiar las estructuras incluyendo cpu
 		} else {
 			proximoPrograma = planificador(NULL);
 		}
