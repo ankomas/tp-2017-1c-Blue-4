@@ -26,6 +26,11 @@ extern t_list* CPUs;
 extern t_dictionary * semaforos;
 extern t_dictionary * variablesCompartidas;
 
+typedef struct t_semaforo{
+	int32_t valor;
+	t_queue * colaEspera;
+} t_semaforo;
+
 
 
 typedef struct t_cpu {

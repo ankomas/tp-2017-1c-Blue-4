@@ -461,21 +461,23 @@ int servidor(void)
 								uint32_t tamInt=sizeof(int32_t);
 								uint32_t tamARecibir=0;
 								char * rev = malloc(1);
-								char* res = signedIntToStream((int32_t)dictionary_get(variablesCompartidas,rev));
 
 								// Recibo largo del nombre de la variable
 								if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
+									anuncio("Ocurrio un problema al recibir un valor de variable global");
+								if(send(i,"Y",1,0) < 0)
 									anuncio("Ocurrio un problema al enviar un valor de variable global");
-								send(i,"Y",1,0);
 								rev=realloc(rev,tamARecibir+1);
 								memset(rev,'\0',tamARecibir+1);
 
 								// Recibo el nombre de la variable
 								if(recv(i,&rev,tamARecibir,MSG_WAITALL) <= 0)
+									anuncio("Ocurrio un problema al recibir un valor de variable global");
+								if(send(i,"Y",1,0) < 0)
 									anuncio("Ocurrio un problema al enviar un valor de variable global");
-								send(i,"Y",1,0);
 
 								char* res = signedIntToStream((int32_t)dictionary_get(variablesCompartidas,rev));
+
 								if(sendall(i, res, &tamInt) < 0)
 									anuncio("Ocurrio un problema al enviar un valor de variable global");
 								free(rev);
@@ -488,13 +490,12 @@ int servidor(void)
 								uint32_t tamARecibir=0;
 								int32_t nuevoValorVar=0;
 								char * rev = malloc(1);
-								char* res = signedIntToStream((int32_t)dictionary_get(variablesCompartidas,rev));
 
 								// Recibo largo del nombre de la variable
 								if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
+									anuncio("Ocurrio un problema al recibir un valor de variable global");
+								if(send(i,"Y",1,0) < 0)
 									anuncio("Ocurrio un problema al enviar un valor de variable global");
-								send(i,"Y",1,0);
-
 								rev=realloc(rev,tamARecibir+1);
 								memset(rev,'\0',tamARecibir+1);
 
@@ -509,13 +510,47 @@ int servidor(void)
 								if(recv(i,&nuevoValorVar,tamInt,MSG_WAITALL) <= 0)
 									anuncio("Ocurrio un problema al enviar un valor de variable global");
 
-								dictionary_put(variablesCompartidas,rev,nuevoValorVar);
+								dictionary_put(variablesCompartidas,rev,&nuevoValorVar);
 
-								if(send(i,"Y",1,0))
+								if(send(i,"Y",1,0) < 0)
 									anuncio("Ocurrio un problema al enviar un valor de variable global");
 
 								free(rev);
-								free(res);
+							} else if(buf[0] == 'W'){
+								// Wait semaforo
+
+								uint32_t tamARecibir=0;
+								char * rev = malloc(1);
+
+								// Recibo largo del nombre del semaforo
+								if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
+									anuncio("Ocurrio un problema al hacer un Wait");
+								if(send(i,"Y",1,0) < 0)
+									anuncio("Ocurrio un problema al hacer un Wait");
+								rev=realloc(rev,tamARecibir+1);
+								memset(rev,'\0',tamARecibir+1);
+
+								// Recibo el nombre del semaforo
+								if(recv(i,&rev,tamARecibir,MSG_WAITALL) <= 0)
+									anuncio("Ocurrio un problema al hacer un Wait");
+								send(i,"Y",1,0);
+
+								t_semaforo * semaforoObtenido =(t_semaforo *)dictionary_get(semaforos,rev);
+								if(semaforoObtenido->valor > 0){
+									semaforoObtenido->valor--;
+									if(send(i,"Y",1,0))
+										anuncio("Ocurrio un problema al hacer un Wait");
+								}else {
+									//Queda encontrar el PID mediante la cpu que tenga ese pcb
+									//queue_push(semaforoObtenido->colaEspera,PID);
+								}
+
+								free(rev);
+
+
+							} else if(buf[0] == 'S'){
+								// Signal semaforo
+								// si bien S libera, va a tener el efecto de poder hacer un W con el recurso que libera
 							}
 
 

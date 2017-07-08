@@ -42,7 +42,11 @@ void inicializarSemaforos() {
 	int aux = 0;
 
 	while (sem_ids[aux]){
-		dictionary_put(semaforos,sem_ids[aux],sem_init[aux]);
+		t_semaforo * nuevoSemaforo = malloc(sizeof(t_semaforo));
+		t_queue * nuevaColaEspera = queue_create();
+		nuevoSemaforo->valor = (int32_t)sem_init[aux];
+		nuevoSemaforo->colaEspera = nuevaColaEspera;
+		dictionary_put(semaforos,sem_ids[aux],nuevoSemaforo);
 		aux++;
 	}
 }
