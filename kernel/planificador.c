@@ -118,6 +118,7 @@ void* cpu(t_cpu * cpu){
 			t_pcb proximoPCB = *(proximoPrograma->pcb);
 			package_t paquete = serializarPCB(proximoPCB);
 			uint32_t tamUint=sizeof(uint32_t),tamChar=1;
+			uint32_t tamARecibir=0;
 			char* streamTamPaquete = intToStream(paquete.data_size);
 			//send al proximoProceso->id
 			if(sendall(cpu->id, "0", &tamChar) < 0)
@@ -133,7 +134,6 @@ void* cpu(t_cpu * cpu){
 			if(res[0]!= 'Y')
 				liberarCPU(proximoPrograma);
 
-			uint32_t tamARecibir=0;
 			recv(cpu->id,res,1,MSG_WAITALL);
 
 			// Verifico si aun le falta ejecutar al proceso
@@ -148,13 +148,13 @@ void* cpu(t_cpu * cpu){
 				proximoPrograma = NULL;
 			} else {
 				anuncio("b");
-				if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),0) <= 0)
+				if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
 					liberarCPU(proximoPrograma);
 
 				res=realloc(res,tamARecibir);
 				printf("Tam a recibir: %i\n",tamARecibir);
 				anuncio("PCB RECIBIDO DEL CPU");
-				if(recv(cpu->id,res,tamARecibir,0) <= 0)
+				if(recv(cpu->id,res,tamARecibir,MSG_WAITALL) <= 0)
 					liberarCPU(proximoPrograma);
 				else
 					*(proximoPrograma->pcb)=deserializarPCB(res);

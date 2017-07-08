@@ -52,7 +52,7 @@ void inicializarVariablesCompartidas() {
 	int aux = 0;
 
 	while (varCompartidas_ids[aux]){
-		dictionary_put(semaforos,varCompartidas_ids[aux],0);
+		dictionary_put(variablesCompartidas,varCompartidas_ids[aux],0);
 		aux++;
 	}
 }

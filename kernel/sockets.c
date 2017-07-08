@@ -360,7 +360,6 @@ int servidor(void)
 
 							// INICIALIZO PROGRAMA
 							if(buf[0] == 'A'){
-
 								//Recibo codigo
 								printf("Codigo OP: A\n");
 								char* tamanioCodigoString = malloc(4/*+1*/);
@@ -456,8 +455,29 @@ int servidor(void)
 								pidActual++;
 								cantidadProgramasEnSistema++;
 
+							} else if(buf[0] == 'B'){
+								// Envio el valor de una variable global
+
+								uint32_t tamInt=sizeof(int32_t);
+								uint32_t tamARecibir=0;
+								char * rev = malloc(1);
+								//send al proximoProceso->id
+								if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
+									anuncio("Ocurrio un problema al enviar un valor de variable global");
+								send(i,"Y",1,0);
+								rev=realloc(rev,tamARecibir+1);
+								memset(rev,'\0',tamARecibir+1);
+
+								if(recv(i,&rev,tamARecibir,MSG_WAITALL) <= 0)
+									anuncio("Ocurrio un problema al enviar un valor de variable global");
+								free(rev);
+								char* res = signedIntToStream((int32_t)dictionary_get(variablesCompartidas,rev));
+
+								if(sendall(i, res, &tamInt) < 0)
+									anuncio("Ocurrio un problema al enviar un valor de variable global");
+
 							}
-							// FIN ENVIO DE PID
+
 
                     	// FIN FUNCIONES MANEJADORAS
 
