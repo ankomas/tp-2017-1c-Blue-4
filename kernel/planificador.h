@@ -34,6 +34,7 @@ typedef struct t_cpu {
 } t_cpu;
 
 t_cpu * encontrarCPU(uint32_t i);
+t_cpu * encontrarCPUporPID(uint32_t pid);
 
 t_programa* planificador();
 void *cpu();
