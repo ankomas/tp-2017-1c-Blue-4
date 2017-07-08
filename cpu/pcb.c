@@ -19,6 +19,7 @@ t_pos setPos(uint32_t pag,uint32_t off, uint32_t size){
 void setExitCode(t_pcb2 *pcb,char *msg,uint32_t exitCode){
 	printf("PCB EXIT CODE %i: %s",exitCode,msg);
 	pcb->exitCode=exitCode;
+	finPrograma_global='F';
 }
 
 void var_destroy(t_var *self){
