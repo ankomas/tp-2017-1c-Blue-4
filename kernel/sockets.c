@@ -188,7 +188,6 @@ void eliminarSiHayPROGRAMAs(int i) {
 			log_trace(logger,"Programa eliminado");
 		}
 	}
-
 }
 
 void eliminarSiHayCPU(int i) {

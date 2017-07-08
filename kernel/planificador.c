@@ -103,7 +103,7 @@ t_cpu* indiceProximaCPULibre(){
 
 void* cpu(t_cpu * cpu){
 	void liberarCPU(t_programa* programaDeCPU){
-		eliminarSiHayPROGRAMAs(programaDeCPU);
+		moverPrograma(programaDeCPU,procesosEXEC,procesosEXIT);
 		eliminarSiHayCPU(cpu->id);
 		pthread_exit(&cpu->hilo);
 	}
@@ -120,13 +120,11 @@ void* cpu(t_cpu * cpu){
 			uint32_t tamUint=sizeof(uint32_t),tamChar=1;
 			char* streamTamPaquete = intToStream(paquete.data_size);
 			//send al proximoProceso->id
-			anuncio("aaaa");
 			if(sendall(cpu->id, "0", &tamChar) < 0)
 				liberarCPU(proximoPrograma);
 
 			if(sendall(cpu->id, streamTamPaquete, &tamUint) < 0)
 				liberarCPU(proximoPrograma);
-
 
 			if(sendall(cpu->id, paquete.data, &paquete.data_size) < 0)
 				liberarCPU(proximoPrograma);
@@ -140,13 +138,16 @@ void* cpu(t_cpu * cpu){
 
 			// Verifico si aun le falta ejecutar al proceso
 			if(res[0] == 'F'){
+				anuncio("a");
 				if(proximoPrograma->pcb->exitCode == EXIT_OK){
 					anuncio("Programa finalizo con exito");
 				} else if(proximoPrograma->pcb->exitCode < 0){
 					anuncio(concat(2,"Ocurrio un error #",string_itoa(proximoPrograma->pcb->exitCode)));
 				}
-				liberarCPU(proximoPrograma);
+				moverPrograma(proximoPrograma,procesosEXEC,procesosEXIT);
+				proximoPrograma = NULL;
 			} else {
+				anuncio("b");
 				if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),0) <= 0)
 					liberarCPU(proximoPrograma);
 
@@ -170,10 +171,34 @@ void* cpu(t_cpu * cpu){
 			proximoPrograma = planificador(NULL);
 		}
 
-		usleep(500000);
+		usleep(500);
 	}
 
 	return 0;
+}
+
+void moverPrograma(t_programa* unPrograma,t_queue* colaOrigen, t_queue* colaDestino){
+	anuncio("Size de EXEC antes:");
+	testi(queue_size(colaOrigen));
+	anuncio("Size de EXIT antes:");
+	testi(queue_size(colaDestino));
+	if(!list_is_empty(colaOrigen->elements)){
+		int aux = 0;
+		t_programa *programaAux = list_get(colaOrigen->elements,aux);
+		while (programaAux->pcb->pid != unPrograma->pcb->pid && aux < list_size(colaOrigen->elements)){
+			programaAux = list_get(PROGRAMAs,aux);
+			aux++;
+		}
+
+		if(programaAux->pcb->pid == unPrograma->pcb->pid){
+			queue_push(colaDestino,unPrograma);
+			list_remove(colaOrigen->elements, aux);
+		}
+	}
+	anuncio("Size de EXEC despues:");
+	testi(queue_size(colaOrigen));
+	anuncio("Size de EXIT despues:");
+	testi(queue_size(colaDestino));
 }
 
 t_programa* planificador(t_programa* unPrograma){
@@ -184,6 +209,7 @@ t_programa* planificador(t_programa* unPrograma){
 	if(unPrograma == NULL){
 		if(queue_size(procesosREADY) > 0){
 			t_programa* aux = queue_pop(procesosREADY);
+			queue_push(procesosEXEC,aux);
 			return aux;
 		} else {
 			return 0;

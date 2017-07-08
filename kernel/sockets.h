@@ -17,5 +17,6 @@ const char UMC_ID;
 int servidor(void);
 int conectar(char *puerto, char *ip,int id);
 void eliminarSiHayCPU(int i);
+void eliminarSiHayPROGRAMAs(int i);
 
 #endif /* SOCKETS_H_ */

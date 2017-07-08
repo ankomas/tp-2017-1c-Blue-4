@@ -29,5 +29,6 @@ typedef struct t_programa {
 t_programa* planificador();
 void *cpu();
 void encolarReady();
+void moverPrograma(t_programa* unPrograma,t_queue* colaOrigen, t_queue* colaDestino);
 
 #endif /* PLANIFICADOR_H_ */
