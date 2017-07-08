@@ -58,13 +58,13 @@ void testLecturaCache(){
 	agregarProcesoACache(3,0);
 	agregarProcesoACache(3,1);
 	agregarProcesoACache(4,0);
-	mostrarCache();
+	//mostrarCache();
 	escribirCache(getMarcoCache(1,0),0, 12, "hola soy tom");
 	escribirCache(getMarcoCache(1,1),0,12, "aloh yos mot");
 	agregarProcesoACache(4,1);
 	agregarProcesoACache(5,0);
 	agregarProcesoACache(5,1);
-	agregarProcesoACache(6,0);
+	agregarProcesoACache(99999,0);
 	agregarProcesoACache(6,1);
 	agregarProcesoACache(7,0);
 	agregarProcesoACache(7,1);
@@ -74,15 +74,15 @@ void testLecturaCache(){
 
 }
 
-void testLecturaPosta()
+void testEscritura()
 {
 	inicializarPrograma(100,1);
-	printf("la wea dice: %s\n",(char*)leer(100,0,0,25));
-	escribir(100,0,0,20,"tu vieja en tanga me gusta");
-	printf("la wea dice: %s\n",(char*)leer(100,0,0,20));
+	escribir(100,0,0,26,"tu vieja en tanga me gusta");
 	asignarPaginasAUnProceso(100,20);
-	escribir(100,18,0,16,"salva es re mani");
-	printf("la wea dice: %s\n",(char*)leer(100,18,0,16));
+	escribir(100,18,0,16,"necesito 16 cars");
+	escribir(100,15,0,4,"Hola");
+	escribir(100,0,26,6," Mucho");
+	escribir(100,4,0,3,"Men");
 }
 
 
@@ -106,8 +106,7 @@ int main(void) {
 	//inicializarPrograma(1,3);
 	//NPAC(1,2);
 	//nuevoMarcoDelMismoProceso(1);
-	testLecturaCache();
-	//testLecturaPosta();
+	testEscritura();
 	//inicializarPrograma(100,8);
 	//escribir(100,0,0,4, "Hola");
 	pthread_t hiloMostrarMenu;
