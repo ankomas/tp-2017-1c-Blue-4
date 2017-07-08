@@ -479,7 +479,6 @@ void mostrarProcesoEnMemoria(int pid) {
 	char* cadena = string_new();
 	string_append(&cadena, "Se Mostrara el contenido del proceso: ");
 	char* pidchar = malloc(sizeof(int));
-	printf("el pid es: %d \n",pid);
 	sprintf(pidchar, "%i", pid);
 	string_append(&cadena, pidchar);
 	free(pidchar);
@@ -496,7 +495,6 @@ void mostrarProcesoEnMemoria(int pid) {
 			pthread_mutex_lock(&mutex_tablaDePaginas);
 			pagina = tabla[marco].pagina;
 			pthread_mutex_unlock(&mutex_tablaDePaginas);
-			printf("pagina %d \n",pagina);
 			data =leerMemoria(pid, pagina, 0, configDeMemoria.tamMarco);
 			printf("PID: %i	PAG: %i	Contenido: %s\n", pid, pagina,data);
 			if(data)
