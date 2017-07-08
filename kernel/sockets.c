@@ -461,21 +461,61 @@ int servidor(void)
 								uint32_t tamInt=sizeof(int32_t);
 								uint32_t tamARecibir=0;
 								char * rev = malloc(1);
-								//send al proximoProceso->id
+								char* res = signedIntToStream((int32_t)dictionary_get(variablesCompartidas,rev));
+
+								// Recibo largo del nombre de la variable
 								if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
 									anuncio("Ocurrio un problema al enviar un valor de variable global");
 								send(i,"Y",1,0);
 								rev=realloc(rev,tamARecibir+1);
 								memset(rev,'\0',tamARecibir+1);
 
+								// Recibo el nombre de la variable
 								if(recv(i,&rev,tamARecibir,MSG_WAITALL) <= 0)
 									anuncio("Ocurrio un problema al enviar un valor de variable global");
-								free(rev);
-								char* res = signedIntToStream((int32_t)dictionary_get(variablesCompartidas,rev));
+								send(i,"Y",1,0);
 
+								char* res = signedIntToStream((int32_t)dictionary_get(variablesCompartidas,rev));
 								if(sendall(i, res, &tamInt) < 0)
 									anuncio("Ocurrio un problema al enviar un valor de variable global");
+								free(rev);
+								free(res);
 
+							} else if(buf[0] == 'C'){
+								// Guardo el valor de una variable global
+
+								uint32_t tamInt=sizeof(int32_t);
+								uint32_t tamARecibir=0;
+								int32_t nuevoValorVar=0;
+								char * rev = malloc(1);
+								char* res = signedIntToStream((int32_t)dictionary_get(variablesCompartidas,rev));
+
+								// Recibo largo del nombre de la variable
+								if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
+									anuncio("Ocurrio un problema al enviar un valor de variable global");
+								send(i,"Y",1,0);
+
+								rev=realloc(rev,tamARecibir+1);
+								memset(rev,'\0',tamARecibir+1);
+
+								// Recibo el nombre de la variable
+								if(recv(i,&rev,tamARecibir,MSG_WAITALL) <= 0)
+									anuncio("Ocurrio un problema al recibir un valor de variable global");
+
+								if(send(i,"Y",1,0) < 0)
+									anuncio("Ocurrio un problema al enviar un valor de variable global");
+
+								// Recibo el valor a asignar
+								if(recv(i,&nuevoValorVar,tamInt,MSG_WAITALL) <= 0)
+									anuncio("Ocurrio un problema al enviar un valor de variable global");
+
+								dictionary_put(variablesCompartidas,rev,nuevoValorVar);
+
+								if(send(i,"Y",1,0))
+									anuncio("Ocurrio un problema al enviar un valor de variable global");
+
+								free(rev);
+								free(res);
 							}
 
 
