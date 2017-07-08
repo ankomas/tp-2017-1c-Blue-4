@@ -187,6 +187,12 @@ typedef struct{
 	int sendall(uint32_t s, char *buf, uint32_t *len);
 
 	/**
+	* @NAME: intToStream
+	* @DESC: Pasa un int signado a un stream
+	*/
+	char * signedIntToStream(int32_t unNumero);
+
+	/**
 	* @NAME: test
 	* @DESC: imprime por pantalla un string
 	*/

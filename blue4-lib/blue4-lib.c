@@ -208,6 +208,13 @@ char * intToStream(uint32_t unNumero){
 	return dataStream;
 }
 
+char * signedIntToStream(int32_t unNumero){
+	char* dataStream = malloc(4);
+	memset(dataStream,0,sizeof(unNumero));
+	memcpy(dataStream,&unNumero,sizeof(unNumero));
+	return dataStream;
+}
+
 void killme(){
 	char* killme = string_new();
 	strcpy(killme, "kill -9 ");
