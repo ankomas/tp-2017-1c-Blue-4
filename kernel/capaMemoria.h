@@ -8,10 +8,16 @@
 #ifndef CAPAMEMORIA_H_
 #define CAPAMEMORIA_H_
 
+#include "commons/collections/queue.h"
 #include "blue4-lib.h"
 #include "main.h"
 #include <stdio.h>
 #include <string.h>
+
+typedef struct t_semaforo{
+	int32_t valor;
+	t_queue * colaEspera;
+} t_semaforo;
 
 int cantidadElementosArrayConfig(char* unaRuta,char*unId);
 int obtenerTamanioPagina();
