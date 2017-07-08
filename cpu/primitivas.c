@@ -9,6 +9,7 @@
 #include <parser/parser.h>
 #include "conexiones.h"
 #include "primitivas.h"
+#include "capaKernel.h"
 
 #define RED   "\x1B[31m"
 #define GRN   "\x1B[32m"
@@ -120,6 +121,7 @@ t_puntero dummy_obtenerPosicionVariable(t_nombre_variable variable) {
 
 void dummy_finalizar(void){
 	printf("Finalizar\n");
+	finPrograma_global='F';
 }
 
 t_valor_variable dummy_dereferenciar(t_puntero puntero) {

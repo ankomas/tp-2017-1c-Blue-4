@@ -9,6 +9,7 @@
 #include <parser/metadata_program.h>
 
 #include "pcb.h"
+#include "capaKernel.h"
 
 t_pos setPos(uint32_t pag,uint32_t off, uint32_t size){
 	t_pos pos={pag,off,size};

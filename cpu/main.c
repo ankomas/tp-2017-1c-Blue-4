@@ -14,6 +14,7 @@
 #include "pcb.h"
 #include "primitivas.h"
 #include "capaMemoria.h"
+#include "capaKernel.h"
 #include "test.h"
 
 #define ID_KERNEL 2
@@ -82,6 +83,18 @@ void initFunciones(){
 	kernel_functions=j;
 }
 
+void initGlobales(){
+	printf("\n");
+	printf("Seteando valores de variables globales\n");
+	tamPag_global=pedirTamGlobal(memoria);
+	printf("Tamanio de pagina: %i\n",tamPag_global);
+	maxStack_global=2;
+	printf("Maximo stack: %i\n",maxStack_global);
+	finPrograma_global='Y';
+	printf("Valor inicial de fin programa: %c\n",finPrograma_global);
+	printf("\n");
+}
+
 int main() {
 	/*initFunciones();
 	testSerializarStack();
@@ -105,16 +118,16 @@ int main() {
 	printf("||||||||||||||||||||||||||||||\n");
 
 	memoria=conectar(puertoMemoria, ipMemoria,ID_MEMORIA);
-	tamPag_global=pedirTamGlobal(memoria);
-	printf("Tamanio de pagina: %i\n",tamPag_global);
+
 	kernel=conectar(puertoKernel, ipKernel,ID_KERNEL);
-	maxStack_global=2;
+
 
 	//testTraerCodigo(memoria);
 	//return 0;
 	//testTraerLinea(memoria);
 	//return 0;
 	initFunciones();
+	initGlobales();
 	standby(kernel);
 
 	cerrarConexion(kernel);

@@ -124,16 +124,9 @@ void* cpu(t_cpu * cpu){
 			if(sendall(cpu->id, "0", &tamChar) < 0)
 				liberarCPU(proximoPrograma);
 
-			recv(cpu->id,res,1,MSG_WAITALL);
-			if(res[0]!= 'Y')
-				liberarCPU(proximoPrograma);
-
 			if(sendall(cpu->id, streamTamPaquete, &tamUint) < 0)
 				liberarCPU(proximoPrograma);
 
-			recv(cpu->id,res,1,MSG_WAITALL);
-			if(res[0]!= 'Y')
-				liberarCPU(proximoPrograma);
 
 			if(sendall(cpu->id, paquete.data, &paquete.data_size) < 0)
 				liberarCPU(proximoPrograma);
@@ -146,7 +139,7 @@ void* cpu(t_cpu * cpu){
 			recv(cpu->id,res,1,MSG_WAITALL);
 
 			// Verifico si aun le falta ejecutar al proceso
-			if(res[0]!= 'F'){
+			if(res[0] == 'F'){
 				if(proximoPrograma->pcb->exitCode == EXIT_OK){
 					anuncio("Programa finalizo con exito");
 				} else if(proximoPrograma->pcb->exitCode < 0){

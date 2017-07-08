@@ -113,6 +113,7 @@ void elegirFuncion(char op,int socket){
 	case '0':
 		recibirPCB(socket);
 		enviarPCB(socket);
+		finPrograma_global='Y';
 		break;
 	default:
 		printf("Error: COP invalido.\n");
@@ -130,7 +131,7 @@ int pedirAMemoria(t_pcb2* pcb,t_pos pos){
 }
 
 int asignarAMemoria(t_pos pos,uint32_t valor){
-	return guardarEnMemoria(memoria,pcb_global.pid,pos.pag,pos.off,pos.size,&valor);
+	return guardarEnMemoria(memoria,pcb_global.pid,pos.pag,pos.off,pos.size,(char*)&valor);
 }
 
 void standby(int socket){
@@ -145,7 +146,6 @@ void standby(int socket){
 			perror("No se pudo recibir");
 			return;
 		}else{
-			send(socket,"Y",1,0);
 			elegirFuncion(op,socket);
 		}
 	}

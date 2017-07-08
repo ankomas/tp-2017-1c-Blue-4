@@ -8,6 +8,8 @@
 #ifndef CAPAKERNEL_H_
 #define CAPAKERNEL_H_
 
+char finPrograma_global;
+
 void recibirPCB(int socket);
 void enviarPCB(int socket);
 
