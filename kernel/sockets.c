@@ -173,7 +173,7 @@ int handshakeHandler(int i){
 	}
 }
 
-void eliminarSiHayPROGRAMAs(int i) {
+/*void eliminarSiHayPROGRAMAs(int i) {
 	if(!list_is_empty(PROGRAMAs)){
 		int aux = 0;
 		t_programa *programaAux = list_get(PROGRAMAs,aux);
@@ -188,7 +188,7 @@ void eliminarSiHayPROGRAMAs(int i) {
 			log_trace(logger,"Programa eliminado");
 		}
 	}
-}
+}*/
 
 void eliminarSiHayCPU(int i) {
 	if(!list_is_empty(CPUs)){
@@ -217,7 +217,7 @@ void liberarRecursos(int i,int codigoError){
 	} else{
 		//Busco a ver si es una cpu o consola
 		eliminarSiHayCPU(i);
-		eliminarSiHayPROGRAMAs(i);
+		//eliminarSiHayPROGRAMAs(i);
 	}
 }
 
@@ -444,9 +444,6 @@ int servidor(void)
 								*/
 								nuevoProceso->paginasCodigo = cantidadPaginasCodigo;
 								nuevoProceso->pcb->cantPagCod= cantidadPaginasCodigo;
-
-
-								list_add(PROGRAMAs,nuevoProceso);
 
 								if(gradoMultiprogramacion >= cantidadProgramasEnSistema){
 									encolarReady(nuevoProceso);

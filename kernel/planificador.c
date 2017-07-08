@@ -152,11 +152,8 @@ void* cpu(t_cpu * cpu){
 					liberarCPU(proximoPrograma);
 
 				res=realloc(res,tamARecibir);
-
 				printf("Tam a recibir: %i\n",tamARecibir);
-
 				anuncio("PCB RECIBIDO DEL CPU");
-
 				if(recv(cpu->id,res,tamARecibir,0) <= 0)
 					liberarCPU(proximoPrograma);
 				else
@@ -178,15 +175,11 @@ void* cpu(t_cpu * cpu){
 }
 
 void moverPrograma(t_programa* unPrograma,t_queue* colaOrigen, t_queue* colaDestino){
-	anuncio("Size de EXEC antes:");
-	testi(queue_size(colaOrigen));
-	anuncio("Size de EXIT antes:");
-	testi(queue_size(colaDestino));
 	if(!list_is_empty(colaOrigen->elements)){
 		int aux = 0;
 		t_programa *programaAux = list_get(colaOrigen->elements,aux);
 		while (programaAux->pcb->pid != unPrograma->pcb->pid && aux < list_size(colaOrigen->elements)){
-			programaAux = list_get(PROGRAMAs,aux);
+			programaAux = list_get(colaOrigen->elements,aux);
 			aux++;
 		}
 
@@ -195,37 +188,29 @@ void moverPrograma(t_programa* unPrograma,t_queue* colaOrigen, t_queue* colaDest
 			list_remove(colaOrigen->elements, aux);
 		}
 	}
-	anuncio("Size de EXEC despues:");
-	testi(queue_size(colaOrigen));
-	anuncio("Size de EXIT despues:");
-	testi(queue_size(colaDestino));
 }
 
 t_programa* planificador(t_programa* unPrograma){
 	// mutex por haber leido de un archivo que puede ser actualizado hasta antes del recv
 	algoritmoPlanificador = obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"ALGORITMO");
-	printf("algoritmoPlanificador %s\n",algoritmoPlanificador);
+	//printf("algoritmoPlanificador %s\n",algoritmoPlanificador);
 
 	if(unPrograma == NULL){
 		if(queue_size(procesosREADY) > 0){
 			t_programa* aux = queue_pop(procesosREADY);
 			queue_push(procesosEXEC,aux);
-			return aux;
+			unPrograma = aux;
 		} else {
-			return 0;
+			unPrograma = NULL;
 		}
 	}
 
 	if(strcmp(algoritmoPlanificador,"RR") == 0){
 		if(unPrograma->quantumRestante == 0){
-			if(queue_size(procesosREADY) > 0){
-				t_programa* aux = queue_pop(procesosREADY);
-				aux->quantumRestante--;
-				return aux;
-			}
-		} else {
 			unPrograma->quantumRestante--;
 			return unPrograma;
+		} else {
+			return NULL;
 		}
 	} else if(strcmp(algoritmoPlanificador,"FIFO") == 0){
 		return unPrograma;
