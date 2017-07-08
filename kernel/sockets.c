@@ -541,8 +541,9 @@ int servidor(void)
 									if(send(i,"Y",1,0))
 										anuncio("Ocurrio un problema al hacer un Wait");
 								}else {
-									//Queda encontrar el PID mediante la cpu que tenga ese pcb
-									//queue_push(semaforoObtenido->colaEspera,PID);
+									t_cpu * cpuEncontrada = encontrarCPU(i);
+									uint32_t pid = cpuEncontrada->programaEnEjecucion->pid;
+									queue_push(semaforoObtenido->colaEspera,&pid);
 								}
 
 								free(rev);

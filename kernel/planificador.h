@@ -26,6 +26,15 @@ typedef struct t_programa {
 	t_pcb* pcb;
 } t_programa;
 
+typedef struct t_cpu {
+	uint32_t id;
+	t_pcb *programaEnEjecucion;
+	bool disponible;
+	pthread_t hilo;
+} t_cpu;
+
+t_cpu * encontrarCPU(uint32_t i);
+
 t_programa* planificador();
 void *cpu();
 void encolarReady();
