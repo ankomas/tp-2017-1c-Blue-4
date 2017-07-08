@@ -33,7 +33,7 @@ int marcosDeTablaCache() {
 }
 
 tablaPaginas_t* obtenerTablaDePaginas() {
-	tablaPaginas_t* tablaDePaginas = memoria;
+	tablaPaginas_t* tablaDePaginas = (tablaPaginas_t*)memoria;
 	return tablaDePaginas;
 }
 
@@ -217,7 +217,6 @@ void inicializarPrograma(uint32_t pid, uint32_t paginasRequeridas) {
 uint32_t finalizarPrograma(uint32_t pid) {
 	tablaPaginas_t* tablaDePaginas = obtenerTablaDePaginas();
 	int pagina, paginasMaximas, i = 0;
-	uint32_t paginasTotales;
 	pagina = obtener_PaginaDeInicioDeProcesoActivo(pid);
 	int marco = getMarco(pid, pagina);
 	if (marco < 0)
@@ -392,11 +391,13 @@ int cantPaginasEnCache(int pid) {
 	return paginas;
 }*/
 
-void guardarCadena(char* cadena, int pid, int pag, char* contenido){
-	char* pidchar = malloc(sizeof(int));
-	char* pagchar = malloc(sizeof(int));
+void guardarCadena(char** cadena, int pid, int pag, char* contenido){
+	char* pidchar = malloc(sizeof(int)+1);
+	char* pagchar = malloc(sizeof(int)+1);
 	sprintf(pidchar, "%i", pid);
 	sprintf(pagchar, "%i", pag);
+	memset(pidchar,'\0',sizeof(int)+1);
+	memset(pagchar,'\0',sizeof(int)+1);
 	string_append(cadena, "PID: ");
 	string_append(cadena, pidchar);
 	string_append(cadena, " PAG: ");
@@ -409,11 +410,12 @@ void guardarCadena(char* cadena, int pid, int pag, char* contenido){
 }
 
 void escribirCadenaEnArchivo(char* nombre, char* cadena, int counter, int tamI){
-	int tam = (sizeof(int)*2 + 24 + configDeMemoria.tamMarco)* counter + tamI+1;
+	//int tam = (sizeof(int)*2 + 24 + configDeMemoria.tamMarco)* counter + tamI+1;
 	string_append(&cadena, "\n");
 	FILE* archivo;
 	archivo = fopen(nombre, "ab");
-	fwrite(cadena,1,tam ,archivo);
+	fwrite(cadena,1,string_length(cadena) ,archivo);
+	free(cadena);
 	fclose(archivo);
 }
 
@@ -477,6 +479,7 @@ void mostrarProcesoEnMemoria(int pid) {
 	char* cadena = string_new();
 	string_append(&cadena, "Se Mostrara el contenido del proceso: ");
 	char* pidchar = malloc(sizeof(int));
+	printf("el pid es: %d \n",pid);
 	sprintf(pidchar, "%i", pid);
 	string_append(&cadena, pidchar);
 	free(pidchar);
@@ -484,15 +487,21 @@ void mostrarProcesoEnMemoria(int pid) {
 	int tam = 39 + sizeof(int);
 	char* data = malloc(configDeMemoria.tamMarco);
 	tablaPaginas_t* tabla = obtenerTablaDePaginas();
-	int marco, pagina, counter = 0;
+	int marco, pagina,resultado, counter = 0;
 	for (marco = 0; marco < configDeMemoria.marcos; marco++) {
 		pthread_mutex_lock(&mutex_tablaDePaginas);
-		if (pid == tabla[marco].pid) {
+		resultado =pid == tabla[marco].pid;
+		pthread_mutex_unlock(&mutex_tablaDePaginas);
+		if (resultado) {
+			pthread_mutex_lock(&mutex_tablaDePaginas);
 			pagina = tabla[marco].pagina;
 			pthread_mutex_unlock(&mutex_tablaDePaginas);
+			printf("pagina %d \n",pagina);
 			data =leerMemoria(pid, pagina, 0, configDeMemoria.tamMarco);
 			printf("PID: %i	PAG: %i	Contenido: %s\n", pid, pagina,data);
+			if(data)
 			guardarCadena(&cadena, pid, pagina, data);
+			//if(data)free(data);
 			counter++;
 		}
 	}

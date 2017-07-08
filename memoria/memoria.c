@@ -106,9 +106,11 @@ int main(void) {
 	//inicializarPrograma(1,3);
 	//NPAC(1,2);
 	//nuevoMarcoDelMismoProceso(1);
+	printf("entro al test de escritura \n");
 	testEscritura();
 	//inicializarPrograma(100,8);
 	//escribir(100,0,0,4, "Hola");
+	//mostrarProcesoEnMemoria(100);
 	pthread_t hiloMostrarMenu;
 	pthread_create(&hiloMostrarMenu, NULL, (void *) mostrarMenuMemoria, NULL);
 	servidor();

@@ -121,7 +121,7 @@ void contenidoPorPID()
 		return;
 	}
 	impresionDeLecturaDeDataDePaginas(i,paginas,pid); <-*/
-	printf("Flag1");
+	printf("Flag1 \n");
 	mostrarProcesoEnMemoria(pid);
 
 }
