@@ -54,6 +54,10 @@ int guardarDataHeap(paginaHeap* unaPagina,void* data,int32_t tamData){
 	return -2; // La pagina no esta inicializada
 }
 
+void* leerDataHeap(paginaHeap* unaPagina,uint32_t offset){
+	return unaPagina->contenido+offset;
+}
+
 void liberarMemoria(){
 
 }
