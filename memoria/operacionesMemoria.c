@@ -423,6 +423,7 @@ void mostrarCache() {
 	char* cadena = string_new();
 	string_append(&cadena, "Se Mostrara el contenido de la cache\n");
 	int tam = 37;
+	char* dataACopiar;
 	char* data = malloc(configDeMemoria.tamMarco);
 	tablaCache_t* tabla = obtenerTablaCache();
 	int marco, pid, pagina, counter = 0;
@@ -432,9 +433,14 @@ void mostrarCache() {
 		pagina = tabla[marco].pagina;
 		pthread_mutex_unlock(&mutex_tablaCache);
 		if (pid >= 0) {
-			data = (char*)leerCache(pid, pagina, 0, configDeMemoria.tamMarco);
+			dataACopiar = (char*)leerCache(pid, pagina, 0, configDeMemoria.tamMarco);
+			pthread_mutex_lock(&mutex_test);
 			printf("PID: %i	PAG: %i	Contenido: %s\n", pid, pagina, data);
+			pthread_mutex_unlock(&mutex_test);
+			memset(data,'\0',configDeMemoria.tamMarco);
+			memcpy(data,dataACopiar,configDeMemoria.tamMarco);
 			guardarCadena(&cadena, pid, pagina, data);
+			if(dataACopiar)free(dataACopiar);
 			counter++;
 		}
 	}
@@ -451,7 +457,8 @@ void mostrarMemoria() {
 	char* cadena = string_new();
 	string_append(&cadena, "Se Mostrara el contenido de la memoria\n");
 	int tam = 39;
-	char* data = malloc(configDeMemoria.tamMarco);
+	char* dataACopiar;
+	char* data =malloc(configDeMemoria.tamMarco);
 	tablaPaginas_t* tabla = obtenerTablaDePaginas();
 	int marco, pid, pagina, counter = 0;
 	for (marco = 0; marco < configDeMemoria.marcos; marco++) {
@@ -460,9 +467,12 @@ void mostrarMemoria() {
 		pagina = tabla[marco].pagina;
 		pthread_mutex_unlock(&mutex_tablaDePaginas);
 		if (pid >= 0) {
-			data = (char*)leerMemoria(pid, pagina, 0, configDeMemoria.tamMarco);
+			dataACopiar = (char*)leerMemoria(pid, pagina, 0, configDeMemoria.tamMarco);
+			memset(data,'\0',configDeMemoria.tamMarco);
+			memcpy(data,dataACopiar,configDeMemoria.tamMarco);
 			printf("PID: %i	PAG: %i	Contenido: %s\n", pid, pagina, data);
 			guardarCadena(&cadena, pid, pagina, data);
+			if(dataACopiar)free(dataACopiar);
 			counter++;
 		}
 	}
@@ -484,6 +494,7 @@ void mostrarProcesoEnMemoria(int pid) {
 	free(pidchar);
 	string_append(&cadena, "\n");
 	int tam = 39 + sizeof(int);
+	char* dataACopiar;
 	char* data = malloc(configDeMemoria.tamMarco);
 	tablaPaginas_t* tabla = obtenerTablaDePaginas();
 	int marco, pagina,resultado, counter = 0;
@@ -495,11 +506,12 @@ void mostrarProcesoEnMemoria(int pid) {
 			pthread_mutex_lock(&mutex_tablaDePaginas);
 			pagina = tabla[marco].pagina;
 			pthread_mutex_unlock(&mutex_tablaDePaginas);
-			data =leerMemoria(pid, pagina, 0, configDeMemoria.tamMarco);
+			dataACopiar =leerMemoria(pid, pagina, 0, configDeMemoria.tamMarco);
 			printf("PID: %i	PAG: %i	Contenido: %s\n", pid, pagina,data);
-			if(data)
+			memset(data,'\0',configDeMemoria.tamMarco);
+			memcpy(data,dataACopiar,configDeMemoria.tamMarco);
 			guardarCadena(&cadena, pid, pagina, data);
-			//if(data)free(data);
+			if(dataACopiar)free(dataACopiar);
 			counter++;
 		}
 	}
