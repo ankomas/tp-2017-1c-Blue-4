@@ -45,9 +45,9 @@ int guardarDataHeap(paginaHeap* unaPagina,void* data,int32_t tamData){
 			i++;
 		}
 		// Antes de darnos por vencido, tratamos de ver si compactando tenemos espacio
-		if(memoriaLibre(unaPagina) >= tamData){
-			compactar(unaPagina);
-			guardarDataHeap(unaPagina,data,tamData);
+		if(memoriaLibreContigua(unaPagina) >= tamData){
+			if(compactar(unaPagina) == 1)
+				guardarDataHeap(unaPagina,data,tamData);
 		}
 		return -1; // No hay espacio en esta pagina
 	}
@@ -76,10 +76,56 @@ int memoriaLibre(paginaHeap* unaPagina){
 	return memoriaLibreTotal;
 }
 
+int memoriaLibreContigua(paginaHeap* unaPagina){
+	int i = 0;
+	int memoriaLibreTotalContigua = 0;
+	int mayorAnterior;
+	if(list_size(unaPagina->bloques) > 0){
+		while(i < list_size(unaPagina->bloques)){
+			int j = i;
+			while(j < list_size(unaPagina->bloques)){
+				bloque * bloqueAux = list_get(unaPagina->bloques,i);
+				if(bloqueAux->metadata->isFree == 1)
+					memoriaLibreTotalContigua += bloqueAux->metadata->size+sizeof(paginaHeap);
+				else
+					break;
+			j++;
+			}
+			if(memoriaLibreTotalContigua > mayorAnterior)
+				mayorAnterior = memoriaLibreTotalContigua;
+			memoriaLibreTotalContigua = 0;
+		i++;
+		}
+	}
+	//Le quito el sizeof del metadata que quedaria si se compactara
+	return memoriaLibreTotalContigua-sizeof(paginaHeap);
+}
+
 int memoriaReservada(paginaHeap* unaPagina){
 	return tamanioPagina-memoriaLibre(unaPagina);
 }
 
-void compactar(){
-
+int compactar(paginaHeap* unaPagina){
+	int i = 0;
+	int huboCompactacionParcial = 1;
+	int sirvioCompactar = 0;
+	while(huboCompactacionParcial == 1){
+		huboCompactacionParcial = 0;
+		if(list_size(unaPagina->bloques) > 1){
+			while(i < list_size(unaPagina->bloques)-1){
+				bloque * bloqueAux = list_get(unaPagina->bloques,i);
+				int j = i+1;
+				bloque * bloqueAux2 = list_get(unaPagina->bloques,j);
+				if(bloqueAux->metadata->isFree == 1 && bloqueAux2->metadata->isFree == 1){
+					huboCompactacionParcial = 1;
+					sirvioCompactar = 1;
+					bloqueAux->metadata->size += sizeof(heapMetadata)+bloqueAux2->metadata->size;
+					list_remove(unaPagina->bloques,j);//Elimino el segundo bloque
+				}
+				i++;
+			}
+		}
+	}
+	return sirvioCompactar;
+	//reorganizar todo en un nuevo void*data y eliminar el anterior
 }
