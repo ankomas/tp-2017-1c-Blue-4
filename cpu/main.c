@@ -9,6 +9,7 @@
 #include <commons/config.h>
 #include <commons/collections/list.h>
 #include <parser/metadata_program.h>
+#include <signal.h>
 
 #include "conexiones.h"
 #include "pcb.h"
@@ -76,7 +77,7 @@ void initFunciones(){
 			.AnSISOP_finalizar 				= dummy_finalizar,
 			.AnSISOP_dereferenciar			= dummy_dereferenciar,
 			.AnSISOP_asignar				= dummy_asignar,
-
+			.AnSISOP_irAlLabel				= dummy_irAlLabel
 	};
 	AnSISOP_kernel j = {};
 	funciones=f;
@@ -86,13 +87,31 @@ void initFunciones(){
 void initGlobales(){
 	printf("\n");
 	printf("Seteando valores de variables globales\n");
+
+	//Valores ajenos -----------------------------------------------
 	tamPag_global=pedirTamGlobal(memoria);
 	printf("Tamanio de pagina: %i\n",tamPag_global);
-	maxStack_global=2;
+
+	maxStack_global=2;//pedirMaxStack(kernel);
 	printf("Maximo stack: %i\n",maxStack_global);
+
+	//Valores locales ----------------------------------------------
 	finPrograma_global='Y';
 	printf("Valor inicial de fin programa: %c\n",finPrograma_global);
+
+	exit_global='N';
+	printf("Exit: %c\n",exit_global);
+
 	printf("\n");
+}
+
+void signalHandler(int signum)
+{
+    if (signum == SIGUSR1)
+    {
+        printf("SIGUSR1! se terminara este proceso al finalizar la tarea en ejecucion\n");
+        exit_global='Y';
+    }
 }
 
 int main() {
@@ -103,6 +122,8 @@ int main() {
 	//int socketKernel,socketMemoria;
 	char *ipKernel, *ipMemoria, *puertoKernel, *puertoMemoria;
 	t_config* config;
+
+	signal(SIGUSR1, signalHandler);
 
 	config = config_create("config.cfg");
 

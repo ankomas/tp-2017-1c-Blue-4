@@ -44,6 +44,7 @@ void ejecutarPCB(t_pcb2 *pcb, int socket){
 			pcb->indiceCodigo[pcb->pc].start,
 			pcb->indiceCodigo[pcb->pc].offset);
 
+	printf(GRN"PID: %i PC:%i SP:%i\n"RESET,pcb->pid,pcb->pc,pcb->sp);
 	printf("\t Evaluando -> " BLU "%s" RESET, linea);
 	analizadorLinea(linea, &funciones, &kernel_functions);
 	//test_asignadoCorrecto();

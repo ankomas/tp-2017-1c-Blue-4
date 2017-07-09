@@ -140,7 +140,7 @@ void standby(int socket){
 		perror("No se pudo enviar");
 		return;
 	}*/
-	while(1){
+	while(exit_global=='N'){
 		printf("A la espera del kernel...\n");
 		if(recv(socket,&op,1,MSG_WAITALL)<1){
 			perror("No se pudo recibir");

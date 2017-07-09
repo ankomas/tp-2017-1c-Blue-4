@@ -56,7 +56,7 @@ package_t serializar(int numArgs, ...)
 		}
 	}
 
-	paquete=malloc(tamTotal);
+	paquete=calloc(1,tamTotal);
 	puntero=0;
 
 	for(i=0;i<numArgs;i++)
@@ -87,7 +87,7 @@ package_t deserializar(uint32_t *pointer,char *stream){
 	package_t res;
 
 	memcpy(&tam,stream+*pointer,sizeof(uint32_t));
-	contenido=malloc(tam);
+	contenido=calloc(1,tam);
 	memcpy(contenido,stream+*pointer+sizeof(uint32_t),tam);
 
 	*pointer+=sizeof(uint32_t)+tam;

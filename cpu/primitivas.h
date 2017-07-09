@@ -15,6 +15,7 @@ t_puntero dummy_obtenerPosicionVariable(t_nombre_variable variable);
 void dummy_finalizar(void);
 t_valor_variable dummy_dereferenciar(t_puntero puntero);
 void dummy_asignar(t_puntero puntero, t_valor_variable variable);
+void dummy_irAlLabel(t_nombre_etiqueta etiqueta);
 
 AnSISOP_funciones funciones;
 AnSISOP_kernel kernel_functions;
