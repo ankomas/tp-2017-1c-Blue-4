@@ -62,7 +62,6 @@ void inicializarDatos(){
 	tamanioStack = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"),"STACK_SIZE");
 	idFS =  conectar(obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_FS"),  obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"IP_FS"),FS_ID_INT);
 	idUMC = conectar(obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_UMC"), obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"IP_UMC"),UMC_ID_INT);
-	test( obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_UMC") );
 	tamanioPagina = obtenerTamanioPagina();
 	retardo = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"),"RETARDO");
 
@@ -92,10 +91,11 @@ int main(){
 	anuncio(concat(2,"IP a utilizar: ",obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"IP")));
 	anuncio(concat(2,"Puerto a utilizar: ",obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_PROG")));
 
+	inicializarDatos();
+
 	pagina* unaPagina = malloc(sizeof(pagina));
 	iniciarPaginaHeap(unaPagina);
-
-	inicializarDatos();
+	//return 0;
 
 	anuncio(concat(2,"Tamanio de Pagina: ",string_itoa(tamanioPagina)));
 
