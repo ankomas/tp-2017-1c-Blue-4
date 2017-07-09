@@ -27,7 +27,7 @@ void iniciarBloqueHeap(paginaHeap* unaPagina){
 }
 
 int guardarDataHeap(paginaHeap* unaPagina,void* data,int32_t tamData){
-	int i;
+	int i = 0;
 	if(list_size(unaPagina->bloques) > 0){
 		while(i < list_size(unaPagina->bloques)){
 			bloque * bloqueAux = list_get(unaPagina->bloques,i);
@@ -44,6 +44,11 @@ int guardarDataHeap(paginaHeap* unaPagina,void* data,int32_t tamData){
 			}
 			i++;
 		}
+		// Antes de darnos por vencido, tratamos de ver si compactando tenemos espacio
+		if(memoriaLibre(unaPagina) >= tamData){
+			compactar(unaPagina);
+			guardarDataHeap(unaPagina,data,tamData);
+		}
 		return -1; // No hay espacio en esta pagina
 	}
 	return -2; // La pagina no esta inicializada
@@ -57,12 +62,22 @@ void liberarMemoria(){
 
 }*/
 
-int memoriaLibre(){
-	return 0;
+int memoriaLibre(paginaHeap* unaPagina){
+	int i = 0;
+	int memoriaLibreTotal = 0;
+	if(list_size(unaPagina->bloques) > 0){
+		while(i < list_size(unaPagina->bloques)){
+			bloque * bloqueAux = list_get(unaPagina->bloques,i);
+			if(bloqueAux->metadata->isFree == 1)
+				memoriaLibreTotal += bloqueAux->metadata->size;
+		i++;
+		}
+	}
+	return memoriaLibreTotal;
 }
 
-int memoriaReservada(){
-	return 0;
+int memoriaReservada(paginaHeap* unaPagina){
+	return tamanioPagina-memoriaLibre(unaPagina);
 }
 
 void compactar(){
