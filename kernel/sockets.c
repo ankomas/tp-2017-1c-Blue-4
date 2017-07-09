@@ -401,7 +401,7 @@ int servidor(void)
 
 								nuevoPCB->pid=pidActual;
 								nuevoPCB->pc=metadata->instruccion_inicio;
-								nuevoPCB->sp=0;
+								nuevoPCB->sp=-1;
 								nuevoPCB->exitCode = 0;
 								nuevoPCB->ultimaPosUsada=ultimaPos;
 								nuevoPCB->indiceCodigoSize=metadata->instrucciones_size;

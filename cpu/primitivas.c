@@ -58,15 +58,15 @@ t_puntero dummy_definirVariable(t_nombre_variable variable){
 
 	printf("Llamada a "YEL"DEFINIR VARIABLE\n"RESET"Nombre variable: %c\n",variable);
 
-	if(pcb_global.sp==0){
+	if(pcb_global.sp==-1){
 		args=list_create();
 		vars=list_create();
 		list_add(pcb_global.indiceStack,(void*)stack_create(args,vars,0,pos));
-		pcb_global.sp=1;
+		pcb_global.sp=0;
 		pos=pcb_global.ultimaPosUsada;//va a ser 0 0 0
 		pos.pag=pcb_global.cantPagCod;
 	}else{
-		stack=list_get(pcb_global.indiceStack,pcb_global.sp-1);
+		stack=list_get(pcb_global.indiceStack,pcb_global.sp);
 		args=stack->args;
 		vars=stack->vars;
 		pos=proxPos(pcb_global.ultimaPosUsada,tamPag_global);
@@ -190,7 +190,6 @@ void dummy_irAlLabel(t_nombre_etiqueta etiqueta){
 
 t_valor_variable (*AnSISOP_obtenerValorCompartida)(t_nombre_compartida variable);
 t_valor_variable (*AnSISOP_asignarValorCompartida)(t_nombre_compartida variable, t_valor_variable valor);
-void (*AnSISOP_irAlLabel)(t_nombre_etiqueta t_nombre_etiqueta);
 void (*AnSISOP_llamarSinRetorno)(t_nombre_etiqueta etiqueta);
 void (*AnSISOP_llamarConRetorno)(t_nombre_etiqueta etiqueta, t_puntero donde_retornar);
 void (*AnSISOP_retornar)(t_valor_variable retorno);

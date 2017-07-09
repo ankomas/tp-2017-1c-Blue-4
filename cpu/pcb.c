@@ -240,7 +240,7 @@ package_t serializarPCB(t_pcb2 pcb){
 	paquete=serializar(22,
 			sizeof(uint32_t),&pcb.pid,
 			sizeof(uint32_t),&pcb.pc,
-			sizeof(uint32_t),&pcb.sp,
+			sizeof(int32_t),&pcb.sp,
 			sizeof(uint32_t),&pcb.cantPagCod,
 
 			sizeof(t_pos),&pcb.ultimaPosUsada,
@@ -254,7 +254,7 @@ package_t serializarPCB(t_pcb2 pcb){
 			sizeof(uint32_t),&pcb.indiceEtiquetasSize,
 			pcb.indiceEtiquetasSize,pcb.indiceEtiquetas,
 
-			sizeof(uint32_t),&pcb.exitCode);
+			sizeof(int32_t),&pcb.exitCode);
 	free(indiceCodigo.data);
 	free(stack.data);
 
@@ -282,7 +282,7 @@ t_pcb2 deserializarPCB(char* paquete){
 	//printf("Instruccion inicio: %i\n",res.pc);
 
 	paux=deserializar(&pointer,paquete);
-	res.sp=*(uint32_t*)paux.data;
+	res.sp=*(int32_t*)paux.data;
 
 	free(paux.data);
 
@@ -329,7 +329,7 @@ t_pcb2 deserializarPCB(char* paquete){
 
 	paux=deserializar(&pointer,paquete);
 	//memcpy(&res.exitCode,paux.data,4);
-	res.exitCode=*(uint32_t*)paux.data;
+	res.exitCode=*(int32_t*)paux.data;
 
 	free(paux.data);
 

@@ -33,7 +33,7 @@ typedef struct{
 typedef struct{
 	uint32_t pid;
 	uint32_t pc;
-	uint32_t sp;
+	int32_t sp;
 	uint32_t cantPagCod;
 
 	t_pos ultimaPosUsada;
