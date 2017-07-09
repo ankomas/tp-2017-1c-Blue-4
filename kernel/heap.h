@@ -17,8 +17,15 @@ typedef struct heapMetadata{
 
 typedef struct pagina{
 	void*contenido;
-}pagina;
+	uint32_t numero;
+	t_list* bloques;
+}paginaHeap;
 
-void iniciarPaginaHeap(pagina* unaPagina);
+typedef struct bloque {
+	uint32_t posicionInicioBloque;
+	heapMetadata * metadata;
+}bloque;
+
+void iniciarBloqueHeap(paginaHeap* unaPagina);
 
 #endif /* HEAP_H_ */

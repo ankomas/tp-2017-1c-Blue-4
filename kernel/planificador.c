@@ -48,6 +48,34 @@ const int EXIT_NOT_DEFINED = -20;
 
 char *algoritmoPlanificador;
 
+t_cpu * encontrarCPU(uint32_t i){
+	int contador = 0;
+	if(list_size(CPUs) > 0){
+		t_cpu * cpuAux;
+		while(contador < list_size(CPUs)){
+			cpuAux = list_get(CPUs,contador);
+			if(cpuAux->id == i)
+				return cpuAux;
+			contador++;
+		}
+	}
+	return NULL;
+}
+
+t_cpu * encontrarCPUporPID(uint32_t pid){
+	int contador = 0;
+	if(list_size(CPUs) > 0){
+		t_cpu * cpuAux;
+		while(contador < list_size(CPUs)){
+			cpuAux = list_get(CPUs,contador);
+			if(cpuAux->programaEnEjecucion->pid == pid)
+				return cpuAux;
+			contador++;
+		}
+	}
+	return NULL;
+}
+
 void encolarReady(t_programa* nuevoProceso){
 	uint32_t paginasNecesarias = nuevoProceso->paginasCodigo+tamanioStack;
 	uint32_t error = 1;

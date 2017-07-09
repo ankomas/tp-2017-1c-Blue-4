@@ -79,9 +79,8 @@ int asignarPaginasAUnProceso(uint32_t ,uint32_t );
 int eliminarPaginaDeUnProceso(uint32_t ,uint32_t );
 
 int agregarProcesoACache(int, int);
-int NPAC(int, int);
-int nuevoMarcoDelMismoProceso(int pid);
 
 void mostrarCache();
+void mostrarMemoria(), mostrarProcesoEnMemoria(int);
 
 #endif /* OPERACIONESMEMORIA_H_ */

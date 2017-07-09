@@ -33,6 +33,7 @@ pthread_t hiloPlanificador,hiloConsolaKernel;
 
 t_list * PROGRAMAs;
 t_list * CPUs;
+t_dictionary * paginasHeap;
 t_dictionary * semaforos;
 t_dictionary * variablesCompartidas;
 t_queue * procesosNEW;
@@ -51,6 +52,7 @@ void inicializarDatos(){
 
 	PROGRAMAs = list_create();
 	CPUs = list_create();
+	paginasHeap = dictionary_create();
 	semaforos = dictionary_create();
 	variablesCompartidas = dictionary_create();
 	inicializarSemaforos();
@@ -62,7 +64,6 @@ void inicializarDatos(){
 	tamanioStack = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"),"STACK_SIZE");
 	idFS =  conectar(obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_FS"),  obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"IP_FS"),FS_ID_INT);
 	idUMC = conectar(obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_UMC"), obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"IP_UMC"),UMC_ID_INT);
-	test( obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_UMC") );
 	tamanioPagina = obtenerTamanioPagina();
 	retardo = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"),"RETARDO");
 
@@ -92,10 +93,11 @@ int main(){
 	anuncio(concat(2,"IP a utilizar: ",obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"IP")));
 	anuncio(concat(2,"Puerto a utilizar: ",obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_PROG")));
 
-	pagina* unaPagina = malloc(sizeof(pagina));
-	iniciarPaginaHeap(unaPagina);
-
 	inicializarDatos();
+
+	paginaHeap* unaPagina = malloc(sizeof(paginaHeap));
+	iniciarBloqueHeap(unaPagina);
+	//return 0;
 
 	anuncio(concat(2,"Tamanio de Pagina: ",string_itoa(tamanioPagina)));
 
