@@ -113,13 +113,16 @@ void contenidoPorPID()
 	uint32_t paginas;
 	texto_en_color("ingrese PID:");
 	scanf("%d",&pid);
-	paginas=obtener_paginasActualesDeProcesoActivo(pid);
+	/*
+	paginas=obtener_paginasActualesDeProcesoActivo(pid); <-
 	if(paginas==-1)
 	{
 		texto_en_color_de_error("El PID ingresado no es valido \n");
 		return;
 	}
-	impresionDeLecturaDeDataDePaginas(i,paginas,pid);
+	impresionDeLecturaDeDataDePaginas(i,paginas,pid); <-*/
+	printf("Flag1 \n");
+	mostrarProcesoEnMemoria(pid);
 
 }
 
@@ -135,7 +138,8 @@ void dumpContenido() { //BIEEEEN RANCIO
 		scanf("%s",opcion);
 		switch(opcion[0])
 			{
-				case '1': contenidoDeTodosLosProcesos(); break;
+				//case '1': contenidoDeTodosLosProcesos(); break;
+				case '1': mostrarMemoria(); break;
 				case '2': contenidoPorPID(); break;
 				case '3': break;
 				default : break;
