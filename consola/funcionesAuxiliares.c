@@ -250,8 +250,7 @@ char* leerProgramaAnsisop(char* ruta)
 	size = ftell(programa);
 	rewind(programa);
 
-	contenido=malloc(size);
-	memset(contenido,'\0',size);
+	contenido=calloc(1,size);
 
 	while(!feof(programa))
 	{

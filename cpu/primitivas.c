@@ -25,12 +25,12 @@ t_puntero posAPuntero(t_pos pos,uint32_t tamPag){
 }
 
 t_pos punteroAPos(t_puntero puntero, uint32_t tamPag){
-	printf("PUNTERO A POS: %i\n",puntero);
+	//printf("PUNTERO A POS: %i\n",puntero);
 	t_pos pos;
 	pos.pag = puntero/tamPag;
 	pos.off = puntero - tamPag * pos.pag;
 	pos.size = 0;
-	printf("POS: %i, OFF: %i, SIZE:%i\n",pos.pag,pos.off,pos.size);
+	//printf("POS: %i, OFF: %i, SIZE:%i\n",pos.pag,pos.off,pos.size);
 	return pos;
 }
 
@@ -74,7 +74,7 @@ t_puntero dummy_definirVariable(t_nombre_variable variable){
 
 	if(pos.pag>maxStack_global+pcb_global.cantPagCod){
 		printf("ERROR: stack overflow\n");
-		setExitCode(&pcb_global,"stack overflow\n",10);
+		setExitCode(&pcb_global,"stack overflow",10);
 		printf("\n");
 		return STACK_OVERFLOW;
 	}
@@ -113,14 +113,15 @@ t_puntero dummy_obtenerPosicionVariable(t_nombre_variable variable) {
 		printf("\n");
 		return posAPuntero(var->pos,tamPag_global);
 	}else{
-		setExitCode(&pcb_global,"no existe variable\n",11);
+		setExitCode(&pcb_global,"no existe variable",11);
 		printf("\n");
 		return NO_EXISTE_VARIABLE;
 	}
 }
 
 void dummy_finalizar(void){
-	printf("Finalizar\n");
+	printf("Llamada a " YEL "FINALIZAR" RESET "\n");
+	printf("\n");
 	finPrograma_global='F';
 }
 
@@ -136,7 +137,7 @@ t_valor_variable dummy_dereferenciar(t_puntero puntero) {
 
 	if(res==-1){
 		printf("ERROR: fallo al leer en memoria\n");
-		setExitCode(&pcb_global,"fallo al leer en memoria\n",11);
+		setExitCode(&pcb_global,"fallo al leer en memoria",11);
 		printf("\n");
 		return NO_EXISTE_VARIABLE;
 	}
@@ -157,6 +158,39 @@ void dummy_asignar(t_puntero puntero, t_valor_variable variable) {
 
 	if(res==-1){
 		//printf("ERROR: fallo al escribir en memoria\n");
-		setExitCode(&pcb_global,"fallo al escribir en memoria\n",12);
+		setExitCode(&pcb_global,"fallo al escribir en memoria",12);
+		printf("\n");
 	}
+	printf("\n");
 }
+
+void dummy_irAlLabel(t_nombre_etiqueta etiqueta){
+	memcpy(etiqueta+strlen(etiqueta)-1,"\0",1);
+	t_puntero_instruccion instruccion=metadata_buscar_etiqueta(etiqueta, pcb_global.indiceEtiquetas, pcb_global.indiceEtiquetasSize);
+	int i;
+
+	printf("Llamada a "YEL"IR AL LABEL"RESET" %s\n",etiqueta);
+	printf("sizeof etiqueta %i, strlen etiqueta %i\n",sizeof(etiqueta),strlen(etiqueta));
+
+	printf("Indice etiquetas size: %i\n",pcb_global.indiceEtiquetasSize);
+	for(i=0;i<pcb_global.indiceEtiquetasSize;i++){
+		printf("%c",pcb_global.indiceEtiquetas[i]);
+	}
+	printf("\n");
+
+	pcb_global.pc = instruccion;
+
+	if(instruccion==-1){
+		setExitCode(&pcb_global,"la etiqueta no existe",13);
+
+	}
+	printf("Ahora el PC apunta a %i\n",instruccion);
+	printf("\n");
+}
+
+t_valor_variable (*AnSISOP_obtenerValorCompartida)(t_nombre_compartida variable);
+t_valor_variable (*AnSISOP_asignarValorCompartida)(t_nombre_compartida variable, t_valor_variable valor);
+void (*AnSISOP_irAlLabel)(t_nombre_etiqueta t_nombre_etiqueta);
+void (*AnSISOP_llamarSinRetorno)(t_nombre_etiqueta etiqueta);
+void (*AnSISOP_llamarConRetorno)(t_nombre_etiqueta etiqueta, t_puntero donde_retornar);
+void (*AnSISOP_retornar)(t_valor_variable retorno);

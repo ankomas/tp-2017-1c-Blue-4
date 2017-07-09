@@ -394,9 +394,8 @@ int servidor(void)
 
 								// Inicializo Metadata
 								t_list *stack;
-								t_metadata_program* metadata;
+								t_metadata_program* metadata=metadata_desde_literal(codigo);
 								t_pos ultimaPos={0,0,0};
-								metadata=metadata_desde_literal(codigo);
 								stack=list_create();
 								// Fin Inicializo Metadata
 
@@ -476,12 +475,12 @@ int servidor(void)
 								if(send(i,"Y",1,0) < 0)
 									anuncio("Ocurrio un problema al enviar un valor de variable global");
 
-								char* res = signedIntToStream((int32_t)dictionary_get(variablesCompartidas,rev));
+								/*char* res = signedIntToStream((int32_t)dictionary_get(variablesCompartidas,rev));
 
 								if(sendall(i, res, &tamInt) < 0)
 									anuncio("Ocurrio un problema al enviar un valor de variable global");
 								free(rev);
-								free(res);
+								free(res);*/
 
 							} else if(buf[0] == 'C'){
 								// Guardo el valor de una variable global

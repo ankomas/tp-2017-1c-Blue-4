@@ -17,7 +17,7 @@ t_pos setPos(uint32_t pag,uint32_t off, uint32_t size){
 }
 
 void setExitCode(t_pcb2 *pcb,char *msg,uint32_t exitCode){
-	printf("PCB EXIT CODE %i: %s",exitCode,msg);
+	printf("PCB EXIT CODE %i: %s\n",exitCode,msg);
 	pcb->exitCode=exitCode;
 	finPrograma_global='F';
 }
@@ -267,17 +267,15 @@ t_pcb2 deserializarPCB(char* paquete){
 	package_t paux;
 
 	//printf("|||||||||||DESERIALIZADOR||||||||||||\n");
-	printf("Deserializando PCB:\n");
+	printf("Deserializando PCB...\n");
 
 	paux=deserializar(&pointer,paquete);
 	res.pid=*(uint32_t*)paux.data;
-	printf("PID: %i\n",res.pid);
 
 	free(paux.data);
 
 	paux=deserializar(&pointer,paquete);
 	res.pc=*(uint32_t*)paux.data;
-	printf("PC: %i\n",res.pc);
 
 	free(paux.data);
 
@@ -285,7 +283,6 @@ t_pcb2 deserializarPCB(char* paquete){
 
 	paux=deserializar(&pointer,paquete);
 	res.sp=*(uint32_t*)paux.data;
-	printf("SP: %i\n",res.sp);
 
 	free(paux.data);
 
@@ -333,7 +330,6 @@ t_pcb2 deserializarPCB(char* paquete){
 	paux=deserializar(&pointer,paquete);
 	//memcpy(&res.exitCode,paux.data,4);
 	res.exitCode=*(uint32_t*)paux.data;
-	printf("Exit Code: %i\n",res.exitCode);
 
 	free(paux.data);
 
