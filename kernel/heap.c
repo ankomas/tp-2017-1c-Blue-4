@@ -7,41 +7,46 @@
 
 #include "heap.h"
 
-void iniciarPaginaHeap(pagina* unaPagina){
-	// Creo un Metadata
+heapMetadata* crearMetadata(){
 	heapMetadata *nuevoMetadata = malloc(sizeof(heapMetadata));
 	nuevoMetadata->isFree = true;
 	nuevoMetadata->size = tamanioPagina-sizeof(heapMetadata);
-	testi(nuevoMetadata->size);
-	testi(nuevoMetadata->isFree);
-
-	//Agrego el metadata a la pagina
-	unaPagina->contenido = malloc(tamanioPagina);
-
-	memcpy(unaPagina->contenido,nuevoMetadata,sizeof(heapMetadata));
-	heapMetadata *a = malloc(sizeof(heapMetadata));
-	memcpy(a,unaPagina->contenido,sizeof(heapMetadata));
-	uint32_t b = a->isFree;
-	testi(b);
-
-	//testi(*((int*)a));
-
-	/*void * data = malloc(8);
-	uint32_t r = 10, s=20;
-	memcpy(data,&r,sizeof(uint32_t));
-	memcpy(data+4,&s,sizeof(uint32_t));
-
-	uint32_t * r2 = malloc(4);
-	uint32_t * s2 = malloc(4);
-	memcpy(r2,data,sizeof(uint32_t));
-	memcpy(s2,data+4,sizeof(uint32_t));
-
-	printf("r2: %i \n",*((int*)r2));
-	printf("s2: %i \n",*((int*)s2));*/
+	return nuevoMetadata;
 }
 
-void guardarDataHeap(){
+void iniciarBloqueHeap(paginaHeap* unaPagina){
+	heapMetadata *nuevoMetadata = crearMetadata();
+	unaPagina->contenido = malloc(tamanioPagina);
+	memcpy(unaPagina->contenido,nuevoMetadata,sizeof(heapMetadata));
 
+	bloque * nuevoBloque = malloc(sizeof(bloque));
+	unaPagina->bloques = list_create();
+	nuevoBloque->posicionInicioBloque = 0;
+	nuevoBloque->metadata = nuevoMetadata;
+	list_add(unaPagina->bloques,nuevoBloque);
+}
+
+int guardarDataHeap(paginaHeap* unaPagina,void* data,int32_t tamData){
+	int i;
+	if(list_size(unaPagina->bloques) > 0){
+		while(i < list_size(unaPagina->bloques)){
+			bloque * bloqueAux = list_get(unaPagina->bloques,i);
+			if(bloqueAux->metadata->isFree == 1 && bloqueAux->metadata->size >=tamData){
+				bloqueAux->metadata->isFree = 0;
+				memcpy(
+					unaPagina->contenido+
+					bloqueAux->posicionInicioBloque+
+					sizeof(heapMetadata),
+					data,
+					tamData
+				);
+				return 0; //Guardado con exito
+			}
+			i++;
+		}
+		return -1; // No hay espacio en esta pagina
+	}
+	return -2; // La pagina no esta inicializada
 }
 
 void liberarMemoria(){
@@ -51,10 +56,6 @@ void liberarMemoria(){
 /*void bajarHeapAMemoria(){
 
 }*/
-
-void escribirHeap(){
-
-}
 
 int memoriaLibre(){
 	return 0;

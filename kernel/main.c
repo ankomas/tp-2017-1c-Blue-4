@@ -33,6 +33,7 @@ pthread_t hiloPlanificador,hiloConsolaKernel;
 
 t_list * PROGRAMAs;
 t_list * CPUs;
+t_dictionary * paginasHeap;
 t_dictionary * semaforos;
 t_dictionary * variablesCompartidas;
 t_queue * procesosNEW;
@@ -51,6 +52,7 @@ void inicializarDatos(){
 
 	PROGRAMAs = list_create();
 	CPUs = list_create();
+	paginasHeap = dictionary_create();
 	semaforos = dictionary_create();
 	variablesCompartidas = dictionary_create();
 	inicializarSemaforos();
@@ -93,8 +95,8 @@ int main(){
 
 	inicializarDatos();
 
-	pagina* unaPagina = malloc(sizeof(pagina));
-	iniciarPaginaHeap(unaPagina);
+	paginaHeap* unaPagina = malloc(sizeof(paginaHeap));
+	iniciarBloqueHeap(unaPagina);
 	//return 0;
 
 	anuncio(concat(2,"Tamanio de Pagina: ",string_itoa(tamanioPagina)));
