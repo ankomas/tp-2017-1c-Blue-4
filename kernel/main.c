@@ -41,6 +41,7 @@ t_queue * procesosREADY;
 t_queue * procesosEXEC;
 t_queue * procesosBLOCK;
 t_queue * procesosEXIT;
+t_config *cfg;
 
 t_log* logger;
 
@@ -49,6 +50,7 @@ void inicializarDatos(){
 	log_trace(logger,"Iniciando Kernel...");
 
 	pthread_mutex_init(&mutex_test,NULL);
+	cfg=config_create(rutaAbsolutaDe("config.cfg"));
 
 	PROGRAMAs = list_create();
 	CPUs = list_create();
@@ -59,13 +61,14 @@ void inicializarDatos(){
 	inicializarVariablesCompartidas();
 
 	cantidadProgramasEnSistema = 0;
-	gradoMultiprogramacion = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"),"GRADO_MULTIPROG");
-	quantum = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"),"QUANTUM");
-	tamanioStack = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"),"STACK_SIZE");
-	idFS =  conectar(obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_FS"),  obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"IP_FS"),FS_ID_INT);
-	idUMC = conectar(obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_UMC"), obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"IP_UMC"),UMC_ID_INT);
+	gradoMultiprogramacion = obtenerConfiguracion(cfg,"GRADO_MULTIPROG");
+	quantum = obtenerConfiguracion(cfg,"QUANTUM");
+	tamanioStack = obtenerConfiguracion(cfg,"STACK_SIZE");
+	idFS =  conectar(obtenerConfiguracionString(cfg,"PUERTO_FS"),  obtenerConfiguracionString(cfg,"IP_FS"),FS_ID_INT);
+	idUMC = conectar(obtenerConfiguracionString(cfg,"PUERTO_UMC"), obtenerConfiguracionString(cfg,"IP_UMC"),UMC_ID_INT);
 	tamanioPagina = obtenerTamanioPagina();
-	retardo = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"),"RETARDO");
+	testi(tamanioPagina);
+	retardo = obtenerConfiguracion(cfg,"RETARDO");
 
 	if(idFS <= 0){
 		log_error(logger,"No se pudo conectar al FileSystem");
@@ -89,11 +92,10 @@ void inicializarDatos(){
 }
 
 int main(){
-	anuncio("\n-- Datos del sistema --");
-	anuncio(concat(2,"IP a utilizar: ",obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"IP")));
-	anuncio(concat(2,"Puerto a utilizar: ",obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_PROG")));
-
 	inicializarDatos();
+	anuncio("\n-- Datos del sistema --");
+	anuncio(concat(2,"IP a utilizar: ",obtenerConfiguracionString(cfg,"IP")));
+	anuncio(concat(2,"Puerto a utilizar: ",obtenerConfiguracionString(cfg,"PUERTO_PROG")));
 
 	//paginaHeap* unaPagina = malloc(sizeof(paginaHeap));
 	//iniciarBloqueHeap(unaPagina);

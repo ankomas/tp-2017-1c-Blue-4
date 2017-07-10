@@ -212,10 +212,8 @@ void killme(){
 	system(killme);
 }
 
-int obtenerConfiguracion(char *rutaArchivo,char *propiedadConfiguracion)
+int obtenerConfiguracion(t_config *cfg,char *propiedadConfiguracion)
 {
-	t_config *cfg;
-	cfg=config_create(rutaArchivo);
 	if(config_has_property(cfg,propiedadConfiguracion))
 		return config_get_int_value(cfg,propiedadConfiguracion);
 	else
@@ -223,10 +221,8 @@ int obtenerConfiguracion(char *rutaArchivo,char *propiedadConfiguracion)
 	return -1;
 }
 
-char* obtenerConfiguracionString(char *rutaArchivo,char *propiedadConfiguracion)
+char* obtenerConfiguracionString(t_config *cfg,char *propiedadConfiguracion)
 {
-	t_config *cfg;
-	cfg=config_create(rutaArchivo);
 	if(config_has_property(cfg,propiedadConfiguracion))
 		return config_get_string_value(cfg,propiedadConfiguracion);
 	else
@@ -235,10 +231,8 @@ char* obtenerConfiguracionString(char *rutaArchivo,char *propiedadConfiguracion)
 }
 
 
-char** obtenerConfiguracionArray(char *rutaArchivo,char *propiedadConfiguracion)
+char** obtenerConfiguracionArray(t_config *cfg,char *propiedadConfiguracion)
 {
-	t_config *cfg;
-	cfg=config_create(rutaArchivo);
 	if(config_has_property(cfg,propiedadConfiguracion))
 		return config_get_array_value(cfg,propiedadConfiguracion);
 	else

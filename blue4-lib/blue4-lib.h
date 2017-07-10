@@ -8,6 +8,8 @@
 #ifndef BLUE4_LIB_H_
 #define BLUE4_LIB_H_
 
+#include <commons/config.h>
+
 #include <stdint.h>
 #include <stdarg.h>
 #include <pthread.h>
@@ -147,19 +149,19 @@ typedef struct{
 	* @NAME: obtenerConfiguracion
 	* @DESC: devuelve el valor int de un atributo de un archivo de configuracion
 	*/
-	int obtenerConfiguracion(char *rutaArchivo,char *propiedadConfiguracion);
+	int obtenerConfiguracion(t_config *cfg,char *propiedadConfiguracion);
 
 	/**
 	* @NAME: obtenerConfiguracionString
 	* @DESC: devuelve el valor string de un atributo de un archivo de configuracion
 	*/
-	char* obtenerConfiguracionString(char *rutaArchivo,char *propiedadConfiguracion);
+	char* obtenerConfiguracionString(t_config *cfg,char *propiedadConfiguracion);
 
 	/**
 	* @NAME: obtenerConfiguracionArray
 	* @DESC: devuelve el valor array de un atributo de un archivo de configuracion
 	*/
-	char** obtenerConfiguracionArray(char *rutaArchivo,char *propiedadConfiguracion);
+	char** obtenerConfiguracionArray(t_config *cfg,char *propiedadConfiguracion);
 
 	/**
 	* @NAME: recvall

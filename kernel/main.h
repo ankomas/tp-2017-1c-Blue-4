@@ -8,6 +8,7 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 
+#include "commons/config.h"
 #include "commons/collections/dictionary.h"
 #include "commons/log.h"
 #include "commons/string.h"
@@ -33,6 +34,7 @@ extern t_list* PROGRAMAs;
 extern t_dictionary * paginasHeap;
 extern t_dictionary * semaforos;
 extern t_dictionary * variablesCompartidas;
+extern t_config *cfg;
 
 extern t_log* logger;
 

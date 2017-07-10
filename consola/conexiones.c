@@ -14,6 +14,7 @@
 #include <stdint.h>
 #include "conexiones.h"
 #include "hilos.h"
+#include <blue4-lib.h>
 
 
 
@@ -113,9 +114,9 @@ int conectar(int puerto, char *ip,int id)
 datosConfig_t obtenerEstructurasDelConfig()
 {
 	datosConfig_t datos;
-	datos.ip = obtenerConfiguracionString(rutaAbsolutaDe("configConsola.cfg"),"IP_KERNEL");
+	datos.ip = obtenerConfiguracionString(config,"IP_KERNEL");
 
-	datos.puerto_kernel = obtenerConfiguracion(rutaAbsolutaDe("configConsola.cfg"),"PUERTO_KERNEL");
+	datos.puerto_kernel = obtenerConfiguracion(config,"PUERTO_KERNEL");
 	return datos;
 }
 

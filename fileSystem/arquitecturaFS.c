@@ -21,6 +21,9 @@
 #include <commons/bitarray.h>
 #include <blue4-lib.h>
 #include "arquitecturaFS.h"
+#include "conexiones.h"
+
+t_config *config;
 
 char* rutaEnPuntoMontaje(char* carpeta, char* path){
 	char* ruta = string_new();
@@ -37,9 +40,10 @@ char* rutaEnPuntoMontaje(char* carpeta, char* path){
 }
 
 void leerConfig(){
+	config=config_create(rutaAbsolutaDe("config.cfg"));
 	//configFS.puntoMontaje = malloc(100);
-	configFS.puntoMontaje = rutaAbsolutaDe(obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUNTO_MONTAJE"));
-	char* config_string=obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO");
+	configFS.puntoMontaje = rutaAbsolutaDe(obtenerConfiguracionString(config,"PUNTO_MONTAJE"));
+	char* config_string=obtenerConfiguracionString(config,"PUERTO");
 	char* concat_string = concat(2,"Puerto: ",config_string);
 	anuncio(concat_string);
 	free(concat_string);
@@ -50,8 +54,8 @@ void leerConfig(){
 
 void leerMetadata(){
 	char* ruta = rutaEnPuntoMontaje("/Metadata","/Metadata.bin");
-	configFS.tamBloque = obtenerConfiguracion(ruta,"TAMANIO_BLOQUES");
-	configFS.bloques = obtenerConfiguracion(ruta,"CANTIDAD_BLOQUES");
+	configFS.tamBloque = obtenerConfiguracion(config,"TAMANIO_BLOQUES");
+	configFS.bloques = obtenerConfiguracion(config,"CANTIDAD_BLOQUES");
 	free(ruta);
 	printf("Tamaño de bloque: %i\n", configFS.tamBloque);
 	printf("Cantidad de bloques: %i\n", configFS.bloques);

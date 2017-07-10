@@ -15,6 +15,10 @@
 // Defino estructuras administrativas que leo del config
 //int socket_kernel;
 
+#include "commons/config.h"
+
+extern t_config * config;
+
 #include <unistd.h>
 #include <inttypes.h>
 typedef struct{

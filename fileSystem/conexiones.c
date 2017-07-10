@@ -15,6 +15,8 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 
+#include <blue4-lib.h>
+
 #include <pthread.h>
 //#include <commons/config>
 #include "conexiones.h"
@@ -128,10 +130,10 @@ int establecerHandshake(int socket,char* mensaje,int tamanioMensaje)
 datosConfig_t obtenerEstructurasDelConfig()
 {
 	datosConfig_t datos;
-	datos.ip = obtenerConfiguracionString(rutaAbsolutaDe("configConsola.cfg"),"IP_KERNEL");
+	datos.ip = obtenerConfiguracionString(config,"IP_KERNEL");
 
 	printf("el ip: %s \n",datos.ip);
-	datos.puerto_kernel = obtenerConfiguracion(rutaAbsolutaDe("configConsola.cfg"),"PUERTO_KERNEL");
+	datos.puerto_kernel = obtenerConfiguracion(config,"PUERTO_KERNEL");
 	return datos;
 }
 
@@ -260,7 +262,7 @@ int handshakeHandler(int i){
 
 int servidor()
 {
-	char* puerto = obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO");
+	char* puerto = obtenerConfiguracionString(config,"PUERTO");
 
     fd_set master;    // master file descriptor list
     fd_set read_fds;  // temp file descriptor list for select()

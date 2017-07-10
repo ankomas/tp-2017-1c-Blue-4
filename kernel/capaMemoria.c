@@ -17,7 +17,7 @@
 
 int cantidadElementosArrayConfig(char* unaRuta,char*unId){
 	int aux = 0;
-	char** array = obtenerConfiguracionArray(unaRuta,unId);
+	char** array = obtenerConfiguracionArray(cfg,unId);
 	while (array[aux]){
 		aux++;
 	}
@@ -37,8 +37,8 @@ int obtenerTamanioPagina(){
 }
 
 void inicializarSemaforos() {
-	char** sem_ids = obtenerConfiguracionArray(rutaAbsolutaDe("config.cfg"),"SEM_IDS");
-	char** sem_init = obtenerConfiguracionArray(rutaAbsolutaDe("config.cfg"),"SEM_INIT");
+	char** sem_ids = obtenerConfiguracionArray(cfg,"SEM_IDS");
+	char** sem_init = obtenerConfiguracionArray(cfg,"SEM_INIT");
 	int aux = 0;
 
 	while (sem_ids[aux]){
@@ -52,7 +52,7 @@ void inicializarSemaforos() {
 }
 
 void inicializarVariablesCompartidas() {
-	char** varCompartidas_ids = obtenerConfiguracionArray(rutaAbsolutaDe("config.cfg"),"SEM_IDS");
+	char** varCompartidas_ids = obtenerConfiguracionArray(cfg,"SEM_IDS");
 	int aux = 0;
 
 	while (varCompartidas_ids[aux]){

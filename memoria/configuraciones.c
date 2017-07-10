@@ -15,15 +15,15 @@
 #include "memoria.h"
 #include "configuraciones.h"
 
-
 void inicializarDataConfig()
 {
-	configDeMemoria.puerto = obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO");
-	configDeMemoria.marcos = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"), "MARCOS");
-    configDeMemoria.tamMarco = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"), "MARCO_SIZE");
-	configDeMemoria.entradasCache = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"), "ENTRADAS_CACHE");
-	configDeMemoria.cachePorProceso = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"), "CACHE_X_PROC");
-	configDeMemoria.retardo = obtenerConfiguracion(rutaAbsolutaDe("config.cfg"), "RETARDO_MEMORIA");
+	t_config * config=config_create(rutaAbsolutaDe("config.cfg"));
+	configDeMemoria.puerto = obtenerConfiguracionString(config,"PUERTO");
+	configDeMemoria.marcos = obtenerConfiguracion(config, "MARCOS");
+    configDeMemoria.tamMarco = obtenerConfiguracion(config, "MARCO_SIZE");
+	configDeMemoria.entradasCache = obtenerConfiguracion(config, "ENTRADAS_CACHE");
+	configDeMemoria.cachePorProceso = obtenerConfiguracion(config, "CACHE_X_PROC");
+	configDeMemoria.retardo = obtenerConfiguracion(config, "RETARDO_MEMORIA");
 	configDeMemoria.marcosDisponibles= configDeMemoria.marcos;
 	configDeMemoria.cacheDisponible=configDeMemoria.entradasCache;
 

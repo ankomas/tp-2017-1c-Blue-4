@@ -337,8 +337,7 @@ void moverPrograma(t_programa* unPrograma,t_queue* colaOrigen, t_queue* colaDest
 
 t_programa* planificador(t_programa* unPrograma){
 	// mutex por haber leido de un archivo que puede ser actualizado hasta antes del recv
-	char* rutaConfig = rutaAbsolutaDe("config.cfg");
-	algoritmoPlanificador = obtenerConfiguracionString(rutaConfig,"ALGORITMO");
+	algoritmoPlanificador = obtenerConfiguracionString(cfg,"ALGORITMO");
 	//printf("algoritmoPlanificador %s\n",algoritmoPlanificador);
 
 	if(unPrograma == NULL){
@@ -347,7 +346,6 @@ t_programa* planificador(t_programa* unPrograma){
 			queue_push(procesosEXEC,aux);
 			unPrograma = aux;
 		} else if(queue_size(procesosNEW) > 0){
-			test("SAQUE UNO DE NEW");
 			t_programa* aux = queue_pop(procesosNEW);
 			testi(queue_size(procesosNEW));
 			encolarReady(aux);
@@ -361,20 +359,15 @@ t_programa* planificador(t_programa* unPrograma){
 	if(strcmp(algoritmoPlanificador,"RR") == 0){
 		if(unPrograma->quantumRestante == 0){
 			unPrograma->quantumRestante--;
-			free(rutaConfig);
-			free(algoritmoPlanificador);
 			return unPrograma;
 		} else {
 			return NULL;
 		}
 	} else if(strcmp(algoritmoPlanificador,"FIFO") == 0){
-		free(rutaConfig);
-		free(algoritmoPlanificador);
 		return unPrograma;
 	} else {
 		log_error(logger,"Algoritmo mal cargado al config.cfg");
 	}
-	free(rutaConfig);
 	free(algoritmoPlanificador);
 	return 0;
 }

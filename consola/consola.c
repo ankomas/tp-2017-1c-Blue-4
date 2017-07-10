@@ -15,13 +15,16 @@
 #include "funcionesAuxiliares.h"
 
 
+t_config* config;
+
+
 void inicializarEstructurasAdministrativas()
 {
+	config = config_create(rutaAbsolutaDe("configConsola.cfg"));
 	dataDeHilos = list_create();
 	pthread_mutex_init(&mutexDataDeHilos,NULL);
 	pthread_mutex_init(&mutexAListas,NULL);
 	sem_init(&semaforo,0,0);
-
 }
 
 

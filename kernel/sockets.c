@@ -212,7 +212,7 @@ void liberarRecursos(int i,int codigoError){
 
 int servidor(void)
 {
-	char* puerto = obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO_PROG");
+	char* puerto = obtenerConfiguracionString(cfg,"PUERTO_PROG");
 
     fd_set master;    // master file descriptor list
     fd_set read_fds;  // temp file descriptor list for select()
