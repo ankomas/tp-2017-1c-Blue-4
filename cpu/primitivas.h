@@ -16,6 +16,9 @@ void dummy_finalizar(void);
 t_valor_variable dummy_dereferenciar(t_puntero puntero);
 void dummy_asignar(t_puntero puntero, t_valor_variable variable);
 void dummy_irAlLabel(t_nombre_etiqueta etiqueta);
+void dummy_retornar(t_valor_variable retorno);
+void dummy_llamarSinRetorno(t_nombre_etiqueta etiqueta);
+void dummy_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retornar_puntero);
 
 AnSISOP_funciones funciones;
 AnSISOP_kernel kernel_functions;

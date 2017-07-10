@@ -11,13 +11,13 @@
 #include "main.h"
 #include <pthread.h>
 
-const char CONSOLA_ID = '1';
+const char PROGRAMA_ID = '1';
 const char KERNEL_ID = '2';
 const char CPU_ID = '3';
 const char FS_ID = '4';
 const char UMC_ID = '5';
 
-const char CONSOLA_ID_INT = 1;
+const char PROGRAMA_ID_INT = 1;
 const char KERNEL_ID_INT = 2;
 const char CPU_ID_INT = 3;
 const char FS_ID_INT = 4;
@@ -95,8 +95,8 @@ int main(){
 
 	inicializarDatos();
 
-	paginaHeap* unaPagina = malloc(sizeof(paginaHeap));
-	iniciarBloqueHeap(unaPagina);
+	//paginaHeap* unaPagina = malloc(sizeof(paginaHeap));
+	//iniciarBloqueHeap(unaPagina);
 	//return 0;
 
 	anuncio(concat(2,"Tamanio de Pagina: ",string_itoa(tamanioPagina)));

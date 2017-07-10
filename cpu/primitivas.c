@@ -58,21 +58,21 @@ t_puntero dummy_definirVariable(t_nombre_variable variable){
 
 	printf("Llamada a "YEL"DEFINIR VARIABLE\n"RESET"Nombre variable: %c\n",variable);
 
-	if(pcb_global.sp==0){
+	if(pcb_global.sp==-1){
 		args=list_create();
 		vars=list_create();
 		list_add(pcb_global.indiceStack,(void*)stack_create(args,vars,0,pos));
-		pcb_global.sp=1;
+		pcb_global.sp=0;
 		pos=pcb_global.ultimaPosUsada;//va a ser 0 0 0
 		pos.pag=pcb_global.cantPagCod;
 	}else{
-		stack=list_get(pcb_global.indiceStack,pcb_global.sp-1);
+		stack=list_get(pcb_global.indiceStack,pcb_global.sp);
 		args=stack->args;
 		vars=stack->vars;
 		pos=proxPos(pcb_global.ultimaPosUsada,tamPag_global);
 	}
 
-	if(pos.pag>maxStack_global+pcb_global.cantPagCod){
+	if(pos.pag==pcb_global.cantPagCod+maxStack_global){
 		printf("ERROR: stack overflow\n");
 		setExitCode(&pcb_global,"stack overflow",10);
 		printf("\n");
@@ -120,14 +120,30 @@ t_puntero dummy_obtenerPosicionVariable(t_nombre_variable variable) {
 }
 
 void dummy_finalizar(void){
+	t_stack *stack;
 	printf("Llamada a " YEL "FINALIZAR" RESET "\n");
 	printf("\n");
-	finPrograma_global='F';
+
+	if(pcb_global.sp==0){
+		finPrograma_global='F';
+		return;
+	}
+
+	stack = list_get(pcb_global.indiceStack, pcb_global.sp);
+	pcb_global.pc = stack->retPos;
+
+	stack = list_remove(pcb_global.indiceStack, pcb_global.sp);
+	pcb_global.sp--;
+
+	stack_destroy(stack);
 }
 
 t_valor_variable dummy_dereferenciar(t_puntero puntero) {
 	t_valor_variable res;
 	t_pos pos;
+
+	if(puntero==NO_EXISTE_VARIABLE)
+		return NO_EXISTE_VARIABLE;
 
 	pos=punteroAPos(puntero,tamPag_global);
 
@@ -149,7 +165,8 @@ t_valor_variable dummy_dereferenciar(t_puntero puntero) {
 void dummy_asignar(t_puntero puntero, t_valor_variable variable) {
 	t_pos pos;
 	int res;
-
+	if(puntero==NO_EXISTE_VARIABLE)
+		return;
 	pos=punteroAPos(puntero,tamPag_global);
 
 	printf("Llamada a "YEL"ASIGNAR"RESET" en Pag %i Off %i el valor %d\n", pos.pag,pos.off, variable);
@@ -184,13 +201,73 @@ void dummy_irAlLabel(t_nombre_etiqueta etiqueta){
 		setExitCode(&pcb_global,"la etiqueta no existe",13);
 
 	}
-	printf("Ahora el PC apunta a %i\n",instruccion);
+	printf("Ahora el PC apunta a %i\n",pcb_global.pc);
+	printf("\n");
+}
+
+void dummy_retornar(t_valor_variable retorno){
+	t_stack *stack;
+	t_puntero aux_puntero;
+
+	printf("Llamada a "YEL"RETORNAR"RESET"\n");
+	printf("Valor retorno: %i\n",retorno);
+
+	stack = list_get(pcb_global.indiceStack, pcb_global.sp);
+	pcb_global.pc = stack->retPos;
+
+	aux_puntero = posAPuntero(stack->retVar,tamPag_global);
+
+	dummy_asignar(aux_puntero, retorno);
+
+	stack = list_remove(pcb_global.indiceStack, pcb_global.sp);
+	pcb_global.sp--;
+
+	stack_destroy(stack);
+
+	printf("Ahora el PC apunta a %i\n",pcb_global.pc);
+	printf("\n");
+}
+
+void dummy_llamarSinRetorno(t_nombre_etiqueta etiqueta){
+	t_puntero_instruccion primeraInstruccion;
+	t_list *args=list_create(),*vars=list_create();
+	t_pos pos={0,0,0};
+
+	memcpy(etiqueta+strlen(etiqueta)-1,"\0",1);
+
+	printf("Llamada a "YEL"LLAMAR SIN RETORNO"RESET"\n");
+	printf("Etiqueta: %s\n",etiqueta);
+
+	primeraInstruccion = metadata_buscar_etiqueta(etiqueta, pcb_global.indiceEtiquetas, pcb_global.indiceEtiquetasSize);
+	list_add(pcb_global.indiceStack, stack_create(args, vars, pcb_global.pc, pos));
+	pcb_global.sp++;
+
+	pcb_global.pc = primeraInstruccion;
+
+	printf("Ahora el PC apunta a %i\n",pcb_global.pc);
+	printf("\n");
+}
+
+void dummy_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retornar_puntero){
+	t_pos dondeRetornar = punteroAPos(donde_retornar_puntero,tamPag_global);
+	t_puntero_instruccion primeraInstruccion;
+	t_list *args=list_create(),*vars=list_create();
+
+	memcpy(etiqueta+strlen(etiqueta)-1,"\0",1);
+
+	printf("Llamada a "YEL"LLAMAR CON RETORNO"RESET"\n");
+	printf("Etiqueta: %s\n",etiqueta);
+	printf("Donde retornar: (%i,%i,%i)\n",dondeRetornar.pag,dondeRetornar.off,dondeRetornar.size);
+
+	primeraInstruccion = metadata_buscar_etiqueta(etiqueta, pcb_global.indiceEtiquetas, pcb_global.indiceEtiquetasSize);
+
+	list_add(pcb_global.indiceStack, stack_create(args,vars,pcb_global.pc,dondeRetornar));
+	pcb_global.sp++;
+
+	pcb_global.pc = primeraInstruccion;
+	printf("Ahora el PC apunta a %i\n",pcb_global.pc);
 	printf("\n");
 }
 
 t_valor_variable (*AnSISOP_obtenerValorCompartida)(t_nombre_compartida variable);
 t_valor_variable (*AnSISOP_asignarValorCompartida)(t_nombre_compartida variable, t_valor_variable valor);
-void (*AnSISOP_irAlLabel)(t_nombre_etiqueta t_nombre_etiqueta);
-void (*AnSISOP_llamarSinRetorno)(t_nombre_etiqueta etiqueta);
-void (*AnSISOP_llamarConRetorno)(t_nombre_etiqueta etiqueta, t_puntero donde_retornar);
-void (*AnSISOP_retornar)(t_valor_variable retorno);

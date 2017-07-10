@@ -238,7 +238,7 @@ package_t serializarPCB(t_pcb pcb){
 	paquete=serializar(22,
 			sizeof(uint32_t),&pcb.pid,
 			sizeof(uint32_t),&pcb.pc,
-			sizeof(uint32_t),&pcb.sp,
+			sizeof(int32_t),&pcb.sp,
 			sizeof(uint32_t),&pcb.cantPagCod,
 
 			sizeof(t_pos),&pcb.ultimaPosUsada,
@@ -252,7 +252,7 @@ package_t serializarPCB(t_pcb pcb){
 			sizeof(uint32_t),&pcb.indiceEtiquetasSize,
 			pcb.indiceEtiquetasSize,pcb.indiceEtiquetas,
 
-			sizeof(uint32_t),&pcb.exitCode);
+			sizeof(int32_t),&pcb.exitCode);
 	free(indiceCodigo.data);
 	free(stack.data);
 
@@ -279,7 +279,7 @@ t_pcb deserializarPCB(char* paquete){
 	//printf("Instruccion inicio: %i\n",res.pc);
 
 	paux=deserializar(&pointer,paquete);
-	res.sp=*(uint32_t*)paux.data;
+	res.sp=*(int32_t*)paux.data;
 
 	free(paux.data);
 
@@ -326,7 +326,7 @@ t_pcb deserializarPCB(char* paquete){
 
 	paux=deserializar(&pointer,paquete);
 	//memcpy(&res.exitCode,paux.data,4);
-	res.exitCode=*(uint32_t*)paux.data;
+	res.exitCode=*(int32_t*)paux.data;
 
 	free(paux.data);
 
@@ -352,3 +352,10 @@ void addArgStack(t_pcb pcb,int indiceStack, t_var *var){
 	args=stack->args;
 	list_add(args,var);
 }
+
+void liberarPCB(t_pcb pcb){
+	free(pcb.indiceCodigo);
+	free(pcb.indiceEtiquetas);
+	list_destroy_and_destroy_elements(pcb.indiceStack,(void*)stack_destroy);
+}
+

@@ -77,7 +77,10 @@ void initFunciones(){
 			.AnSISOP_finalizar 				= dummy_finalizar,
 			.AnSISOP_dereferenciar			= dummy_dereferenciar,
 			.AnSISOP_asignar				= dummy_asignar,
-			.AnSISOP_irAlLabel				= dummy_irAlLabel
+			.AnSISOP_irAlLabel				= dummy_irAlLabel,
+			.AnSISOP_retornar				= dummy_retornar,
+			.AnSISOP_llamarSinRetorno		= dummy_llamarSinRetorno,
+			.AnSISOP_llamarConRetorno		= dummy_llamarConRetorno,
 	};
 	AnSISOP_kernel j = {};
 	funciones=f;
@@ -152,6 +155,7 @@ int main() {
 	standby(kernel);
 
 	cerrarConexion(kernel);
+	cerrarConexion(memoria);
 	config_destroy(config);
 	return 0;
 }

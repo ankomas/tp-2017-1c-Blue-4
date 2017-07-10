@@ -100,6 +100,7 @@ int conectar(char *puerto, char *ip,int id) {
 		return -1;
 	}
 	printf("Conexion existosa.\n");
+	free(servinfo);
 
 	return socketCliente;
 }
@@ -135,7 +136,8 @@ int asignarAMemoria(t_pos pos,uint32_t valor){
 }
 
 void standby(int socket){
-	char op;/*
+	char op;
+/*
 	if(send(socket,"0",1,0)<1){
 		perror("No se pudo enviar");
 		return;
@@ -150,3 +152,4 @@ void standby(int socket){
 		}
 	}
 }
+

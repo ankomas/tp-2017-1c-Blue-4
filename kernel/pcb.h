@@ -33,7 +33,7 @@ typedef struct{
 typedef struct{
 	uint32_t pid;
 	uint32_t pc;
-	uint32_t sp;
+	int32_t sp;
 	uint32_t cantPagCod;
 
 	t_pos ultimaPosUsada;
@@ -63,5 +63,7 @@ package_t stackAStream(t_list *stackLista);
 t_list *streamAStack(char *paquete);
 package_t serializarPCB(t_pcb pcb);
 t_pcb deserializarPCB(char* paquete);
+
+void liberarPCB(t_pcb pcb);
 
 #endif /* PCB_H_ */
