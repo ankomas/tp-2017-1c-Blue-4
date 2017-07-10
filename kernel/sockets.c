@@ -125,11 +125,18 @@ int handshakeHandler(int i){
 	char bufHandshake[1];
 	uint32_t tamHandshake = 1;
 	if(recvall(i, bufHandshake, sizeof(bufHandshake)) == 0){
-		if(bufHandshake[0] == PROGRAMA_ID){
 
+		if(bufHandshake[0] == PROGRAMA_ID){
 			if(sendall(i,"2",&tamHandshake) == 0)
 				log_trace(logger, concat(2,"Se realizo el Handshake con exito con ",string_itoa(i)) );
-
+			if(recvall(i, bufHandshake, sizeof(bufHandshake)) == 0){
+				if(bufHandshake[0] == 'A'){
+				pthread_t thread;
+				t_programa * nuevoPrograma = inicializarPrograma(i,pidActual);
+				pthread_create(&thread,NULL,(void*)programa,nuevoPrograma);
+				pidActual++;
+				}
+			}
 			reconozcoCliente = 1;
 		}else if(bufHandshake[0] == CPU_ID){
 			t_cpu * nuevaCPU = malloc(sizeof(t_cpu));
@@ -140,7 +147,6 @@ int handshakeHandler(int i){
 			if(sendall(i,"2",&tamHandshake) == 0)
 				log_trace(logger, concat(2,"Se realizo el Handshake con exito con ",string_itoa(i)) );
 			pthread_create(&thread, NULL, cpu,nuevaCPU);
-			//nuevaCPU->hilo = crearHiloCPU(nuevaCPU);
 			list_add(CPUs,nuevaCPU);
 			reconozcoCliente = 1;
 		}
@@ -339,99 +345,7 @@ int servidor(void)
 
 							// INICIALIZO PROGRAMA
 							if(buf[0] == 'A'){
-								//Recibo codigo
-								printf("Codigo OP: A\n");
-								char* tamanioCodigoString = malloc(4/*+1*/);
-								//memset(tamanioCodigoString,0,5);
-								if(recv(i,tamanioCodigoString,4,MSG_WAITALL) < 0)
-									printf("Error al recibir el tamanio de codigo");
-								uint32_t tamanioCodigo;/* = atoi(tamanioCodigoString);*/
-								memcpy(&tamanioCodigo,tamanioCodigoString,4);
-								printf("Tamanio codigo de %i: %i\n",i,tamanioCodigo);
-								char* codigo;/* = malloc(tamanioCodigo);*/
 
-								//todo verificar logica
-								//reserva cant paginas * tamanio pagina, llena el contenido de ceros
-
-								if(tamanioCodigo%tamanioPagina!=0)
-									codigo=calloc(1,((tamanioCodigo/tamanioPagina)+1)*tamanioPagina);
-								else
-									codigo=calloc(1,(tamanioCodigo/tamanioPagina)*tamanioPagina);
-								//codigo=calloc(1,tamanioCodigo);
-
-								if(recv(i,codigo,tamanioCodigo,MSG_WAITALL) < 0)
-									printf("Error al recibir el codigo");
-
-								//Envio PID a consola
-								enviarPID(i);
-
-								// Inicializo el Programa y su PCB
-								t_pcb * nuevoPCB = malloc(sizeof(t_pcb));
-								t_programa * nuevoProceso = malloc(sizeof(t_programa));
-
-								// Inicializo Metadata
-								t_list *stack;
-								t_metadata_program* metadata=metadata_desde_literal(codigo);
-								t_pos ultimaPos={0,0,0};
-								stack=list_create();
-								// Fin Inicializo Metadata
-
-								nuevoPCB->pid=pidActual;
-								nuevoPCB->pc=metadata->instruccion_inicio;
-								nuevoPCB->sp=-1;
-								nuevoPCB->exitCode = 0;
-								nuevoPCB->ultimaPosUsada=ultimaPos;
-								nuevoPCB->indiceCodigoSize=metadata->instrucciones_size;
-								nuevoPCB->indiceCodigo=metadata->instrucciones_serializado;
-								nuevoPCB->indiceStack=stack;
-								nuevoPCB->indiceEtiquetasSize=metadata->etiquetas_size;
-								nuevoPCB->indiceEtiquetas=metadata->etiquetas;
-
-								nuevoProceso->id = i;
-								nuevoProceso->tablaArchivos = NULL;
-								nuevoProceso->quantumRestante = quantum;
-								nuevoProceso->pcb = nuevoPCB;
-
-								uint32_t cantidadPaginasCodigo = 0;
-								if(tamanioPagina == -1)
-									anuncio("No se pueden cargar procesos porque la memoria no esta conectada");
-								else if(tamanioPagina == 0)
-									anuncio("El tamanio de una pagina no puede ser 0");
-								else{
-									//todo verificar logica
-									if(tamanioCodigo%tamanioPagina!=0)
-										cantidadPaginasCodigo = (tamanioCodigo/tamanioPagina)+1;
-									else
-										cantidadPaginasCodigo = tamanioCodigo/tamanioPagina;
-								}
-
-								printf("PID: %i, Cantidad de paginas de codigo: %i\n",nuevoPCB->pid,cantidadPaginasCodigo);
-
-								if(cantidadPaginasCodigo == 0)
-									killme();
-
-								nuevoProceso->codigo = codigo;
-							/*
-								int wtf;
-								printf("\n");
-								for(wtf=0;wtf<535;wtf++)
-									printf("%c",nuevoProceso->codigo[wtf]);
-								printf("\n");
-								*/
-								nuevoProceso->paginasCodigo = cantidadPaginasCodigo;
-								nuevoProceso->pcb->cantPagCod= cantidadPaginasCodigo;
-
-								if(gradoMultiprogramacion >= cantidadProgramasEnSistema){
-									encolarReady(nuevoProceso);
-								}else{
-									/*if(send(i,"N",1,0) < 1)
-										log_error(logger,"ERROR, el kernel no le pudo enviar el mensaje de que no es posible crear un nuevo programa");*/
-									queue_push(procesosNEW,nuevoPCB);
-									log_info(logger,"No se pueden aceptar mas programas debido al grado de multiprogramacion definido. Encolando en NEW...");
-								}
-								pidActual++;
-								cantidadProgramasEnSistema++;
-								list_add(PROGRAMAs,nuevoProceso);
 
 
 							} else if(buf[0] == 'B'){

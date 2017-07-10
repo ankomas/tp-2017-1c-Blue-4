@@ -67,7 +67,7 @@ t_programa * encontrarPrograma(uint32_t i){
 	if(list_size(PROGRAMAs) > 0){
 		t_programa * programaAux;
 		while(contador < list_size(PROGRAMAs)){
-			programaAux = list_get(CPUs,contador);
+			programaAux = list_get(PROGRAMAs,contador);
 			if(programaAux->id == i)
 				return programaAux;
 			contador++;
@@ -143,6 +143,103 @@ t_cpu* indiceProximaCPULibre(){
 	return NULL;
 }
 
+t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual){
+	//Recibo codigo
+	printf("Codigo OP: A\n");
+	char* tamanioCodigoString = malloc(4/*+1*/);
+	//memset(tamanioCodigoString,0,5);
+	if(recv(i,tamanioCodigoString,4,MSG_WAITALL) < 0)
+		printf("Error al recibir el tamanio de codigo");
+	uint32_t tamanioCodigo;/* = atoi(tamanioCodigoString);*/
+	memcpy(&tamanioCodigo,tamanioCodigoString,4);
+	printf("Tamanio codigo de %i: %i\n",i,tamanioCodigo);
+	char* codigo;/* = malloc(tamanioCodigo);*/
+
+	//todo verificar logica
+	//reserva cant paginas * tamanio pagina, llena el contenido de ceros
+
+	if(tamanioCodigo%tamanioPagina!=0)
+		codigo=calloc(1,((tamanioCodigo/tamanioPagina)+1)*tamanioPagina);
+	else
+		codigo=calloc(1,(tamanioCodigo/tamanioPagina)*tamanioPagina);
+	//codigo=calloc(1,tamanioCodigo);
+
+	if(recv(i,codigo,tamanioCodigo,MSG_WAITALL) < 0)
+		printf("Error al recibir el codigo");
+
+	//Envio PID a consola
+	enviarPID(i);
+
+	// Inicializo el Programa y su PCB
+	t_pcb * nuevoPCB = malloc(sizeof(t_pcb));
+	t_programa * nuevoProceso = malloc(sizeof(t_programa));
+
+	// Inicializo Metadata
+	t_list *stack;
+	t_metadata_program* metadata=metadata_desde_literal(codigo);
+	t_pos ultimaPos={0,0,0};
+	stack=list_create();
+	// Fin Inicializo Metadata
+
+	nuevoPCB->pid=pidActual;
+	nuevoPCB->pc=metadata->instruccion_inicio;
+	nuevoPCB->sp=-1;
+	nuevoPCB->exitCode = 0;
+	nuevoPCB->ultimaPosUsada=ultimaPos;
+	nuevoPCB->indiceCodigoSize=metadata->instrucciones_size;
+	nuevoPCB->indiceCodigo=metadata->instrucciones_serializado;
+	nuevoPCB->indiceStack=stack;
+	nuevoPCB->indiceEtiquetasSize=metadata->etiquetas_size;
+	nuevoPCB->indiceEtiquetas=metadata->etiquetas;
+
+	nuevoProceso->id = i;
+	nuevoProceso->tablaArchivos = NULL;
+	nuevoProceso->quantumRestante = quantum;
+	nuevoProceso->pcb = nuevoPCB;
+
+	uint32_t cantidadPaginasCodigo = 0;
+	if(tamanioPagina == -1)
+		anuncio("No se pueden cargar procesos porque la memoria no esta conectada");
+	else if(tamanioPagina == 0)
+		anuncio("El tamanio de una pagina no puede ser 0");
+	else{
+		//todo verificar logica
+		if(tamanioCodigo%tamanioPagina!=0)
+			cantidadPaginasCodigo = (tamanioCodigo/tamanioPagina)+1;
+		else
+			cantidadPaginasCodigo = tamanioCodigo/tamanioPagina;
+	}
+
+	printf("PID: %i, Cantidad de paginas de codigo: %i\n",nuevoPCB->pid,cantidadPaginasCodigo);
+
+	if(cantidadPaginasCodigo == 0)
+		killme();
+
+	nuevoProceso->codigo = codigo;
+/*
+	int wtf;
+	printf("\n");
+	for(wtf=0;wtf<535;wtf++)
+		printf("%c",nuevoProceso->codigo[wtf]);
+	printf("\n");
+	*/
+	nuevoProceso->paginasCodigo = cantidadPaginasCodigo;
+	nuevoProceso->pcb->cantPagCod= cantidadPaginasCodigo;
+
+	if(gradoMultiprogramacion >= cantidadProgramasEnSistema){
+		encolarReady(nuevoProceso);
+	}else{
+		/*if(send(i,"N",1,0) < 1)
+			log_error(logger,"ERROR, el kernel no le pudo enviar el mensaje de que no es posible crear un nuevo programa");*/
+		queue_push(procesosNEW,nuevoPCB);
+		log_info(logger,"No se pueden aceptar mas programas debido al grado de multiprogramacion definido. Encolando en NEW...");
+	}
+	pidActual++;
+	cantidadProgramasEnSistema++;
+	list_add(PROGRAMAs,nuevoProceso);
+	return nuevoProceso;
+}
+
 void* cpu(t_cpu * cpu){
 	void liberarCPU(t_programa* programaDeCPU){
 		moverPrograma(programaDeCPU,procesosEXEC,procesosEXIT);
@@ -212,6 +309,12 @@ void* cpu(t_cpu * cpu){
 	}
 
 	return 0;
+}
+
+void* programa(t_programa *programa){
+	while(1){
+		usleep(5000);
+	}
 }
 
 void moverPrograma(t_programa* unPrograma,t_queue* colaOrigen, t_queue* colaDestino){
