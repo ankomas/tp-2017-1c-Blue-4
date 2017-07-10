@@ -162,6 +162,199 @@ int inicializarEnMemoria(uint32_t i, uint32_t pid,uint32_t paginasNecesarias) {
 	}
 }
 
+// SYSCALLS Memoria
+void leerVarGlobal(uint32_t i){
+	// Envio el valor de una variable global
+
+	uint32_t tamInt = sizeof(int32_t);
+	uint32_t tamARecibir=0;
+	char * rev = malloc(1);
+
+	// Recibo largo del nombre de la variable
+	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
+		anuncio("Ocurrio un problema al recibir un valor de variable global");
+	if(send(i,"Y",1,0) < 0)
+		anuncio("Ocurrio un problema al enviar un valor de variable global");
+	rev=realloc(rev,tamARecibir+1);
+	memset(rev,'\0',tamARecibir+1);
+
+	// Recibo el nombre de la variable
+	if(recv(i,&rev,tamARecibir,MSG_WAITALL) <= 0)
+		anuncio("Ocurrio un problema al recibir un valor de variable global");
+	if(send(i,"Y",1,0) < 0)
+		anuncio("Ocurrio un problema al enviar un valor de variable global");
+
+	char* res = signedIntToStream((int32_t)dictionary_get(variablesCompartidas,rev));
+
+	if(sendall(i, res, &tamInt) < 0)
+		anuncio("Ocurrio un problema al enviar un valor de variable global");
+	free(rev);
+	free(res);
+}
+
+void guardarVarGlobal(uint32_t i){
+	// Guardo el valor de una variable global
+
+	uint32_t tamInt=sizeof(int32_t);
+	uint32_t tamARecibir=0;
+	int32_t nuevoValorVar=0;
+	char * rev = malloc(1);
+
+	// Recibo largo del nombre de la variable
+	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
+		anuncio("Ocurrio un problema al recibir un valor de variable global");
+	if(send(i,"Y",1,0) < 0)
+		anuncio("Ocurrio un problema al enviar un valor de variable global");
+	rev=realloc(rev,tamARecibir+1);
+	memset(rev,'\0',tamARecibir+1);
+
+	// Recibo el nombre de la variable
+	if(recv(i,&rev,tamARecibir,MSG_WAITALL) <= 0)
+		anuncio("Ocurrio un problema al recibir un valor de variable global");
+
+	if(send(i,"Y",1,0) < 0)
+		anuncio("Ocurrio un problema al enviar un valor de variable global");
+
+	// Recibo el valor a asignar
+	if(recv(i,&nuevoValorVar,tamInt,MSG_WAITALL) <= 0)
+		anuncio("Ocurrio un problema al enviar un valor de variable global");
+
+	dictionary_put(variablesCompartidas,rev,&nuevoValorVar);
+
+	if(send(i,"Y",1,0) < 0)
+		anuncio("Ocurrio un problema al enviar un valor de variable global");
+
+	free(rev);
+}
+
+void semWait(uint32_t i){
+	// Wait semaforo
+
+	uint32_t tamARecibir=0;
+	char * rev = malloc(1);
+
+	// Recibo largo del nombre del semaforo
+	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
+		anuncio("Ocurrio un problema al hacer un Wait");
+	if(send(i,"Y",1,0) < 0)
+		anuncio("Ocurrio un problema al hacer un Wait");
+	rev=realloc(rev,tamARecibir+1);
+	memset(rev,'\0',tamARecibir+1);
+
+	// Recibo el nombre del semaforo
+	if(recv(i,&rev,tamARecibir,MSG_WAITALL) <= 0)
+		anuncio("Ocurrio un problema al hacer un Wait");
+	send(i,"Y",1,0);
+
+	t_semaforo * semaforoObtenido =(t_semaforo *)dictionary_get(semaforos,rev);
+	if(semaforoObtenido->valor > 0){
+		semaforoObtenido->valor--;
+		if(send(i,"Y",1,0))
+			anuncio("Ocurrio un problema al hacer un Wait");
+	}else {
+		t_cpu * cpuEncontrada = encontrarCPU(i);
+		uint32_t pid = cpuEncontrada->programaEnEjecucion->pid;
+		queue_push(semaforoObtenido->colaEspera,&pid);
+	}
+
+	free(rev);
+
+}
+
+void semSignal(uint32_t i){
+	uint32_t tamARecibir=0;
+	char * rev = malloc(1);
+
+	// Recibo largo del nombre del semaforo
+	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
+		anuncio("Ocurrio un problema al hacer un Wait");
+	if(send(i,"Y",1,0) < 0)
+		anuncio("Ocurrio un problema al hacer un Wait");
+	rev=realloc(rev,tamARecibir+1);
+	memset(rev,'\0',tamARecibir+1);
+
+	// Recibo el nombre del semaforo
+	if(recv(i,&rev,tamARecibir,MSG_WAITALL) <= 0)
+		anuncio("Ocurrio un problema al hacer un Wait");
+	send(i,"Y",1,0);
+
+	t_semaforo * semaforoObtenido =(t_semaforo *)dictionary_get(semaforos,rev);
+	if(queue_size(semaforoObtenido->colaEspera)>0){
+		uint32_t *proximoPID = queue_pop(semaforoObtenido->colaEspera);
+		t_cpu * cpuEncontrada = encontrarCPUporPID(*proximoPID);
+
+		if(send(i,"Y",cpuEncontrada->id,0))
+			anuncio("Ocurrio un problema al hacer un Wait");
+	}else {
+		semaforoObtenido->valor++;
+	}
+
+	free(rev);
+}
+
+/*void guardarEnHeap(uint32_t i){
+	uint32_t tamARecibir=0;
+	char * rev = malloc(1);
+
+	// Recibo largo del nombre del semaforo
+	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
+		anuncio("Ocurrio un problema al hacer un Wait");
+	if(send(i,"Y",1,0) < 0)
+		anuncio("Ocurrio un problema al hacer un Wait");
+	rev=realloc(rev,tamARecibir+1);
+	memset(rev,'\0',tamARecibir+1);
+
+	// Recibo el nombre del semaforo
+	if(recv(i,&rev,tamARecibir,MSG_WAITALL) <= 0)
+		anuncio("Ocurrio un problema al hacer un Wait");
+	send(i,"Y",1,0);
+
+	t_semaforo * semaforoObtenido =(t_semaforo *)dictionary_get(semaforos,rev);
+	if(queue_size(semaforoObtenido->colaEspera)>0){
+		uint32_t *proximoPID = queue_pop(semaforoObtenido->colaEspera);
+		t_cpu * cpuEncontrada = encontrarCPUporPID(*proximoPID);
+
+		if(send(i,"Y",cpuEncontrada->id,0))
+			anuncio("Ocurrio un problema al hacer un Wait");
+	}else {
+		semaforoObtenido->valor++;
+	}
+
+	free(rev);
+}
+
+void leerHeap(uint32_t i){
+	uint32_t tamARecibir=0;
+	char * rev = malloc(1);
+
+	// Recibo largo del nombre del semaforo
+	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
+		anuncio("Ocurrio un problema al hacer un Wait");
+	if(send(i,"Y",1,0) < 0)
+		anuncio("Ocurrio un problema al hacer un Wait");
+	rev=realloc(rev,tamARecibir+1);
+	memset(rev,'\0',tamARecibir+1);
+
+	// Recibo el nombre del semaforo
+	if(recv(i,&rev,tamARecibir,MSG_WAITALL) <= 0)
+		anuncio("Ocurrio un problema al hacer un Wait");
+	send(i,"Y",1,0);
+
+	t_semaforo * semaforoObtenido =(t_semaforo *)dictionary_get(semaforos,rev);
+	if(queue_size(semaforoObtenido->colaEspera)>0){
+		uint32_t *proximoPID = queue_pop(semaforoObtenido->colaEspera);
+		t_cpu * cpuEncontrada = encontrarCPUporPID(*proximoPID);
+
+		if(send(i,"Y",cpuEncontrada->id,0))
+			anuncio("Ocurrio un problema al hacer un Wait");
+	}else {
+		semaforoObtenido->valor++;
+	}
+
+	free(rev);
+}*/
+// Fin SYSCALLs Memoria
+
 /*int liberarPagina(){
 
 }*/

@@ -31,7 +31,6 @@ const char UMC_ID;
 extern int cantidadProgramasEnSistema,idFS,idUMC,gradoMultiprogramacion,retardo,quantum,tamanioPagina,tamanioStack;
 extern t_list* CPUs;
 extern t_list* PROGRAMAs;
-extern t_dictionary * paginasHeap;
 extern t_dictionary * semaforos;
 extern t_dictionary * variablesCompartidas;
 extern t_config *cfg;

@@ -194,6 +194,7 @@ t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual){
 
 	nuevoProceso->id = i;
 	nuevoProceso->tablaArchivos = NULL;
+	nuevoProceso->paginasHeap = dictionary_create();
 	nuevoProceso->quantumRestante = quantum;
 	nuevoProceso->pcb = nuevoPCB;
 
@@ -300,78 +301,18 @@ void* cpu(t_cpu * cpu){
 				//TODO El planificador debe desencolar procesos ya terminados
 				proximoPrograma = planificador(proximoPrograma);
 			} else if(res[0] == 'B'){
-				// Si se manda una B, se quiere escribir en una var global
-				if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
-					liberarCPU(proximoPrograma);
-
-				res=realloc(res,tamARecibir);
-
-				if(recv(cpu->id,res,tamARecibir,MSG_WAITALL) <= 0)
-					liberarCPU(proximoPrograma);
-				else{
-					//escribir var global
-				}
+				guardarVarGlobal(cpu->id);
 			}  else if(res[0] == 'C'){
-				// Si se manda una C, se quiere leer una var global
-				if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
-					liberarCPU(proximoPrograma);
-
-				res=realloc(res,tamARecibir);
-
-				if(recv(cpu->id,res,tamARecibir,MSG_WAITALL) <= 0)
-					liberarCPU(proximoPrograma);
-				else{
-					//leer var global
-				}
+				leerVarGlobal(cpu->id);
 			} else if(res[0] == 'W'){
-				// Si se manda una W, se quiere hacer wait en un semaforo
-				if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
-					liberarCPU(proximoPrograma);
-
-				res=realloc(res,tamARecibir);
-
-				if(recv(cpu->id,res,tamARecibir,MSG_WAITALL) <= 0)
-					liberarCPU(proximoPrograma);
-				else{
-					//wait semaforo
-				}
+				semWait(cpu->id);
 			} else if(res[0] == 'S'){
-				// Si se manda una S, se quiere hacer signal en un semaforo
-				if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
-					liberarCPU(proximoPrograma);
-
-				res=realloc(res,tamARecibir);
-
-				if(recv(cpu->id,res,tamARecibir,MSG_WAITALL) <= 0)
-					liberarCPU(proximoPrograma);
-				else{
-					//signal semaforo
-				}
-			} else if(res[0] == 'H'){
-				// Si se manda una H, se quiere leer un bloque del heap
-				if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
-					liberarCPU(proximoPrograma);
-
-				res=realloc(res,tamARecibir);
-
-				if(recv(cpu->id,res,tamARecibir,MSG_WAITALL) <= 0)
-					liberarCPU(proximoPrograma);
-				else{
-					// leer heap
-				}
+				semSignal(cpu->id);
+			} /*else if(res[0] == 'H'){
+				leerHeap(cpu->id);
 			} else if(res[0] == 'G'){
-				// Si se manda una G, se quiere guardar un bloque del heap
-				if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
-					liberarCPU(proximoPrograma);
-
-				res=realloc(res,tamARecibir);
-
-				if(recv(cpu->id,res,tamARecibir,MSG_WAITALL) <= 0)
-					liberarCPU(proximoPrograma);
-				else{
-					// guardar en heap
-				}
-			}
+				guardarEnHeap(cpu->id);
+			}*/
 
 			// Esta Y debe ser reemplazada por el codigo que devuelva la cpu, cuando finalice tiene que limpiar las estructuras incluyendo cpu
 		} else {

@@ -25,6 +25,7 @@ typedef struct t_programa {
 	uint32_t paginasCodigo;
 	char* codigo;
 	t_pcb* pcb;
+	t_dictionary * paginasHeap;
 } t_programa;
 
 typedef struct t_cpu {
@@ -44,5 +45,10 @@ t_programa* planificador();
 void *cpu();
 void encolarReady();
 void moverPrograma(t_programa* unPrograma,t_queue* colaOrigen, t_queue* colaDestino);
-
+void semWait(uint32_t i);
+void semSignal(uint32_t i);
+void guardarEnHeap(uint32_t i);
+void leerHeap(uint32_t i);
+void guardarVarGlobal(uint32_t i);
+void leerVarGlobal(uint32_t i);
 #endif /* PLANIFICADOR_H_ */
