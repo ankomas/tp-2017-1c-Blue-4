@@ -226,15 +226,14 @@ t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual){
 	nuevoProceso->paginasCodigo = cantidadPaginasCodigo;
 	nuevoProceso->pcb->cantPagCod= cantidadPaginasCodigo;
 
-	if(gradoMultiprogramacion >= cantidadProgramasEnSistema){
+	if(gradoMultiprogramacion > cantidadProgramasEnSistema){
 		encolarReady(nuevoProceso);
 	}else{
 		/*if(send(i,"N",1,0) < 1)
 			log_error(logger,"ERROR, el kernel no le pudo enviar el mensaje de que no es posible crear un nuevo programa");*/
-		queue_push(procesosNEW,nuevoPCB);
+		queue_push(procesosNEW,nuevoProceso);
 		log_info(logger,"No se pueden aceptar mas programas debido al grado de multiprogramacion definido. Encolando en NEW...");
 	}
-	pidActual++;
 	cantidadProgramasEnSistema++;
 	list_add(PROGRAMAs,nuevoProceso);
 	return nuevoProceso;

@@ -67,7 +67,9 @@ void inicializarDatos(){
 	idFS =  conectar(obtenerConfiguracionString(cfg,"PUERTO_FS"),  obtenerConfiguracionString(cfg,"IP_FS"),FS_ID_INT);
 	idUMC = conectar(obtenerConfiguracionString(cfg,"PUERTO_UMC"), obtenerConfiguracionString(cfg,"IP_UMC"),UMC_ID_INT);
 	tamanioPagina = obtenerTamanioPagina();
-	testi(tamanioPagina);
+	if(tamanioPagina <= 0){
+		anuncio("No se conecto a la memoria, abortando...");
+	}
 	retardo = obtenerConfiguracion(cfg,"RETARDO");
 
 	if(idFS <= 0){
@@ -88,11 +90,16 @@ void inicializarDatos(){
 	procesosBLOCK = queue_create();
 	procesosEXIT = queue_create();
 
+	if(tamanioPagina <= 0){
+		killme();
+	}
+
 	pthread_create(&hiloConsolaKernel, NULL, consolaKernel,NULL);
 }
 
 int main(){
 	inicializarDatos();
+
 	anuncio("\n-- Datos del sistema --");
 	anuncio(concat(2,"IP a utilizar: ",obtenerConfiguracionString(cfg,"IP")));
 	anuncio(concat(2,"Puerto a utilizar: ",obtenerConfiguracionString(cfg,"PUERTO_PROG")));
