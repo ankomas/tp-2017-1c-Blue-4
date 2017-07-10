@@ -47,6 +47,7 @@ int validarArchivo(char* path){ //Completa!
 		return 0;
 }
 
+/*
 int asignarBloque( char* path){
 	int bloque = getBloqueLibre();
 	if(bloque < 0)
@@ -54,7 +55,8 @@ int asignarBloque( char* path){
 	ocuparBloque(bloque);
 	return bloque;
 }
-
+*/
+/*
 int crearArchivo(char* path){ //No sabia que hacer
 	if(validarArchivo(path) == 0)
 		return -1;
@@ -68,7 +70,7 @@ int crearArchivo(char* path){ //No sabia que hacer
 	fclose(archivo);
 	return 0;
 }
-
+*/
 int borrar(char* path){ //No esta Completa! Falta borrar su metadata y cambiar los bits en el bitmap
 	FILE* archivo;
 	archivo = fopen(rutaArchivo(path), "rb");

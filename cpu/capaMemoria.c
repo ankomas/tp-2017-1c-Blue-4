@@ -23,10 +23,14 @@
 
 int pedirTamGlobal(int memoria){
 	char*paquete = malloc(4);
+	int res;
 	if(memoria > 0){
 		send(memoria,"P",1,0);
-		if(recv(memoria,paquete,4,MSG_WAITALL) == 4)
-			return atoi(paquete);
+		if(recv(memoria,paquete,4,MSG_WAITALL) == 4){
+			res=atoi(paquete);
+			free(paquete);
+			return res;
+		}
 	}
 	printf("No se pudo obtener el tamanio de pagina");
 	return -1;

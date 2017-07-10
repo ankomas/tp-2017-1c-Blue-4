@@ -63,4 +63,6 @@ t_list *streamAStack(char *paquete);
 package_t serializarPCB(t_pcb2 pcb);
 t_pcb2 deserializarPCB(char* paquete);
 
+void liberarPCB(t_pcb2 pcb);
+
 #endif /* PCB_H_ */
