@@ -19,6 +19,7 @@ extern t_queue * procesosBLOCK;
 extern t_queue * procesosEXIT;
 
 typedef struct t_programa {
+	uint32_t id;
 	void * tablaArchivos;
 	uint32_t quantumRestante;
 	uint32_t paginasCodigo;
@@ -35,6 +36,9 @@ typedef struct t_cpu {
 
 t_cpu * encontrarCPU(uint32_t i);
 t_cpu * encontrarCPUporPID(uint32_t pid);
+t_programa * encontrarPrograma(uint32_t i);
+t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual);
+void* programa(t_programa* programa);
 
 t_programa* planificador();
 void *cpu();

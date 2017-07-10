@@ -21,8 +21,15 @@
 #include "heap.h"
 #include "pcb.h"
 
+const char PROGRAMA_ID;
+const char KERNEL_ID;
+const char CPU_ID;
+const char FS_ID;
+const char UMC_ID;
+
 extern int cantidadProgramasEnSistema,idFS,idUMC,gradoMultiprogramacion,retardo,quantum,tamanioPagina,tamanioStack;
 extern t_list* CPUs;
+extern t_list* PROGRAMAs;
 extern t_dictionary * paginasHeap;
 extern t_dictionary * semaforos;
 extern t_dictionary * variablesCompartidas;
