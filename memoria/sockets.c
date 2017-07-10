@@ -307,7 +307,7 @@ void solicitarBytes(int socket)
 	void* data;
 	resultado=recibir_PID_PAGINA_OFFSET_TAMANIO(socket,&pid,&pagina,&offset,&tamanio);
 	if(resultado<0)return;
-	data=leerMemoria(pid,pagina,offset,tamanio);
+	data=leer(pid,pagina,offset,tamanio);
 /*
 	int wtf;
 	char *wtf2=(char*)data;
@@ -341,7 +341,7 @@ void almacenarBytes(int socket)
 			printf("%c",wtf2[wtf]);
 		printf("\n");
 */
-		resultado=escribirMemoria(pid,pagina,offset,tamanio,data);
+		resultado=escribir(pid,pagina,offset,tamanio,data);
 		if(resultado<0)
 		{
 			send(socket,"N",1,0);
