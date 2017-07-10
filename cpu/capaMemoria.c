@@ -138,6 +138,7 @@ int cargarDeMemoria(int socket,uint32_t pid,uint32_t pag, uint32_t off,uint32_t 
 	printf("Leyendo de memoria, respuesta: %c\n",res[0]);
 	if(res[0]=='N'){
 		printf("Error al recibir contenido de la memoria\n");
+		free(res);
 		return -1;
 	}
 	/*res=realloc(res,sizeof(uint32_t));
@@ -187,7 +188,9 @@ char* pedirLineaAMemoria(t_pcb2* pcb,uint32_t start,uint32_t off){
 
 		size=substraer(&sizeTotal,tamPag-offsetPag); // 16 - 9 = 7
 
-		cargarDeMemoria(memoria, pcb->pid,pag+i, offsetPag,size,&paquete);
+		if(cargarDeMemoria(memoria, pcb->pid,pag+i, offsetPag,size,&paquete)==-1){
+			return -1;
+		}
 		res=realloc(res,paquete.data_size+offset);
 
 		memcpy(res+offset,paquete.data,paquete.data_size);

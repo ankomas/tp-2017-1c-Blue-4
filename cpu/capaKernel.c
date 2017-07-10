@@ -43,7 +43,10 @@ void ejecutarPCB(t_pcb2 *pcb, int socket){
 	char* const linea = lineaEnPrograma(pcb,
 			pcb->indiceCodigo[pcb->pc].start,
 			pcb->indiceCodigo[pcb->pc].offset);
-
+	if(linea==-1){
+		setExitCode(&pcb_global,"fallo al leer en memoria",11);
+		return;
+	}
 	printf(GRN"PID: %i PC:%i SP:%i\n"RESET,pcb->pid,pcb->pc,pcb->sp);
 	printf("\t Evaluando -> " BLU "%s" RESET"\n", linea);
 	pcb->pc++;

@@ -11,13 +11,16 @@
 #include "pcb.h"
 #include "capaKernel.h"
 
+#define RED   "\x1B[31m"
+#define RESET "\x1B[0m"
+
 t_pos setPos(uint32_t pag,uint32_t off, uint32_t size){
 	t_pos pos={pag,off,size};
 	return pos;
 }
 
 void setExitCode(t_pcb2 *pcb,char *msg,uint32_t exitCode){
-	printf("PCB EXIT CODE %i: %s\n",exitCode,msg);
+	printf(RED"PCB EXIT CODE %i: %s\n"RESET,exitCode,msg);
 	pcb->exitCode=-exitCode;
 	finPrograma_global='F';
 }
