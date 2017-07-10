@@ -18,7 +18,7 @@ t_pos setPos(uint32_t pag,uint32_t off, uint32_t size){
 
 void setExitCode(t_pcb2 *pcb,char *msg,uint32_t exitCode){
 	printf("PCB EXIT CODE %i: %s\n",exitCode,msg);
-	pcb->exitCode=exitCode;
+	pcb->exitCode=-exitCode;
 	finPrograma_global='F';
 }
 
@@ -354,4 +354,10 @@ void addArgStack(t_pcb2 pcb,int indiceStack, t_var *var){
 	stack=list_get(pcb.indiceStack,indiceStack);
 	args=stack->args;
 	list_add(args,var);
+}
+
+void liberarPCB(t_pcb2 pcb){
+	free(pcb.indiceCodigo);
+	free(pcb.indiceEtiquetas);
+	list_destroy_and_destroy_elements(pcb.indiceStack,(void*)stack_destroy);
 }

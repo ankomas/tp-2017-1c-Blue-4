@@ -45,11 +45,12 @@ void ejecutarPCB(t_pcb2 *pcb, int socket){
 			pcb->indiceCodigo[pcb->pc].offset);
 
 	printf(GRN"PID: %i PC:%i SP:%i\n"RESET,pcb->pid,pcb->pc,pcb->sp);
-	printf("\t Evaluando -> " BLU "%s" RESET, linea);
+	printf("\t Evaluando -> " BLU "%s" RESET"\n", linea);
+	pcb->pc++;
 	analizadorLinea(linea, &funciones, &kernel_functions);
 	//test_asignadoCorrecto();
 	free(linea);
-	pcb->pc++;
+
 }
 
 void recibirPCB(int socket){
@@ -85,6 +86,8 @@ void enviarPCB(int socket){
 	send(socket,&finPrograma_global,1,0);
 	send(socket,&paquete.data_size,sizeof(uint32_t),0);
 	enviado=send(socket,paquete.data,paquete.data_size,0);
+	free(paquete.data);
+	liberarPCB(pcb_global);
 	/*while(enviado<paquete.data_size){
 		enviado=send(socket,paquete.data,paquete.data_size-enviado,0);
 	}*/

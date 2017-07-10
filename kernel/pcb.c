@@ -352,3 +352,10 @@ void addArgStack(t_pcb pcb,int indiceStack, t_var *var){
 	args=stack->args;
 	list_add(args,var);
 }
+
+void liberarPCB(t_pcb pcb){
+	free(pcb.indiceCodigo);
+	free(pcb.indiceEtiquetas);
+	list_destroy_and_destroy_elements(pcb.indiceStack,(void*)stack_destroy);
+}
+

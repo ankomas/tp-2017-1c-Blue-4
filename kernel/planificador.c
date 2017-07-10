@@ -184,8 +184,10 @@ void* cpu(t_cpu * cpu){
 				anuncio("PCB RECIBIDO DEL CPU");
 				if(recv(cpu->id,res,tamARecibir,MSG_WAITALL) <= 0)
 					liberarCPU(proximoPrograma);
-				else
+				else{
+					//liberarPCB(*(proximoPrograma->pcb));
 					*(proximoPrograma->pcb)=deserializarPCB(res);
+				}
 
 				//TODO El planificador debe desencolar procesos ya terminados
 				proximoPrograma = planificador(proximoPrograma);
