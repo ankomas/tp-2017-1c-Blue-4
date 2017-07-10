@@ -14,23 +14,38 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <fcntl.h>
 #include <commons/string.h>
+#include <commons/bitarray.h>
 #include <blue4-lib.h>
 #include "arquitecturaFS.h"
 
 char* rutaEnPuntoMontaje(char* carpeta, char* path){
 	char* ruta = string_new();
+	if(path){
 	string_append(&ruta,configFS.puntoMontaje);
 	string_append(&ruta,carpeta);
 	string_append(&ruta,path);
 	return ruta;
+	}
+
+	string_append(&ruta,configFS.puntoMontaje);
+	string_append(&ruta,carpeta);
+	return ruta;
 }
 
 void leerConfig(){
-	configFS.puntoMontaje = malloc(100);
-	configFS.puntoMontaje = obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUNTO_MONTAJE");
-	anuncio(concat(2,"Puerto: ",obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO")));
-	anuncio(concat(2,"Punto de Montaje: ", configFS.puntoMontaje ));
+	//configFS.puntoMontaje = malloc(100);
+	configFS.puntoMontaje = rutaAbsolutaDe(obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUNTO_MONTAJE"));
+	char* config_string=obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"PUERTO");
+	char* concat_string = concat(2,"Puerto: ",config_string);
+	anuncio(concat_string);
+	free(concat_string);
+	concat_string=concat(2,"Punto de Montaje: ", configFS.puntoMontaje);
+	anuncio( concat_string);
+	free(concat_string);
 }
 
 void leerMetadata(){
@@ -42,25 +57,135 @@ void leerMetadata(){
 	printf("Cantidad de bloques: %i\n", configFS.bloques);
 }
 
+
+int crearCarpeta(char* nombreCarpeta)
+{
+	char* ruta=rutaEnPuntoMontaje(nombreCarpeta,NULL);
+	int resultado=mkdir(ruta,S_IRWXU|S_IRWXG|S_IROTH|S_IXOTH);
+	printf("resultado: %d \n",resultado);
+	free(ruta);
+	return resultado;
+}
+
+
+void crearBitmap(char* bitArray){
+	int tamanioBitMap = configFS.bloques/8;
+	//if(tamanioBitMap%8)tamanioBitMap++;
+	bitMap = bitarray_create_with_mode(bitArray,tamanioBitMap,MSB_FIRST);
+}
+
+
+void guardarBitmap()
+{
+	FILE* archivo=NULL;
+	char *bitmap,*ruta=rutaEnPuntoMontaje("/Metadata/","Bitmap.bin");
+	archivo=fopen(ruta,"rb");
+	if(archivo)
+	{
+		// EN ESTE CASO  YA EXISTE EL ARCHIVO Bitmap.bin!!!
+		printf("archivo ya creado\n");
+		free(ruta);
+		return;
+	}
+	archivo=fopen(ruta,"wb+"); //"ab+",si quisiera escribir siempre al final del archivo
+	bitmap=calloc(1,configFS.bloques);
+	fwrite(bitmap,1,configFS.bloques,archivo);
+	free(ruta);
+	free(bitmap);
+	fclose(archivo);
+}
+
+
+
+
+void cargarBitmap()
+{
+	char *bitmap,*ruta=rutaEnPuntoMontaje("/Metadata/","Bitmap.bin");
+	int descriptor_bitmap = open(ruta,O_RDWR);
+	struct stat mystat;
+
+	if (fstat(descriptor_bitmap, &mystat) < 0) {
+	    printf("Error al establecer fstat\n");
+	    close(descriptor_bitmap);
+	    free(ruta);
+	    return ;
+	}
+	bitmap=(char*)mmap(NULL,mystat.st_size,PROT_READ|PROT_WRITE,MAP_SHARED,descriptor_bitmap,0);
+	crearBitmap(bitmap);
+	free(ruta);
+}
+
+
+
+void generarBloques()
+{
+	int numeroDeBloque=0;
+	char* numero_string;
+	char* ruta;
+	FILE* archivo;
+	while(numeroDeBloque<configFS.bloques)
+	{
+		numero_string=string_itoa(numeroDeBloque);
+		string_append(&numero_string,".bin");
+		ruta=rutaEnPuntoMontaje("/Bloques/",numero_string);
+		archivo=fopen(ruta,"wb");
+		free(ruta);
+		free(numero_string);
+		fclose(archivo);
+		numeroDeBloque++;
+	}
+}
+
+
+void crearEstructuraDeBloques()
+{
+	int resultado=crearCarpeta("/Bloques");
+	if(resultado>=0)
+	{
+		generarBloques();
+	}
+}
+
+void crearEstruturasDelFS()
+{
+	crearCarpeta("/Archivos");
+	crearEstructuraDeBloques();
+	guardarBitmap();
+	cargarBitmap();
+
+}
+
+
 void inicializarFS(){
 	leerConfig();
 	leerMetadata();
+	crearEstruturasDelFS();
 }
 
-FILE* abrirBitmap(char* modo){
-	FILE* bitmap;
-	bitmap = fopen(rutaEnPuntoMontaje("/Metadata","/Bitmap.bin"), modo);
-	return bitmap;
+
+int tamanioBitMap()
+{
+	int tamBitMap=bitarray_get_max_bit(bitMap);
+	return tamBitMap;
 }
 
-int bloqueLibre(int bloque){
-	FILE* bitmap = abrirBitmap("rb");
-	fseek(bitmap, bloque, SEEK_SET);
-	int bit = fgetc(bitmap) - '0';
-	fclose(bitmap);
-	return bit == 0;
-}
+int getBloqueLibre(int bloque)
+{
 
+	int bits_recorridos = 0;
+	int bit_libre ;
+	int tamBitMap=bitarray_get_max_bit(bitMap);
+
+	while(bits_recorridos < tamBitMap)
+	{
+		bit_libre = (int) bitarray_test_bit(bitMap, bits_recorridos);
+		if( bit_libre == 0)return bits_recorridos;
+		bits_recorridos++ ;
+
+	}
+	return -1;
+}
+/*
 int getBloqueLibre(){
 	FILE* bitmap = abrirBitmap("rb");
 	int bloque = 0;
@@ -72,12 +197,13 @@ int getBloqueLibre(){
 	else
 		return bloque;
 }
-
-void ocuparBloque(int bloque){
-	FILE* bitmap = abrirBitmap("wb");
-	fseek(bitmap, bloque, SEEK_SET);
-	//fwrite("1", 1, 1, bitmap);
-	fclose(bitmap);
-
+*/
+void ocuparBloque(int bloque)
+{
+	bitarray_set_bit(bitMap,bloque);
 }
 
+void liberarBloque(int bloque)
+{
+	bitarray_clean_bit(bitMap,bloque);
+}

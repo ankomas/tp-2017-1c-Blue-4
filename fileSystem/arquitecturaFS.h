@@ -8,6 +8,8 @@
 #ifndef ARQUITECTURAFS_H_
 #define ARQUITECTURAFS_H_
 
+#include <commons/bitarray.h>
+
 typedef struct{
 	char* puntoMontaje;
 	int tamBloque;
@@ -16,6 +18,7 @@ typedef struct{
 
 configFS_t configFS;
 
+t_bitarray* bitMap;
 
 /**
  * inicializa las configuraciones del fileSystem
@@ -30,6 +33,10 @@ void inicializarFS();
  * 				char* path	 -> path del archivo
  */
 char* rutaEnPuntoMontaje(char*, char*);
+
+
+
+void crearBitmap();
 
 /**
  * BloqueLibre(int bloque)
@@ -49,6 +56,24 @@ FILE* abrirBitmap(char*);
  * Devuelve el proximo bloque libre
  */
 int getBloqueLibre();
+
+/**
+ * Marca un bloque como ocupado
+ * @param bloque
+ */
 void ocuparBloque(int);
+
+/**
+ * Marca un bloque como libre
+ * @param bloque
+ */
+void liberarBloque(int );
+
+/**
+ * Crea una carpeta
+ * @param nombreCarpeta
+ * @return 0 en el caso exito al crearla || -1 en el caso de que la carpera ya exita
+ */
+int crearCarpeta(char* );
 
 #endif /* ARQUITECTURAFS_H_ */
