@@ -84,6 +84,7 @@ uint32_t pidActual = 100;
 		//printf("Socket creado: %i\n", socketCliente);
 		if (connect(socketCliente, servinfo->ai_addr, servinfo->ai_addrlen) != 0) {
 			perror("No se pudo conectar");
+			free(servinfo);
 			return -1;
 		}
 
@@ -91,10 +92,11 @@ uint32_t pidActual = 100;
 
 		if(id!=res){
 			printf("Error: el id del proceso al que se conecto (%i) no es el requerido (%i)\n",res,id);
+			free(servinfo);
 			return -1;
 		}
 		//printf("Conexion existosa.\n");
-
+		free(servinfo);
 		return socketCliente;
 	}
 /* FIN CLIENTE */
@@ -111,24 +113,30 @@ void *get_in_addr(struct sockaddr *sa)
 
 void enviarPID(uint32_t i) {
 	log_trace(logger,"Un nuevo proceso ha sido creado");
-	char* mensaje = malloc(4);
+	char* mensaje;
 	mensaje = string_itoa(pidActual);
 	uint32_t tamMensaje = 4;
 	if(sendall(i,mensaje,&tamMensaje) < 0){
 		log_error(logger,"No se pudo crear un proceso");
 	}
+	free(mensaje);
 }
 
 int handshakeHandler(int i){
-
+	char *aux,*aux2;
 	int reconozcoCliente = -1;
 	char bufHandshake[1];
 	uint32_t tamHandshake = 1;
 	if(recvall(i, bufHandshake, sizeof(bufHandshake)) == 0){
 
 		if(bufHandshake[0] == PROGRAMA_ID){
-			if(sendall(i,"2",&tamHandshake) == 0)
-				log_trace(logger, concat(2,"Se realizo el Handshake con exito con ",string_itoa(i)) );
+			if(sendall(i,"2",&tamHandshake) == 0){
+				aux=string_itoa(i);
+				aux2=concat(2,"Se realizo el Handshake con exito con ",aux);
+				log_trace(logger, aux2);
+				free(aux);
+				free(aux2);
+			}
 			if(recvall(i, bufHandshake, sizeof(bufHandshake)) == 0){
 				if(bufHandshake[0] == 'A'){
 				pthread_t thread;
@@ -140,12 +148,18 @@ int handshakeHandler(int i){
 			reconozcoCliente = 1;
 		}else if(bufHandshake[0] == CPU_ID){
 			t_cpu * nuevaCPU = malloc(sizeof(t_cpu));
+
 			nuevaCPU->id = i;
 			nuevaCPU->programaEnEjecucion = NULL;
 			nuevaCPU->disponible = true;
 			pthread_t thread;
-			if(sendall(i,"2",&tamHandshake) == 0)
-				log_trace(logger, concat(2,"Se realizo el Handshake con exito con ",string_itoa(i)) );
+			if(sendall(i,"2",&tamHandshake) == 0){
+				aux=string_itoa(i);
+				aux2= concat(2,"Se realizo el Handshake con exito con ",aux);
+				log_trace(logger, aux2);
+				free(aux);
+				free(aux2);
+			}
 			pthread_create(&thread, NULL, cpu,nuevaCPU);
 			list_add(CPUs,nuevaCPU);
 			reconozcoCliente = 1;

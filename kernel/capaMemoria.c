@@ -27,12 +27,17 @@ int cantidadElementosArrayConfig(char* unaRuta,char*unId){
 
 int obtenerTamanioPagina(){
 	char*paquete = malloc(4);
+	int res;
 	if(idUMC > 0){
 		send(idUMC,"P",1,0);
-		if(recv(idUMC,paquete,4,MSG_WAITALL) == 4)
-			return atoi(paquete);
+		if(recv(idUMC,paquete,4,MSG_WAITALL) == 4){
+			res=atoi(paquete);
+			free(paquete);
+			return res;
+		}
 	}
 	log_error(logger,"No se pudo obtener el tamanio de pagina");
+	free(paquete);
 	return -1;
 }
 
@@ -113,11 +118,14 @@ int guardarEnMemoria(uint32_t i, uint32_t pid,uint32_t pagina,uint32_t offset,ui
 
 	char* respuesta = malloc(1);
 	if(recv(i,respuesta,1,0) < 1){
+		free(respuesta);
 		return -1;
 	} else {
 		if(respuesta[0] == 'N'){
+			free(respuesta);
 			return -1;
 		} else {
+			free(respuesta);
 			return 0;
 		}
 	}
@@ -152,11 +160,14 @@ int inicializarEnMemoria(uint32_t i, uint32_t pid,uint32_t paginasNecesarias) {
 
 	char* respuesta = malloc(1);
 	if(recv(i,respuesta,1,0) < 1){
+		free(respuesta);
 		return -1;
 	} else {
 		if(respuesta[0] == 'N'){
+			free(respuesta);
 			return -1;
 		} else {
+			free(respuesta);
 			return 0;
 		}
 	}

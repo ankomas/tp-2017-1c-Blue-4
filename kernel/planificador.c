@@ -146,12 +146,13 @@ t_cpu* indiceProximaCPULibre(){
 t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual){
 	//Recibo codigo
 	printf("Codigo OP: A\n");
-	char* tamanioCodigoString = malloc(4/*+1*/);
-	//memset(tamanioCodigoString,0,5);
-	if(recv(i,tamanioCodigoString,4,MSG_WAITALL) < 0)
-		printf("Error al recibir el tamanio de codigo");
+	//char* tamanioCodigoString = malloc(4/*+1*/);
 	uint32_t tamanioCodigo;/* = atoi(tamanioCodigoString);*/
-	memcpy(&tamanioCodigo,tamanioCodigoString,4);
+	//memset(tamanioCodigoString,0,5);
+	if(recv(i,&tamanioCodigo,4,MSG_WAITALL) < 0)
+		printf("Error al recibir el tamanio de codigo");
+
+	//memcpy(&tamanioCodigo,tamanioCodigoString,4);
 	printf("Tamanio codigo de %i: %i\n",i,tamanioCodigo);
 	char* codigo;/* = malloc(tamanioCodigo);*/
 
@@ -171,26 +172,15 @@ t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual){
 	enviarPID(i);
 
 	// Inicializo el Programa y su PCB
-	t_pcb * nuevoPCB = malloc(sizeof(t_pcb));
+	t_pcb * nuevoPCB;/* = malloc(sizeof(t_pcb))*/
 	t_programa * nuevoProceso = malloc(sizeof(t_programa));
 
 	// Inicializo Metadata
-	t_list *stack;
 	t_metadata_program* metadata=metadata_desde_literal(codigo);
-	t_pos ultimaPos={0,0,0};
-	stack=list_create();
-	// Fin Inicializo Metadata
 
-	nuevoPCB->pid=pidActual;
-	nuevoPCB->pc=metadata->instruccion_inicio;
-	nuevoPCB->sp=-1;
-	nuevoPCB->exitCode = 0;
-	nuevoPCB->ultimaPosUsada=ultimaPos;
-	nuevoPCB->indiceCodigoSize=metadata->instrucciones_size;
-	nuevoPCB->indiceCodigo=metadata->instrucciones_serializado;
-	nuevoPCB->indiceStack=stack;
-	nuevoPCB->indiceEtiquetasSize=metadata->etiquetas_size;
-	nuevoPCB->indiceEtiquetas=metadata->etiquetas;
+	// Creo PCB y libero metadata
+	nuevoPCB=crearPCB(metadata,pidActual);
+	metadata_destruir(metadata);
 
 	nuevoProceso->id = i;
 	nuevoProceso->tablaArchivos = NULL;
@@ -258,16 +248,18 @@ void* cpu(t_cpu * cpu){
 			package_t paquete = serializarPCB(proximoPCB);
 			uint32_t tamUint=sizeof(uint32_t),tamChar=1;
 			uint32_t tamARecibir=0;
-			char* streamTamPaquete = intToStream(paquete.data_size);
+			//char* streamTamPaquete = intToStream(paquete.data_size);
 			//send al proximoProceso->id
 			if(sendall(cpu->id, "0", &tamChar) < 0)
 				liberarCPU(proximoPrograma);
 
-			if(sendall(cpu->id, streamTamPaquete, &tamUint) < 0)
+			if(sendall(cpu->id, (char*)&paquete.data_size, &tamUint) < 0)
 				liberarCPU(proximoPrograma);
 
 			if(sendall(cpu->id, paquete.data, &paquete.data_size) < 0)
 				liberarCPU(proximoPrograma);
+
+			free(paquete.data);
 
 			recv(cpu->id,res,1,MSG_WAITALL);
 			if(res[0]!= 'Y')
@@ -294,7 +286,7 @@ void* cpu(t_cpu * cpu){
 				if(recv(cpu->id,res,tamARecibir,MSG_WAITALL) <= 0)
 					liberarCPU(proximoPrograma);
 				else{
-					//liberarPCB(*(proximoPrograma->pcb));
+					liberarPCB(*(proximoPrograma->pcb));
 					*(proximoPrograma->pcb)=deserializarPCB(res);
 				}
 

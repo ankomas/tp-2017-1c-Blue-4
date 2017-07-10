@@ -107,6 +107,8 @@ int sendall(uint32_t s, char *buf, uint32_t *len)
 	uint32_t total = 0;        // how many bytes we've sent
 	uint32_t bytesleft = *len; // how many we have left to send
 	uint32_t n;
+	char *aux;
+	char *aux2;
 
     while(total < *len) {
         n = send(s, buf+total, bytesleft, 0);
@@ -115,8 +117,11 @@ int sendall(uint32_t s, char *buf, uint32_t *len)
         total += n;
         bytesleft -= n;
     }
-
-    textoVerde(concat(2,"Cantidad enviada:",string_itoa(total)));
+    aux=string_itoa(total);
+    aux2=concat(2,"Cantidad enviada:",aux);
+    textoVerde(aux2);
+    free(aux);
+    free(aux2);
     *len = total; // return number actually sent here
 
     return n==-1?-1:0; // return -1 on failure, 0 on success
@@ -124,6 +129,7 @@ int sendall(uint32_t s, char *buf, uint32_t *len)
 
 int recvall(uint32_t s, char *buf, uint32_t len)
 {
+	char *aux;
 	uint32_t total = 0;        // how many bytes we've sent
 	uint32_t bytesleft = len; // how many we have left to send
 	uint32_t n;
@@ -135,8 +141,9 @@ int recvall(uint32_t s, char *buf, uint32_t len)
         total += n;
         bytesleft -= n;
     }
-
-    textoVerde(concat(2,"Cantidad recibida:",string_itoa(total)));
+    aux=string_itoa(total);
+    textoVerde(concat(2,"Cantidad recibida:",aux));
+    free(aux);
     len = total; // return number actually sent here
 
     return n==-1?-1:0; // return -1 on failure, 0 on success

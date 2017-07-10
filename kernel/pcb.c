@@ -353,6 +353,33 @@ void addArgStack(t_pcb pcb,int indiceStack, t_var *var){
 	list_add(args,var);
 }
 
+t_pcb *crearPCB(t_metadata_program *metadata,uint32_t pid){
+	t_pcb *pcb=malloc(sizeof(t_pcb));
+	t_pos ultimaPos={0,0,0};
+	t_list *stack;
+	t_intructions *indiceCodigo;
+	char *etiquetas;
+
+	indiceCodigo=malloc(metadata->instrucciones_size*sizeof(t_intructions));
+	etiquetas=malloc(metadata->etiquetas_size);
+	memcpy(indiceCodigo,metadata->instrucciones_serializado,metadata->instrucciones_size*sizeof(t_intructions));
+	memcpy(etiquetas,metadata->etiquetas,metadata->etiquetas_size);
+	stack=list_create();
+
+	pcb->pid=pid;
+	pcb->pc=metadata->instruccion_inicio;
+	pcb->sp=-1;
+	pcb->exitCode = 0;
+	pcb->ultimaPosUsada=ultimaPos;
+	pcb->indiceCodigoSize=metadata->instrucciones_size;
+	pcb->indiceCodigo=indiceCodigo;
+	pcb->indiceStack=stack;
+	pcb->indiceEtiquetasSize=metadata->etiquetas_size;
+	pcb->indiceEtiquetas=etiquetas;
+
+	return pcb;
+}
+
 void liberarPCB(t_pcb pcb){
 	free(pcb.indiceCodigo);
 	free(pcb.indiceEtiquetas);
