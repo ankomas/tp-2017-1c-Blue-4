@@ -62,6 +62,20 @@ t_cpu * encontrarCPU(uint32_t i){
 	return NULL;
 }
 
+t_programa * encontrarPrograma(uint32_t i){
+	int contador = 0;
+	if(list_size(PROGRAMAs) > 0){
+		t_programa * programaAux;
+		while(contador < list_size(PROGRAMAs)){
+			programaAux = list_get(CPUs,contador);
+			if(programaAux->id == i)
+				return programaAux;
+			contador++;
+		}
+	}
+	return NULL;
+}
+
 t_cpu * encontrarCPUporPID(uint32_t pid){
 	int contador = 0;
 	if(list_size(CPUs) > 0){
@@ -166,7 +180,6 @@ void* cpu(t_cpu * cpu){
 
 			// Verifico si aun le falta ejecutar al proceso
 			if(res[0] == 'F'){
-				anuncio("a");
 				if(proximoPrograma->pcb->exitCode == EXIT_OK){
 					anuncio("Programa finalizo con exito");
 				} else if(proximoPrograma->pcb->exitCode < 0){
@@ -175,7 +188,6 @@ void* cpu(t_cpu * cpu){
 				moverPrograma(proximoPrograma,procesosEXEC,procesosEXIT);
 				proximoPrograma = NULL;
 			} else {
-				anuncio("b");
 				if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
 					liberarCPU(proximoPrograma);
 
@@ -220,7 +232,8 @@ void moverPrograma(t_programa* unPrograma,t_queue* colaOrigen, t_queue* colaDest
 
 t_programa* planificador(t_programa* unPrograma){
 	// mutex por haber leido de un archivo que puede ser actualizado hasta antes del recv
-	algoritmoPlanificador = obtenerConfiguracionString(rutaAbsolutaDe("config.cfg"),"ALGORITMO");
+	char* rutaConfig = rutaAbsolutaDe("config.cfg");
+	algoritmoPlanificador = obtenerConfiguracionString(rutaConfig,"ALGORITMO");
 	//printf("algoritmoPlanificador %s\n",algoritmoPlanificador);
 
 	if(unPrograma == NULL){
@@ -236,15 +249,20 @@ t_programa* planificador(t_programa* unPrograma){
 	if(strcmp(algoritmoPlanificador,"RR") == 0){
 		if(unPrograma->quantumRestante == 0){
 			unPrograma->quantumRestante--;
+			free(rutaConfig);
+			free(algoritmoPlanificador);
 			return unPrograma;
 		} else {
 			return NULL;
 		}
 	} else if(strcmp(algoritmoPlanificador,"FIFO") == 0){
+		free(rutaConfig);
+		free(algoritmoPlanificador);
 		return unPrograma;
 	} else {
 		log_error(logger,"Algoritmo mal cargado al config.cfg");
 	}
-
+	free(rutaConfig);
+	free(algoritmoPlanificador);
 	return 0;
 }

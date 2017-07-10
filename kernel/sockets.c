@@ -119,31 +119,17 @@ void enviarPID(uint32_t i) {
 	}
 }
 
-/*pthread_t crearHiloCPU(t_cpu *unaCPU){
-	pthread_attr_t attr;
-	pthread_t thread;
-
-	pthread_attr_init(&attr);
-	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-
-	pthread_create(&thread, PTHREAD_CREATE_DETACHED, cpu,unaCPU);
-	return thread;
-}*/
-
 int handshakeHandler(int i){
 
 	int reconozcoCliente = -1;
 	char bufHandshake[1];
 	uint32_t tamHandshake = 1;
 	if(recvall(i, bufHandshake, sizeof(bufHandshake)) == 0){
-		if(bufHandshake[0] == CONSOLA_ID){
-			/*t_programa * nuevoPROGRAMA = malloc(sizeof(nuevoPROGRAMA));
-			t_pcb * nuevoPCB = malloc(sizeof(nuevoPCB));
-			nuevoPROGRAMA->pcb = nuevoPCB;
-			nuevoPROGRAMA->pcb->pid = i;
-			list_add(PROGRAMAs,nuevoPROGRAMA);*/
+		if(bufHandshake[0] == PROGRAMA_ID){
+
 			if(sendall(i,"2",&tamHandshake) == 0)
 				log_trace(logger, concat(2,"Se realizo el Handshake con exito con ",string_itoa(i)) );
+
 			reconozcoCliente = 1;
 		}else if(bufHandshake[0] == CPU_ID){
 			t_cpu * nuevaCPU = malloc(sizeof(t_cpu));
@@ -166,9 +152,6 @@ int handshakeHandler(int i){
 	if(reconozcoCliente < 0){
 		return -1;
 	} else {
-		//fixme antes habia un chartostring de KERNEL_ID pero jodia el valgrind, nojodan el valgrind, hardcodie el 2
-		//if(sendall(i,"2",&tamHandshake) == 0)
-		//	log_trace(logger, concat(2,"Se realizo el Handshake con exito con ",string_itoa(i)) );
 		return 0;
 	}
 }
@@ -240,7 +223,7 @@ int servidor(void)
 	char remoteIP[INET6_ADDRSTRLEN];
 
     int yes=1;        // for setsockopt() SO_REUSEADDR, below
-    int i, j, rv;
+    int i, rv;
 
 	struct addrinfo hints, *ai, *p;
 
@@ -315,34 +298,30 @@ int servidor(void)
 					if (newfd == -1) {
 						perror("accept");
 					} else {
-							FD_SET(newfd, &master); // add to master set
-							if (newfd > fdmax) {    // keep track of the max
-								fdmax = newfd;
-							}
-							printf("selectserver: new connection from %s on "
-								"socket %d\n",
-								inet_ntop(remoteaddr.ss_family,
-									get_in_addr((struct sockaddr*)&remoteaddr),
-									remoteIP, INET6_ADDRSTRLEN),
-								newfd);
+						FD_SET(newfd, &master); // add to master set
+						if (newfd > fdmax) {    // keep track of the max
+							fdmax = newfd;
+						}
+						printf("selectserver: new connection from %s on "
+							"socket %d\n",
+							inet_ntop(remoteaddr.ss_family,
+								get_in_addr((struct sockaddr*)&remoteaddr),
+								remoteIP, INET6_ADDRSTRLEN),
+							newfd);
 						if(handshakeHandler(newfd) == -1){
 							send(newfd,"0",1,0);
 							//close(i);
 						}
 
+						if(encontrarCPU(newfd) != NULL){
+							FD_CLR(newfd, &master); // Si es una CPU lo saco del select
+						} else if(encontrarPrograma(newfd) != NULL){
+							FD_CLR(newfd, &master); // Si es una consola lo saco del select
+						}
 					}
 
-
                 } else {
-                    // handle data from a client
-                	bool _esCpuX(t_cpu* cpu){
-                		return cpu->id==i;
-                	}
-                	if(list_any_satisfy(CPUs,(void*)_esCpuX)){
-                		continue;
-                	}
                     if ((nbytes = recv(i, buf, sizeof(buf),MSG_WAITALL)) <= 0) {
-
                         // got error or connection closed by client
                         if (nbytes == 0) {
                             // connection closed
@@ -383,10 +362,8 @@ int servidor(void)
 								if(recv(i,codigo,tamanioCodigo,MSG_WAITALL) < 0)
 									printf("Error al recibir el codigo");
 
-
 								//Envio PID a consola
 								enviarPID(i);
-
 
 								// Inicializo el Programa y su PCB
 								t_pcb * nuevoPCB = malloc(sizeof(t_pcb));
@@ -410,6 +387,7 @@ int servidor(void)
 								nuevoPCB->indiceEtiquetasSize=metadata->etiquetas_size;
 								nuevoPCB->indiceEtiquetas=metadata->etiquetas;
 
+								nuevoProceso->id = i;
 								nuevoProceso->tablaArchivos = NULL;
 								nuevoProceso->quantumRestante = quantum;
 								nuevoProceso->pcb = nuevoPCB;
@@ -453,11 +431,12 @@ int servidor(void)
 								}
 								pidActual++;
 								cantidadProgramasEnSistema++;
+								list_add(PROGRAMAs,nuevoProceso);
+
 
 							} else if(buf[0] == 'B'){
 								// Envio el valor de una variable global
 
-								uint32_t tamInt=sizeof(int32_t);
 								uint32_t tamARecibir=0;
 								char * rev = malloc(1);
 
