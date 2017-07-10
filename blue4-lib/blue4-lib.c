@@ -111,14 +111,12 @@ int sendall(uint32_t s, char *buf, uint32_t *len)
     while(total < *len) {
         n = send(s, buf+total, bytesleft, 0);
         if (n == -1) { break; }
+        if (n == 0) { break; }
         total += n;
         bytesleft -= n;
     }
-    test(concat(2,"Cantidad enviada:",string_itoa(total)));
-    int prueba;
-    memcpy(&prueba, buf, sizeof (int));
-  //  test(concat(2,"Estoy enviando:",string_itoa(prueba)));
 
+    textoVerde(concat(2,"Cantidad enviada:",string_itoa(total)));
     *len = total; // return number actually sent here
 
     return n==-1?-1:0; // return -1 on failure, 0 on success
@@ -131,22 +129,14 @@ int recvall(uint32_t s, char *buf, uint32_t len)
 	uint32_t n;
 
     while(total < len) {
-    	test("Entro al while");
-    	test(concat(2,"me faltan recibir: ",string_itoa(bytesleft)));
         n = recv(s, buf+total, bytesleft, 0);
-        test("Despues del recv");
         if (n == -1) { break; }
+        if (n == 0) { break; }
         total += n;
         bytesleft -= n;
     }
 
-    test("------");
-    test(concat(2,"Cantidad recibida:",string_itoa(total)));
-    int prueba;
-    memcpy(&prueba, buf, sizeof (int));
-    test(concat(2,"Estoy recibiendo:",string_itoa(prueba)));
-    test("------");
-
+    textoVerde(concat(2,"Cantidad recibida:",string_itoa(total)));
     len = total; // return number actually sent here
 
     return n==-1?-1:0; // return -1 on failure, 0 on success
@@ -291,4 +281,20 @@ void test(char * aString){
 
 void testi(int aInt){
 	printf("%s[Testi] Resultado: %i %s \n",KBOL,aInt,KNRM);
+}
+
+void textoAzul(char *aString) {
+	printf("%s %s %s \n",KBLU,aString,KNRM);
+}
+
+void textoAmarillo(char *aString) {
+	printf("%s %s %s \n",KYEL,aString,KNRM);
+}
+
+void textoRojo(char *aString) {
+	printf("%s %s %s \n",KRED,aString,KNRM);
+}
+
+void textoVerde(char *aString) {
+	printf("%s %s %s \n",KGRN,aString,KNRM);
 }

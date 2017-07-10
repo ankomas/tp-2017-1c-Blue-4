@@ -204,4 +204,28 @@ typedef struct{
 	*/
 	void testi(int aInt);
 
+	/**
+	* @NAME: textoAzul
+	* @DESC: imprime por pantalla texto en ese color
+	*/
+	void textoAzul(char *aString);
+
+	/**
+	* @NAME: textoAmarillo
+	* @DESC: imprime por pantalla texto en ese color
+	*/
+	void textoAmarillo(char *aString);
+
+	/**
+	* @NAME: textoRojo
+	* @DESC: imprime por pantalla texto en ese color
+	*/
+	void textoRojo(char *aString);
+
+	/**
+	* @NAME: textoVerde
+	* @DESC: imprime por pantalla texto en ese color
+	*/
+	void textoVerde(char *aString);
+
 #endif /* BLUE4_LIB_H_ */
