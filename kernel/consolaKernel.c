@@ -36,8 +36,8 @@
 void imprimirPIDs(t_queue* colaConsultada){
 	int i = 0;
 	while(i < queue_size(colaConsultada) && queue_size(colaConsultada) > 0){
-		t_pcb *aux = list_get(colaConsultada->elements,i);
-		anuncio(string_itoa(aux->pid));
+		t_programa *aux = list_get(colaConsultada->elements,i);
+		anuncio(string_itoa(aux->pcb->pid));
 		i++;
 	}
 }
