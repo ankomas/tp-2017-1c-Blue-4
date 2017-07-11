@@ -43,6 +43,7 @@ t_queue * procesosEXEC;
 t_queue * procesosBLOCK;
 t_queue * procesosEXIT;
 t_config *cfg;
+uint32_t GlobalFDCounter;
 
 t_log* logger;
 
@@ -52,6 +53,8 @@ void inicializarDatos(){
 
 	pthread_mutex_init(&mutex_test,NULL);
 	cfg=config_create(rutaAbsolutaDe("config.cfg"));
+
+	GlobalFDCounter = 0;
 
 	PROGRAMAs = list_create();
 	CPUs = list_create();

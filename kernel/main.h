@@ -29,6 +29,7 @@ const char FS_ID;
 const char UMC_ID;
 
 extern int cantidadProgramasEnSistema,idFS,idUMC,gradoMultiprogramacion,retardo,quantum,tamanioPagina,tamanioStack;
+extern uint32_t GlobalFDCounter;
 extern t_list* CPUs;
 extern t_list* PROGRAMAs;
 extern t_dictionary * semaforos;

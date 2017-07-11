@@ -20,7 +20,8 @@ extern t_queue * procesosEXIT;
 
 typedef struct t_programa {
 	uint32_t id;
-	void * tablaArchivos;
+	t_dictionary * tablaArchivosPrograma;
+	uint32_t FDCounter;
 	uint32_t quantumRestante;
 	uint32_t paginasCodigo;
 	char* codigo;

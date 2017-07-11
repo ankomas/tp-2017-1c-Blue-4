@@ -183,7 +183,8 @@ t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual){
 	metadata_destruir(metadata);
 
 	nuevoProceso->id = i;
-	nuevoProceso->tablaArchivos = NULL;
+	nuevoProceso->tablaArchivosPrograma = NULL;
+	nuevoProceso->FDCounter = 2;
 	nuevoProceso->paginasHeap = dictionary_create();
 	nuevoProceso->quantumRestante = quantum;
 	nuevoProceso->pcb = nuevoPCB;
