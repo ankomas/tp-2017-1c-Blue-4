@@ -23,6 +23,7 @@ void iniciarBloqueHeap(paginaHeap* unaPagina){
 	unaPagina->bloques = list_create();
 	nuevoBloque->posicionInicioBloque = 0;
 	nuevoBloque->metadata = nuevoMetadata;
+	nuevoBloque->tamanioData = nuevoBloque->metadata->size;
 	list_add(unaPagina->bloques,nuevoBloque);
 }
 
@@ -32,7 +33,30 @@ int guardarDataHeap(paginaHeap* unaPagina,void* data,int32_t tamData){
 		while(i < list_size(unaPagina->bloques)){
 			bloque * bloqueAux = list_get(unaPagina->bloques,i);
 			if(bloqueAux->metadata->isFree == 1 && bloqueAux->metadata->size >=tamData){
-				bloqueAux->metadata->isFree = 0;
+
+				// Manejo la asignacion del bloque de metadata al final de la pagina
+				int j = list_size(unaPagina->bloques)-1; // Estoy en el ultimo elemento
+				if(i == j){
+					if(bloqueAux->metadata->size+sizeof(heapMetadata) >=tamData){
+						heapMetadata* metadataFree = crearMetadata();
+						memcpy(unaPagina->contenido+bloqueAux->posicionInicioBloque,metadataFree,sizeof(heapMetadata));
+					} else {
+						return -1; // No hay espacio en esta pagina
+					}
+				}
+				// Fin Manejo la asignacion del bloque de metadata al final de la pagina
+
+				bloqueAux->metadata->isFree = false;
+				if(bloqueAux->metadata->size-tamData > sizeof(heapMetadata)){
+					// Si hay fragmentacion externa menor a un sizeof(heapMetadata)
+					// Se le asigna el bloque entero al pedido
+					bloqueAux->tamanioData = tamData;
+				}else{
+					bloqueAux->metadata->size = tamData;
+					bloqueAux->tamanioData = tamData;
+					heapMetadata* metadataFree = crearMetadata();
+					memcpy(unaPagina->contenido+bloqueAux->posicionInicioBloque,metadataFree,sizeof(heapMetadata));
+				}
 				memcpy(
 					unaPagina->contenido+
 					bloqueAux->posicionInicioBloque+
@@ -40,6 +64,9 @@ int guardarDataHeap(paginaHeap* unaPagina,void* data,int32_t tamData){
 					data,
 					tamData
 				);
+				list_add(unaPagina->bloques,bloqueAux);
+
+				//crear nuevo bloque heap
 				return 0; //Guardado con exito
 			}
 			i++;
@@ -55,7 +82,7 @@ int guardarDataHeap(paginaHeap* unaPagina,void* data,int32_t tamData){
 }
 
 void* leerDataHeap(paginaHeap* unaPagina,uint32_t offset){
-	return unaPagina->contenido+offset;
+	return unaPagina->contenido+sizeof(heapMetadata)+offset;
 }
 
 void liberarMemoria(){
