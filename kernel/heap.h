@@ -12,7 +12,7 @@
 
 typedef struct heapMetadata{
 	uint32_t size;
-	bool isFree;
+	uint8_t isFree;
 }heapMetadata;
 
 typedef struct pagina{
