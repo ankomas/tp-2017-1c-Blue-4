@@ -19,6 +19,7 @@
 #include <fcntl.h>
 #include <commons/string.h>
 #include <commons/bitarray.h>
+#include <commons/collections/dictionary.h>
 #include <blue4-lib.h>
 #include "arquitecturaFS.h"
 #include "conexiones.h"
@@ -40,25 +41,31 @@ char* rutaEnPuntoMontaje(char* carpeta, char* path){
 }
 
 void leerConfig(){
-	config=config_create(rutaAbsolutaDe("config.cfg"));
-	//configFS.puntoMontaje = malloc(100);
-	configFS.puntoMontaje = rutaAbsolutaDe(obtenerConfiguracionString(config,"PUNTO_MONTAJE"));
+	char* ruta,*string_configuracion;
+	ruta= rutaAbsolutaDe("config.cfg");
+	config=config_create(ruta);
+	string_configuracion=obtenerConfiguracionString(config,"PUNTO_MONTAJE");
+	configFS.puntoMontaje = rutaAbsolutaDe(string_configuracion);
+	free(string_configuracion);
 	char* config_string=obtenerConfiguracionString(config,"PUERTO");
 	char* concat_string = concat(2,"Puerto: ",config_string);
 	anuncio(concat_string);
 	free(concat_string);
 	concat_string=concat(2,"Punto de Montaje: ", configFS.puntoMontaje);
 	anuncio( concat_string);
+	free(ruta);
 	free(concat_string);
 }
 
 void leerMetadata(){
 	char* ruta = rutaEnPuntoMontaje("/Metadata","/Metadata.bin");
-	configFS.tamBloque = obtenerConfiguracion(config,"TAMANIO_BLOQUES");
-	configFS.bloques = obtenerConfiguracion(config,"CANTIDAD_BLOQUES");
+	t_config* elConfig = config_create(ruta);
+	configFS.tamBloque = obtenerConfiguracion(elConfig,"TAMANIO_BLOQUES");
+	configFS.bloques = obtenerConfiguracion(elConfig,"CANTIDAD_BLOQUES");
 	free(ruta);
 	printf("Tamaño de bloque: %i\n", configFS.tamBloque);
 	printf("Cantidad de bloques: %i\n", configFS.bloques);
+	config_destroy(elConfig);
 }
 
 
@@ -100,6 +107,57 @@ void guardarBitmap()
 }
 
 
+
+int tamanioBitMap()
+{
+	int tamBitMap=bitarray_get_max_bit(bitMap);
+	return tamBitMap;
+}
+
+
+int getBloqueLibre(int bloque)
+{
+	int bits_recorridos = 0;
+	int bit_libre ;
+	int tamBitMap=bitarray_get_max_bit(bitMap);
+
+	while(bits_recorridos < tamBitMap)
+	{
+		bit_libre = (int) bitarray_test_bit(bitMap, bits_recorridos);
+		if( bit_libre == 0)return bits_recorridos;
+		bits_recorridos++ ;
+	}
+	return -1;
+}
+
+
+int cantidad_bloquesLibres(){
+
+	int bloques_libres = 0;
+	int bloque_libre;
+	int bit = 0;
+	int tamMaximo=tamanioBitMap();
+	while(bit < tamMaximo)
+	{
+		bloque_libre = bitarray_test_bit(bitMap,bit);
+		//printf("%i",bloque_libre);
+		if(bloque_libre == 0)bloques_libres ++;
+		bit++;
+	}
+	return bloques_libres;
+}
+
+
+
+void ocuparBloque(int bloque)
+{
+	bitarray_set_bit(bitMap,bloque);
+}
+
+void liberarBloque(int bloque)
+{
+	bitarray_clean_bit(bitMap,bloque);
+}
 
 
 void cargarBitmap()
@@ -150,6 +208,44 @@ void crearEstructuraDeBloques()
 	}
 }
 
+
+void generarFormatoArchivo(char* ruta)
+{
+	t_config elConfig;
+	t_dictionary* diccionario = dictionary_create();
+	dictionary_put(diccionario,"TAMANIO",0);
+	dictionary_put(diccionario,"BLOQUES",0);
+	elConfig.properties=diccionario;
+	elConfig.path=ruta;
+	config_save_in_file(&elConfig,ruta);
+	dictionary_destroy(diccionario);
+}
+
+
+void cambiarFormatoDeArchivo(char* ruta,int tamanio,char* bloques)
+{
+	t_config* elConfig = config_create(ruta);
+	char* tamanio_string=string_itoa(tamanio);
+	config_set_value(elConfig,"TAMANIO",tamanio_string);
+	config_set_value(elConfig,"BLOQUES",bloques);
+	config_save(elConfig);
+	free(tamanio_string);
+	config_destroy(elConfig);
+}
+
+//todo liberar el char** del t_infoArchivo cuando se deje de usar!!!
+t_infoArchivo obtenerInfoArchivo(char* ruta)
+{
+	t_infoArchivo info;
+	t_config* elConfig = config_create(ruta);
+	int tamanio = config_get_int_value(elConfig,"TAMANIO");
+	char** bloques = config_get_array_value(elConfig,"BLOQUES");
+	info.bloques=bloques;
+	info.tamanio=tamanio;
+	config_destroy(elConfig);
+	return info;
+}
+
 void crearEstruturasDelFS()
 {
 	crearCarpeta("/Archivos");
@@ -167,28 +263,6 @@ void inicializarFS(){
 }
 
 
-int tamanioBitMap()
-{
-	int tamBitMap=bitarray_get_max_bit(bitMap);
-	return tamBitMap;
-}
-
-int getBloqueLibre(int bloque)
-{
-
-	int bits_recorridos = 0;
-	int bit_libre ;
-	int tamBitMap=bitarray_get_max_bit(bitMap);
-
-	while(bits_recorridos < tamBitMap)
-	{
-		bit_libre = (int) bitarray_test_bit(bitMap, bits_recorridos);
-		if( bit_libre == 0)return bits_recorridos;
-		bits_recorridos++ ;
-
-	}
-	return -1;
-}
 /*
 int getBloqueLibre(){
 	FILE* bitmap = abrirBitmap("rb");
@@ -202,12 +276,3 @@ int getBloqueLibre(){
 		return bloque;
 }
 */
-void ocuparBloque(int bloque)
-{
-	bitarray_set_bit(bitMap,bloque);
-}
-
-void liberarBloque(int bloque)
-{
-	bitarray_clean_bit(bitMap,bloque);
-}
