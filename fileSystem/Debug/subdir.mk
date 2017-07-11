@@ -7,19 +7,22 @@ C_SRCS += \
 ../arquitecturaFS.c \
 ../conexiones.c \
 ../main.c \
-../operacionesFS.c 
+../operacionesFS.c \
+../test_fileSystem.c 
 
 OBJS += \
 ./arquitecturaFS.o \
 ./conexiones.o \
 ./main.o \
-./operacionesFS.o 
+./operacionesFS.o \
+./test_fileSystem.o 
 
 C_DEPS += \
 ./arquitecturaFS.d \
 ./conexiones.d \
 ./main.d \
-./operacionesFS.d 
+./operacionesFS.d \
+./test_fileSystem.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

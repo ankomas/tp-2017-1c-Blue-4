@@ -16,6 +16,11 @@ typedef struct{
 	int bloques;
 }configFS_t;
 
+typedef struct{
+	char** bloques;
+	int tamanio;
+}t_infoArchivo;
+
 configFS_t configFS;
 
 t_bitarray* bitMap;
@@ -35,7 +40,9 @@ void inicializarFS();
 char* rutaEnPuntoMontaje(char*, char*);
 
 
-
+/**
+ * crea un bitArray
+ */
 void crearBitmap();
 
 /**
@@ -57,17 +64,6 @@ FILE* abrirBitmap(char*);
  */
 int getBloqueLibre();
 
-/**
- * Marca un bloque como ocupado
- * @param bloque
- */
-void ocuparBloque(int);
-
-/**
- * Marca un bloque como libre
- * @param bloque
- */
-void liberarBloque(int );
 
 /**
  * Crea una carpeta
@@ -75,5 +71,44 @@ void liberarBloque(int );
  * @return 0 en el caso exito al crearla || -1 en el caso de que la carpera ya exita
  */
 int crearCarpeta(char* );
+
+/**
+ * Obtiene la info de un archivo segun el FS_SADICA
+ * @param ruta
+ * @return t_infoArchivo (Importante,liberar el campo bloques de este struct!!!)
+ */
+t_infoArchivo obtenerInfoArchivo(char* );
+
+/**
+ * Cambia la info contenida en un archivo segun el FS_SADICA
+ * @param ruta
+ * @param tamanio
+ * @param bloques
+ */
+void cambiarFormatoDeArchivo(char* ,int ,char* );
+
+/**
+ * Genera el formato que contiene la info de un archivo segun FS_SADICA
+ * @param ruta
+ */
+void generarFormatoArchivo(char* );
+
+/**
+ * Marca un bloque como libre en el bitArray
+ * @param bloque
+ */
+void liberarBloque(int );
+
+/**
+ * Marca un bloque como ocupado en el bitArray
+ * @param bloque
+ */
+void ocuparBloque(int );
+
+/**
+ * Devuelve la cantidad de bloques libres que existen en el bitArray
+ * @return total_bloques_libres
+ */
+int cantidad_bloquesLibres();
 
 #endif /* ARQUITECTURAFS_H_ */
