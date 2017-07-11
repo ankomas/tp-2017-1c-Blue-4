@@ -23,6 +23,7 @@ typedef struct pagina{
 
 typedef struct bloque {
 	uint32_t posicionInicioBloque;
+	uint32_t tamanioData;
 	heapMetadata * metadata;
 }bloque;
 
