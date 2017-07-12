@@ -34,7 +34,7 @@ extern t_list* CPUs;
 extern t_list* PROGRAMAs;
 extern t_dictionary * semaforos;
 extern t_dictionary * variablesCompartidas;
-extern t_dictionary * tablaGlobalArchivos;
+extern t_list * tablaGlobalArchivos;
 extern t_config *cfg;
 
 extern t_log* logger;

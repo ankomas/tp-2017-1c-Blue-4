@@ -33,7 +33,7 @@ pthread_t hiloPlanificador,hiloConsolaKernel;
 
 t_list * PROGRAMAs;
 t_list * CPUs;
-t_dictionary * tablaGlobalArchivos;
+t_list * tablaGlobalArchivos;
 t_dictionary * paginasHeap;
 t_dictionary * semaforos;
 t_dictionary * variablesCompartidas;
@@ -61,7 +61,7 @@ void inicializarDatos(){
 	paginasHeap = dictionary_create();
 	semaforos = dictionary_create();
 	variablesCompartidas = dictionary_create();
-	tablaGlobalArchivos = dictionary_create();
+	tablaGlobalArchivos = list_create();
 	inicializarSemaforos();
 	inicializarVariablesCompartidas();
 
