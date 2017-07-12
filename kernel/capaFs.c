@@ -17,19 +17,23 @@ uint32_t abrirFD(t_programa* unPrograma,char* path, char* permisos){
 	t_entradaTAP * nuevaEntradaTAP = malloc(sizeof(nuevaEntradaTAP));
 	nuevaEntradaTAP->flags = permisos;
 
+	t_entradaTGA * nuevaEntradaTGA;
 	if(dictionary_has_key(tablaGlobalArchivos,path)){
-		t_entradaTGA * entradaTGA = dictionary_get(tablaGlobalArchivos,path);
-		entradaTGA->abierto++;
-		nuevaEntradaTAP->globalFD = GlobalFDCounter;
+		nuevaEntradaTGA = dictionary_get(tablaGlobalArchivos,path);
+		nuevaEntradaTGA->abierto++;
 	} else {
-		t_entradaTGA * nuevaEntradaTGA = malloc(sizeof(nuevaEntradaTGA));
+		nuevaEntradaTGA = malloc(sizeof(nuevaEntradaTGA));
 		nuevaEntradaTGA->archivo = path;
-		nuevaEntradaTGA->abierto = 1;
+		nuevaEntradaTGA->abierto = 0;
+		nuevaEntradaTGA->indice = GlobalFDCounter;
 		dictionary_put(tablaGlobalArchivos,path,nuevaEntradaTGA);
-		nuevaEntradaTAP->globalFD = GlobalFDCounter;
 		GlobalFDCounter++;
 	}
-	return unPrograma->FDCounter;
+
+	nuevaEntradaTAP->globalFD = nuevaEntradaTGA->indice;
+	nuevaEntradaTAP->indice = unPrograma->FDCounter;
+
+	return nuevaEntradaTAP->indice;
 }
 
 void cerrarFD(t_programa* unPrograma,uint32_t fd){

@@ -13,12 +13,14 @@
 
 //TGA es Tabla Global de Archivos
 typedef struct t_entradaTGA{
+	uint32_t indice;
 	char* archivo;
 	uint32_t abierto;
 }t_entradaTGA;
 
 //TAP es Tabla de Archivos de Proceso
 typedef struct t_entradaTAP{
+	uint32_t indice;
 	char* flags;
 	uint32_t globalFD;
 }t_entradaTAP;

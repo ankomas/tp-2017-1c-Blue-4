@@ -267,7 +267,6 @@ void* cpu(t_cpu * cpu){
 				liberarCPU(proximoPrograma);
 
 			while(1){
-				//fixme todo fixme todo fixme todo sacar el goto
 				recv(cpu->id,res,1,MSG_WAITALL);
 
 				// Verifico si aun le falta ejecutar al proceso
