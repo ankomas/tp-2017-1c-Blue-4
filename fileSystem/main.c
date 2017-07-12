@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <arpa/inet.h>
 #include <stdint.h>
@@ -10,6 +11,7 @@
 #include "conexiones.h"
 #include "arquitecturaFS.h"
 #include "test_fileSystem.h"
+#include "operacionesFS.h"
 
 
 
@@ -17,8 +19,10 @@
 int main(void) {
 
 	inicializarFS();
-	//testBitMap();
+	//bitMap_TEST();
 	//generarArchivoDelFS_TEST();
+	//crearArchivo("/archivo_test.bin");
+	//borrar("/archivo_test.bin");
 	servidor();
 
 	return 0;

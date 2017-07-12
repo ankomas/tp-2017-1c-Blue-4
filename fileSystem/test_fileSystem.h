@@ -16,6 +16,11 @@ void generarArchivoDelFS_TEST();
 /**
  * Prueba del bitArray
  */
-void testBitMap();
+void bitMap_TEST();
+
+/**
+ * test de la expresion de los bloques
+ */
+void obtenerExpresionDeBloques_TEST();
 
 #endif /* TEST_FILESYSTEM_H_ */

@@ -88,7 +88,7 @@ t_infoArchivo obtenerInfoArchivo(char* );
 void cambiarFormatoDeArchivo(char* ,int ,char* );
 
 /**
- * Genera el formato que contiene la info de un archivo segun FS_SADICA
+ * Genera el formato que contiene la info de un archivo segun el FS_SADICA
  * @param ruta
  */
 void generarFormatoArchivo(char* );
@@ -110,5 +110,14 @@ void ocuparBloque(int );
  * @return total_bloques_libres
  */
 int cantidad_bloquesLibres();
+
+
+/**
+ * Devuelve la expresion de los bloques segun el FS_SADICA,segun los parametros que se le pasan
+ * @param inicio
+ * @param numeroAAagregarse
+ * @return expresion segun los parametros iniciados
+ */
+char* obtenerFormatoDeBloques(char* ,char* );
 
 #endif /* ARQUITECTURAFS_H_ */

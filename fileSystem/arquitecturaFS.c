@@ -5,6 +5,7 @@
  *      Author: utnso
  */
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -73,7 +74,7 @@ int crearCarpeta(char* nombreCarpeta)
 {
 	char* ruta=rutaEnPuntoMontaje(nombreCarpeta,NULL);
 	int resultado=mkdir(ruta,S_IRWXU|S_IRWXG|S_IROTH|S_IXOTH);
-	printf("resultado: %d \n",resultado);
+	//printf("resultado: %d \n",resultado);
 	free(ruta);
 	return resultado;
 }
@@ -94,7 +95,7 @@ void guardarBitmap()
 	if(archivo)
 	{
 		// EN ESTE CASO  YA EXISTE EL ARCHIVO Bitmap.bin!!!
-		printf("archivo ya creado\n");
+		//printf("archivo ya creado\n");
 		free(ruta);
 		return;
 	}
@@ -115,7 +116,7 @@ int tamanioBitMap()
 }
 
 
-int getBloqueLibre(int bloque)
+int getBloqueLibre()
 {
 	int bits_recorridos = 0;
 	int bit_libre ;
@@ -245,6 +246,31 @@ t_infoArchivo obtenerInfoArchivo(char* ruta)
 	config_destroy(elConfig);
 	return info;
 }
+
+
+char* obtenerFormatoDeBloques(char* inicio,char* numeroAAagregarse)
+{
+	char *bloques=NULL;
+	if(inicio)
+	{
+		if(numeroAAagregarse)
+		{
+		string_append(&inicio,",");
+		string_append(&inicio,numeroAAagregarse);
+		return inicio;
+		}else{string_append(&inicio,"]");return inicio;}
+	}
+	if(numeroAAagregarse)
+	{
+	bloques=string_new();
+	string_append(&bloques,"[");
+	string_append(&bloques,numeroAAagregarse);
+	return bloques;
+	}
+	return bloques;
+
+}
+
 
 void crearEstruturasDelFS()
 {

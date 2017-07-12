@@ -15,6 +15,7 @@
 #include <commons/config.h>
 #include <commons/bitarray.h>
 #include <commons/collections/dictionary.h>
+#include <commons/string.h>
 #include "conexiones.h"
 #include "arquitecturaFS.h"
 #include "test_fileSystem.h"
@@ -44,7 +45,7 @@ void generarArchivoDelFS_TEST()
 
 
 
-void testBitMap()
+void bitMap_TEST()
 {
 	/*
 	char* bit=calloc(1,configFS.bloques);
@@ -71,4 +72,27 @@ void testBitMap()
 	printf("posicion 5 : %d \n",bitarray_test_bit(bitMap,5));
 	printf("posicion 6 : %d \n",bitarray_test_bit(bitMap,6));
 	printf("posicion 7 : %d \n",bitarray_test_bit(bitMap,7));
+}
+
+
+
+void obtenerExpresionDeBloques_TEST()
+{
+	int numero=20;
+	char* numero_string=string_itoa(numero);
+	char* bloques=obtenerFormatoDeBloques(NULL,numero_string);
+	printf("el formato de inicio de los bloque es: %s \n",bloques);
+	bloques=obtenerFormatoDeBloques(bloques,NULL);
+	printf("el formato final de los bloque es: %s \n",bloques);
+	free(bloques);
+	bloques=obtenerFormatoDeBloques(NULL,numero_string);
+	printf("el formato de inicio de los bloques es: %s \n",bloques);
+	bloques=obtenerFormatoDeBloques(bloques,"30");
+	printf("el formato intermedio de los bloques es: %s \n",bloques);
+	bloques=obtenerFormatoDeBloques(bloques,"5");
+	printf("el formato intermedio de los bloques es: %s \n",bloques);
+	bloques=obtenerFormatoDeBloques(bloques,NULL);
+	printf("el formato final de los bloques es: %s \n",bloques);
+	free(bloques);
+	free(numero_string);
 }
