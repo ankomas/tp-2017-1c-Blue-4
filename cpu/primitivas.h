@@ -19,6 +19,8 @@ void dummy_irAlLabel(t_nombre_etiqueta etiqueta);
 void dummy_retornar(t_valor_variable retorno);
 void dummy_llamarSinRetorno(t_nombre_etiqueta etiqueta);
 void dummy_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retornar_puntero);
+t_valor_variable dummy_obtenerValorCompartida(t_nombre_compartida variable);
+t_valor_variable dummy_asignarValorCompartida(t_nombre_compartida variable, t_valor_variable valor);
 
 AnSISOP_funciones funciones;
 AnSISOP_kernel kernel_functions;

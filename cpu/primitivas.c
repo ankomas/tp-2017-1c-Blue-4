@@ -269,5 +269,23 @@ void dummy_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retornar
 	printf("\n");
 }
 
+t_valor_variable dummy_obtenerValorCompartida(t_nombre_compartida variable){
+	t_valor_variable res;
+	printf("Llamada a "YEL"OBTENER VALOR COMPARTIDA"RESET" %s\n",variable);
+	res= obtenerVarGlobal(variable);
+	printf("Valor de %s: %i\n",variable,res);
+	return res;
+}
+
+t_valor_variable dummy_asignarValorCompartida(t_nombre_compartida variable, t_valor_variable valor){
+	t_valor_variable res;
+	printf("Llamada a "YEL"ASIGNAR VALOR COMPARTIDA"RESET"\n");
+	printf("Variable: %s, valor: %i\n",variable,valor);
+	res=asignarVarGlobal(variable,valor);
+	if(res==1)
+		res=valor;
+	return res;
+}
+
 t_valor_variable (*AnSISOP_obtenerValorCompartida)(t_nombre_compartida variable);
 t_valor_variable (*AnSISOP_asignarValorCompartida)(t_nombre_compartida variable, t_valor_variable valor);

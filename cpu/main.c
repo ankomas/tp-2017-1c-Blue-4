@@ -81,6 +81,8 @@ void initFunciones(){
 			.AnSISOP_retornar				= dummy_retornar,
 			.AnSISOP_llamarSinRetorno		= dummy_llamarSinRetorno,
 			.AnSISOP_llamarConRetorno		= dummy_llamarConRetorno,
+			.AnSISOP_obtenerValorCompartida = dummy_obtenerValorCompartida,
+			.AnSISOP_asignarValorCompartida = dummy_asignarValorCompartida,
 	};
 	AnSISOP_kernel j = {};
 	funciones=f;

@@ -96,3 +96,38 @@ void enviarPCB(int socket){
 	}*/
 }
 
+int32_t obtenerVarGlobal(t_nombre_compartida nombre){
+	uint32_t nombreTam=strlen(nombre);
+	int32_t res;
+	char aux;
+
+	send(kernel,"C",1,0);
+	send(kernel,&nombreTam,sizeof(uint32_t),0);
+
+	recv(kernel,&aux,1,0);//recibo una Y
+	send(kernel,nombre,nombreTam,0);
+
+	recv(kernel,&aux,1,0);//recibo una Y
+	recv(kernel,&res,sizeof(int32_t),0);
+
+	return res;
+}
+
+int asignarVarGlobal(t_nombre_compartida nombre,t_valor_variable valor){
+	uint32_t nombreTam=strlen(nombre);
+	char aux;
+
+	send(kernel,"B",1,0);
+	send(kernel,&nombreTam,sizeof(uint32_t),0);
+
+	recv(kernel,&aux,1,0);//recibo una Y
+	send(kernel,nombre,nombreTam,0);
+
+	recv(kernel,&aux,1,0);//recibo una Y
+	send(kernel,&valor,sizeof(int32_t),0);
+
+	recv(kernel,&aux,1,0);//recibo una Y
+
+	return 1;
+}
+
