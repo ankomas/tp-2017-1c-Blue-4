@@ -101,6 +101,8 @@ int32_t obtenerVarGlobal(t_nombre_compartida nombre){
 	int32_t res;
 	char aux;
 
+	printf("	TAM NOMBRE VAR: %i,NOMBRE VAR: %s\n",nombreTam,nombre);
+	printf("Wew\n");
 	send(kernel,"C",1,0);
 	send(kernel,&nombreTam,sizeof(uint32_t),0);
 

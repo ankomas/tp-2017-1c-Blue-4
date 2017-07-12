@@ -2,5 +2,5 @@
 begin
 	variables a
 	!Ga = 10
-	a = !Ga
+	a = !Ga+1
 end

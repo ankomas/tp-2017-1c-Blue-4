@@ -266,7 +266,7 @@ void* cpu(t_cpu * cpu){
 			if(res[0]!= 'Y')
 				liberarCPU(proximoPrograma);
 
-			recv(cpu->id,res,1,MSG_WAITALL);
+			alelaptm:recv(cpu->id,res,1,MSG_WAITALL);
 
 			// Verifico si aun le falta ejecutar al proceso
 			if(res[0] == 'F'){
@@ -295,8 +295,10 @@ void* cpu(t_cpu * cpu){
 				proximoPrograma = planificador(proximoPrograma);
 			} else if(res[0] == 'B'){
 				guardarVarGlobal(cpu->id);
+				goto alelaptm;
 			}  else if(res[0] == 'C'){
 				leerVarGlobal(cpu->id);
+				goto alelaptm;
 			} else if(res[0] == 'W'){
 				semWait(cpu->id);
 			} else if(res[0] == 'S'){
