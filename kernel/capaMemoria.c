@@ -220,7 +220,7 @@ void guardarVarGlobal(uint32_t i){
 	memset(rev,'\0',tamARecibir+1);
 
 	// Recibo el nombre de la variable
-	if(recv(i,&rev,tamARecibir,MSG_WAITALL) <= 0)
+	if(recv(i,rev,tamARecibir,MSG_WAITALL) <= 0)
 		anuncio("Ocurrio un problema al recibir un valor de variable global");
 
 	if(send(i,"Y",1,0) < 0)
@@ -230,7 +230,7 @@ void guardarVarGlobal(uint32_t i){
 	if(recv(i,&nuevoValorVar,tamInt,MSG_WAITALL) <= 0)
 		anuncio("Ocurrio un problema al enviar un valor de variable global");
 
-	dictionary_put(variablesCompartidas,rev,&nuevoValorVar);
+	dictionary_put(variablesCompartidas,rev,string_itoa(nuevoValorVar));
 
 	if(send(i,"Y",1,0) < 0)
 		anuncio("Ocurrio un problema al enviar un valor de variable global");
