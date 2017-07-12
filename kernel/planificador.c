@@ -265,50 +265,52 @@ void* cpu(t_cpu * cpu){
 			recv(cpu->id,res,1,MSG_WAITALL);
 			if(res[0]!= 'Y')
 				liberarCPU(proximoPrograma);
-			//fixme todo fixme todo fixme todo sacar el goto
-			ETIQUETA001:recv(cpu->id,res,1,MSG_WAITALL);
 
-			// Verifico si aun le falta ejecutar al proceso
-			if(res[0] == 'F'){
-				if(proximoPrograma->pcb->exitCode == EXIT_OK){
-					anuncio("Programa finalizo con exito");
-				} else if(proximoPrograma->pcb->exitCode < 0){
-					anuncio(concat(2,"Ocurrio un error #",string_itoa(proximoPrograma->pcb->exitCode)));
-				}
-				moverPrograma(proximoPrograma,procesosEXEC,procesosEXIT);
-				proximoPrograma = NULL;
-			} else if(res[0] == 'Y'){
-				if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
-					liberarCPU(proximoPrograma);
+			while(1){
+				//fixme todo fixme todo fixme todo sacar el goto
+				recv(cpu->id,res,1,MSG_WAITALL);
 
-				res=realloc(res,tamARecibir);
-				printf("Tam a recibir: %i\n",tamARecibir);
-				anuncio("PCB RECIBIDO DEL CPU");
-				if(recv(cpu->id,res,tamARecibir,MSG_WAITALL) <= 0)
-					liberarCPU(proximoPrograma);
-				else{
-					liberarPCB(*(proximoPrograma->pcb));
-					*(proximoPrograma->pcb)=deserializarPCB(res);
-				}
+				// Verifico si aun le falta ejecutar al proceso
+				if(res[0] == 'F'){
+					if(proximoPrograma->pcb->exitCode == EXIT_OK){
+						anuncio("Programa finalizo con exito");
+					} else if(proximoPrograma->pcb->exitCode < 0){
+						anuncio(concat(2,"Ocurrio un error #",string_itoa(proximoPrograma->pcb->exitCode)));
+					}
+					moverPrograma(proximoPrograma,procesosEXEC,procesosEXIT);
+					proximoPrograma = NULL;
+					break;
+				} else if(res[0] == 'Y'){
+					if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
+						liberarCPU(proximoPrograma);
 
-				//TODO El planificador debe desencolar procesos ya terminados
-				proximoPrograma = planificador(proximoPrograma);
-			} else if(res[0] == 'B'){
-				guardarVarGlobal(cpu->id);
-				goto ETIQUETA001;
-			}  else if(res[0] == 'C'){
-				leerVarGlobal(cpu->id);
-				goto ETIQUETA001;
-			} else if(res[0] == 'W'){
-				semWait(cpu->id);
-			} else if(res[0] == 'S'){
-				semSignal(cpu->id);
-			} /*else if(res[0] == 'H'){
-				leerHeap(cpu->id);
-			} else if(res[0] == 'G'){
-				guardarEnHeap(cpu->id);
-			}*/
+					res=realloc(res,tamARecibir);
+					printf("Tam a recibir: %i\n",tamARecibir);
+					anuncio("PCB RECIBIDO DEL CPU");
+					if(recv(cpu->id,res,tamARecibir,MSG_WAITALL) <= 0)
+						liberarCPU(proximoPrograma);
+					else{
+						liberarPCB(*(proximoPrograma->pcb));
+						*(proximoPrograma->pcb)=deserializarPCB(res);
+					}
 
+					//TODO El planificador debe desencolar procesos ya terminados
+					proximoPrograma = planificador(proximoPrograma);
+					break;
+				} else if(res[0] == 'B'){
+					guardarVarGlobal(cpu->id);
+				}  else if(res[0] == 'C'){
+					leerVarGlobal(cpu->id);
+				} else if(res[0] == 'W'){
+					semWait(cpu->id);
+				} else if(res[0] == 'S'){
+					semSignal(cpu->id);
+				} /*else if(res[0] == 'H'){
+					leerHeap(cpu->id);
+				} else if(res[0] == 'G'){
+					guardarEnHeap(cpu->id);
+				}*/
+			}
 			// Esta Y debe ser reemplazada por el codigo que devuelva la cpu, cuando finalice tiene que limpiar las estructuras incluyendo cpu
 		} else {
 			proximoPrograma = planificador(NULL);
