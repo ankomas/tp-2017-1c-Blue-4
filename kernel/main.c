@@ -48,7 +48,7 @@ uint32_t GlobalFDCounter;
 t_log* logger;
 
 void inicializarDatos(){
-	logger = log_create("logger.log",rutaAbsolutaDe("Debug/kernel"),false,LOG_LEVEL_TRACE);
+	logger = log_create("logger.log",rutaAbsolutaDe("Debug/kernel"),true,LOG_LEVEL_TRACE);
 	log_trace(logger,"Iniciando Kernel...");
 
 	pthread_mutex_init(&mutex_test,NULL);

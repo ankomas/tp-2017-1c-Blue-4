@@ -233,6 +233,7 @@ t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual){
 
 void* cpu(t_cpu * cpu){
 	void liberarCPU(t_programa* programaDeCPU){
+		log_error(logger,"Se esta por eliminar una CPU");
 		moverPrograma(programaDeCPU,procesosEXEC,procesosEXIT);
 		eliminarSiHayCPU(cpu->id);
 		pthread_exit(&cpu->hilo);
@@ -263,9 +264,10 @@ void* cpu(t_cpu * cpu){
 			free(paquete.data);
 
 			recv(cpu->id,res,1,MSG_WAITALL);
-			if(res[0]!= 'Y')
+			if(res[0]!= 'Y'){
+				log_error(logger,"La CPU no recibio el PCB");
 				liberarCPU(proximoPrograma);
-
+			}
 			while(1){
 				recv(cpu->id,res,1,MSG_WAITALL);
 
@@ -303,7 +305,7 @@ void* cpu(t_cpu * cpu){
 				}  else if(res[0] == 'O'){
 					leerVarGlobal(cpu->id);
 				} else if(res[0] == 'W'){
-					semWait(cpu->id);
+					semWait(cpu->id,proximoPrograma->pcb->pid);
 				} else if(res[0] == 'S'){
 					semSignal(cpu->id);
 				} else if(res[0] == 'H'){
@@ -311,7 +313,7 @@ void* cpu(t_cpu * cpu){
 				} else if(res[0] == 'G'){
 					guardarEnHeap(cpu->id);
 				} else if(res[0] == 'B'){
-					moverPrograma(cpu->programaEnEjecucion,procesosEXEC,procesosBLOCK);
+					moverPrograma(proximoPrograma,procesosEXEC,procesosBLOCK);
 					break;
 				}
 

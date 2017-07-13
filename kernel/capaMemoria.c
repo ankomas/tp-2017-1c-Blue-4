@@ -49,7 +49,7 @@ void inicializarSemaforos() {
 	while (sem_ids[aux]){
 		t_semaforo * nuevoSemaforo = malloc(sizeof(t_semaforo));
 		t_queue * nuevaColaEspera = queue_create();
-		nuevoSemaforo->valor = (int32_t)sem_init[aux];
+		nuevoSemaforo->valor = atoi(sem_init[aux]);
 		nuevoSemaforo->colaEspera = nuevaColaEspera;
 		dictionary_put(semaforos,sem_ids[aux],nuevoSemaforo);
 		aux++;
@@ -243,7 +243,9 @@ void guardarVarGlobal(uint32_t i){
 	free(rev);
 }
 
-void semWait(uint32_t i){
+
+
+void semWait(uint32_t i,uint32_t pid){
 	// Wait semaforo
 
 	uint32_t tamARecibir=0;
@@ -256,24 +258,32 @@ void semWait(uint32_t i){
 		anuncio("Ocurrio un problema al hacer un Wait");
 	rev=realloc(rev,tamARecibir+1);
 	memset(rev,'\0',tamARecibir+1);
-
 	// Recibo el nombre del semaforo
 	if(recv(i,rev,tamARecibir,MSG_WAITALL) <= 0)
 		anuncio("Ocurrio un problema al hacer un Wait");
 	send(i,"Y",1,0);
 
 	t_semaforo * semaforoObtenido =(t_semaforo *)dictionary_get(semaforos,rev);
-	if(semaforoObtenido->valor > 0){
+	if(dictionary_has_key(semaforos,rev)){
+		test("Valor semaforo en Wait antes de decrementar");
+		testi(semaforoObtenido->valor);
 		semaforoObtenido->valor--;
-
-		if(send(i,"Y",1,0) <= 0)
+		if(semaforoObtenido->valor >= 0){
+			if(send(i,"Y",1,0) <= 0)
 				anuncio("Ocurrio un problema al hacer un Wait");
-	}else {
-		t_cpu * cpuEncontrada = encontrarCPU(i);
-		uint32_t pid = cpuEncontrada->programaEnEjecucion->pid;
-		queue_push(semaforoObtenido->colaEspera,&pid);
+		}else {
+			//t_cpu * cpuEncontrada = encontrarCPU(i);
+			//uint32_t pid = cpuEncontrada->programaEnEjecucion->pid;
 
-		if(send(i,"B",1,0) <= 0)
+			queue_push(semaforoObtenido->colaEspera,&pid);
+			t_programa* programaAux = encontrarPrograma(pid);
+			//moverPrograma(programaAux,procesosREADY,procesosBLOCK);
+
+			if(send(i,"B",1,0) <= 0)
+				anuncio("Ocurrio un problema al hacer un Wait");
+		}
+	} else {
+		if(send(i,"N",1,0) <= 0)
 			anuncio("Ocurrio un problema al hacer un Wait");
 	}
 
@@ -300,18 +310,23 @@ void semSignal(uint32_t i){
 	send(i,"Y",1,0);
 
 	t_semaforo * semaforoObtenido =(t_semaforo *)dictionary_get(semaforos,rev);
-	if(queue_size(semaforoObtenido->colaEspera)>0){
-		uint32_t *proximoPID = queue_pop(semaforoObtenido->colaEspera);
-		t_programa * programaAux =  encontrarPrograma(*proximoPID);
-		moverPrograma(programaAux,procesosBLOCK,procesosREADY);
+	if(dictionary_has_key(semaforos,rev)){
+		test("Valor semaforo en Signal antes de aumentar");
+			testi(semaforoObtenido->valor);
+		semaforoObtenido->valor++;
+		if(queue_size(semaforoObtenido->colaEspera)>0){
+			uint32_t *proximoPID = queue_pop(semaforoObtenido->colaEspera);
+			t_programa * programaAux =  encontrarPrograma(*proximoPID);
+			moverPrograma(programaAux,procesosBLOCK,procesosREADY);
+		}
 
 		if(send(i,"Y",1,0) <= 0)
 			anuncio("Ocurrio un problema al hacer un Signal");
-	}else {
-		semaforoObtenido->valor++;
+	} else {
 		if(send(i,"N",1,0) <= 0)
 			anuncio("Ocurrio un problema al hacer un Signal");
 	}
+
 
 	free(rev);
 }

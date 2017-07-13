@@ -26,4 +26,5 @@ int inicializarEnMemoria(uint32_t i, uint32_t data, uint32_t data2);
 void guardarEnHeap(uint32_t i);
 void inicializarVariablesCompartidas();
 void inicializarSemaforos();
+void semWait(uint32_t i,uint32_t pid);
 #endif /* CAPAMEMORIA_H_ */
