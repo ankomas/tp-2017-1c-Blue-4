@@ -57,10 +57,28 @@ void dummy_signal(t_nombre_semaforo identificador_semaforo){
 	}
 }
 
-void (*AnSISOP_wait)(t_nombre_semaforo identificador_semaforo);
-void (*AnSISOP_signal)(t_nombre_semaforo identificador_semaforo);
-
 //Heap
+
+t_puntero dummy_reservar(t_valor_variable espacio){
+	char res;
+	t_pos pos;
+	t_puntero puntero;
+	printf("Llamada a "YEL"RESERVAR"RESET": %i\n",espacio);
+	res=alloc(espacio,&puntero);
+
+	switch(res){
+	case 'Y':
+		pos=punteroAPos(puntero,tamPag_global);
+		printf("Puntero: %i (%i,%i,%i)",puntero,pos.pag,pos.off,espacio);
+		return puntero;
+	case 'N':
+		setExitCode(&pcb_global,"error al reservar en heap",16);
+		return -1;
+	default:
+		setExitCode(&pcb_global,"error al reservar en heap",16);
+		return -1;
+	}
+}
 
 t_puntero (*AnSISOP_reservar)(t_valor_variable espacio);
 void (*AnSISOP_liberar)(t_puntero puntero);

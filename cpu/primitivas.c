@@ -64,6 +64,7 @@ t_puntero dummy_definirVariable(t_nombre_variable variable){
 		vars=list_create();
 		list_add(pcb_global.indiceStack,(void*)stack_create(args,vars,0,pos));
 		pcb_global.sp=0;
+		pos=pcb_global.ultimaPosUsada;
 
 	}else{
 		stack=list_get(pcb_global.indiceStack,pcb_global.sp);
@@ -73,7 +74,7 @@ t_puntero dummy_definirVariable(t_nombre_variable variable){
 	}
 
 	if(pos.pag==pcb_global.cantPagCod+maxStack_global){
-		printf("ERROR: stack overflow\n");
+		printf("ERROR: stack overflow (%i,%i,%i)\n",pos.pag,pos.off,pos.size);
 		setExitCode(&pcb_global,"stack overflow",10);
 		printf("\n");
 		return STACK_OVERFLOW;

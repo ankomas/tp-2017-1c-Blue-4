@@ -18,6 +18,7 @@
 #include "capaMemoria.h"
 #include "capaKernel.h"
 #include "test.h"
+#include "main.h"
 
 #define ID_KERNEL 2
 #define ID_MEMORIA 5
@@ -87,7 +88,8 @@ void initFunciones(){
 	};
 	AnSISOP_kernel j = {
 			.AnSISOP_wait					= dummy_wait,
-			.AnSISOP_signal					= dummy_signal
+			.AnSISOP_signal					= dummy_signal,
+			.AnSISOP_reservar				= dummy_reservar
 	};
 	funciones=f;
 	kernel_functions=j;
@@ -128,7 +130,6 @@ int main() {
 	testSerializarStack();
 	testPCB();
 	return 0;*/
-	//int socketKernel,socketMemoria;
 	char *ipKernel, *ipMemoria, *puertoKernel, *puertoMemoria;
 	t_config* config;
 
