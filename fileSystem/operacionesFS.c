@@ -205,7 +205,6 @@ int calcularBloque( int offset, int* nuevoOffset)
   return i;
 }
 
-
 int cuantosBloquesLeo(int tam, int* tamSobra){
 	int i=0;
   while(tam >= configFS.tamBloque){
@@ -255,6 +254,50 @@ void* lecturaSegunTamanio(int offset, int tam,char** bloques){
   return cadena;
 }
 
+void escribirEnBloques(int offset, int tam, char** bloques, char* cadena) {
+	int i, offsetInicial, offsetFinal, offsetBloques, cantBloquesLeo, tamAEscribir,
+			tamEscrito = 0;
+	char* buffer = malloc(configFS.tamBloque);
+	char* ruta;
+	offsetBloques = calcularBloque(offset, &offsetInicial);
+	cantBloquesLeo = cuantosBloquesLeo(tam, &offsetFinal);
+	for (i = 0; i < cantBloquesLeo; i++) {
+		ruta = obtenerRutaSegunBLoque(bloques[i]);
+		FILE *archivo = fopen(ruta, "wb");
+		tamAEscribir = configFS.tamBloque;
+		if (offsetInicial > 0) {
+			fseek(archivo, offsetInicial, SEEK_SET);
+			tamAEscribir -= offsetInicial;
+			offsetInicial = 0;
+		}
+		if (i + 1 == cantBloquesLeo)
+			tamAEscribir = offsetFinal;
+		memcpy(buffer, cadena + tamEscrito, tamAEscribir);
+		fwrite(buffer, 1, tamAEscribir, archivo);
+		tamEscrito += tamAEscribir;
+		fclose(archivo);
+		free(ruta);
+	}
+	free(buffer);
+}
+
+int guardarDatos(char* path,int offset, int tam, char* texto){
+
+	FILE* archivo;
+	char* data;
+	int nosirve, bloquesAPedir, maxTam;
+	t_infoArchivo info=obtenerInfoArchivo(path);
+	maxTam = strlen(info.bloques) * configFS.tamBloque;
+	//PARTE 1: ASIGNAR BLOQUES (LO HACE SALVA) //Actualizar info.bloques con tantos bloques como haga falta
+	//printf("Bloques a escribir: %i\n",cuantosBloquesLeo(info.tamanio - tam + offset,&nosirve));
+	if(offset+tam > maxTam){
+		bloquesAPedir = cuantosBloquesLeo(offset+tam-maxTam, &nosirve);
+		printf("Bloques a pedir: %i\n", bloquesAPedir);
+	}
+	//PARTE 2:
+	//escribirEnBloques(offset, tam, info.bloques, texto);
+	return 0;
+}
 
 
 char* obtenerDatos(char* path, int offset, int tam){ //Completa! Requiere Free!
@@ -281,12 +324,12 @@ char* obtenerDatos(char* path, int offset, int tam){ //Completa! Requiere Free!
 
 }
 
-void guardarDatos(char* path, int offset, int tam, char* buffer){ //Completa!
+/*void guardarDatos(char* path, int offset, int tam, char* buffer){ //Completa!
 	validarArchivo(path);
 	FILE* archivo;
 	archivo = fopen(rutaArchivo(path), "wb");
 	fseek(archivo, offset, SEEK_SET);
 	fwrite(buffer, 1, tam, archivo);
 	fclose(archivo);
-}
+}*/
 
