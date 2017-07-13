@@ -279,6 +279,7 @@ void* cpu(t_cpu * cpu){
 
 				// Verifico si aun le falta ejecutar al proceso
 				if(res[0] == 'F'){
+					log_trace(logger,"Moviendo el proceso de EXEC a EXIT");
 					if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
 						liberarCPU(proximoPrograma);
 					res=realloc(res,tamARecibir);
@@ -300,6 +301,7 @@ void* cpu(t_cpu * cpu){
 					proximoPrograma = NULL;
 					break;
 				} else if(res[0] == 'Y'){
+					//log_trace(logger,"Moviendo el proceso de EXEC a READY");
 					if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
 						liberarCPU(proximoPrograma);
 
@@ -333,6 +335,7 @@ void* cpu(t_cpu * cpu){
 				} else if(res[0] == 'G'){
 					guardarEnHeap(cpu->id);
 				} else if(res[0] == 'B'){
+					log_trace(logger,"Moviendo el proceso de EXEC a bloqueado");
 					moverPrograma(proximoPrograma,procesosEXEC,procesosBLOCK);
 					proximoPrograma = NULL;
 					break;
@@ -379,15 +382,17 @@ t_programa* planificador(t_programa* unPrograma){
 
 	if(unPrograma == NULL){
 		if(queue_size(procesosREADY) > 0){
+			log_trace(logger,"Moviendo el proceso de Ready a EXEC");
 			t_programa* aux = queue_pop(procesosREADY);
 			queue_push(procesosEXEC,aux);
 			unPrograma = aux;
 		} else if(queue_size(procesosNEW) > 0){
+			log_trace(logger,"Moviendo el proceso de New a READY");
 			t_programa* aux = queue_pop(procesosNEW);
 			testi(queue_size(procesosNEW));
 			encolarReady(aux);
-			queue_push(procesosEXEC,aux);
-			unPrograma = aux;
+			///queue_push(procesosEXEC,aux);
+			unPrograma = NULL;
 		} else {
 			unPrograma = NULL;
 		}
