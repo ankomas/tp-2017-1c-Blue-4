@@ -26,7 +26,7 @@ typedef struct t_programa {
 	uint32_t paginasCodigo;
 	char* codigo;
 	t_pcb* pcb;
-	t_dictionary * paginasHeap;
+	t_list * paginasHeap;
 } t_programa;
 
 typedef struct t_cpu {

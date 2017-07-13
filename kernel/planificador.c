@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include "planificador.h"
+#include "capaMemoria.h"
 #include "main.h"
 #include "error.h"
 #include <sys/socket.h>
@@ -185,7 +186,7 @@ t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual){
 	nuevoProceso->id = i;
 	nuevoProceso->tablaArchivosPrograma = list_create();
 	nuevoProceso->FDCounter = 2;
-	nuevoProceso->paginasHeap = dictionary_create();
+	nuevoProceso->paginasHeap = list_create();
 	nuevoProceso->quantumRestante = quantum;
 	nuevoProceso->pcb = nuevoPCB;
 
@@ -334,7 +335,7 @@ void* cpu(t_cpu * cpu){
 				} else if(res[0] == 'H'){
 					leerHeap(cpu->id);
 				} else if(res[0] == 'G'){
-					guardarEnHeap(cpu->id);
+					guardarEnHeap(cpu->id,proximoPrograma->paginasHeap,&proximoPrograma->id);
 				} else if(res[0] == 'B'){
 					if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
 						liberarCPU(proximoPrograma);

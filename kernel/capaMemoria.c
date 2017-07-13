@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "capaMemoria.h"
+#include "heap.h"
 
 
 int cantidadElementosArrayConfig(char* unaRuta,char*unId){
@@ -339,35 +340,50 @@ void semSignal(uint32_t i){
 	free(rev);
 }
 
-void guardarEnHeap(uint32_t i){
+void guardarEnHeap(uint32_t i,t_list * paginasHeap,uint32_t *pid){
 	uint32_t tamARecibir=0;
 	char * rev = NULL;
 
 	// Recibo largo del nombre del semaforo
 	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
-		anuncio("Ocurrio un problema al hacer un Wait");
+		log_error(logger,"Ocurrio un problema al tratar de guardar memoria en el Heap");
 	if(send(i,"Y",1,0) < 0)
-		anuncio("Ocurrio un problema al hacer un Wait");
+		log_error(logger,"Ocurrio un problema al tratar de guardar memoria en el Heap");
 	rev=realloc(rev,tamARecibir+1);
 	memset(rev,'\0',tamARecibir+1);
 
 	// Recibo el nombre del semaforo
-	if(recv(i,&rev,tamARecibir,MSG_WAITALL) <= 0)
-		anuncio("Ocurrio un problema al hacer un Wait");
+	if(recv(i,rev,tamARecibir,MSG_WAITALL) <= 0)
+		log_error(logger,"Ocurrio un problema al tratar de guardar memoria en el Heap");
 	send(i,"Y",1,0);
 
-	t_semaforo * semaforoObtenido =(t_semaforo *)dictionary_get(semaforos,rev);
-	if(queue_size(semaforoObtenido->colaEspera)>0){
-		uint32_t *proximoPID = queue_pop(semaforoObtenido->colaEspera);
-		t_cpu * cpuEncontrada = encontrarCPUporPID(*proximoPID);
-
-		if(send(i,"Y",cpuEncontrada->id,0))
-			anuncio("Ocurrio un problema al hacer un Wait");
-	}else {
-		semaforoObtenido->valor++;
+	//Trato de meterlo en alguna pagina de heap que ya tenia asignada
+	int contador = 0;
+	while(contador < list_size(paginasHeap)){
+		paginaHeap * unaPaginaCargada = list_get(paginasHeap,contador);
+		if(guardarDataHeap(unaPaginaCargada,rev,tamARecibir) == 0){
+			// Se pudo guardar en una pagina previamente cargada
+			return;
+		}
 	}
 
-	free(rev);
+
+	paginaHeap * unaPagina = malloc(sizeof(unaPagina));
+	uint32_t numeroPagina = inicializarEnMemoria(idUMC, *pid,1);
+	if(numeroPagina < 0){
+		log_error(logger,"La memoria no dio espacio al kernel para guardar espacio de Heap");
+		send(i,"N",1,0);
+		return;
+	}
+	unaPagina->numero = numeroPagina;
+	iniciarBloqueHeap(unaPagina);
+	if(guardarDataHeap(unaPagina,rev,tamARecibir) == 0){
+		// Se pudo guardar en una pagina previamente cargada
+		return;
+	} else {
+		log_error(logger,"No se pudo reservar espacio en el heap");
+		return;
+	}
 }
 
 void leerHeap(uint32_t i){
