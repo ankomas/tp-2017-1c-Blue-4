@@ -54,6 +54,6 @@ char* obtenerDatos(char*, int, int);
  * 				int tam		-> Cantidad de bytes a escribir
  * 				char* buffer-> Datos a escribir
  */
-void guardarDatos(char*, int, int, char*);
+int guardarDatos(char*, int, int, char*);
 
 #endif /* OPERACIONESFS_H_ */

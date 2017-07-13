@@ -14,7 +14,26 @@
 #include "operacionesFS.h"
 
 
+void testLectura(){
+	char*ruta=rutaEnPuntoMontaje("/Archivos","/archivo_test.bin");
+	char* data;
+	data=obtenerDatos(ruta,0,34);
+	printf("la data es: %s \n",data);
+	free(data);
+	free(ruta);
+}
 
+void testEscrituraFacil(){
+	char*ruta=rutaEnPuntoMontaje("/Archivos","/archivo_test.bin");
+	guardarDatos(ruta,0,20,"JUDIOJUDIOJUDIOJUDIO");
+	free(ruta);
+}
+
+void testEscrituraCompleta(){
+	char*ruta=rutaEnPuntoMontaje("/Archivos","/archivo_test.bin");
+	guardarDatos(ruta,21,20,"JUDIOJUDIOJUDIOJUDIO");
+	free(ruta);
+}
 
 int main(void) {
 
@@ -23,6 +42,9 @@ int main(void) {
 	//generarArchivoDelFS_TEST();
 	//crearArchivo("/archivo_test.bin");
 	//borrar("/archivo_test.bin");
+	testLectura();
+	testEscrituraCompleta();
+	//testEscrituraFacil();
 	servidor();
 
 	return 0;

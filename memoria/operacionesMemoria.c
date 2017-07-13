@@ -15,6 +15,8 @@
 #include <pthread.h>
 #include "configuraciones.h"
 #include "estructurasAdministrativas.h"
+#define int32_min -999999
+#define int32_max 999999
 
 uint32_t tamanioDeTabla() {
 	return sizeof(tablaPaginas_t) * configDeMemoria.marcos;
@@ -44,7 +46,7 @@ tablaCache_t* obtenerTablaCache() {
 
 int lru() { //ACA PASA ALGO MUY TURBIO!
 	tablaCache_t* tabla = obtenerTablaCache();
-	int marco, minV = 99999, minM = -2;
+	int marco, minV = int32_max, minM = -2;
 	for (marco = 1; marco < configDeMemoria.entradasCache; marco++) {
 		pthread_mutex_lock(&mutex_tablaCache);
 		if (tabla[marco].pid >= 0 && tabla[marco].counter < minV) {
@@ -173,7 +175,6 @@ void cargarCodigo(uint32_t marco, uint32_t pagina, void* data) {
 	//pthread_mutex_lock(mutexMemoria);
 	memcpy(memoria + marco * configDeMemoria.tamMarco,
 			data + pagina * configDeMemoria.tamMarco, configDeMemoria.tamMarco);
-	printf("cargue en memoria : %s \n", (char*) data);
 	//pthread_mutex_unlock(mutexMemoria);
 }
 
@@ -181,9 +182,7 @@ void cargarPaginaATabla(uint32_t pid, uint32_t pagina, unsigned marco) {
 	tablaPaginas_t *tablaDePaginas = obtenerTablaDePaginas();
 	pthread_mutex_lock(&mutex_tablaDePaginas);
 	tablaDePaginas[marco].pid = pid;
-	printf("cargue el pid : %d \n", pid);
 	tablaDePaginas[marco].pagina = pagina;
-	printf("cargue la pagina : %d \n", pagina);
 	pthread_mutex_unlock(&mutex_tablaDePaginas);
 	return;
 }
@@ -211,9 +210,7 @@ int tieneMarcosSuficientes(int paginasRequeridas) {
 void inicializarPrograma(uint32_t pid, uint32_t paginasRequeridas) {
 	//pthread_mutex_lock(mutexMemoria);
 	agregar_DataDeProcesoActivo(pid, paginasRequeridas);
-	printf("tengo marcos suficientes \n");
 	agregarNuevoProceso(pid, paginasRequeridas);
-	printf("termine de inicializar el programa\n");
 	//pthread_mutex_unlock(mutexMemoria);
 }
 
