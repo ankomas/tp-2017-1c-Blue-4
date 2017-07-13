@@ -229,7 +229,7 @@ char* obtenerRutaSegunBLoque(char* num_bloque)
 }
 
 void* lecturaSegunTamanio(int offset, int tam,char** bloques){
-	int i, offsetInicial, offsetFinal, offsetBloques, cantBloquesLeo,tamALeer;
+	int i, offsetInicial, offsetFinal, offsetBloques, cantBloquesLeo,tamALeer, tamLeido=0;
 	char* buffer = malloc(configFS.tamBloque);
 	void* cadena = malloc(tam);
 	char* ruta;
@@ -246,7 +246,8 @@ void* lecturaSegunTamanio(int offset, int tam,char** bloques){
     	}
     if(i+1 == cantBloquesLeo) tamALeer = offsetFinal;
     fread(buffer, 1, tamALeer, archivo);
-    memcpy(cadena, buffer, tamALeer);
+    memcpy(cadena+ tamLeido, buffer, tamALeer);
+    tamLeido += tamALeer;
     fclose(archivo);
     free(ruta);
   }
