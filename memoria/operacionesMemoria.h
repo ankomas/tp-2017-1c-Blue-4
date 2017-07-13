@@ -80,7 +80,7 @@ int eliminarPaginaDeUnProceso(uint32_t ,uint32_t );
 
 int agregarProcesoACache(int, int);
 
-void mostrarCache();
+void mostrarCache(), mostrarCacheVillero();
 void mostrarMemoria(), mostrarProcesoEnMemoria(int);
 
 #endif /* OPERACIONESMEMORIA_H_ */
