@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include <blue4-lib.h>
 #include "pcb.h"
+#include "capaMemoria.h"
 
 extern t_queue * procesosNEW;
 extern t_queue * procesosREADY;
@@ -41,7 +42,7 @@ t_cpu * encontrarCPUporPID(uint32_t pid);
 t_programa * encontrarPrograma(uint32_t i);
 t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual);
 void* programa(t_programa* programa);
-
+void moverPrograma(t_programa* unPrograma,t_queue* colaOrigen, t_queue* colaDestino);
 t_programa* planificador();
 void *cpu();
 void encolarReady();

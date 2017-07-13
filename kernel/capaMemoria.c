@@ -265,14 +265,18 @@ void semWait(uint32_t i){
 	t_semaforo * semaforoObtenido =(t_semaforo *)dictionary_get(semaforos,rev);
 	if(semaforoObtenido->valor > 0){
 		semaforoObtenido->valor--;
+
+		if(send(i,"Y",1,0) <= 0)
+				anuncio("Ocurrio un problema al hacer un Wait");
 	}else {
 		t_cpu * cpuEncontrada = encontrarCPU(i);
 		uint32_t pid = cpuEncontrada->programaEnEjecucion->pid;
 		queue_push(semaforoObtenido->colaEspera,&pid);
+
+		if(send(i,"B",1,0) <= 0)
+			anuncio("Ocurrio un problema al hacer un Wait");
 	}
 
-	if(send(i,"Y",1,0))
-		anuncio("Ocurrio un problema al hacer un Wait");
 
 	free(rev);
 
@@ -284,26 +288,29 @@ void semSignal(uint32_t i){
 
 	// Recibo largo del nombre del semaforo
 	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
-		anuncio("Ocurrio un problema al hacer un Wait");
+		anuncio("Ocurrio un problema al hacer un Signal");
 	if(send(i,"Y",1,0) < 0)
-		anuncio("Ocurrio un problema al hacer un Wait");
+		anuncio("Ocurrio un problema al hacer un Signal");
 	rev=realloc(rev,tamARecibir+1);
 	memset(rev,'\0',tamARecibir+1);
 
 	// Recibo el nombre del semaforo
 	if(recv(i,&rev,tamARecibir,MSG_WAITALL) <= 0)
-		anuncio("Ocurrio un problema al hacer un Wait");
+		anuncio("Ocurrio un problema al hacer un Signal");
 	send(i,"Y",1,0);
 
 	t_semaforo * semaforoObtenido =(t_semaforo *)dictionary_get(semaforos,rev);
 	if(queue_size(semaforoObtenido->colaEspera)>0){
 		uint32_t *proximoPID = queue_pop(semaforoObtenido->colaEspera);
-		t_cpu * cpuEncontrada = encontrarCPUporPID(*proximoPID);
+		t_programa * programaAux =  encontrarPrograma(*proximoPID);
+		moverPrograma(programaAux,procesosBLOCK,procesosREADY);
 
-		if(send(i,"Y",cpuEncontrada->id,0))
-			anuncio("Ocurrio un problema al hacer un Wait");
+		if(send(i,"Y",1,0) <= 0)
+			anuncio("Ocurrio un problema al hacer un Signal");
 	}else {
 		semaforoObtenido->valor++;
+		if(send(i,"N",1,0) <= 0)
+			anuncio("Ocurrio un problema al hacer un Signal");
 	}
 
 	free(rev);
@@ -342,7 +349,7 @@ void guardarEnHeap(uint32_t i){
 
 void leerHeap(uint32_t i){
 	uint32_t tamARecibir=0;
-	char * rev = malloc(1);
+	char * rev = NULL;
 
 	// Recibo largo del nombre del semaforo
 	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
