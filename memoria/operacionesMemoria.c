@@ -399,8 +399,8 @@ void guardarCadena(char** cadena, int pid, int pag, char* contenido){
 	char* pagchar = malloc(sizeof(int)+1);
 	sprintf(pidchar, "%i", pid);
 	sprintf(pagchar, "%i", pag);
-	memset(pidchar,'\0',sizeof(int)+1);
-	memset(pagchar,'\0',sizeof(int)+1);
+	//memset(pidchar,'\0',sizeof(int)+1);
+	//memset(pagchar,'\0',sizeof(int)+1);
 	string_append(cadena, "PID: ");
 	string_append(cadena, pidchar);
 	string_append(cadena, " PAG: ");
@@ -438,14 +438,12 @@ void mostrarCache() {
 		pthread_mutex_unlock(&mutex_tablaCache);
 		if (pid >= 0) {
 			dataACopiar = (char*)leerCache(pid, pagina, 0, configDeMemoria.tamMarco);
-			pthread_mutex_lock(&mutex_test);
-			printf("PID: %i	PAG: %i	Contenido: %s\n", pid, pagina, data);
-			pthread_mutex_unlock(&mutex_test);
 			memset(data,'\0',configDeMemoria.tamMarco);
 			memcpy(data,dataACopiar,configDeMemoria.tamMarco);
+			printf("PID: %i	PAG: %i	Contenido: %s\n", pid, pagina, data);
 			guardarCadena(&cadena, pid, pagina, data);
-			if(dataACopiar)free(dataACopiar);
 			counter++;
+			if(dataACopiar)free(dataACopiar);
 		}
 	}
 	if (counter == 0){
@@ -526,4 +524,14 @@ void mostrarProcesoEnMemoria(int pid) {
 	}
 	escribirCadenaEnArchivo("ContenidoMemoria.txt", cadena, counter, tam);
 	free(data);
+}
+
+void mostrarCacheVillero(){
+	int i, pid, pag;
+	tablaCache_t* tabla = obtenerTablaCache();
+	for(i=0; i<configDeMemoria.entradasCache; i++){
+		pid =tabla[i].pid;
+		pag = tabla[i].pagina;
+		printf("PID: %i, PAG: %i, Contenido: %s\n", pid, pag, (char*)leerCache(pid, pag, 0, configDeMemoria.tamMarco));
+	}
 }
