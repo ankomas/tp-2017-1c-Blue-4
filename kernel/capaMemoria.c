@@ -247,7 +247,7 @@ void semWait(uint32_t i){
 	// Wait semaforo
 
 	uint32_t tamARecibir=0;
-	char * rev = malloc(1);
+	char * rev = NULL;
 
 	// Recibo largo del nombre del semaforo
 	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
@@ -265,13 +265,14 @@ void semWait(uint32_t i){
 	t_semaforo * semaforoObtenido =(t_semaforo *)dictionary_get(semaforos,rev);
 	if(semaforoObtenido->valor > 0){
 		semaforoObtenido->valor--;
-		if(send(i,"Y",1,0))
-			anuncio("Ocurrio un problema al hacer un Wait");
 	}else {
 		t_cpu * cpuEncontrada = encontrarCPU(i);
 		uint32_t pid = cpuEncontrada->programaEnEjecucion->pid;
 		queue_push(semaforoObtenido->colaEspera,&pid);
 	}
+
+	if(send(i,"Y",1,0))
+		anuncio("Ocurrio un problema al hacer un Wait");
 
 	free(rev);
 
@@ -279,7 +280,7 @@ void semWait(uint32_t i){
 
 void semSignal(uint32_t i){
 	uint32_t tamARecibir=0;
-	char * rev = malloc(1);
+	char * rev = NULL;
 
 	// Recibo largo del nombre del semaforo
 	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
@@ -308,9 +309,9 @@ void semSignal(uint32_t i){
 	free(rev);
 }
 
-/*void guardarEnHeap(uint32_t i){
+void guardarEnHeap(uint32_t i){
 	uint32_t tamARecibir=0;
-	char * rev = malloc(1);
+	char * rev = NULL;
 
 	// Recibo largo del nombre del semaforo
 	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
@@ -368,7 +369,7 @@ void leerHeap(uint32_t i){
 	}
 
 	free(rev);
-}*/
+}
 // Fin SYSCALLs Memoria
 
 /*int liberarPagina(){
