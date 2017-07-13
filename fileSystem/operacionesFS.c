@@ -51,6 +51,71 @@ int validarArchivo(char* path){ //Completa!
 }
 
 
+
+
+char* obtenerIdentificadorDirectorio(char * ruta,uint16_t posicion){
+	  //char str[1024];
+	char* str=calloc(1,string_length(ruta)+1);
+	//char* str=string_new();
+	  uint16_t contador = 0;
+	  //strcpy(str,ruta);
+	  memcpy(str,ruta,string_length(ruta));
+	  char * pch;
+	  pch = strtok (str,"/");
+	  //free(str);
+	  while (pch != NULL && contador != posicion)
+	  {
+	    pch = strtok (NULL, "/");
+	    contador++;
+	  }
+	  //free(str);
+	  return pch;
+}
+
+
+
+void crearDirectorios(char* path)
+{
+	int i=0,posicion=0;
+	char* directorio=obtenerIdentificadorDirectorio(path,posicion);
+	char* directorioSiguiente=obtenerIdentificadorDirectorio(path,posicion+1);
+	char* ruta_directorio;
+	char* ruta_Archivo=string_new();
+	if(directorioSiguiente==NULL)
+	{
+		printf("no hay directorios \n");
+		//free(directorio);
+		free(ruta_Archivo);
+		return;
+	}
+	while(directorioSiguiente)
+	{
+		ruta_directorio=string_new();
+		//printf("directorio: %s \n",directorio);
+		//printf("directorioSiguiente: %s \n",directorioSiguiente);
+		//free(directorioSiguiente);
+		string_append(&ruta_Archivo,"/");
+		string_append(&ruta_Archivo,directorio);
+		string_append(&ruta_directorio,"/Archivos");
+		string_append(&ruta_directorio,ruta_Archivo);
+		printf("ruta_directorio: %s \n",ruta_directorio);
+		crearCarpeta(ruta_directorio);
+		posicion++;
+		free(ruta_directorio);
+		//free(directorio);
+		directorio=obtenerIdentificadorDirectorio(path,posicion);
+		directorioSiguiente=obtenerIdentificadorDirectorio(path,posicion+1);
+		if(directorioSiguiente==NULL)
+		{
+			//free(directorio);
+			free(ruta_Archivo);
+			return;
+		}
+	}
+	free(ruta_Archivo);
+}
+
+
 int crearArchivo(char* ruta)
 {
 	FILE* archivo;
@@ -98,7 +163,7 @@ int crearArchivo(char* path){ //No sabia que hacer
 	return 0;
 }
 */
-int borrar(char* path){ //No esta Completa! Falta borrar su metadata y cambiar los bits en el bitmap
+void borrarArchivo(char* path){
 	FILE* archivo;
 	t_infoArchivo info;
 	int num_bloque,posicion=0;
@@ -113,11 +178,8 @@ int borrar(char* path){ //No esta Completa! Falta borrar su metadata y cambiar l
 		posicion++;
 	}
 	remove(ruta);
-	//borrar los directorios si los hay!!!
-	//borrarDirectorios(path);
 	free(ruta);
 	free(info.bloques);
-	return 0;
 }
 
 char* obtenerDatos(char* path, int offset, int tam){ //Completa! Requiere Free!

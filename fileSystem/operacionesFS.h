@@ -34,9 +34,8 @@ int crearArchivo(char*);
  * Borra un archivo y todo lo relacionado con el
  * Parametro: char* path	-> Ubicacion del archivo
  *
- * Retorno: int				-> 1 si lo pudo borrar, 0 si no
  */
-int borrar(char* );
+void borrarArchivo(char* );
 
 /**
  * Lee parte de un archivo
