@@ -231,6 +231,10 @@ void guardarVarGlobal(uint32_t i){
 		anuncio("Ocurrio un problema al enviar un valor de variable global");
 
 	printf("Nuevo valor var: %i, rev: %s\n",*nuevoValorVar,rev);
+	if(dictionary_has_key(variablesCompartidas,rev)){
+		dictionary_remove(variablesCompartidas,rev);
+	}
+
 	dictionary_put(variablesCompartidas,rev,nuevoValorVar);
 
 	if(send(i,"Y",1,0) < 0)
