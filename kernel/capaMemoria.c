@@ -175,6 +175,36 @@ int inicializarEnMemoria(uint32_t i, uint32_t pid,uint32_t paginasNecesarias) {
 	}
 }
 
+int pedirPagias(uint32_t pid,uint32_t cantPaginas){
+	package_t paquete;
+	char res;
+
+	log_trace(logger,"Llamada a PEDIR PAGINAS");
+	send(idUMC,"A",1,0);
+	paquete=serializar(4,
+			sizeof(uint32_t),&pid,
+			sizeof(uint32_t),&cantPaginas);
+	send(idUMC,&paquete.data_size,sizeof(uint32_t),0);
+	send(idUMC,paquete.data,paquete.data_size,0);
+
+	free(paquete.data);
+
+	recv(idUMC,&res,1,0);
+
+	switch(res){
+	case 'Y':
+		log_trace(logger,"Llamada a PEDIR PAGINAS correcto");
+		return 1;
+	case 'N':
+		log_error(logger,"Llamada a PEDIR PAGINAS no se pudo asignar paginas");
+		return -1;
+	default:
+		log_error(logger,"Llamada a PEDIR PAGINAS respuesta invalida");
+		return -2;
+	}
+
+}
+
 // SYSCALLS Memoria
 void leerVarGlobal(uint32_t i){
 	// Envio el valor de una variable global

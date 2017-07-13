@@ -22,7 +22,9 @@ typedef struct t_semaforo{
 int cantidadElementosArrayConfig(char* unaRuta,char*unId);
 int obtenerTamanioPagina();
 int valorSemaforo(char * unSemaforo);
-int inicializarEnMemoria(uint32_t i, uint32_t data, uint32_t data2);
+int inicializarEnMemoria(uint32_t i, uint32_t pid,uint32_t paginasNecesarias);
+int guardarEnMemoria(uint32_t i, uint32_t pid,uint32_t pagina,uint32_t offset,uint32_t tamanioContenido,char*contenido);
+int pedirPagias(uint32_t pid,uint32_t cantPaginas);
 void guardarEnHeap(uint32_t i,t_list * paginasHeap,uint32_t *pid);
 void inicializarVariablesCompartidas();
 void inicializarSemaforos();
