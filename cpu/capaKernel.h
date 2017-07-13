@@ -15,4 +15,7 @@ void enviarPCB(int socket);
 int32_t obtenerVarGlobal(t_nombre_compartida nombre);
 int asignarVarGlobal(t_nombre_compartida nombre,t_valor_variable valor);
 
+char semWait(t_nombre_semaforo sem);
+char semSignal(t_nombre_semaforo sem);
+
 #endif /* CAPAKERNEL_H_ */

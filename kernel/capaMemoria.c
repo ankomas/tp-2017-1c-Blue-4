@@ -258,7 +258,7 @@ void semWait(uint32_t i){
 	memset(rev,'\0',tamARecibir+1);
 
 	// Recibo el nombre del semaforo
-	if(recv(i,&rev,tamARecibir,MSG_WAITALL) <= 0)
+	if(recv(i,rev,tamARecibir,MSG_WAITALL) <= 0)
 		anuncio("Ocurrio un problema al hacer un Wait");
 	send(i,"Y",1,0);
 
@@ -295,7 +295,7 @@ void semSignal(uint32_t i){
 	memset(rev,'\0',tamARecibir+1);
 
 	// Recibo el nombre del semaforo
-	if(recv(i,&rev,tamARecibir,MSG_WAITALL) <= 0)
+	if(recv(i,rev,tamARecibir,MSG_WAITALL) <= 0)
 		anuncio("Ocurrio un problema al hacer un Signal");
 	send(i,"Y",1,0);
 

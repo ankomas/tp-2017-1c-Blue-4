@@ -12,9 +12,50 @@
 #include "primitivasKernel.h"
 #include "capaKernel.h"
 
+#define RED   "\x1B[31m"
+#define GRN   "\x1B[32m"
+#define YEL   "\x1B[33m"
+#define BLU   "\x1B[34m"
+#define MAG   "\x1B[35m"
+#define CYN   "\x1B[36m"
+#define WHT   "\x1B[37m"
+#define RESET "\x1B[0m"
+
 //Semaforos
 
-void dummy_wait(t_nombre_semaforo identificador_semaforo);
+void dummy_wait(t_nombre_semaforo identificador_semaforo){
+	char res;
+	printf("Llamada a "YEL"WAIT"RESET" %s\n",identificador_semaforo);
+
+	res=semWait(identificador_semaforo);
+
+	switch(res){
+	case 'Y':
+		return;
+	case 'N':
+		setExitCode(&pcb_global,"el semaforo no existe",14);
+		return;
+	case 'B':
+		finPrograma_global='B';
+		return;
+	}
+}
+
+void dummy_signal(t_nombre_semaforo identificador_semaforo){
+	char res;
+
+	printf("Llamada a "YEL"SIGNAL"RESET" %s\n",identificador_semaforo);
+
+	res=semSignal(identificador_semaforo);
+
+	switch(res){
+	case 'Y':
+		return;
+	case 'N':
+		setExitCode(&pcb_global,"el semaforo no existe",14);
+		return;
+	}
+}
 
 void (*AnSISOP_wait)(t_nombre_semaforo identificador_semaforo);
 void (*AnSISOP_signal)(t_nombre_semaforo identificador_semaforo);

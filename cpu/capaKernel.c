@@ -103,8 +103,7 @@ int32_t obtenerVarGlobal(t_nombre_compartida nombre){
 	char aux;
 
 	printf("	TAM NOMBRE VAR: %i,NOMBRE VAR: %s\n",nombreTam,nombre);
-	printf("Wew\n");
-	send(kernel,"C",1,0);
+	send(kernel,"O",1,0);
 	send(kernel,&nombreTam,sizeof(uint32_t),0);
 
 	recv(kernel,&aux,1,0);//recibo una Y
@@ -120,7 +119,7 @@ int asignarVarGlobal(t_nombre_compartida nombre,t_valor_variable valor){
 	uint32_t nombreTam=strlen(nombre);
 	char aux;
 
-	send(kernel,"B",1,0);
+	send(kernel,"A",1,0);
 	send(kernel,&nombreTam,sizeof(uint32_t),0);
 
 	recv(kernel,&aux,1,0);//recibo una Y
@@ -134,3 +133,36 @@ int asignarVarGlobal(t_nombre_compartida nombre,t_valor_variable valor){
 	return 1;
 }
 
+char semWait(t_nombre_semaforo sem){
+	uint32_t nombreTam=strlen(sem);
+	char aux;
+
+	send(kernel,"W",1,0);
+
+	send(kernel,&nombreTam,sizeof(uint32_t),0);
+	recv(kernel,&aux,1,0); //recibo una y
+
+	send(kernel,sem,nombreTam,0);
+	recv(kernel,&aux,1,0); //recibo una y
+
+	recv(kernel,&aux,1,0); //recibo una B o una Y o una N
+
+	return aux;
+}
+
+char semSignal(t_nombre_semaforo sem){
+	uint32_t nombreTam=strlen(sem);
+	char aux;
+
+	send(kernel,"S",1,0);
+
+	send(kernel,&nombreTam,sizeof(uint32_t),0);
+	recv(kernel,&aux,1,0); //recibo una y
+
+	send(kernel,sem,nombreTam,0);
+	recv(kernel,&aux,1,0); //recibo una y
+
+	recv(kernel,&aux,1,0); //recibo una Y o N
+
+	return aux;
+}

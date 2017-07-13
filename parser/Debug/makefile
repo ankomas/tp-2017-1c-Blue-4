@@ -8,6 +8,7 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
+-include parser/Debug/subdir.mk
 -include parser/subdir.mk
 -include subdir.mk
 -include objects.mk
@@ -26,7 +27,7 @@ endif
 all: libparser.so
 
 dependents:
-	-cd /home/utnso/workspace/tp-2017-1c-Blue-4/commons/Debug && $(MAKE) all
+	-cd /home/utnso/workspace/tp-2017-1c-Blue-4/commons/Debug && $(MAKE) clean all
 
 # Tool invocations
 libparser.so: $(OBJS) $(USER_OBJS) /home/utnso/workspace/tp-2017-1c-Blue-4/commons/Debug/libcommons.so

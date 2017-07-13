@@ -85,7 +85,10 @@ void initFunciones(){
 			.AnSISOP_obtenerValorCompartida = dummy_obtenerValorCompartida,
 			.AnSISOP_asignarValorCompartida = dummy_asignarValorCompartida,
 	};
-	AnSISOP_kernel j = {};
+	AnSISOP_kernel j = {
+			.AnSISOP_wait					= dummy_wait,
+			.AnSISOP_signal					= dummy_signal
+	};
 	funciones=f;
 	kernel_functions=j;
 }
