@@ -245,7 +245,7 @@ void guardarVarGlobal(uint32_t i){
 
 
 
-void semWait(uint32_t i,uint32_t pid){
+void semWait(uint32_t i,uint32_t *pid){
 	// Wait semaforo
 
 	uint32_t tamARecibir=0;
@@ -262,12 +262,13 @@ void semWait(uint32_t i,uint32_t pid){
 	if(recv(i,rev,tamARecibir,MSG_WAITALL) <= 0)
 		anuncio("Ocurrio un problema al hacer un Wait");
 	send(i,"Y",1,0);
-
+	printf("Llamada a SEM WAIT: %s\n",rev);
 	t_semaforo * semaforoObtenido =(t_semaforo *)dictionary_get(semaforos,rev);
 	if(dictionary_has_key(semaforos,rev)){
 		test("Valor semaforo en Wait antes de decrementar");
 		testi(semaforoObtenido->valor);
 		semaforoObtenido->valor--;
+		printf("Nuevo valor de %s: %i\n",rev,semaforoObtenido->valor);
 		if(semaforoObtenido->valor >= 0){
 			if(send(i,"Y",1,0) <= 0)
 				anuncio("Ocurrio un problema al hacer un Wait");
@@ -275,8 +276,10 @@ void semWait(uint32_t i,uint32_t pid){
 			//t_cpu * cpuEncontrada = encontrarCPU(i);
 			//uint32_t pid = cpuEncontrada->programaEnEjecucion->pid;
 
-			queue_push(semaforoObtenido->colaEspera,&pid);
-			t_programa* programaAux = encontrarPrograma(pid);
+			queue_push(semaforoObtenido->colaEspera,pid);
+			/*uint32_t *proximoPID = queue_peek(semaforoObtenido->colaEspera);
+			printf("PID COLA SEM INGRESADO: %i\n",*proximoPID);*/
+			t_programa* programaAux = encontrarPrograma(*pid);
 			//moverPrograma(programaAux,procesosREADY,procesosBLOCK);
 
 			if(send(i,"B",1,0) <= 0)
@@ -309,14 +312,19 @@ void semSignal(uint32_t i){
 		anuncio("Ocurrio un problema al hacer un Signal");
 	send(i,"Y",1,0);
 
+	printf("Llamada a SEM SIGNAL: %s\n",rev);
 	t_semaforo * semaforoObtenido =(t_semaforo *)dictionary_get(semaforos,rev);
 	if(dictionary_has_key(semaforos,rev)){
 		test("Valor semaforo en Signal antes de aumentar");
 			testi(semaforoObtenido->valor);
 		semaforoObtenido->valor++;
+		printf("Nuevo valor de %s: %i\n",rev,semaforoObtenido->valor);
 		if(queue_size(semaforoObtenido->colaEspera)>0){
-			uint32_t *proximoPID = queue_pop(semaforoObtenido->colaEspera);
+			uint32_t *proximoPID = (uint32_t*)queue_pop(semaforoObtenido->colaEspera);
+			printf("PID COLA SEM: %i\n",*proximoPID);
 			t_programa * programaAux =  encontrarPrograma(*proximoPID);
+			printf("DESBLOQUEANDO PROCESO\n");
+			printf("PAUX: %i\n",programaAux->pcb->pid);
 			moverPrograma(programaAux,procesosBLOCK,procesosREADY);
 		}
 
