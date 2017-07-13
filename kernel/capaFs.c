@@ -4,7 +4,6 @@
  *  Created on: 14/4/2017
  *      Author: utnso
  */
-
 #include "capaFs.h"
 
 void imprimirPorConsola(uint32_t socket,char*data,uint32_t tamanio){

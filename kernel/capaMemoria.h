@@ -11,7 +11,6 @@
 #include "commons/collections/queue.h"
 #include "blue4-lib.h"
 #include "main.h"
-#include "planificador.h"
 #include <stdio.h>
 #include <string.h>
 
