@@ -296,9 +296,11 @@ void* cpu(t_cpu * cpu){
 					//TODO El planificador debe desencolar procesos ya terminados
 					proximoPrograma = planificador(proximoPrograma);
 					break;
-				} else if(res[0] == 'B'){
+				}else if(res[0] == 'S'){
+					semSignal(cpu->id);
+				} else if(res[0] == 'A'){
 					guardarVarGlobal(cpu->id);
-				}  else if(res[0] == 'C'){
+				}  else if(res[0] == 'O'){
 					leerVarGlobal(cpu->id);
 				} else if(res[0] == 'W'){
 					semWait(cpu->id);
@@ -308,7 +310,11 @@ void* cpu(t_cpu * cpu){
 					leerHeap(cpu->id);
 				} else if(res[0] == 'G'){
 					guardarEnHeap(cpu->id);
+				} else if(res[0] == 'B'){
+					moverPrograma(cpu->programaEnEjecucion,procesosEXEC,procesosBLOCK);
+					break;
 				}
+
 			}
 			// Esta Y debe ser reemplazada por el codigo que devuelva la cpu, cuando finalice tiene que limpiar las estructuras incluyendo cpu
 		} else {
