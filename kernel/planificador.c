@@ -242,16 +242,19 @@ void* cpu(t_cpu * cpu){
 	printf("cpu: %i\n",cpu->id);
 	t_programa * proximoPrograma;
 	proximoPrograma = planificador(NULL);
-	char*res = malloc(1);
+	char*res = NULL;
 	while(1){
 		//TODO falta mutex en todos los accesos a las colas
-		if(proximoPrograma != 0){
+		if(proximoPrograma != 0 && proximoPrograma!=NULL){
 			t_pcb proximoPCB = *(proximoPrograma->pcb);
 			package_t paquete = serializarPCB(proximoPCB);
 			uint32_t tamUint=sizeof(uint32_t),tamChar=1;
 			uint32_t tamARecibir=0;
 			//char* streamTamPaquete = intToStream(paquete.data_size);
 			//send al proximoProceso->id
+
+			res=realloc(res,1);
+
 			if(sendall(cpu->id, "0", &tamChar) < 0)
 				liberarCPU(proximoPrograma);
 
@@ -266,19 +269,34 @@ void* cpu(t_cpu * cpu){
 			recv(cpu->id,res,1,MSG_WAITALL);
 			if(res[0]!= 'Y'){
 				log_error(logger,"La CPU no recibio el PCB");
+				test(res);
+				//todo no mates el programa, mata al cpu
 				liberarCPU(proximoPrograma);
 			}
+
 			while(1){
 				recv(cpu->id,res,1,MSG_WAITALL);
 
 				// Verifico si aun le falta ejecutar al proceso
 				if(res[0] == 'F'){
+					if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
+						liberarCPU(proximoPrograma);
+					res=realloc(res,tamARecibir);
+					if(recv(cpu->id,res,tamARecibir,MSG_WAITALL) <= 0)
+						liberarCPU(proximoPrograma);
+					else{
+						liberarPCB(*(proximoPrograma->pcb));
+						*(proximoPrograma->pcb)=deserializarPCB(res);
+						free(res);
+						res=NULL;
+					}
 					if(proximoPrograma->pcb->exitCode == EXIT_OK){
 						anuncio("Programa finalizo con exito");
 					} else if(proximoPrograma->pcb->exitCode < 0){
 						anuncio(concat(2,"Ocurrio un error #",string_itoa(proximoPrograma->pcb->exitCode)));
 					}
 					moverPrograma(proximoPrograma,procesosEXEC,procesosEXIT);
+					printf("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
 					proximoPrograma = NULL;
 					break;
 				} else if(res[0] == 'Y'){
@@ -293,6 +311,8 @@ void* cpu(t_cpu * cpu){
 					else{
 						liberarPCB(*(proximoPrograma->pcb));
 						*(proximoPrograma->pcb)=deserializarPCB(res);
+						free(res);
+						res=NULL;
 					}
 
 					//TODO El planificador debe desencolar procesos ya terminados
@@ -314,6 +334,7 @@ void* cpu(t_cpu * cpu){
 					guardarEnHeap(cpu->id);
 				} else if(res[0] == 'B'){
 					moverPrograma(proximoPrograma,procesosEXEC,procesosBLOCK);
+					proximoPrograma = NULL;
 					break;
 				}
 

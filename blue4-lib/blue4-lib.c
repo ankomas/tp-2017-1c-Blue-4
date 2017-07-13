@@ -119,6 +119,7 @@ int sendall(uint32_t s, char *buf, uint32_t *len)
     }
     aux=string_itoa(total);
     aux2=concat(2,"Cantidad enviada:",aux);
+    printf("A: %i\n",s);
     textoVerde(aux2);
     free(aux);
     free(aux2);
@@ -281,6 +282,10 @@ void test(char * aString){
 }
 
 void testi(int aInt){
+	printf("%s[Testi] Resultado: %i %s \n",KBOL,aInt,KNRM);
+}
+
+void loggearConInt(char*aString,int aInt){
 	printf("%s[Testi] Resultado: %i %s \n",KBOL,aInt,KNRM);
 }
 

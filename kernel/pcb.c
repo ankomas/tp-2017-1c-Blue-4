@@ -263,6 +263,8 @@ t_pcb deserializarPCB(char* paquete){
 	uint32_t pointer=0;
 	t_pcb res;
 	package_t paux;
+	char* etiquetas=NULL;
+
 
 	//printf("|||||||||||DESERIALIZADOR||||||||||||\n");
 
@@ -303,11 +305,11 @@ t_pcb deserializarPCB(char* paquete){
 	paux=deserializar(&pointer,paquete);
 	res.indiceCodigo=streamAIntructions(paux.data,res.indiceCodigoSize);
 
+	free(paux.data);
+
 	//int i;
 	//for(i=0;i<res.indiceCodigoSize;i++)
 	//	printf("Start: %i Offset: %i\n",res.indiceCodigo[i].start,res.indiceCodigo[i].offset);
-
-	free(paux.data);
 
 	paux=deserializar(&pointer,paquete);
 	res.indiceStack=streamAStack(paux.data);
@@ -315,14 +317,20 @@ t_pcb deserializarPCB(char* paquete){
 	free(paux.data);
 
 	paux=deserializar(&pointer,paquete);
-	res.indiceEtiquetasSize=*(uint32_t*)paux.data;
+	//res.indiceEtiquetasSize=*(uint32_t*)paux.data;
+	memcpy(&res.indiceEtiquetasSize,(uint32_t*)paux.data,sizeof(uint32_t));
 
 	free(paux.data);
 
 	//printf("Indice etiquetas size: %i\n",res.indiceEtiquetasSize);
 
 	paux=deserializar(&pointer,paquete);
-	res.indiceEtiquetas=paux.data;
+	//res.indiceEtiquetas=paux.data;
+
+	etiquetas=realloc(etiquetas,res.indiceEtiquetasSize);
+	memcpy(etiquetas,paux.data,res.indiceEtiquetasSize);
+	res.indiceEtiquetas=etiquetas;
+	free(paux.data);
 
 	paux=deserializar(&pointer,paquete);
 	//memcpy(&res.exitCode,paux.data,4);
