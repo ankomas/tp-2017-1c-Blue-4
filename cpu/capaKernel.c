@@ -41,6 +41,12 @@ char* const lineaEnPrograma(t_pcb2* pcb,t_puntero_instruccion inicioDeLaInstrucc
 
 void ejecutarPCB(t_pcb2 *pcb, int socket){
 	//char* programa=pedirProgramaAMemoria(pcb,socket);
+	if(pcb->pc>pcb->indiceCodigoSize){
+		printf(RED"ERROR: se esta tratando de ejecutar PC:%i cuando la ultima instruccion es: %i\n"RESET,pcb->pc,pcb->indiceCodigoSize);
+		setExitCode(&pcb_global,"error desconocido",20);
+		finPrograma_global='F';
+		return;
+	}
 	char* const linea = lineaEnPrograma(pcb,
 			pcb->indiceCodigo[pcb->pc].start,
 			pcb->indiceCodigo[pcb->pc].offset);
@@ -71,11 +77,13 @@ void recibirPCB(int socket){
 	memcpy(&tam,buffer,4);
 	printf("RECIBIENDO PCB, TAMANIO DEL PAQUETE: %i\n",tam);
 	buffer=realloc(buffer,tam);
-	if(recv(socket,buffer,tam,0) > 0 ){
+	if(recv(socket,buffer,tam,MSG_WAITALL) > 0 ){
 		send(socket,"Y",1,0);
 		pcb_global=deserializarPCB(buffer);
 		free(buffer);
 		ejecutarPCB(&pcb_global,socket);
+	} else {
+		send(socket,"N",1,0);
 	}
 
 }
