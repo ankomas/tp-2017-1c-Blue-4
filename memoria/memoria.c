@@ -84,6 +84,9 @@ void testEscritura()
 	escribir(100,0,26,6," Mucho");
 	escribir(100,4,0,3,"Men");
 
+	inicializarPrograma(200,1);
+	escribir(200,0,0,15,"PID 200 PAG 001");
+
 	inicializarPrograma(101,4);
 	escribir(101,0,0,15,"OLA KE AZEEEEEE");
 	escribir(101,1,0,3,"OLI");
