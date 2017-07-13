@@ -359,7 +359,6 @@ int agregarProcesoACache(int pid, int pag) {
 
 void copiarMemoriaACache(int pid, int pag) {
 	int marco = getMarcoCache(pid, pag);
-	printf("Se copia la memoria del PID: %i, PAGINA: %i, Marco Memoria: %i, Marco Cache: %i\n", pid, pag, getMarco(pid, pag), marco);
 	void* data = leerMemoria(pid, pag, 0, configDeMemoria.tamMarco);
 	escribirCache(marco, 0, configDeMemoria.tamMarco, data);
 }
@@ -374,14 +373,12 @@ void* leer(uint32_t pid, uint32_t pag, uint32_t offset, uint32_t tam) { // SIGUE
 int escribir(uint32_t pid, uint32_t pag, uint32_t offset, uint32_t tamData,
 	void *data) {
 	escribirMemoria(pid, pag, offset, tamData, data);
-	printf("Escribi: %s\n", (char*)leerMemoria(pid, pag, offset, tamData));
 	if (estaEnCache(pid, pag))
 		escribirCache(getMarcoCache(pid, pag), offset, tamData, data);
 	else {
 		agregarProcesoACache(pid, pag);
 		copiarMemoriaACache(pid, pag);
 	}
-	printf("Escribi en cache: %s\n", (char*)leerCache(pid, pag, offset, tamData));
 	return 0;
 }
 /*
