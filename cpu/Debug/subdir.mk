@@ -10,6 +10,7 @@ C_SRCS += \
 ../main.c \
 ../pcb.c \
 ../primitivas.c \
+../primitivasKernel.c \
 ../test.c 
 
 OBJS += \
@@ -19,6 +20,7 @@ OBJS += \
 ./main.o \
 ./pcb.o \
 ./primitivas.o \
+./primitivasKernel.o \
 ./test.o 
 
 C_DEPS += \
@@ -28,6 +30,7 @@ C_DEPS += \
 ./main.d \
 ./pcb.d \
 ./primitivas.d \
+./primitivasKernel.d \
 ./test.d 
 
 
@@ -35,7 +38,7 @@ C_DEPS += \
 %.o: ../%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C Compiler'
-	gcc -I"/home/utnso/workspace/tp-2017-1c-Blue-4/blue4-lib" -I"/home/utnso/workspace/tp-2017-1c-Blue-4/parser" -I"/home/utnso/workspace/tp-2017-1c-Blue-4/commons" -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	gcc -I"/home/utnso/workspace/tp-2017-1c-Blue-4/parser" -I"/home/utnso/workspace/tp-2017-1c-Blue-4/commons" -I"/home/utnso/workspace/tp-2017-1c-Blue-4/blue4-lib" -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

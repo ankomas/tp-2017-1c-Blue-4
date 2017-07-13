@@ -14,6 +14,7 @@
 #include "conexiones.h"
 #include "pcb.h"
 #include "primitivas.h"
+#include "primitivasKernel.h"
 #include "capaMemoria.h"
 #include "capaKernel.h"
 #include "test.h"

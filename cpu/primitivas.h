@@ -23,7 +23,7 @@ t_valor_variable dummy_obtenerValorCompartida(t_nombre_compartida variable);
 t_valor_variable dummy_asignarValorCompartida(t_nombre_compartida variable, t_valor_variable valor);
 
 AnSISOP_funciones funciones;
-AnSISOP_kernel kernel_functions;
+
 
 
 

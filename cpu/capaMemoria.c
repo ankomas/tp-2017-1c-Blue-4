@@ -201,8 +201,8 @@ char* pedirLineaAMemoria(t_pcb2* pcb,uint32_t start,uint32_t off){
 		offsetPag=0;
 		i++;
 	}
-	res=realloc(res,off+1);
-	memcpy(res+off,"\0",1);
+	//res=realloc(res,off+1);
+	memcpy(res+off-1,"\0",1);
 	return res;
 }
 

@@ -9,6 +9,7 @@
 #include <parser/parser.h>
 #include "conexiones.h"
 #include "primitivas.h"
+#include "primitivasKernel.h"
 #include "capaKernel.h"
 
 #define RED   "\x1B[31m"
@@ -185,8 +186,8 @@ void dummy_irAlLabel(t_nombre_etiqueta etiqueta){
 	t_puntero_instruccion instruccion=metadata_buscar_etiqueta(etiqueta, pcb_global.indiceEtiquetas, pcb_global.indiceEtiquetasSize);
 	int i;
 
-	if(etiqueta[strlen(etiqueta)-1]=='\n')
-		memcpy(etiqueta+strlen(etiqueta)-1,"\0",1);
+	//if(etiqueta[strlen(etiqueta)-1]=='\n')
+	//	memcpy(etiqueta+strlen(etiqueta)-1,"\0",1);
 
 	printf("Llamada a "YEL"IR AL LABEL"RESET" %s\n",etiqueta);
 	printf("sizeof etiqueta %i, strlen etiqueta %i\n",sizeof(etiqueta),strlen(etiqueta));
@@ -235,8 +236,8 @@ void dummy_llamarSinRetorno(t_nombre_etiqueta etiqueta){
 	t_list *args=list_create(),*vars=list_create();
 	t_pos pos={0,0,0};
 
-	if(etiqueta[strlen(etiqueta)-1]=='\n')
-		memcpy(etiqueta+strlen(etiqueta)-1,"\0",1);
+	//if(etiqueta[strlen(etiqueta)-1]=='\n')
+	//	memcpy(etiqueta+strlen(etiqueta)-1,"\0",1);
 
 	printf("Llamada a "YEL"LLAMAR SIN RETORNO"RESET"\n");
 	printf("Etiqueta: %s\n",etiqueta);
@@ -256,8 +257,8 @@ void dummy_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retornar
 	t_puntero_instruccion primeraInstruccion;
 	t_list *args=list_create(),*vars=list_create();
 
-	if(etiqueta[strlen(etiqueta)-1]=='\n')
-		memcpy(etiqueta+strlen(etiqueta)-1,"\0",1);
+	//if(etiqueta[strlen(etiqueta)-1]=='\n')
+	//	memcpy(etiqueta+strlen(etiqueta)-1,"\0",1);
 
 	printf("Llamada a "YEL"LLAMAR CON RETORNO"RESET"\n");
 	printf("Etiqueta: %s\n",etiqueta);
@@ -290,6 +291,3 @@ t_valor_variable dummy_asignarValorCompartida(t_nombre_compartida variable, t_va
 		res=valor;
 	return res;
 }
-
-t_valor_variable (*AnSISOP_obtenerValorCompartida)(t_nombre_compartida variable);
-t_valor_variable (*AnSISOP_asignarValorCompartida)(t_nombre_compartida variable, t_valor_variable valor);
