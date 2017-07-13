@@ -12,7 +12,7 @@ char finPrograma_global;
 
 void recibirPCB(int socket);
 void enviarPCB(int socket);
-int32_t obtenerVarGlobal(t_nombre_compartida nombre);
+int32_t obtenerVarGlobal(t_nombre_compartida nombre,int32_t *compartida);
 int asignarVarGlobal(t_nombre_compartida nombre,t_valor_variable valor);
 
 char semWait(t_nombre_semaforo sem);

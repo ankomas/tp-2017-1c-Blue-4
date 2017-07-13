@@ -57,10 +57,11 @@ void inicializarSemaforos() {
 }
 
 void inicializarVariablesCompartidas() {
-	char** varCompartidas_ids = obtenerConfiguracionArray(cfg,"SEM_IDS");
+	char** varCompartidas_ids = obtenerConfiguracionArray(cfg,"SHARED_VARS");
 	int aux = 0;
 
 	while (varCompartidas_ids[aux]){
+		printf("Agregado a VARIABLES COMPARTIDAS: %s\n",varCompartidas_ids[aux]);
 		dictionary_put(variablesCompartidas,varCompartidas_ids[aux],0);
 		aux++;
 	}
@@ -179,7 +180,7 @@ void leerVarGlobal(uint32_t i){
 
 	uint32_t tamInt = sizeof(int32_t);
 	uint32_t tamARecibir=0;
-	char * rev=NULL;
+	char * rev=NULL,*aux=NULL;
 
 	// Recibo largo del nombre de la variable
 	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
@@ -190,12 +191,28 @@ void leerVarGlobal(uint32_t i){
 	// Recibo el nombre de la variable
 	if(recv(i,rev,tamARecibir,MSG_WAITALL) <= 0)
 		anuncio("Ocurrio un problema al recibir un valor de variable global");
-	if(send(i,"Y",1,0) < 0)
-		anuncio("Ocurrio un problema al enviar un valor de variable global");
 	memcpy(rev+tamARecibir,"\0",1);
 
+	//Verificar si existe la variable
+	aux=concat(2,"Llamada a LEER VAR GLOBAL: ",rev);
+	log_trace(logger,aux);
+	free(aux);
+	aux=NULL;
+
+	if(dictionary_has_key(variablesCompartidas,rev)!=true){
+		log_error(logger,"La variable global no existe");
+		if(send(i,"N",1,0) < 0)
+			anuncio("Ocurrio un problema al enviar un valor de variable global");
+		free(rev);
+		return;
+	}
+
+	//Existe, sigo
+
+	if(send(i,"Y",1,0) < 0)
+		anuncio("Ocurrio un problema al enviar un valor de variable global");
+
 	int32_t res = *(int32_t*)dictionary_get(variablesCompartidas,rev);
-	printf("Rev: %s,tam a recibir: %i\n",rev,tamARecibir);
 	printf("Valor de la variable global a enviar: %i\n",*(int32_t*)dictionary_get(variablesCompartidas,rev));
 	if(sendall(i, (char*)&res, &tamInt) < 0)
 		anuncio("Ocurrio un problema al enviar un valor de variable global");
@@ -209,7 +226,7 @@ void guardarVarGlobal(uint32_t i){
 	uint32_t tamInt=sizeof(int32_t);
 	uint32_t tamARecibir=0;
 	int32_t *nuevoValorVar=malloc(sizeof(int32_t));
-	char * rev = malloc(1);
+	char * rev = malloc(1),*aux=NULL;
 
 	// Recibo largo del nombre de la variable
 	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
@@ -229,6 +246,23 @@ void guardarVarGlobal(uint32_t i){
 	// Recibo el valor a asignar
 	if(recv(i,nuevoValorVar,tamInt,MSG_WAITALL) <= 0)
 		anuncio("Ocurrio un problema al enviar un valor de variable global");
+
+	// Verificar si existe la variable
+	aux=concat(2,"Llamada a GUARDAR VAR GLOBAL: ",rev);
+	log_trace(logger,aux);
+	free(aux);
+	aux=NULL;
+
+	printf("%i,%i\n",dictionary_has_key(variablesCompartidas,rev),dictionary_has_key(variablesCompartidas,"Ca"));
+	if(dictionary_has_key(variablesCompartidas,rev)!=true){
+		log_error(logger,"La variable global no existe");
+		if(send(i,"N",1,0) < 0)
+			anuncio("Ocurrio un problema al enviar un valor de variable global");
+		free(rev);
+		return;
+	}
+
+	// Existe, ingresar nuevo valor
 
 	printf("Nuevo valor var: %i, rev: %s\n",*nuevoValorVar,rev);
 	if(dictionary_has_key(variablesCompartidas,rev)){

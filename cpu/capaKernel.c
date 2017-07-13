@@ -105,7 +105,7 @@ void enviarPCB(int socket){
 	}*/
 }
 
-int32_t obtenerVarGlobal(t_nombre_compartida nombre){
+int32_t obtenerVarGlobal(t_nombre_compartida nombre,int32_t *compartida){
 	uint32_t nombreTam=strlen(nombre);
 	int32_t res;
 	char aux;
@@ -117,10 +117,20 @@ int32_t obtenerVarGlobal(t_nombre_compartida nombre){
 	recv(kernel,&aux,1,0);//recibo una Y
 	send(kernel,nombre,nombreTam,0);
 
-	recv(kernel,&aux,1,0);//recibo una Y
-	recv(kernel,&res,sizeof(int32_t),0);
+	recv(kernel,&aux,1,0);
 
-	return res;
+	switch(aux){
+	case 'Y':
+		recv(kernel,&res,sizeof(int32_t),0);
+		*compartida=res;
+		return 1;
+	case 'N':
+		printf(RED"ERROR: no se encontro la variable global en memoria\n"RESET);
+		return -1;
+	default:
+		printf(RED"ERROR: respuesta invalida en obtener var global\n"RESET);
+		return -1;
+	}
 }
 
 int asignarVarGlobal(t_nombre_compartida nombre,t_valor_variable valor){
@@ -137,8 +147,16 @@ int asignarVarGlobal(t_nombre_compartida nombre,t_valor_variable valor){
 	send(kernel,&valor,sizeof(int32_t),0);
 
 	recv(kernel,&aux,1,0);//recibo una Y
-
-	return 1;
+	switch(aux){
+	case 'Y':
+		return 1;
+	case 'N':
+		printf(RED"ERROR: no se encontro la variable global en memoria\n"RESET);
+		return -1;
+	default:
+		printf(RED"ERROR: respuesta invalida en obtener var global\n"RESET);
+		return -1;
+	}
 }
 
 char semWait(t_nombre_semaforo sem){
