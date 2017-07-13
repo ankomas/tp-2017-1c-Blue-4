@@ -33,7 +33,7 @@ void dummy_wait(t_nombre_semaforo identificador_semaforo){
 	case 'Y':
 		return;
 	case 'N':
-		setExitCode(&pcb_global,"el semaforo no existe",14);
+		setExitCode(&pcb_global,"el semaforo no existe",15);
 		return;
 	case 'B':
 		finPrograma_global='B';
@@ -52,7 +52,7 @@ void dummy_signal(t_nombre_semaforo identificador_semaforo){
 	case 'Y':
 		return;
 	case 'N':
-		setExitCode(&pcb_global,"el semaforo no existe",14);
+		setExitCode(&pcb_global,"el semaforo no existe",15);
 		return;
 	}
 }

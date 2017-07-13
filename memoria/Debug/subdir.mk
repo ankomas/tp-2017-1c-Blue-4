@@ -5,6 +5,7 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
 ../configuraciones.c \
+../dump.c \
 ../estructurasAdministrativas.c \
 ../memoria.c \
 ../menuMemoria.c \
@@ -13,6 +14,7 @@ C_SRCS += \
 
 OBJS += \
 ./configuraciones.o \
+./dump.o \
 ./estructurasAdministrativas.o \
 ./memoria.o \
 ./menuMemoria.o \
@@ -21,6 +23,7 @@ OBJS += \
 
 C_DEPS += \
 ./configuraciones.d \
+./dump.d \
 ./estructurasAdministrativas.d \
 ./memoria.d \
 ./menuMemoria.d \

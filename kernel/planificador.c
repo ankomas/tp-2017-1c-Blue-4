@@ -218,6 +218,7 @@ t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual){
 	*/
 	nuevoProceso->paginasCodigo = cantidadPaginasCodigo;
 	nuevoProceso->pcb->cantPagCod= cantidadPaginasCodigo;
+	nuevoProceso->pcb->ultimaPosUsada.pag=cantidadPaginasCodigo;
 
 	if(gradoMultiprogramacion > cantidadProgramasEnSistema){
 		encolarReady(nuevoProceso);

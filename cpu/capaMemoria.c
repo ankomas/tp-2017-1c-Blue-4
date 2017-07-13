@@ -32,7 +32,7 @@ int pedirTamGlobal(int memoria){
 			return res;
 		}
 	}
-	printf("No se pudo obtener el tamanio de pagina");
+	printf("No se pudo obtener el tamanio de pagina\n");
 	return -1;
 }
 

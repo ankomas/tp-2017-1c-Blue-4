@@ -64,8 +64,7 @@ t_puntero dummy_definirVariable(t_nombre_variable variable){
 		vars=list_create();
 		list_add(pcb_global.indiceStack,(void*)stack_create(args,vars,0,pos));
 		pcb_global.sp=0;
-		pos=pcb_global.ultimaPosUsada;//va a ser 0 0 0
-		pos.pag=pcb_global.cantPagCod;
+
 	}else{
 		stack=list_get(pcb_global.indiceStack,pcb_global.sp);
 		args=stack->args;
@@ -81,7 +80,7 @@ t_puntero dummy_definirVariable(t_nombre_variable variable){
 	}
 
 	pcb_global.ultimaPosUsada=pos;
-	printf("Pos asignada a %c: %i\n",variable,posAPuntero(pos,tamPag_global));
+	printf("Pos asignada a %c: %i (%i,%i,%i)\n",variable,posAPuntero(pos,tamPag_global),pos.pag,pos.off,pos.size);
 
 	if(esArg(variable))
 		list_add(args,(void*)var_create(variable,pos));
@@ -275,11 +274,15 @@ void dummy_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retornar
 }
 
 t_valor_variable dummy_obtenerValorCompartida(t_nombre_compartida variable){
-	t_valor_variable res;
+	t_valor_variable compartida,res;
 	printf("Llamada a "YEL"OBTENER VALOR COMPARTIDA"RESET" %s\n",variable);
-	res= obtenerVarGlobal(variable);
-	printf("Valor de %s: %i\n",variable,res);
-	return res;
+	res= obtenerVarGlobal(variable,&compartida);
+	if(res==1){
+		printf("Valor de %s: %i\n",variable,compartida);
+		return compartida;
+	}
+	setExitCode(&pcb_global,"La variable compartida no existe",14);
+	return NO_EXISTE_VARIABLE;
 }
 
 t_valor_variable dummy_asignarValorCompartida(t_nombre_compartida variable, t_valor_variable valor){
@@ -288,6 +291,7 @@ t_valor_variable dummy_asignarValorCompartida(t_nombre_compartida variable, t_va
 	printf("Variable: %s, valor: %i\n",variable,valor);
 	res=asignarVarGlobal(variable,valor);
 	if(res==1)
-		res=valor;
-	return res;
+		return valor;
+	setExitCode(&pcb_global,"La variable compartida no existe",14);
+	return NO_EXISTE_VARIABLE;
 }
