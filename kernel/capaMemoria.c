@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "capaMemoria.h"
+#include "heap.h"
 
 
 int cantidadElementosArrayConfig(char* unaRuta,char*unId){
@@ -57,10 +58,11 @@ void inicializarSemaforos() {
 }
 
 void inicializarVariablesCompartidas() {
-	char** varCompartidas_ids = obtenerConfiguracionArray(cfg,"SEM_IDS");
+	char** varCompartidas_ids = obtenerConfiguracionArray(cfg,"SHARED_VARS");
 	int aux = 0;
 
 	while (varCompartidas_ids[aux]){
+		printf("Agregado a VARIABLES COMPARTIDAS: %s\n",varCompartidas_ids[aux]);
 		dictionary_put(variablesCompartidas,varCompartidas_ids[aux],0);
 		aux++;
 	}
@@ -179,7 +181,7 @@ void leerVarGlobal(uint32_t i){
 
 	uint32_t tamInt = sizeof(int32_t);
 	uint32_t tamARecibir=0;
-	char * rev=NULL;
+	char * rev=NULL,*aux=NULL;
 
 	// Recibo largo del nombre de la variable
 	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
@@ -190,12 +192,28 @@ void leerVarGlobal(uint32_t i){
 	// Recibo el nombre de la variable
 	if(recv(i,rev,tamARecibir,MSG_WAITALL) <= 0)
 		anuncio("Ocurrio un problema al recibir un valor de variable global");
-	if(send(i,"Y",1,0) < 0)
-		anuncio("Ocurrio un problema al enviar un valor de variable global");
 	memcpy(rev+tamARecibir,"\0",1);
 
+	//Verificar si existe la variable
+	aux=concat(2,"Llamada a LEER VAR GLOBAL: ",rev);
+	log_trace(logger,aux);
+	free(aux);
+	aux=NULL;
+
+	if(dictionary_has_key(variablesCompartidas,rev)!=true){
+		log_error(logger,"La variable global no existe");
+		if(send(i,"N",1,0) < 0)
+			anuncio("Ocurrio un problema al enviar un valor de variable global");
+		free(rev);
+		return;
+	}
+
+	//Existe, sigo
+
+	if(send(i,"Y",1,0) < 0)
+		anuncio("Ocurrio un problema al enviar un valor de variable global");
+
 	int32_t res = *(int32_t*)dictionary_get(variablesCompartidas,rev);
-	printf("Rev: %s,tam a recibir: %i\n",rev,tamARecibir);
 	printf("Valor de la variable global a enviar: %i\n",*(int32_t*)dictionary_get(variablesCompartidas,rev));
 	if(sendall(i, (char*)&res, &tamInt) < 0)
 		anuncio("Ocurrio un problema al enviar un valor de variable global");
@@ -209,7 +227,7 @@ void guardarVarGlobal(uint32_t i){
 	uint32_t tamInt=sizeof(int32_t);
 	uint32_t tamARecibir=0;
 	int32_t *nuevoValorVar=malloc(sizeof(int32_t));
-	char * rev = malloc(1);
+	char * rev = malloc(1),*aux=NULL;
 
 	// Recibo largo del nombre de la variable
 	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
@@ -230,6 +248,23 @@ void guardarVarGlobal(uint32_t i){
 	if(recv(i,nuevoValorVar,tamInt,MSG_WAITALL) <= 0)
 		anuncio("Ocurrio un problema al enviar un valor de variable global");
 
+	// Verificar si existe la variable
+	aux=concat(2,"Llamada a GUARDAR VAR GLOBAL: ",rev);
+	log_trace(logger,aux);
+	free(aux);
+	aux=NULL;
+
+	printf("%i,%i\n",dictionary_has_key(variablesCompartidas,rev),dictionary_has_key(variablesCompartidas,"Ca"));
+	if(dictionary_has_key(variablesCompartidas,rev)!=true){
+		log_error(logger,"La variable global no existe");
+		if(send(i,"N",1,0) < 0)
+			anuncio("Ocurrio un problema al enviar un valor de variable global");
+		free(rev);
+		return;
+	}
+
+	// Existe, ingresar nuevo valor
+
 	printf("Nuevo valor var: %i, rev: %s\n",*nuevoValorVar,rev);
 	if(dictionary_has_key(variablesCompartidas,rev)){
 		dictionary_remove(variablesCompartidas,rev);
@@ -245,7 +280,7 @@ void guardarVarGlobal(uint32_t i){
 
 
 
-void semWait(uint32_t i,uint32_t pid){
+void semWait(uint32_t i,uint32_t *pid){
 	// Wait semaforo
 
 	uint32_t tamARecibir=0;
@@ -262,12 +297,13 @@ void semWait(uint32_t i,uint32_t pid){
 	if(recv(i,rev,tamARecibir,MSG_WAITALL) <= 0)
 		anuncio("Ocurrio un problema al hacer un Wait");
 	send(i,"Y",1,0);
-
+	printf("Llamada a SEM WAIT: %s\n",rev);
 	t_semaforo * semaforoObtenido =(t_semaforo *)dictionary_get(semaforos,rev);
 	if(dictionary_has_key(semaforos,rev)){
 		test("Valor semaforo en Wait antes de decrementar");
 		testi(semaforoObtenido->valor);
 		semaforoObtenido->valor--;
+		printf("Nuevo valor de %s: %i\n",rev,semaforoObtenido->valor);
 		if(semaforoObtenido->valor >= 0){
 			if(send(i,"Y",1,0) <= 0)
 				anuncio("Ocurrio un problema al hacer un Wait");
@@ -275,8 +311,10 @@ void semWait(uint32_t i,uint32_t pid){
 			//t_cpu * cpuEncontrada = encontrarCPU(i);
 			//uint32_t pid = cpuEncontrada->programaEnEjecucion->pid;
 
-			queue_push(semaforoObtenido->colaEspera,&pid);
-			t_programa* programaAux = encontrarPrograma(pid);
+			queue_push(semaforoObtenido->colaEspera,pid);
+			/*uint32_t *proximoPID = queue_peek(semaforoObtenido->colaEspera);
+			printf("PID COLA SEM INGRESADO: %i\n",*proximoPID);*/
+			t_programa* programaAux = encontrarPrograma(*pid);
 			//moverPrograma(programaAux,procesosREADY,procesosBLOCK);
 
 			if(send(i,"B",1,0) <= 0)
@@ -309,14 +347,19 @@ void semSignal(uint32_t i){
 		anuncio("Ocurrio un problema al hacer un Signal");
 	send(i,"Y",1,0);
 
+	printf("Llamada a SEM SIGNAL: %s\n",rev);
 	t_semaforo * semaforoObtenido =(t_semaforo *)dictionary_get(semaforos,rev);
 	if(dictionary_has_key(semaforos,rev)){
 		test("Valor semaforo en Signal antes de aumentar");
 			testi(semaforoObtenido->valor);
 		semaforoObtenido->valor++;
+		printf("Nuevo valor de %s: %i\n",rev,semaforoObtenido->valor);
 		if(queue_size(semaforoObtenido->colaEspera)>0){
-			uint32_t *proximoPID = queue_pop(semaforoObtenido->colaEspera);
+			uint32_t *proximoPID = (uint32_t*)queue_pop(semaforoObtenido->colaEspera);
+			printf("PID COLA SEM: %i\n",*proximoPID);
 			t_programa * programaAux =  encontrarPrograma(*proximoPID);
+			printf("DESBLOQUEANDO PROCESO\n");
+			printf("PAUX: %i\n",programaAux->pcb->pid);
 			moverPrograma(programaAux,procesosBLOCK,procesosREADY);
 		}
 
@@ -331,35 +374,50 @@ void semSignal(uint32_t i){
 	free(rev);
 }
 
-void guardarEnHeap(uint32_t i){
+void guardarEnHeap(uint32_t i,t_list * paginasHeap,uint32_t *pid){
 	uint32_t tamARecibir=0;
 	char * rev = NULL;
 
 	// Recibo largo del nombre del semaforo
 	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
-		anuncio("Ocurrio un problema al hacer un Wait");
+		log_error(logger,"Ocurrio un problema al tratar de guardar memoria en el Heap");
 	if(send(i,"Y",1,0) < 0)
-		anuncio("Ocurrio un problema al hacer un Wait");
+		log_error(logger,"Ocurrio un problema al tratar de guardar memoria en el Heap");
 	rev=realloc(rev,tamARecibir+1);
 	memset(rev,'\0',tamARecibir+1);
 
 	// Recibo el nombre del semaforo
-	if(recv(i,&rev,tamARecibir,MSG_WAITALL) <= 0)
-		anuncio("Ocurrio un problema al hacer un Wait");
+	if(recv(i,rev,tamARecibir,MSG_WAITALL) <= 0)
+		log_error(logger,"Ocurrio un problema al tratar de guardar memoria en el Heap");
 	send(i,"Y",1,0);
 
-	t_semaforo * semaforoObtenido =(t_semaforo *)dictionary_get(semaforos,rev);
-	if(queue_size(semaforoObtenido->colaEspera)>0){
-		uint32_t *proximoPID = queue_pop(semaforoObtenido->colaEspera);
-		t_cpu * cpuEncontrada = encontrarCPUporPID(*proximoPID);
-
-		if(send(i,"Y",cpuEncontrada->id,0))
-			anuncio("Ocurrio un problema al hacer un Wait");
-	}else {
-		semaforoObtenido->valor++;
+	//Trato de meterlo en alguna pagina de heap que ya tenia asignada
+	int contador = 0;
+	while(contador < list_size(paginasHeap)){
+		paginaHeap * unaPaginaCargada = list_get(paginasHeap,contador);
+		if(guardarDataHeap(unaPaginaCargada,rev,tamARecibir) == 0){
+			// Se pudo guardar en una pagina previamente cargada
+			return;
+		}
 	}
 
-	free(rev);
+
+	paginaHeap * unaPagina = malloc(sizeof(unaPagina));
+	uint32_t numeroPagina = inicializarEnMemoria(idUMC, *pid,1);
+	if(numeroPagina < 0){
+		log_error(logger,"La memoria no dio espacio al kernel para guardar espacio de Heap");
+		send(i,"N",1,0);
+		return;
+	}
+	unaPagina->numero = numeroPagina;
+	iniciarBloqueHeap(unaPagina);
+	if(guardarDataHeap(unaPagina,rev,tamARecibir) == 0){
+		// Se pudo guardar en una pagina previamente cargada
+		return;
+	} else {
+		log_error(logger,"No se pudo reservar espacio en el heap");
+		return;
+	}
 }
 
 void leerHeap(uint32_t i){

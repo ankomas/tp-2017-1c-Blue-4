@@ -19,6 +19,8 @@ uint32_t tamanioDeTablaCache();
 
 void inicializarPrograma(uint32_t ,uint32_t);
 
+tablaPaginas_t* obtenerTablaDePaginas();
+tablaCache_t* obtenerTablaCache();
 
 /**
  * Leer (pid, pag, offset, tamañoLectura)
@@ -80,7 +82,5 @@ int eliminarPaginaDeUnProceso(uint32_t ,uint32_t );
 
 int agregarProcesoACache(int, int);
 
-void mostrarCache();
-void mostrarMemoria(), mostrarProcesoEnMemoria(int);
 
 #endif /* OPERACIONESMEMORIA_H_ */

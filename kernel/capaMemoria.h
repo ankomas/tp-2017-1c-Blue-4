@@ -23,8 +23,8 @@ int cantidadElementosArrayConfig(char* unaRuta,char*unId);
 int obtenerTamanioPagina();
 int valorSemaforo(char * unSemaforo);
 int inicializarEnMemoria(uint32_t i, uint32_t data, uint32_t data2);
-void guardarEnHeap(uint32_t i);
+void guardarEnHeap(uint32_t i,t_list * paginasHeap,uint32_t *pid);
 void inicializarVariablesCompartidas();
 void inicializarSemaforos();
-void semWait(uint32_t i,uint32_t pid);
+void semWait(uint32_t i,uint32_t *pid);
 #endif /* CAPAMEMORIA_H_ */

@@ -76,7 +76,7 @@ int actualizarMarcosDisponibles(int marcosAUsar)
 	{
 		printf("marcos antes de actualizar : %d \n",configDeMemoria.marcosDisponibles);
 		configDeMemoria.marcosDisponibles-=marcosAUsar;
-		printf("marcos actualizados : %d \n",configDeMemoria.marcosDisponibles);
+		printf("marcos disponibles : %d \n",configDeMemoria.marcosDisponibles);
 		return 0;
 	}
 	return -1;

@@ -32,22 +32,7 @@ void dumpCache() {
 	mostrarCache();
 };
 
-void mostrarTablaDePaginas(){
-	int i;
-	tablaPaginas_t* tablaDePaginas = obtenerTablaDePaginas();
-	//for(i=0; i<configDeMemoria.marcos;i++)
-	int marcosUtilizados=configDeMemoria.marcos-configDeMemoria.marcosDisponibles;
-	if(marcosUtilizados==0)marcosUtilizados=configDeMemoria.marcos;
-	texto_en_color("Se mostrara a continuacion solo los marcos que se esten usando en la tabla de paginas:\n\n");
-	for(i=0; i<configDeMemoria.marcos;i++){
-		if(tablaDePaginas[i].pid!=-2)
-		{
-			pthread_mutex_lock(&mutex_test);
-			printf("%s Marco: %i	 PID: %i	Pagina: %i %s \n",KGRN,i,tablaDePaginas[i].pid, tablaDePaginas[i].pagina,KNRM );
-			pthread_mutex_unlock(&mutex_test);
-		}
-	}
-}
+
 void dumpEstructuras() {
 	mostrarTablaDePaginas();
 	texto_en_color("\nA conticuacion se mostrara el estado de los procesos activos: \n\n");
@@ -113,15 +98,6 @@ void contenidoPorPID()
 	uint32_t paginas;
 	texto_en_color("ingrese PID:");
 	scanf("%d",&pid);
-	/*
-	paginas=obtener_paginasActualesDeProcesoActivo(pid); <-
-	if(paginas==-1)
-	{
-		texto_en_color_de_error("El PID ingresado no es valido \n");
-		return;
-	}
-	impresionDeLecturaDeDataDePaginas(i,paginas,pid); <-*/
-	printf("Flag1 \n");
 	mostrarProcesoEnMemoria(pid);
 
 }
