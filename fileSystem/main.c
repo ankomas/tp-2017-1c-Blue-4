@@ -14,7 +14,12 @@
 #include "operacionesFS.h"
 
 
-
+void testLectura(){
+	char*ruta=rutaEnPuntoMontaje("/Archivos","/archivo_test.bin");
+	char* data;
+	data=obtenerDatos(ruta,0,34);
+	printf("la data es: %s \n",data);
+}
 
 int main(void) {
 
@@ -23,10 +28,7 @@ int main(void) {
 	//generarArchivoDelFS_TEST();
 	//crearArchivo("/archivo_test.bin");
 	//borrar("/archivo_test.bin");
-	char*ruta=rutaEnPuntoMontaje("/Archivos","/archivo_test.bin");
-	char* data;
-	data=obtenerDatos(ruta,0,34);
-	printf("la data es: %s \n",data);
+	testLectura();
 	servidor();
 
 	return 0;
