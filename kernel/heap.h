@@ -28,7 +28,7 @@ typedef struct bloque {
 }bloque;
 
 void iniciarBloqueHeap(paginaHeap* unaPagina);
-int guardarDataHeap(paginaHeap* unaPagina, void* data,int32_t tamData);
+bloque *guardarDataHeap(paginaHeap* unaPagina, void* data,int32_t tamData);
 int memoriaLibre(paginaHeap* unaPagina);
 int memoriaLibreContigua(paginaHeap* unaPagina);
 int compactar(paginaHeap* unaPagina);

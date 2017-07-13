@@ -395,8 +395,14 @@ void guardarEnHeap(uint32_t i,t_list * paginasHeap,uint32_t *pid){
 	int contador = 0;
 	while(contador < list_size(paginasHeap)){
 		paginaHeap * unaPaginaCargada = list_get(paginasHeap,contador);
-		if(guardarDataHeap(unaPaginaCargada,rev,tamARecibir) == 0){
+		bloque * bloqueEncontrado = guardarDataHeap(unaPaginaCargada,rev,tamARecibir);
+		if(bloqueEncontrado != NULL){
 			// Se pudo guardar en una pagina previamente cargada
+			char* metadataSerializado = calloc(1,sizeof(heapMetadata));
+			memcpy(metadataSerializado,&bloqueEncontrado->metadata->isFree,sizeof(bloqueEncontrado->posicionInicioBloque));
+			memcpy(metadataSerializado,&bloqueEncontrado->metadata->size,sizeof(bloqueEncontrado->metadata->size));
+			guardarEnMemoria(i,*pid,unaPaginaCargada->numero,bloqueEncontrado->posicionInicioBloque,sizeof(heapMetadata),metadataSerializado);
+			free(metadataSerializado);
 			return;
 		}
 	}

@@ -27,7 +27,7 @@ void iniciarBloqueHeap(paginaHeap* unaPagina){
 	list_add(unaPagina->bloques,nuevoBloque);
 }
 
-int guardarDataHeap(paginaHeap* unaPagina,void* data,int32_t tamData){
+bloque* guardarDataHeap(paginaHeap* unaPagina,void* data,int32_t tamData){
 	int i = 0;
 	if(list_size(unaPagina->bloques) > 0){
 		while(i < list_size(unaPagina->bloques)){
@@ -67,7 +67,7 @@ int guardarDataHeap(paginaHeap* unaPagina,void* data,int32_t tamData){
 				list_add(unaPagina->bloques,bloqueAux);
 
 				//crear nuevo bloque heap
-				return 0; //Guardado con exito
+				return bloqueAux; //Guardado con exito
 			}
 			i++;
 		}
@@ -76,9 +76,9 @@ int guardarDataHeap(paginaHeap* unaPagina,void* data,int32_t tamData){
 			if(compactar(unaPagina) == 1)
 				guardarDataHeap(unaPagina,data,tamData);
 		}
-		return -1; // No hay espacio en esta pagina
+		return NULL; // No hay espacio en esta pagina
 	}
-	return -2; // La pagina no esta inicializada
+	return NULL; // La pagina no esta inicializada
 }
 
 void* leerDataHeap(paginaHeap* unaPagina,uint32_t offset){
