@@ -304,11 +304,11 @@ void* cpu(t_cpu * cpu){
 					semWait(cpu->id);
 				} else if(res[0] == 'S'){
 					semSignal(cpu->id);
-				} /*else if(res[0] == 'H'){
+				} else if(res[0] == 'H'){
 					leerHeap(cpu->id);
 				} else if(res[0] == 'G'){
 					guardarEnHeap(cpu->id);
-				}*/
+				}
 			}
 			// Esta Y debe ser reemplazada por el codigo que devuelva la cpu, cuando finalice tiene que limpiar las estructuras incluyendo cpu
 		} else {
