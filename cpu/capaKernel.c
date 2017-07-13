@@ -54,7 +54,7 @@ void ejecutarPCB(t_pcb2 *pcb, int socket){
 		setExitCode(&pcb_global,"fallo al leer en memoria",11);
 		return;
 	}
-	printf(GRN"PID: %i PC:%i SP:%i\n"RESET,pcb->pid,pcb->pc,pcb->sp);
+	printf(GRN"PID: %i PC:%i SP:%i Ultima Pos Usada: (%i,%i,%i)\n"RESET,pcb->pid,pcb->pc,pcb->sp,pcb->ultimaPosUsada.pag,pcb->ultimaPosUsada.off,pcb->ultimaPosUsada.size);
 	printf("\t Evaluando -> " BLU "%s" RESET"\n", linea);
 	pcb->pc++;
 	analizadorLinea(linea, &funciones, &kernel_functions);
@@ -191,4 +191,35 @@ char semSignal(t_nombre_semaforo sem){
 	recv(kernel,&aux,1,0); //recibo una Y o N
 
 	return aux;
+}
+
+char alloc(t_valor_variable valor,t_puntero *puntero){
+	char res,*temp;
+
+	temp=malloc(valor);
+	memset(temp,0,valor);
+
+	send(kernel,"G",1,0);
+	send(kernel,&valor,sizeof(t_valor_variable),0);
+
+	recv(kernel,&res,1,0); //recibo una Y
+	send(kernel,temp,valor,0);
+
+	free(temp);
+
+	recv(kernel,&res,1,0); //recibo una Y
+
+	recv(kernel,&res,1,0); //recibo una Y o una N
+
+	switch(res){
+	case 'Y':
+		recv(kernel,puntero,sizeof(t_valor_variable),0);
+		return res;
+	case 'N':
+		printf("ERROR: no se pudo alocar\n");
+		return res;
+	default:
+		printf("ERROR: respuesta incorrecta en ALLOC\n");
+		return 'N';
+	}
 }

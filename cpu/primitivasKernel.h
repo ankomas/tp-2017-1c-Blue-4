@@ -14,6 +14,8 @@
 void dummy_wait(t_nombre_semaforo identificador_semaforo);
 void dummy_signal(t_nombre_semaforo identificador_semaforo);
 
+t_puntero dummy_reservar(t_valor_variable espacio);
+
 AnSISOP_kernel kernel_functions;
 
 #endif /* PRIMITIVASKERNEL_H_ */

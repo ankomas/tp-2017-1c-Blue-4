@@ -10,6 +10,10 @@
 
 #include "pcb.h"
 
+t_puntero posAPuntero(t_pos pos,uint32_t tamPag);
+t_pos punteroAPos(t_puntero puntero, uint32_t tamPag);
+t_pos proxPos(t_pos posActual,uint32_t tamPag);
+
 t_puntero dummy_definirVariable(t_nombre_variable variable);
 t_puntero dummy_obtenerPosicionVariable(t_nombre_variable variable);
 void dummy_finalizar(void);
