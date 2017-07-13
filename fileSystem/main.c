@@ -31,7 +31,7 @@ void testEscrituraFacil(){
 
 void testEscrituraCompleta(){
 	char*ruta=rutaEnPuntoMontaje("/Archivos","/archivo_test.bin");
-	guardarDatos(ruta,50,20,"JUDIOJUDIOJUDIOJUDIO");
+	guardarDatos(ruta,21,20,"JUDIOJUDIOJUDIOJUDIO");
 	free(ruta);
 }
 

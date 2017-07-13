@@ -281,20 +281,25 @@ void escribirEnBloques(int offset, int tam, char** bloques, char* cadena) {
 	free(buffer);
 }
 
+cantidadDeBloquesEn(char** bloques)
+{
+	int i=0;
+  while(bloques[i])
+  {
+  i++;
+  }
+  return i;
+}
+
 int guardarDatos(char* path,int offset, int tam, char* texto){
 
-	FILE* archivo;
-	char* data;
 	int nosirve, bloquesAPedir, maxTam;
 	t_infoArchivo info=obtenerInfoArchivo(path);
-	maxTam = strlen(info.bloques) * configFS.tamBloque;
-	//PARTE 1: ASIGNAR BLOQUES (LO HACE SALVA) //Actualizar info.bloques con tantos bloques como haga falta
-	//printf("Bloques a escribir: %i\n",cuantosBloquesLeo(info.tamanio - tam + offset,&nosirve));
+	maxTam = cantidadDeBloquesEn(info.bloques)* configFS.tamBloque;
 	if(offset+tam > maxTam){
 		bloquesAPedir = cuantosBloquesLeo(offset+tam-maxTam, &nosirve);
-		printf("Bloques a pedir: %i\n", bloquesAPedir);
+		//pedirBloques(bloquesAPedir);
 	}
-	//PARTE 2:
 	//escribirEnBloques(offset, tam, info.bloques, texto);
 	return 0;
 }
