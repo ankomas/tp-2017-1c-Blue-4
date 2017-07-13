@@ -99,7 +99,7 @@ int marcosTabla() {
 
 int tratarColision(int hash) {
 	if (hash < configDeMemoria.marcos)
-		return hash++;
+		return hash+1;
 	else
 		return marcosTabla();
 }
@@ -147,7 +147,7 @@ int nuevoMarco(uint32_t pid, uint32_t pagina) {
 		hash = tratarColision(hash);
 		i++;
 
-		if (i >= maxPA)
+		if (i >= configDeMemoria.marcos)
 			return -1; //NO HAY MARCOS VACIOS ._.
 
 	}
@@ -192,6 +192,8 @@ void guardaProcesoEn(uint32_t pid, uint32_t paginasRequeridas) {
 	uint32_t marco, pagina = 0;
 	while (pagina < paginasRequeridas) {
 		marco = nuevoMarco(pid, pagina);
+		if(marco == -1)
+			perror("No hay marcos disponibles");
 		cargarPaginaATabla(pid, pagina, marco);
 		pagina++;
 	}
@@ -211,6 +213,7 @@ void inicializarPrograma(uint32_t pid, uint32_t paginasRequeridas) {
 	agregar_DataDeProcesoActivo(pid, paginasRequeridas);
 	printf("tengo marcos suficientes \n");
 	agregarNuevoProceso(pid, paginasRequeridas);
+	printf("termine de inicializar el programa\n");
 	//pthread_mutex_unlock(mutexMemoria);
 }
 
@@ -368,15 +371,15 @@ void* leer(uint32_t pid, uint32_t pag, uint32_t offset, uint32_t tam) { // SIGUE
 }
 
 int escribir(uint32_t pid, uint32_t pag, uint32_t offset, uint32_t tamData,
-		void *data) {
-	int e = escribirMemoria(pid, pag, offset, tamData, data);
+	void *data) {
+	escribirMemoria(pid, pag, offset, tamData, data);
 	if (estaEnCache(pid, pag))
 		escribirCache(getMarcoCache(pid, pag), offset, tamData, data);
 	else {
 		agregarProcesoACache(pid, pag);
 		copiarMemoriaACache(pid, pag);
 	}
-	return e;
+	return 0;
 }
 /*
 int cantPaginasEnCache(int pid) {
@@ -422,6 +425,7 @@ void escribirCadenaEnArchivo(char* nombre, char* cadena, int counter, int tamI){
 void mostrarCache() {
 	char* cadena = string_new();
 	string_append(&cadena, "Se Mostrara el contenido de la cache\n");
+	texto_en_color("Se Mostrara el contenido de la cache\n");
 	int tam = 37;
 	char* dataACopiar;
 	char* data = malloc(configDeMemoria.tamMarco);

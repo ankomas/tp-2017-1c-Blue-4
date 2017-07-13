@@ -76,13 +76,21 @@ void testLecturaCache(){
 
 void testEscritura()
 {
-	inicializarPrograma(100,1);
+	inicializarPrograma(100,3);
 	escribir(100,0,0,26,"tu vieja en tanga me gusta");
 	asignarPaginasAUnProceso(100,20);
 	escribir(100,18,0,16,"necesito 16 cars");
 	escribir(100,15,0,4,"Hola");
 	escribir(100,0,26,6," Mucho");
 	escribir(100,4,0,3,"Men");
+	/*
+	inicializarPrograma(101,4);
+	escribir(101,0,0,15,"OLA KE AZEEEEEE");
+	escribir(101,1,0,3,"OLI");
+	escribir(101,2,0,3,"OLO");
+	escribir(101,3,0,3,"OLU");
+	*/
+
 }
 
 
@@ -107,7 +115,7 @@ int main(void) {
 	//NPAC(1,2);
 	//nuevoMarcoDelMismoProceso(1);
 	//printf("entro al test de escritura \n");
-	//testEscritura();
+	testEscritura();
 	//inicializarPrograma(100,8);
 	//escribir(100,0,0,4, "Hola");
 	//mostrarProcesoEnMemoria(100);
