@@ -296,8 +296,9 @@ void* cpu(t_cpu * cpu){
 					} else if(proximoPrograma->pcb->exitCode < 0){
 						anuncio(concat(2,"Ocurrio un error #",string_itoa(proximoPrograma->pcb->exitCode)));
 					}
-					moverPrograma(proximoPrograma,procesosEXEC,procesosEXIT);
+
 					printf("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
+					moverPrograma(proximoPrograma,procesosEXEC,procesosEXIT);
 					proximoPrograma = NULL;
 					break;
 				} else if(res[0] == 'Y'){
@@ -327,7 +328,7 @@ void* cpu(t_cpu * cpu){
 				}  else if(res[0] == 'O'){
 					leerVarGlobal(cpu->id);
 				} else if(res[0] == 'W'){
-					semWait(cpu->id,proximoPrograma->pcb->pid);
+					semWait(cpu->id,&proximoPrograma->id);
 				} else if(res[0] == 'S'){
 					semSignal(cpu->id);
 				} else if(res[0] == 'H'){
@@ -335,6 +336,17 @@ void* cpu(t_cpu * cpu){
 				} else if(res[0] == 'G'){
 					guardarEnHeap(cpu->id);
 				} else if(res[0] == 'B'){
+					if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
+						liberarCPU(proximoPrograma);
+					res=realloc(res,tamARecibir);
+					if(recv(cpu->id,res,tamARecibir,MSG_WAITALL) <= 0)
+						liberarCPU(proximoPrograma);
+					else{
+						liberarPCB(*(proximoPrograma->pcb));
+						*(proximoPrograma->pcb)=deserializarPCB(res);
+						free(res);
+						res=NULL;
+					}
 					log_trace(logger,"Moviendo el proceso de EXEC a bloqueado");
 					moverPrograma(proximoPrograma,procesosEXEC,procesosBLOCK);
 					proximoPrograma = NULL;
