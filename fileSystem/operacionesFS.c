@@ -20,7 +20,6 @@
 #include "arquitecturaFS.h"
 #include "operacionesFS.h"
 
-//Algunas Funciones estan completas, ninguna esta probada!
 
 char* rutaArchivo(char* path){
 	return rutaEnPuntoMontaje("/Archivos", path);
@@ -182,7 +181,83 @@ void borrarArchivo(char* path){
 	free(info.bloques);
 }
 
+
+
+char* obtenerArchivoSegunBloque(char* numeroDeBloque)
+{
+	char* archivo=string_new();
+	string_append(&archivo,"/");
+	string_append(&archivo,numeroDeBloque);
+	string_append(&archivo,".bin");
+	return archivo;
+}
+
+
+int calcularBloque( int offset, int* nuevoOffset)
+{
+	int i=0;
+	while(offset >= configFS.tamBloque)
+	{
+		offset -= configFS.tamBloque;
+		i++;
+	}
+  *nuevoOffset = offset;
+  return i;
+}
+
+
+int cuantosBloquesLeo(int tam, int* tamSobra){
+	int i=0;
+  while(tam >= configFS.tamBloque){
+  tam -= configFS.tamBloque;
+  i++;
+  }
+  *tamSobra = tam;
+  if( tam >0) return i+1;
+  else return i;
+}
+
+
+char* obtenerRutaSegunBLoque(char* num_bloque)
+{
+	char* ruta_bloque;
+	char*ruta;
+	ruta_bloque=obtenerArchivoSegunBloque(num_bloque);
+	ruta=rutaEnPuntoMontaje("/Bloques",ruta_bloque);
+	free(ruta_bloque);
+	return ruta;
+}
+
+void* lecturaSegunTamanio(int offset, int tam,char** bloques){
+	int i, offsetInicial, offsetFinal, offsetBloques, cantBloquesLeo,tamALeer;
+	char* buffer = malloc(configFS.tamBloque);
+	void* cadena = malloc(tam);
+	char* ruta;
+	offsetBloques = calcularBloque(offset, &offsetInicial);
+	cantBloquesLeo= cuantosBloquesLeo(tam, &offsetFinal);
+	for(i=0; i < cantBloquesLeo; i++){
+	ruta=obtenerRutaSegunBLoque(bloques[i]);
+  	FILE *archivo = fopen(ruta, "rb");
+    tamALeer = configFS.tamBloque;
+		if(offsetInicial > 0)	{
+    	fseek(archivo, offsetInicial, SEEK_SET);
+      tamALeer -= offsetInicial;
+      offsetInicial=0;
+    	}
+    if(i+1 == cantBloquesLeo) tamALeer = offsetFinal;
+    fread(buffer, 1, tamALeer, archivo);
+    memcpy(cadena, buffer, tamALeer);
+    fclose(archivo);
+    free(ruta);
+  }
+  free(buffer);
+  return cadena;
+}
+
+
+
 char* obtenerDatos(char* path, int offset, int tam){ //Completa! Requiere Free!
+	/*
 	validarArchivo(path);
 	char* buffer = malloc(tam);
 	FILE* archivo;
@@ -191,6 +266,18 @@ char* obtenerDatos(char* path, int offset, int tam){ //Completa! Requiere Free!
 	fread(buffer, 1, tam, archivo);
 	fclose(archivo);
 	return buffer;
+	*/
+	FILE* archivo;
+	char* data;
+	t_infoArchivo info=obtenerInfoArchivo(path);
+	if((offset+tam)>info.tamanio)
+	{
+		free(info.bloques);
+		return NULL;
+	}
+	data=lecturaSegunTamanio(offset,tam,info.bloques);
+	return data;
+
 }
 
 void guardarDatos(char* path, int offset, int tam, char* buffer){ //Completa!
