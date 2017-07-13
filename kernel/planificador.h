@@ -11,7 +11,6 @@
 #include <stdint.h>
 #include <blue4-lib.h>
 #include "pcb.h"
-#include "capaMemoria.h"
 
 extern t_queue * procesosNEW;
 extern t_queue * procesosREADY;
