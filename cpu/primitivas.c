@@ -64,8 +64,7 @@ t_puntero dummy_definirVariable(t_nombre_variable variable){
 		vars=list_create();
 		list_add(pcb_global.indiceStack,(void*)stack_create(args,vars,0,pos));
 		pcb_global.sp=0;
-		pos=pcb_global.ultimaPosUsada;//va a ser 0 0 0
-		pos.pag=pcb_global.cantPagCod;
+
 	}else{
 		stack=list_get(pcb_global.indiceStack,pcb_global.sp);
 		args=stack->args;
@@ -81,7 +80,7 @@ t_puntero dummy_definirVariable(t_nombre_variable variable){
 	}
 
 	pcb_global.ultimaPosUsada=pos;
-	printf("Pos asignada a %c: %i\n",variable,posAPuntero(pos,tamPag_global));
+	printf("Pos asignada a %c: %i (%i,%i,%i)\n",variable,posAPuntero(pos,tamPag_global),pos.pag,pos.off,pos.size);
 
 	if(esArg(variable))
 		list_add(args,(void*)var_create(variable,pos));
