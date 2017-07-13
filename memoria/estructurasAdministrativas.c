@@ -21,6 +21,8 @@
 #include "configuraciones.h"
 #include "operacionesMemoria.h"
 #include "estructurasAdministrativas.h"
+#define int32_min -999999
+#define int32_max 999999
 
 
 void texto_en_color(char * aString){
@@ -74,9 +76,7 @@ int actualizarMarcosDisponibles(int marcosAUsar)
 {
 	if((configDeMemoria.marcosDisponibles-marcosAUsar)>0)
 	{
-		printf("marcos antes de actualizar : %d \n",configDeMemoria.marcosDisponibles);
 		configDeMemoria.marcosDisponibles-=marcosAUsar;
-		printf("marcos disponibles : %d \n",configDeMemoria.marcosDisponibles);
 		return 0;
 	}
 	return -1;
@@ -84,9 +84,7 @@ int actualizarMarcosDisponibles(int marcosAUsar)
 
 void aumentarMarcosDisponibles(int marcosAAumentar)
 {
-	printf("marcos antes de actualizar : %d \n",configDeMemoria.marcosDisponibles);
 	configDeMemoria.marcosDisponibles+=marcosAAumentar;
-	printf("marcos actualizados : %d \n",configDeMemoria.marcosDisponibles);
 }
 
 void reservarEstructurasEnTablaDePaginas(tablaPaginas_t* tablaDePaginas){
@@ -137,7 +135,7 @@ void asignarTamanioACache(){
 }
 void inicializarTablaCache(tablaCache_t * tabla){
 	uint32_t marco;
-	contador = -99999;
+	contador = int32_min;
 	for(marco = 0; marco < configDeMemoria.entradasCache; marco++){
 		tabla[marco].pid = -2;
 		tabla[marco].pagina = marco;
@@ -154,9 +152,7 @@ tablaCache_t * crearTablaCache(){
 int actualizarCacheDisponible(uint32_t marcosAUsar){
 	if((configDeMemoria.cacheDisponible-marcosAUsar)>0)
 		{
-			printf("marcos antes de actualizar : %d \n",configDeMemoria.cacheDisponible);
 			configDeMemoria.cacheDisponible-=marcosAUsar;
-			printf("marcos actualizados : %d \n",configDeMemoria.cacheDisponible);
 			return 0;
 		}
 		return -1;
