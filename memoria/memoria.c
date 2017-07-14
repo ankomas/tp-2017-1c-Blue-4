@@ -133,7 +133,7 @@ int main(void) {
 	//inicializarPrograma(100,8);
 	//escribir(100,0,0,4, "Hola");
 	//mostrarProcesoEnMemoria(100);
-	testFinalizar();
+	//testFinalizar();
 	pthread_t hiloMostrarMenu;
 	pthread_create(&hiloMostrarMenu, NULL, (void *) mostrarMenuMemoria, NULL);
 	servidor();

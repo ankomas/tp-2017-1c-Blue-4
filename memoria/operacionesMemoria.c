@@ -200,7 +200,7 @@ void guardaProcesoEn(uint32_t pid, uint32_t paginasRequeridas,int32_t pos) {
 		memcpy(pag,&pagina,sizeof(uint32_t));
 		//agrego pagina a la lista
 		pthread_mutex_lock(&mutex_procesosActivos);
-		printf("  		Pag agregada: %i\n",*pag);
+		//printf("  		Pag agregada: %i\n",*pag);
 		list_add(procesosActivos[pos].listaPaginas,pag);
 		pthread_mutex_unlock(&mutex_procesosActivos);
 
@@ -253,7 +253,7 @@ int primerPagina(uint32_t pid){
 	uint32_t posicion_PidBuscado=obtener_PosicionProcesoActivo(pid);
 	pthread_mutex_lock(&mutex_procesosActivos);
 	res=list_get(procesosActivos[posicion_PidBuscado].listaPaginas,0);
-	printf("                     OBTENIDO: %i\n",*res);
+	//printf("                     OBTENIDO: %i\n",*res);
 	pthread_mutex_unlock(&mutex_procesosActivos);
 	return *res;
 }
@@ -267,7 +267,7 @@ uint32_t finalizarPrograma(uint32_t pid) {
 		return -1;*/
 	paginasMaximas = paginasMax(pid);
 	while (i < paginasMaximas) {
-		printf("I:%i,paginasMax:%i\n",i,paginasMaximas);
+		//printf("I:%i,paginasMax:%i\n",i,paginasMaximas);
 		pagina = primerPagina(pid);
 		marco = getMarco(pid, pagina);
 		if (marco >= 0) {
@@ -282,7 +282,6 @@ uint32_t finalizarPrograma(uint32_t pid) {
 		i++;
 
 	}
-
 	obtener_PosicionProcesoActivo(pid);
 	eliminar_DataDeProcesoActivo(pid);
 	return 0;

@@ -255,7 +255,7 @@ uint32_t obtener_ProximaPaginaAAsignar(uint32_t pid)
 	}
 	uint32_t *nuevaPos=malloc(sizeof(uint32_t));
 	memcpy(nuevaPos,&proximaPagina,sizeof(uint32_t));
-	printf("  		Pag agregada: %i\n",*nuevaPos);
+	//printf("  		Pag agregada: %i\n",*nuevaPos);
 	list_add(procesosActivos[posicion_PidBuscado].listaPaginas,nuevaPos);
 	pthread_mutex_unlock(&mutex_procesosActivos);
 	return proximaPagina;
@@ -320,7 +320,7 @@ uint32_t disminuir_PaginasActualesDeProcesoActivo(uint32_t pid,uint32_t pagina)
 		return pagina==*pag;
 	}
 	void _destroy(uint32_t *elem){
-		printf("Borrar: %i\n",*elem);
+		//printf("Borrar: %i\n",*elem);
 		free(elem);
 	}
 	list_remove_and_destroy_by_condition(procesosActivos[posicion_PidBuscado].listaPaginas,(void*)_byPag,(void*)_destroy);
