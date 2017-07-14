@@ -230,7 +230,7 @@ char* recibir_offset_tamanio(int socket,uint32_t* offset,uint32_t* tamanio,uint3
 
 
 
-char* recibir_offset_tamanio_data(int socket,uint32_t* offset,uint32_t* tamanio)
+/*char* recibir_offset_tamanio_data(int socket,uint32_t* offset,uint32_t* tamanio)
 {
 	uint32_t puntero;
 	char *data,*buffer;
@@ -243,7 +243,7 @@ char* recibir_offset_tamanio_data(int socket,uint32_t* offset,uint32_t* tamanio)
 	}
 	printf("no se pudo recibir: offset,tamanio,data  de : %d \n",socket);
 	return NULL;
-}
+}*/
 
 void leer(int socket)
 {
@@ -277,12 +277,12 @@ void leer(int socket)
 
 void escribir(int socket)
 {
+	/*
 	int resultado;
 	uint32_t puntero,tamanio,offset;
 	char* buffer,*data,*ruta;
 	char* path=recibirPath(socket);
 	data=recibir_offset_tamanio_data(socket,&offset,&tamanio);
-	/*
 	if(data)
 	{
 		ruta=rutaEnPuntoMontaje("/Archivos",path);
