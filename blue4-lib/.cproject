@@ -40,7 +40,8 @@
 								<option defaultValue="true" id="gnu.c.link.so.debug.option.shared.1701898560" name="Shared (-shared)" superClass="gnu.c.link.so.debug.option.shared" valueType="boolean"/>
 								<option id="gnu.c.link.option.paths.1672451610" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths"/>
 								<option id="gnu.c.link.option.libs.543913825" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="pthread"/>
+									<listOptionValue builtIn="false" value="pthread"/>
+									<listOptionValue builtIn="false" value="commons"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.1833157072" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
