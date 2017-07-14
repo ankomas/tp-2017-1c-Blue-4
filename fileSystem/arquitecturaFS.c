@@ -192,6 +192,7 @@ void generarBloques()
 		string_append(&numero_string,".bin");
 		ruta=rutaEnPuntoMontaje("/Bloques/",numero_string);
 		archivo=fopen(ruta,"wb");
+		fwrite("0000000000", 1, 10, archivo);
 		free(ruta);
 		free(numero_string);
 		fclose(archivo);

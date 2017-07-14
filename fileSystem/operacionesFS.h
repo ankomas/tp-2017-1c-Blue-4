@@ -56,4 +56,6 @@ char* obtenerDatos(char*, int, int);
  */
 int guardarDatos(char*, int, int, char*);
 
+int escribirEnBloques(int offset, int tam, char** bloques, char* cadena);
+
 #endif /* OPERACIONESFS_H_ */

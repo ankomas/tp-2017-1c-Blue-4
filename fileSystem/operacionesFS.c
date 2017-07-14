@@ -276,7 +276,7 @@ int escribirEnBloques(int offset, int tam, char** bloques, char* cadena) {
 	if(cantBloquesEscribo ==0) return -1;
 	for (i = 0; i < cantBloquesEscribo; i++) {
 		ruta = obtenerRutaSegunBLoque(bloques[bloqueInicial + i]);
-		printf("Escribo en bloque: %s\n", bloques[bloqueInicial + i]);
+		printf("Escribo en bloque: %s, Ruta: %s\n", bloques[bloqueInicial + i], ruta);
 		FILE *archivo = fopen(ruta, "wb");
 		tamAEscribir = configFS.tamBloque;
 		if (offsetInicial > 0) {
@@ -287,7 +287,7 @@ int escribirEnBloques(int offset, int tam, char** bloques, char* cadena) {
 		if (i + 1 == cantBloquesEscribo && offsetFinal > 0) tamAEscribir = offsetFinal;
 		printf("Tam a escribir: %i\n", tamAEscribir);
 		memcpy(buffer, cadena + tamEscrito, tamAEscribir);
-		printf("Cadena a escribir: %s\n", buffer);
+		//printf("Cadena a escribir: %s\n", buffer);
 		fwrite(buffer, 1, tamAEscribir, archivo);
 		tamEscrito += tamAEscribir;
 		fclose(archivo);
