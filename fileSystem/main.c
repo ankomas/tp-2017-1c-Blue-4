@@ -44,6 +44,7 @@ int main(void) {
 	//borrar("/archivo_test.bin");
 	//testLectura();
 	//testEscrituraCompleta();
+	testLectura();
 	//testEscrituraFacil();
 	servidor();
 
