@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include "capaMemoria.h"
 #include "heap.h"
+#include "heapNico.h"
 
 
 int cantidadElementosArrayConfig(char* unaRuta,char*unId){
@@ -132,6 +133,60 @@ int guardarEnMemoria(uint32_t i, uint32_t pid,uint32_t pagina,uint32_t offset,ui
 		}
 	}
 }
+
+int cargarDeMemoria(int socket,uint32_t pid,uint32_t pag, uint32_t off,uint32_t size, package_t* paqueteParametro){
+	uint32_t tamARecibir,pointer=0;
+	package_t paquete;
+	char* res;
+	//mandar cop y paquete
+	printf("Leyendo de memoria:\n");
+	printf("PAG: %i, OFF: %i, SIZE: %i\n",pag,off,size);
+	paquete=serializar(8,
+			sizeof(uint32_t),&pid,
+			sizeof(uint32_t),&pag,
+			sizeof(uint32_t),&off,
+			sizeof(uint32_t),&size
+			);
+
+	if(send(socket,"R",1,0)==-1){
+		perror("Error socket memoria");
+	}
+	if(send(socket,&paquete.data_size,sizeof(uint32_t),0)==-1){
+		perror("Error socket memoria");
+	}
+	if(send(socket,paquete.data,paquete.data_size,0)==-1){
+		perror("Error socket memoria");
+	}
+
+	free(paquete.data);
+	//recibir contenido
+	res=malloc(1);
+
+	recv(socket,res,1,0);
+	printf("Leyendo de memoria, respuesta: %c\n",res[0]);
+	if(res[0]=='N'){
+		printf("Error al recibir contenido de la memoria\n");
+		free(res);
+		return -1;
+	}
+	/*res=realloc(res,sizeof(uint32_t));
+	recv(socket,res,sizeof(uint32_t),0);
+	memcpy(&tamARecibir,res,sizeof(uint32_t));*/
+	tamARecibir=size;
+	printf("Leyendo de memoria, tamanio a recibir: %i\n",tamARecibir);
+	res=realloc(res,tamARecibir);
+	if(recv(socket,res,tamARecibir,0)<=0){
+		printf("Error al recibir'n");
+	}
+
+	//paquete=deserializar(&pointer,res);
+
+	paqueteParametro->data_size=size;
+	paqueteParametro->data=res;
+
+	return 0;
+}
+
 
 int inicializarEnMemoria(uint32_t i, uint32_t pid,uint32_t paginasNecesarias) {
 	package_t paquete;
@@ -454,6 +509,25 @@ void guardarEnHeap(uint32_t i,t_list * paginasHeap,uint32_t *pid){
 		log_error(logger,"No se pudo reservar espacio en el heap");
 		return;
 	}
+}
+
+int guardarHeapNico(uint32_t socket,t_programa* programa){
+	t_puntero res;
+	t_valor_variable tam;
+	printf("Llamada a GUARDAR HEAP NICO\n");
+	recv(socket,&tam,sizeof(t_valor_variable),0);
+
+	res=allocEnHeap(programa,tam);
+
+	if(res==-1){
+		printf("ERROR: tamanio mas grande que el de pagina\n");
+		send(socket,"N",1,0);
+		return 1;
+	}
+
+	send(socket,"Y",1,0);
+	send(socket,&res,sizeof(uint32_t),0);
+	return 1;
 }
 
 void leerHeap(uint32_t i){

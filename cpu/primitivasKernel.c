@@ -24,6 +24,8 @@
 //Semaforos
 
 void dummy_wait(t_nombre_semaforo identificador_semaforo){
+	if(finPrograma_global!='Y')
+		return;
 	char res;
 	printf("Llamada a "YEL"WAIT"RESET" %s\n",identificador_semaforo);
 
@@ -42,6 +44,8 @@ void dummy_wait(t_nombre_semaforo identificador_semaforo){
 }
 
 void dummy_signal(t_nombre_semaforo identificador_semaforo){
+	if(finPrograma_global!='Y')
+		return;
 	char res;
 
 	printf("Llamada a "YEL"SIGNAL"RESET" %s\n",identificador_semaforo);
@@ -60,6 +64,8 @@ void dummy_signal(t_nombre_semaforo identificador_semaforo){
 //Heap
 
 t_puntero dummy_reservar(t_valor_variable espacio){
+	if(finPrograma_global!='Y')
+		return -1;
 	char res;
 	t_pos pos;
 	t_puntero puntero;
@@ -69,7 +75,7 @@ t_puntero dummy_reservar(t_valor_variable espacio){
 	switch(res){
 	case 'Y':
 		pos=punteroAPos(puntero,tamPag_global);
-		printf("Puntero: %i (%i,%i,%i)",puntero,pos.pag,pos.off,espacio);
+		printf("Puntero: %i (%i,%i,%i)\n",puntero,pos.pag,pos.off,espacio);
 		return puntero;
 	case 'N':
 		setExitCode(&pcb_global,"error al reservar en heap",16);

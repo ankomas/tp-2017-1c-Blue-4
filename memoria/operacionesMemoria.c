@@ -68,6 +68,8 @@ void actualizarCounterMarco(uint32_t marco) {
 void escribirCache(uint32_t marco, uint32_t offset, uint32_t tamData,
 		void *data) {
 	pthread_mutex_lock(&escribiendoMemoriaCache);
+	printf("CACHE %p MARCO %i CONFIG TAM MARCO %i OFFSET %i\n",cache,marco,configDeMemoria.tamMarco,offset);
+	printf("DATA %p\n",data);
 	memcpy(cache + marco * configDeMemoria.tamMarco + offset, data, tamData);
 	actualizarCounterMarco(marco);
 	pthread_mutex_unlock(&escribiendoMemoriaCache);

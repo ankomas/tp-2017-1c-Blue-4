@@ -196,24 +196,24 @@ char semSignal(t_nombre_semaforo sem){
 char alloc(t_valor_variable valor,t_puntero *puntero){
 	char res,*temp;
 
-	temp=malloc(valor);
-	memset(temp,0,valor);
+	//temp=malloc(valor);
+	//memset(temp,0,valor);
 
 	send(kernel,"G",1,0);
 	send(kernel,&valor,sizeof(t_valor_variable),0);
 
-	recv(kernel,&res,1,0); //recibo una Y
-	send(kernel,temp,valor,0);
+	//recv(kernel,&res,1,0); //recibo una Y
+	//send(kernel,temp,valor,0);
 
-	free(temp);
+	//free(temp);
 
-	recv(kernel,&res,1,0); //recibo una Y
+	//recv(kernel,&res,1,0); //recibo una Y
 
 	recv(kernel,&res,1,0); //recibo una Y o una N
 
 	switch(res){
 	case 'Y':
-		recv(kernel,puntero,sizeof(t_valor_variable),0);
+		recv(kernel,puntero,sizeof(uint32_t),0);
 		return res;
 	case 'N':
 		printf("ERROR: no se pudo alocar\n");

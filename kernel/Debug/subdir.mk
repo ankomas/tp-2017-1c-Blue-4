@@ -8,6 +8,7 @@ C_SRCS += \
 ../capaMemoria.c \
 ../consolaKernel.c \
 ../heap.c \
+../heapNico.c \
 ../main.c \
 ../pcb.c \
 ../planificador.c \
@@ -18,6 +19,7 @@ OBJS += \
 ./capaMemoria.o \
 ./consolaKernel.o \
 ./heap.o \
+./heapNico.o \
 ./main.o \
 ./pcb.o \
 ./planificador.o \
@@ -28,6 +30,7 @@ C_DEPS += \
 ./capaMemoria.d \
 ./consolaKernel.d \
 ./heap.d \
+./heapNico.d \
 ./main.d \
 ./pcb.d \
 ./planificador.d \
