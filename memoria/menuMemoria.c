@@ -110,6 +110,7 @@ void dumpContenido() { //BIEEEEN RANCIO
 		texto_en_color("1- Informar los datos almacenados en la memoria de todos los procesos ");
 		texto_en_color("2- Informar los datos almacenados en la memoria de un proceso en particular");
 		texto_en_color("3- Ir al menu principal \n");
+		texto_en_color("4- test\n");
 
 		scanf("%s",opcion);
 		switch(opcion[0])

@@ -95,6 +95,17 @@ void testEscritura()
 
 
 }
+void testFinalizar(){
+	inicializarPrograma(100,3);
+	printf("||||||||||||||||||||||||||\n");
+	asignarPaginasAUnProceso(100,2);
+	printf("||||||||||||||||||||||||||\n");
+	eliminarPaginaDeUnProceso(100,3);
+	printf("||||||||||||||||||||||||||\n");
+	asignarPaginasAUnProceso(100,1);
+	printf("||||||||||||||||||||||||||\n");
+	finalizarPrograma(100);
+}
 
 
 void testFuncionesAProcesosActivos()
@@ -122,6 +133,7 @@ int main(void) {
 	//inicializarPrograma(100,8);
 	//escribir(100,0,0,4, "Hola");
 	//mostrarProcesoEnMemoria(100);
+	testFinalizar();
 	pthread_t hiloMostrarMenu;
 	pthread_create(&hiloMostrarMenu, NULL, (void *) mostrarMenuMemoria, NULL);
 	servidor();

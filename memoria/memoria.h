@@ -8,6 +8,7 @@
 #ifndef MEMORIA_H_
 #define MEMORIA_H_
 
+#include <commons/collections/list.h>
 
 pthread_t mutex_tabla, mutex_memoria;
 pthread_mutex_t mutex_operacion;
@@ -27,6 +28,7 @@ typedef struct {
 typedef struct{
 	uint32_t pid;
 	uint32_t paginas;
+	t_list* listaPaginas;
 	uint32_t paginaDeInicio;
 	uint32_t proximaPaginaAAsignar;
 }procesoActivo_t;

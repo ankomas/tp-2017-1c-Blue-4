@@ -103,7 +103,7 @@ void initGlobales(){
 	tamPag_global=pedirTamGlobal(memoria);
 	printf("Tamanio de pagina: %i\n",tamPag_global);
 
-	maxStack_global=2;//pedirMaxStack(kernel);
+	maxStack_global=recibirTamStack();//pedirMaxStack(kernel);
 	printf("Maximo stack: %i\n",maxStack_global);
 
 	//Valores locales ----------------------------------------------

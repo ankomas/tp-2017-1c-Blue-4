@@ -235,17 +235,34 @@ uint32_t obtener_PaginaDeInicioDeProcesoActivo(uint32_t pid)
 
 uint32_t obtener_ProximaPaginaAAsignar(uint32_t pid)
 {
-	uint32_t proximaPagina;
+	uint32_t proximaPagina=0;
+	uint32_t *aux;
+	int i=0;
 	uint32_t posicion_PidBuscado=obtener_PosicionProcesoActivo(pid);
 	if(posicion_PidBuscado==-1)return -1;
 	pthread_mutex_lock(&mutex_procesosActivos);
-	proximaPagina=procesosActivos[posicion_PidBuscado].proximaPaginaAAsignar;
+
+	//proximaPagina=procesosActivos[posicion_PidBuscado].proximaPaginaAAsignar;
+	bool _byPag(uint32_t* pag){
+		return proximaPagina==*pag;
+	}
+
+	while(i<list_size(procesosActivos[posicion_PidBuscado].listaPaginas)){
+		aux=list_find(procesosActivos[posicion_PidBuscado].listaPaginas,(void*)_byPag);
+		if(aux==NULL)
+			break;
+		proximaPagina++;
+	}
+	uint32_t *nuevaPos=malloc(sizeof(uint32_t));
+	memcpy(nuevaPos,&proximaPagina,sizeof(uint32_t));
+	printf("  		Pag agregada: %i\n",*nuevaPos);
+	list_add(procesosActivos[posicion_PidBuscado].listaPaginas,nuevaPos);
 	pthread_mutex_unlock(&mutex_procesosActivos);
 	return proximaPagina;
 }
 
 
-uint32_t agregar_DataDeProcesoActivo(uint32_t pid,uint32_t paginasActuales)
+int32_t agregar_DataDeProcesoActivo(uint32_t pid,uint32_t paginasActuales)
 {
 	uint32_t posicionLibre;
 	posicionLibre=obtener_PosicionLibre();
@@ -255,8 +272,9 @@ uint32_t agregar_DataDeProcesoActivo(uint32_t pid,uint32_t paginasActuales)
 	procesosActivos[posicionLibre].paginas=paginasActuales;
 	procesosActivos[posicionLibre].paginaDeInicio=0;
 	procesosActivos[posicionLibre].proximaPaginaAAsignar=paginasActuales;
+	procesosActivos[posicionLibre].listaPaginas=list_create();
 	pthread_mutex_unlock(&mutex_procesosActivos);
-	return 0;
+	return posicionLibre;
 }
 
 
@@ -269,6 +287,10 @@ uint32_t eliminar_DataDeProcesoActivo(uint32_t pid)
 	procesosActivos[posicion_PidBuscado].paginas=-2;
 	procesosActivos[posicion_PidBuscado].paginaDeInicio=-2;
 	procesosActivos[posicion_PidBuscado].proximaPaginaAAsignar=-2;
+	void _destroy(uint32_t* self){
+		free(self);
+	}
+	list_destroy_and_destroy_elements(procesosActivos[posicion_PidBuscado].listaPaginas,(void*)_destroy);
 	pthread_mutex_unlock(&mutex_procesosActivos);
 	return 0;
 }
@@ -293,6 +315,16 @@ uint32_t disminuir_PaginasActualesDeProcesoActivo(uint32_t pid,uint32_t pagina)
 	if(posicion_PidBuscado==-1)return -1;
 	pthread_mutex_lock(&mutex_procesosActivos);
 	procesosActivos[posicion_PidBuscado].paginas-=1;
+
+	bool _byPag(uint32_t* pag){
+		return pagina==*pag;
+	}
+	void _destroy(uint32_t *elem){
+		printf("Borrar: %i\n",*elem);
+		free(elem);
+	}
+	list_remove_and_destroy_by_condition(procesosActivos[posicion_PidBuscado].listaPaginas,(void*)_byPag,(void*)_destroy);
+
 	paginaDeInicio=procesosActivos[posicion_PidBuscado].paginaDeInicio;
 	if(pagina==paginaDeInicio)
 		actualizar_PaginaDeInicioDeProcesoActivo(posicion_PidBuscado,1);

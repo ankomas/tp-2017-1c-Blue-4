@@ -138,7 +138,7 @@ uint32_t eliminar_DataDeProcesoActivo(uint32_t );
  * @param paginasActuales
  * @return 0 (en caso de exito) | -1(en caso de error)
  */
-uint32_t agregar_DataDeProcesoActivo(uint32_t ,uint32_t );
+int32_t agregar_DataDeProcesoActivo(uint32_t ,uint32_t );
 
 /**
  * Disminuye las paginas actuales de un proceso activo
