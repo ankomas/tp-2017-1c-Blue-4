@@ -39,58 +39,60 @@ bool mandarOperacionFS(char* opcode,char* path,uint32_t tamPath,char* error){
 	return 0;
 }
 
-char* continuacionPeticionLectura(uint32_t offset,uint32_t size,char*error){
-		uint32_t tamARecibir=0;
-		char * rev = NULL;
-		uint32_t tamAMandar=sizeof(uint32_t);
+char* continuacionPeticionLectura(uint32_t i,uint32_t offset,uint32_t size,char*error){
+	uint32_t tamARecibir=0;
+	char * rev = NULL;
+	uint32_t tamAMandar=sizeof(uint32_t);
 
-		char* offsetStream = intToStream(offset);
-		char* sizeStream = intToStream(size);
-		if(sendall(idFS,offsetStream, &tamAMandar) < 0){
-			log_error(logger,error);
-			return 0;
-		}
-		free(offsetStream);
+	char* offsetStream = intToStream(offset);
+	char* sizeStream = intToStream(size);
+	if(sendall(idFS,offsetStream, &tamAMandar) < 0){
+		log_error(logger,error);
+		return 0;
+	}
+	free(offsetStream);
 
-		if(sendall(idFS,sizeStream, &tamAMandar) < 0){
-			log_error(logger,error);
-			return 0;
-		}
-		free(sizeStream);
+	if(sendall(idFS,sizeStream, &tamAMandar) < 0){
+		log_error(logger,error);
+		return 0;
+	}
+	free(sizeStream);
 
-		// Recibo largo del data
-		if(recv(idFS,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0){
-			log_error(logger,error);
-			return NULL;
-		}
-
-		/*if(send(idFS,"Y",1,0) < 0)
-			log_error(logger,error);*/
-
-		// Recibo confirmacion
-		if(recv(idFS,rev,1,0) <= 0){
-			log_error(logger,error);
-			return NULL;
-		}
-
-		if(rev[0] == 'Y'){
-			rev=realloc(rev,tamARecibir);
-			memset(rev,'\0',tamARecibir);
-
-			// Recibo el data
-			if(recv(idFS,rev,tamARecibir,MSG_WAITALL) <= 0){
-				log_error(logger,error);
-				return NULL;
-			}
-			return rev;
-		}
-
-		//send(idFS,"Y",1,0);
+	// Recibo largo del data
+	if(recv(idFS,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0){
+		log_error(logger,error);
+		send(i,"N",1,0);
 		return NULL;
+	}
+
+	/*if(send(idFS,"Y",1,0) < 0)
+		log_error(logger,error);*/
+
+	// Recibo confirmacion
+	if(recv(idFS,rev,1,0) <= 0){
+		log_error(logger,error);
+		return NULL;
+	}
+
+	if(rev[0] == 'Y'){
+		rev=realloc(rev,tamARecibir);
+		memset(rev,'\0',tamARecibir);
+
+	// Recibo el data
+	if(recv(idFS,rev,tamARecibir,MSG_WAITALL) <= 0){
+		log_error(logger,error);
+		return NULL;
+	}
+
+	send(i,"Y",1,0);
+	sendall(i,rev,&tamARecibir);
+	return rev;
+}
 }
 
+
+
 bool continuacionPeticionEscritura(uint32_t offset,uint32_t size,char*buffer,uint32_t tamBuffer,char*error){
-		uint32_t tamARecibir=0;
 		char * rev = NULL;
 		uint32_t tamAMandar=sizeof(uint32_t);
 
@@ -142,14 +144,14 @@ bool crearArchivo(char* path,uint32_t tamPath){
 	return mandarOperacionFS("C",path,tamPath,"Ocurrio un error al crear un archivo");
 }
 
-char* leerArchivo(char* path,uint32_t tamPath,uint32_t offset,uint32_t size){
+char* leerArchivo(char*path,uint32_t tamPath, uint32_t i,uint32_t offset,uint32_t size){
+
 	if(mandarOperacionFS("L",path,tamPath,"Ocurrio un error al leer un archivo") == 0){
+		log_error(logger,"No se pudo leer archivo.");
+		send(i,"N",1,0);
 		return 0;
 	}
-	return continuacionPeticionLectura(offset,size,"Ocurrio un error al leer un archivo");
-
-
-		// mandar resto de cosas
+	continuacionPeticionLectura(i,offset,size,"Ocurrio un error al leer un archivo");
 	return 0;
 }
 
@@ -371,7 +373,7 @@ char* leerFD(uint32_t i,t_programa* unPrograma){
 	if(indiceFD != 9999){
 		t_entradaTAP* entradaFD = list_get(unPrograma->tablaArchivosPrograma,indiceFD);
 		if(tienePermisos('l',entradaFD->flags)){
-			leerArchivo(path,strlen(path),offset,tamanio);
+			leerArchivo(path,strlen(path),i,offset,tamanio);
 			send(i,"Y",1,0);
 		} else {
 			log_error(logger,"No hay permisos para escribir un nuevo archivo");
@@ -451,20 +453,21 @@ char* recibirPath(uint32_t i){
 
 char* recibirPermisos(uint32_t i){
 	uint32_t tamARecibir=0;
-		char * rev = NULL;
-		char * permisosRev = NULL;
+	char * rev = NULL;
+	char * permisosRev = NULL;
 
-		// Recibo longitud permisos
-		if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
-			log_error(logger,"No se pudieron recibir los permisos");
-		if(send(i,"Y",1,0) < 0)
-			log_error(logger,"No se pudieron recibir los permisos");
-		rev=realloc(permisosRev,tamARecibir+1);
-		memset(rev,'\0',tamARecibir+1);
-		// Recibo permisos
-		if(recv(i,rev,tamARecibir,MSG_WAITALL) <= 0)
-			log_error(logger,"No se pudieron recibir los permisos");
-		send(i,"Y",1,0);
+	// Recibo longitud permisos
+	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
+		log_error(logger,"No se pudieron recibir los permisos");
+	if(send(i,"Y",1,0) < 0)
+		log_error(logger,"No se pudieron recibir los permisos");
+	rev=realloc(permisosRev,tamARecibir+1);
+	memset(rev,'\0',tamARecibir+1);
+	// Recibo permisos
+	if(recv(i,rev,tamARecibir,MSG_WAITALL) <= 0)
+		log_error(logger,"No se pudieron recibir los permisos");
+	send(i,"Y",1,0);
 
-		return NULL;
+	return NULL;
+
 }
