@@ -46,12 +46,18 @@ t_config *cfg;
 uint32_t GlobalFDCounter;
 
 t_log* logger;
+pthread_mutex_t mutex_colasPlanificacion;
+pthread_mutex_t mutex_semaforos;
+pthread_mutex_t mutex_fs;
 
 void inicializarDatos(){
 	logger = log_create("logger.log",rutaAbsolutaDe("Debug/kernel"),true,LOG_LEVEL_TRACE);
 	log_trace(logger,"Iniciando Kernel...");
 
 	pthread_mutex_init(&mutex_test,NULL);
+	pthread_mutex_init(&mutex_colasPlanificacion,NULL);
+	pthread_mutex_init(&mutex_semaforos,NULL);
+	pthread_mutex_init(&mutex_fs,NULL);
 	cfg=config_create(rutaAbsolutaDe("config.cfg"));
 
 	GlobalFDCounter = 0;

@@ -410,6 +410,7 @@ void semWait(uint32_t i,uint32_t *pid){
 		anuncio("Ocurrio un problema al hacer un Wait");
 	send(i,"Y",1,0);
 	printf("Llamada a SEM WAIT: %s\n",rev);
+	pthread_mutex_lock(&mutex_semaforos);
 	t_semaforo * semaforoObtenido =(t_semaforo *)dictionary_get(semaforos,rev);
 	if(dictionary_has_key(semaforos,rev)){
 		test("Valor semaforo en Wait antes de decrementar");
@@ -422,7 +423,6 @@ void semWait(uint32_t i,uint32_t *pid){
 		}else {
 			//t_cpu * cpuEncontrada = encontrarCPU(i);
 			//uint32_t pid = cpuEncontrada->programaEnEjecucion->pid;
-
 			queue_push(semaforoObtenido->colaEspera,pid);
 			/*uint32_t *proximoPID = queue_peek(semaforoObtenido->colaEspera);
 			printf("PID COLA SEM INGRESADO: %i\n",*proximoPID);*/
@@ -437,8 +437,8 @@ void semWait(uint32_t i,uint32_t *pid){
 			anuncio("Ocurrio un problema al hacer un Wait");
 	}
 
-
 	free(rev);
+	pthread_mutex_unlock(&mutex_semaforos);
 
 }
 
@@ -460,6 +460,7 @@ void semSignal(uint32_t i){
 	send(i,"Y",1,0);
 
 	printf("Llamada a SEM SIGNAL: %s\n",rev);
+	pthread_mutex_lock(&mutex_semaforos);
 	t_semaforo * semaforoObtenido =(t_semaforo *)dictionary_get(semaforos,rev);
 	if(dictionary_has_key(semaforos,rev)){
 		test("Valor semaforo en Signal antes de aumentar");
@@ -481,9 +482,8 @@ void semSignal(uint32_t i){
 		if(send(i,"N",1,0) <= 0)
 			anuncio("Ocurrio un problema al hacer un Signal");
 	}
-
-
 	free(rev);
+	pthread_mutex_unlock(&mutex_semaforos);
 }
 
 void guardarEnHeap(uint32_t i,t_list * paginasHeap,uint32_t *pid){
@@ -574,6 +574,7 @@ void leerHeap(uint32_t i){
 		anuncio("Ocurrio un problema al hacer un Wait");
 	send(i,"Y",1,0);
 
+	pthread_mutex_lock(&mutex_semaforos);
 	t_semaforo * semaforoObtenido =(t_semaforo *)dictionary_get(semaforos,rev);
 	if(queue_size(semaforoObtenido->colaEspera)>0){
 		uint32_t *proximoPID = queue_pop(semaforoObtenido->colaEspera);
@@ -586,6 +587,7 @@ void leerHeap(uint32_t i){
 	}
 
 	free(rev);
+	pthread_mutex_unlock(&mutex_semaforos);
 }
 
 void liberarHeapNico(int cpu,t_programa *proximoPrograma){
