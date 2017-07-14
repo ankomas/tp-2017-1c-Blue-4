@@ -86,6 +86,27 @@ t_puntero dummy_reservar(t_valor_variable espacio){
 	}
 }
 
+void dummy_liberar(t_puntero puntero){
+	if(finPrograma_global!='Y')
+		return;
+	t_pos pos=punteroAPos(puntero,tamPag_global);
+	char res;
+
+	printf("Llamada a "YEL"LIBERAR"RESET": %i (%i,%i,%i)\n",puntero,pos.pag,pos.off,pos.size);
+	res=liberar(puntero);
+
+	switch(res){
+	case 'Y':
+		return;
+	case 'N':
+		setExitCode(&pcb_global,"error al liberar en heap",16);
+		return;
+	default:
+		setExitCode(&pcb_global,"error al liberar en heap",16);
+		return;
+	}
+}
+
 t_puntero (*AnSISOP_reservar)(t_valor_variable espacio);
 void (*AnSISOP_liberar)(t_puntero puntero);
 

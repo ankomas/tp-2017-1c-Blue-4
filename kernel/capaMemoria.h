@@ -29,9 +29,11 @@ int guardarEnMemoria(uint32_t i, uint32_t pid,uint32_t pagina,uint32_t offset,ui
 int cargarDeMemoria(int socket,uint32_t pid,uint32_t pag, uint32_t off,uint32_t size, package_t* paqueteParametro);
 
 int pedirPagias(uint32_t pid,uint32_t cantPaginas);
+int liberarPagina(uint32_t pid,uint32_t pagina);
 
 void guardarEnHeap(uint32_t i,t_list * paginasHeap,uint32_t *pid);
 int guardarHeapNico(uint32_t socket,t_programa* programa);
+void liberarHeapNico(int cpu,t_programa *proximoPrograma);
 
 void inicializarVariablesCompartidas();
 void inicializarSemaforos();

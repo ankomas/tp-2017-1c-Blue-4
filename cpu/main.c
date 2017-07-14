@@ -89,7 +89,8 @@ void initFunciones(){
 	AnSISOP_kernel j = {
 			.AnSISOP_wait					= dummy_wait,
 			.AnSISOP_signal					= dummy_signal,
-			.AnSISOP_reservar				= dummy_reservar
+			.AnSISOP_reservar				= dummy_reservar,
+			.AnSISOP_liberar				= dummy_liberar
 	};
 	funciones=f;
 	kernel_functions=j;

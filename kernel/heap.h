@@ -27,11 +27,11 @@ typedef struct bloque {
 	heapMetadata * metadata;
 }bloque;
 
-void iniciarBloqueHeap(paginaHeap* unaPagina);
-bloque *guardarDataHeap(paginaHeap* unaPagina, void* data,int32_t tamData);
-int memoriaLibre(paginaHeap* unaPagina);
-int memoriaLibreContigua(paginaHeap* unaPagina);
-int compactar(paginaHeap* unaPagina);
+//void iniciarBloqueHeap(paginaHeap* unaPagina);
+//bloque *guardarDataHeap(paginaHeap* unaPagina, void* data,int32_t tamData);
+//int memoriaLibre(paginaHeap* unaPagina);
+//int memoriaLibreContigua(paginaHeap* unaPagina);
+//int compactar(paginaHeap* unaPagina);
 
 
 #endif /* HEAP_H_ */
