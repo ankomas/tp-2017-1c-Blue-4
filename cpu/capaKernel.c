@@ -64,6 +64,8 @@ void ejecutarPCB(t_pcb2 *pcb, int socket){
 	printf("\t Evaluando -> " BLU "%s" RESET"\n", linea);
 	pcb->pc++;
 	analizadorLinea(linea, &funciones, &kernel_functions);
+	//if(pcb->pc>5)
+	//	usleep(10000000);
 	//test_asignadoCorrecto();
 	free(linea);
 

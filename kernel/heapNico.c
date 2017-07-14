@@ -281,28 +281,30 @@ void compactador(t_programa *programa,uint32_t pag,t_heap* heapKernel){
 	while(res){
 		if(compactar(programa->pcb->pid,pag,&metadata,offset,siguiente,heapKernel)){
 			//Se pudo compactar, busco otro metadata
+			printf("COMPACTADO, NUEVO METADATA: \n");
+			visualizarMetadata(metadata);
 			res=buscarSiguienteMetadataHeap(programa->pcb->pid,pag,offset,&offsetsig,metadata,&siguiente);
-			/*
+/*
 			printf("COMPACTADOR test 1\n");
 			visualizarMetadata(siguiente);
 			printf("Offset: %i, offsig: %i\n",offset,offsetsig);
-			*/
+*/
 		}else{
 			//No se pudo compactar, me muevo a otro metadata
-			res=buscarSiguienteMetadataHeap(programa->pcb->pid,pag,offsetsig,&offset,siguiente,&metadata);
-			/*
+			res=buscarSiguienteMetadataHeap(programa->pcb->pid,pag,offset,&offset,metadata,&metadata);
+/*
 			printf("COMPACTADOR test 2\n");
 			visualizarMetadata(metadata);
 			printf("Offset: %i, offsig: %i\n",offset,offsetsig);
-			*/
+*/
 			if(res){
 				//Hay mas metadatas
 				res=buscarSiguienteMetadataHeap(programa->pcb->pid,pag,offset,&offsetsig,metadata,&siguiente);
-				/*
-				printf("COMPACTADOR test 3\n");
+/*
+				printf("COMPACTADOR test 3, res: %i\n",res);
 				visualizarMetadata(siguiente);
 				printf("Offset: %i, offsig: %i\n",offset,offsetsig);
-				*/
+*/
 			}
 			else{
 				//No hubo mas metadatas
@@ -317,12 +319,16 @@ void compactador(t_programa *programa,uint32_t pag,t_heap* heapKernel){
 	if(metadata.size==tamanioPagina-metadataHeap_tam()){
 		liberarPaginaHeap(programa,pag,heapKernel);
 	}
-	/*
+/*
+	printf("TEST||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
 	metadata=buscarMetadataHeap(programa->pcb->pid,pag,0);
 	printf("COMPACTADOR metadata size: %i, tampag-metaheaptam: %i\n",metadata.size,tamanioPagina-metadataHeap_tam());
 	visualizarMetadata(metadata);
-	metadata=buscarMetadataHeap(programa->pcb->pid,pag,55);
+	metadata=buscarMetadataHeap(programa->pcb->pid,pag,105);
 	printf("COMPACTADOR metadata size: %i, tampag-metaheaptam: %i\n",metadata.size,tamanioPagina-metadataHeap_tam());
+	visualizarMetadata(metadata);
+	printf("TEST||||||||||||||||||||||||||||||||||||||||||||||||||||\n");*/
+	/*
 	visualizarMetadata(metadata);
 	metadata=buscarMetadataHeap(programa->pcb->pid,pag,110);
 	printf("COMPACTADOR metadata size: %i, tampag-metaheaptam: %i\n",metadata.size,tamanioPagina-metadataHeap_tam());
