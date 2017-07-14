@@ -244,19 +244,43 @@ uint32_t abrirFD(uint32_t i,t_programa* unPrograma){
 	return nuevaEntradaTAP->indice;
 }
 
-void cerrarFD(t_programa* unPrograma,uint32_t fd){
+bool borrarFD(t_programa* unPrograma,uint32_t fd){
+	uint32_t indiceGlobalFD = buscarFDPorId(fd);
+	if(indiceGlobalFD != 9999){
+		t_entradaTGA * aux = list_get(tablaGlobalArchivos,indiceGlobalFD);
+		if(aux->abierto == 1){
+			if(borrarArchivo(aux->archivo,strlen(aux->archivo))){
+				list_remove(unPrograma->tablaArchivosPrograma,fd);
+				list_remove(tablaGlobalArchivos,indiceGlobalFD);
+				list_remove(unPrograma->tablaArchivosPrograma,buscarFDArchivoPorId(fd,unPrograma));
+				return 1;
+				log_trace(logger,"Se borro el FD correctamente");
+			} else {
+				return 0;
+				// mandar proceso a exit recibiendo pcb de cpu
+				log_trace(logger,"No se pudo borrar el FD correctamente");
+			}
+		}
+	}
+	return 0;
+}
+
+bool cerrarFD(t_programa* unPrograma,uint32_t fd){
 	uint32_t indiceGlobalFD = buscarFDPorId(fd);
 	if(indiceGlobalFD != 9999){
 		list_remove(unPrograma->tablaArchivosPrograma,fd);
 		t_entradaTGA * aux = list_get(tablaGlobalArchivos,indiceGlobalFD);
 		if(aux->abierto == 1){
 			list_remove(tablaGlobalArchivos,indiceGlobalFD);
+			cerrarFD(unPrograma,fd);
 		} else {
 			aux->abierto--;
 		}
 		list_remove(unPrograma->tablaArchivosPrograma,buscarFDArchivoPorId(fd,unPrograma));
+		return 1;
 	}else{
 		log_trace(logger,"Se intento borrar un FD que no existia");
+		return 0;
 	}
 }
 
