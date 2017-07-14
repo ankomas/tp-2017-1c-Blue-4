@@ -204,6 +204,7 @@ char* obtenerArchivoSegunBloque(char* numeroDeBloque)
  */
 int cuantosBloquesNecesito(int offset, int tam,int* bloqueInicial ,int* offsetInicial,int* offsetFinal){
 	int i=0,bloquesEvitados=0, bloquesEnteros=0;
+	printf("Offset: %i, Tam: %i\n", offset, tam);
 	while(offset >= configFS.tamBloque){
 		offset -= configFS.tamBloque;
 		bloquesEvitados++;
@@ -211,11 +212,12 @@ int cuantosBloquesNecesito(int offset, int tam,int* bloqueInicial ,int* offsetIn
 	*bloqueInicial = bloquesEvitados;
 	*offsetInicial = offset;
 	if(offset>0) i++;
-	while(tam >= configFS.tamBloque){
+	while(offset+tam >= configFS.tamBloque){
+		i++;
 		tam -= configFS.tamBloque;
 		bloquesEnteros++;
 	}
-	*offsetFinal = tam;
+	*offsetFinal = offset+tam;
 	if(tam>0) i++;
 	return i;
 }
@@ -241,18 +243,17 @@ void* lecturaSegunTamanio(int offset, int tam, char** bloques) {
 			&offsetInicial, &offsetFinal);
 	printf("Bloque Inicial : %i, Cuantos Bloques Leo: %i, Offset: %i, Tam: %i, Offset Inicial: %i, Offset Final: %i\n",
 			bloqueInicial, cantBloquesLeo, offset, tam, offsetInicial, offsetFinal);
+	if(cantBloquesLeo == 0) return NULL;
 	for (i = 0; i < cantBloquesLeo; i++) {
 		ruta = obtenerRutaSegunBLoque(bloques[bloqueInicial + i]);
-		printf("Ruta: %s\n", ruta);
 		FILE *archivo = fopen(ruta, "rb");
 		tamALeer = configFS.tamBloque;
 		if (offsetInicial > 0) {
-			printf("Flag2\n");
 			fseek(archivo, offsetInicial, SEEK_SET);
 			tamALeer -= offsetInicial;
 			offsetInicial = 0;
 		}
-		if (i + 1 == cantBloquesLeo) {tamALeer = offsetFinal; printf("Flag3\n");}
+		if (i + 1 == cantBloquesLeo && offsetFinal > 0) tamALeer = offsetFinal;
 		fread(buffer, 1, tamALeer, archivo);
 		memcpy(cadena + tamLeido, buffer, tamALeer);
 		tamLeido += tamALeer;
@@ -263,16 +264,19 @@ void* lecturaSegunTamanio(int offset, int tam, char** bloques) {
 	return cadena;
 }
 
-void escribirEnBloques(int offset, int tam, char** bloques, char* cadena) {
+int escribirEnBloques(int offset, int tam, char** bloques, char* cadena) {
 	int i, offsetInicial, offsetFinal, bloqueInicial, cantBloquesEscribo,
 			tamAEscribir, tamEscrito = 0;
 	char* buffer = malloc(configFS.tamBloque);
 	char* ruta;
 	cantBloquesEscribo = cuantosBloquesNecesito(offset, tam, &bloqueInicial,
 			&offsetInicial, &offsetFinal);
-
+	printf("Bloque Inicial : %i, Cuantos Bloques Escribo: %i, Offset: %i, Tam: %i, Offset Inicial: %i, Offset Final: %i\n",
+				bloqueInicial, cantBloquesEscribo, offset, tam, offsetInicial, offsetFinal);
+	if(cantBloquesEscribo ==0) return -1;
 	for (i = 0; i < cantBloquesEscribo; i++) {
 		ruta = obtenerRutaSegunBLoque(bloques[bloqueInicial + i]);
+		printf("Escribo en bloque: %s\n", bloques[bloqueInicial + i]);
 		FILE *archivo = fopen(ruta, "wb");
 		tamAEscribir = configFS.tamBloque;
 		if (offsetInicial > 0) {
@@ -280,15 +284,17 @@ void escribirEnBloques(int offset, int tam, char** bloques, char* cadena) {
 			tamAEscribir -= offsetInicial;
 			offsetInicial = 0;
 		}
-		if (i + 1 == cantBloquesEscribo)
-			tamAEscribir = offsetFinal;
+		if (i + 1 == cantBloquesEscribo && offsetFinal > 0) tamAEscribir = offsetFinal;
+		printf("Tam a escribir: %i\n", tamAEscribir);
 		memcpy(buffer, cadena + tamEscrito, tamAEscribir);
+		printf("Cadena a escribir: %s\n", buffer);
 		fwrite(buffer, 1, tamAEscribir, archivo);
 		tamEscrito += tamAEscribir;
 		fclose(archivo);
 		free(ruta);
 	}
 	free(buffer);
+	return 0;
 }
 
 int cantidadDeBloquesEn(char** bloques)
@@ -391,7 +397,7 @@ int guardarDatos(char* path,int offset, int tam, char* texto){
 	}
 	char* bloques=generarPrimerosBloques(info.bloques);
 	bloques=obtenerFormatoDeBloques(bloques,NULL);
-	actualizarArchivo(path,bloques,nuevoTam);
+	info = actualizarArchivo(path,bloques,nuevoTam);
 	escribirEnBloques(offset, tam, info.bloques, texto);
 	free(bloques);
 	//free(ruta);
@@ -418,7 +424,6 @@ char* obtenerDatos(char* path, int offset, int tam){ //Completa! Requiere Free!
 		free(info.bloques);
 		return NULL;
 	}
-	printf("Flag0\n");
 	data=lecturaSegunTamanio(offset,tam,info.bloques);
 	return data;
 
