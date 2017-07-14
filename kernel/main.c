@@ -75,6 +75,9 @@ void inicializarDatos(){
 	if(tamanioPagina <= 0){
 		anuncio("No se conecto a la memoria, abortando...");
 	}
+	if(idFS <= 0){
+		anuncio("No se conecto al FileSystem, abortando...");
+	}
 	retardo = obtenerConfiguracion(cfg,"RETARDO");
 
 	if(idFS <= 0){
@@ -95,7 +98,7 @@ void inicializarDatos(){
 	procesosBLOCK = queue_create();
 	procesosEXIT = queue_create();
 
-	if(tamanioPagina <= 0){
+	if(tamanioPagina <= 0 || idFS <= 0 ){
 		killme();
 	}
 

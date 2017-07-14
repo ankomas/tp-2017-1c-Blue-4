@@ -14,7 +14,9 @@ void imprimirPorConsola(uint32_t socket,char*data,uint32_t tamanio){
 		log_trace(logger,"Ocurrio en error al tratar de imprimir data por la consola");
 }
 
-uint32_t abrirFD(t_programa* unPrograma,char* path, char* permisos){
+uint32_t abrirFD(t_programa* unPrograma,char* permisos){
+	char*path;
+	//char* path, char* permisos
 	unPrograma->FDCounter++;
 	t_entradaTAP * nuevaEntradaTAP = malloc(sizeof(nuevaEntradaTAP));
 	nuevaEntradaTAP->flags = permisos;
@@ -27,12 +29,12 @@ uint32_t abrirFD(t_programa* unPrograma,char* path, char* permisos){
 		if(tienePermisos('c',permisos)){
 			nuevaEntradaTGA = malloc(sizeof(nuevaEntradaTGA));
 			nuevaEntradaTGA->archivo = path;
-			nuevaEntradaTGA->abierto = 0;
+			nuevaEntradaTGA->abierto = 1;
 			nuevaEntradaTGA->indice = GlobalFDCounter;
 			list_add(tablaGlobalArchivos,nuevaEntradaTGA);
 			GlobalFDCounter++;
 		}else {
-			log_trace(logger,"No hay permisos para crear un nuevo archivo");
+			log_error(logger,"No hay permisos para crear un nuevo archivo");
 			return 9999;
 		}
 	}
