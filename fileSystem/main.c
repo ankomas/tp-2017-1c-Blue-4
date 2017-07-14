@@ -42,8 +42,8 @@ int main(void) {
 	//generarArchivoDelFS_TEST();
 	//crearArchivo("/archivo_test.bin");
 	//borrar("/archivo_test.bin");
-	testLectura();
-	testEscrituraCompleta();
+	//testLectura();
+	//testEscrituraCompleta();
 	//testEscrituraFacil();
 	servidor();
 

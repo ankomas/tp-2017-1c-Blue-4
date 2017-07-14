@@ -122,7 +122,7 @@ int crearArchivo(char* ruta)
 	int bloqueLibre=getBloqueLibre();
 	if(bloqueLibre<0)return -1;
 	//crear Directorios si los hay!!
-	//crearDirectorios();
+	crearDirectorios(ruta);
 	ocuparBloque(bloqueLibre);
 	char* ruta_Archivo=rutaArchivo(ruta);
 	archivo=fopen(ruta_Archivo,"wb");
@@ -281,7 +281,7 @@ void escribirEnBloques(int offset, int tam, char** bloques, char* cadena) {
 	free(buffer);
 }
 
-cantidadDeBloquesEn(char** bloques)
+int cantidadDeBloquesEn(char** bloques)
 {
 	int i=0;
   while(bloques[i])
@@ -291,16 +291,88 @@ cantidadDeBloquesEn(char** bloques)
   return i;
 }
 
+
+
+char* generarPrimerosBloques(char** bloques)
+{
+	int i=0;
+	char* cadena;
+	while(bloques[i])
+	{
+		if(i==0)
+		{
+			cadena=obtenerFormatoDeBloques(NULL,bloques[i]);
+		}
+		else cadena=obtenerFormatoDeBloques(cadena,bloques[i]);
+		i++;
+	}
+	return cadena;
+}
+
+char* pedirBloques(int bloquesAPedir,char** bloquesAnteriores)
+{
+	int bloqueLibre,i=0;
+	char* bloques=NULL,*numero_string;
+
+
+	while(i<bloquesAPedir)
+	{
+		bloqueLibre=getBloqueLibre();
+		printf("bloque libre: %d \n",bloqueLibre);
+		if(bloqueLibre<0)return NULL;
+		ocuparBloque(bloqueLibre);
+		if(i==0)bloques=generarPrimerosBloques(bloquesAnteriores);
+		numero_string=string_itoa(bloqueLibre);
+		bloques=obtenerFormatoDeBloques(bloques,numero_string);
+		free(numero_string);
+		i++;
+	}
+	bloques=obtenerFormatoDeBloques(bloques,NULL);
+	return bloques;
+}
+
+t_infoArchivo actualizarArchivo(char* path,char* bloques,int tam)
+{
+	cambiarFormatoDeArchivo(path,tam,bloques);
+	t_infoArchivo info=obtenerInfoArchivo(path);
+	return info;
+
+}
+
 int guardarDatos(char* path,int offset, int tam, char* texto){
 
-	int nosirve, bloquesAPedir, maxTam;
+	int nosirve, bloquesAPedir, maxTam,nuevoTam;
+	//char* ruta=rutaEnPuntoMontaje("/Archivos",path);
 	t_infoArchivo info=obtenerInfoArchivo(path);
 	maxTam = cantidadDeBloquesEn(info.bloques)* configFS.tamBloque;
+	if(offset+tam>=info.tamanio)nuevoTam=offset+tam;
+	else nuevoTam=info.tamanio;
+
 	if(offset+tam > maxTam){
 		bloquesAPedir = cuantosBloquesLeo(offset+tam-maxTam, &nosirve);
-		//pedirBloques(bloquesAPedir);
+		printf("bloques q leo: %d \n",bloquesAPedir);
+		char* bloques=pedirBloques(bloquesAPedir,info.bloques);
+		printf("los bloques son: %s \n",bloques);
+		if(bloques==NULL)
+		{
+			free(info.bloques);
+			//free(ruta);
+			free(bloques);
+			return -1;
+		}
+		free(info.bloques);
+		info=actualizarArchivo(path,bloques,nuevoTam);
+		escribirEnBloques(offset, tam, info.bloques, texto);
+		//free(ruta);
+		free(bloques);
+		return 0;
 	}
-	//escribirEnBloques(offset, tam, info.bloques, texto);
+	char* bloques=generarPrimerosBloques(info.bloques);
+	bloques=obtenerFormatoDeBloques(bloques,NULL);
+	actualizarArchivo(path,bloques,nuevoTam);
+	escribirEnBloques(offset, tam, info.bloques, texto);
+	free(bloques);
+	//free(ruta);
 	return 0;
 }
 
