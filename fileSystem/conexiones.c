@@ -292,26 +292,25 @@ void leer(int socket)
 	char *ruta;
 	char* path=recibirPath(socket);
 	recibir_offset_tamanio(socket,&offset,&tamanio);
-/*
-	if(buffer)
+
+	//if(buffer)
+	//{
+		//free(buffer);
+	ruta=rutaEnPuntoMontaje("/Archivos",path);
+	resultado=obtenerDatos(path,offset,tamanio);
+	if(resultado)
 	{
-		free(buffer);
-		ruta=rutaEnPuntoMontaje("/Archivos",path);
-		resultado=obtenerDatos(path,offset,tamanio);
-		if(resultado)
-		{
-			send(socket,"Y",1,0);
-			sendall(socket,resultado,&tamanio);
-			free(ruta);
-			free(resultado);
-			return;
-		}else{
-			send(socket,"N",1,0);
-			free(ruta);
-			return;
-		}
+		send(socket,"Y",1,0);
+		sendall(socket,resultado,&tamanio);
+		free(ruta);
+		free(resultado);
+		return;
+	}else{
+		send(socket,"N",1,0);
+		free(ruta);
+		return;
 	}
-	*/
+
 }
 
 
