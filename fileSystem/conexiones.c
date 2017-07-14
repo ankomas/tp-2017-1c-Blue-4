@@ -123,6 +123,7 @@ char* recibirPath(int socket)
 	int resultado;
 	char *path,*buffer;
 	tamanioTotalBuffer=recibirUint32_t(socket);
+	printf("el tamanio del buffer es: %d \n",tamanioTotalBuffer);
 	if(tamanioTotalBuffer==-1)return NULL;
 	buffer=recibirPaquete(socket,tamanioTotalBuffer,&resultado);
 	if(validarRecv(socket,resultado)<0)
@@ -133,6 +134,7 @@ char* recibirPath(int socket)
 	path=calloc(1,tamanioTotalBuffer+1);
 	memcpy(path,buffer,tamanioTotalBuffer);
 	free(buffer);
+	printf("el path es: %s \n ",path);
 	return path;
 
 }
@@ -163,6 +165,7 @@ void crear(int socket)
 {
 	int resultado;
 	char* path=recibirPath(socket);
+
 	if(path)
 	{
 		//send(socket,"Y",1,0);
@@ -242,7 +245,9 @@ void recibir_offset_tamanio(int socket,uint32_t* offset,uint32_t* tamanio)
 		return ;
 	}
 	*offset=obtenerNumeroSerializado(puntero,buffer);
+	printf("el offset es: %d \n ",*offset);
 	*tamanio=obtenerNumeroSerializado(puntero,buffer);
+	printf("el tamanio es: %d \n ",*tamanio);
 	free(buffer);
 }
 
