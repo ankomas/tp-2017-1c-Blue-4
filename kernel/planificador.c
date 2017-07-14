@@ -339,6 +339,12 @@ void* cpu(t_cpu * cpu){
 					abrirFD(cpu->id,proximoPrograma);
 				} else if(res[0] == 'b'){
 					borrarFD(cpu->id,proximoPrograma);
+				} else if(res[0] == 'c'){
+					bool cerrarFD(uint32_t i, t_programa* unPrograma);
+				} else if(res[0] == 'l'){
+					char* leerFD(uint32_t i,t_programa* unPrograma);
+				} else if(res[0] == 'e'){
+					bool escribirFD(uint32_t i,t_programa* unPrograma);
 				} else if(res[0] == 'G'){
 					//guardarEnHeap(cpu->id,proximoPrograma->paginasHeap,&proximoPrograma->id);
 					guardarHeapNico(cpu->id,proximoPrograma);

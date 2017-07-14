@@ -27,12 +27,15 @@ typedef struct t_entradaTAP{
 
 void imprimirPorConsola();
 uint32_t abrirFD(uint32_t i,t_programa* unPrograma);
-bool cerrarFD(t_programa* unPrograma,uint32_t fd);
-uint32_t escribirFD(t_programa* unPrograma,void* data,uint32_t fd, uint32_t offset, uint32_t tamanio);
-uint32_t leerFD(t_programa* unPrograma,uint32_t fd, uint32_t offset, uint32_t tamanio);
+bool cerrarFD(uint32_t i, t_programa* unPrograma);
+bool escribirFD(uint32_t i,t_programa* unPrograma);
+bool borrarFD(uint32_t i,t_programa* unPrograma);
+char* leerFD(uint32_t i,t_programa* unPrograma);
 
 t_entradaTGA * buscarFDPorPath(char* path);
 uint32_t buscarFDPorId(uint32_t id);
 uint32_t buscarFDArchivoPorId(uint32_t id,t_programa*unPrograma);
 bool tienePermisos(char acceso,char*permisos);
+char* recibirPath(uint32_t i);
+char* recibirPermisos(uint32_t i);
 #endif /* CAPAFS_H_ */
