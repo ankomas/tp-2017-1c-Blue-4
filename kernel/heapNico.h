@@ -21,4 +21,7 @@ typedef struct{
 	uint32_t size;
 } t_metadata_heap;
 
+t_puntero allocEnHeap(t_programa *programa,uint32_t tam);
+int liberar(t_programa* programa,t_puntero puntero);
+
 #endif /* HEAPNICO_H_ */

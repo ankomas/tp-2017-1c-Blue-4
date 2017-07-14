@@ -229,3 +229,24 @@ char alloc(t_valor_variable valor,t_puntero *puntero){
 		return 'N';
 	}
 }
+
+char liberar(t_puntero puntero){
+	char res;
+	uint32_t ptr=puntero;
+
+	send(kernel,"L",1,0);
+	send(kernel,&ptr,sizeof(uint32_t),0);
+
+	recv(kernel,&res,1,0);
+
+	switch(res){
+	case 'Y':
+		return res;
+	case 'N':
+		printf("ERROR: no se pudo liberar\n");
+		return res;
+	default:
+		printf("ERROR: respuesta incorrecta en LIBERAR\n");
+		return 'N';
+	}
+}

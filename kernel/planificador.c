@@ -348,6 +348,8 @@ void* cpu(t_cpu * cpu){
 				} else if(res[0] == 'G'){
 					//guardarEnHeap(cpu->id,proximoPrograma->paginasHeap,&proximoPrograma->id);
 					guardarHeapNico(cpu->id,proximoPrograma);
+				} else if(res[0] == 'L'){
+					liberarHeapNico(cpu->id,proximoPrograma);
 				} else if(res[0] == 'B'){
 					if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
 						liberarCPU(proximoPrograma);

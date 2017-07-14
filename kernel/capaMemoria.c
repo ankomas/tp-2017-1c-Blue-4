@@ -260,6 +260,33 @@ int pedirPagias(uint32_t pid,uint32_t cantPaginas){
 
 }
 
+int liberarPagina(uint32_t pid,uint32_t pagina){
+	package_t paquete;
+	char res;
+
+	send(idUMC,"E",1,0);
+	paquete=serializar(4,
+			sizeof(uint32_t),&pid,
+			sizeof(uint32_t),&pagina);
+	send(idUMC,&paquete.data_size,sizeof(uint32_t),0);
+	send(idUMC,paquete.data,paquete.data_size,0);
+
+	recv(idUMC,&res,1,0);
+	free(paquete.data);
+	switch(res){
+	case 'Y':
+		log_trace(logger,"Llamada a ELIMINAR PAGINA correcto");
+		return 1;
+	case 'N':
+		log_error(logger,"Llamada a ELIMINAR PAGINA no se pudo eliminar pagina");
+		return -1;
+	default:
+		log_error(logger,"Llamada a ELIMINAR PAGINA respuesta invalida");
+		return -2;
+	}
+
+}
+
 // SYSCALLS Memoria
 void leerVarGlobal(uint32_t i){
 	// Envio el valor de una variable global
@@ -559,6 +586,17 @@ void leerHeap(uint32_t i){
 	}
 
 	free(rev);
+}
+
+void liberarHeapNico(int cpu,t_programa *proximoPrograma){
+	uint32_t ptr;
+	int res;
+	char respuesta;
+	recv(cpu,&ptr,sizeof(uint32_t),0);
+	res=liberar(proximoPrograma,ptr);
+	if(res==1)
+		respuesta='Y';
+	send(cpu,&respuesta,1,0);
 }
 // Fin SYSCALLs Memoria
 

@@ -22,5 +22,6 @@ char semWait(t_nombre_semaforo sem);
 char semSignal(t_nombre_semaforo sem);
 
 char alloc(t_valor_variable valor,t_puntero *puntero);
+char liberar(t_puntero puntero);
 
 #endif /* CAPAKERNEL_H_ */

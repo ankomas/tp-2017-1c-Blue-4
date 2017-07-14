@@ -135,7 +135,7 @@ int memoriaLibreContigua(paginaHeap* unaPagina){
 int memoriaReservada(paginaHeap* unaPagina){
 	return tamanioPagina-memoriaLibre(unaPagina);
 }
-
+/*
 int compactar(paginaHeap* unaPagina){
 	int i = 0;
 	int huboCompactacionParcial = 1;
@@ -160,3 +160,4 @@ int compactar(paginaHeap* unaPagina){
 	return sirvioCompactar;
 	//reorganizar todo en un nuevo void*data y eliminar el anterior
 }
+*/

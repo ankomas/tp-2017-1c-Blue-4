@@ -215,3 +215,154 @@ t_puntero allocEnHeap(t_programa *programa,uint32_t tam){
 
 }
 
+////
+////				Liberar
+////
+
+void liberarPaginaHeap(t_programa *programa,uint32_t pag,t_heap *heapKernel){
+	bool _heapByPage(t_heap *self){
+		return self->nPag==pag;
+	}
+	void _destroyByPage(t_heap* self){
+		free(self);
+	}
+	list_remove_and_destroy_by_condition(programa->paginasHeap,(void*)_heapByPage,(void*)_destroyByPage);
+	liberarPagina(programa->pcb->pid,pag);
+}
+
+int buscarSiguienteMetadataHeap(uint32_t pid, uint32_t pag,uint32_t offmetadata,uint32_t* offsig, t_metadata_heap metadata,t_metadata_heap *siguiente){
+	uint32_t offlocal;
+
+	if(metadata.free==true){
+		//Puede existir un metadata despues de "metadata"?
+		//printf("BUSCAR SIG %i+%i+%i<%i-%i?\n",offmetadata,metadataHeap_tam(),metadata.size,tamanioPagina,metadataHeap_tam());
+		//printf("%i<%i?\n",offmetadata+metadataHeap_tam()+metadata.size,tamanioPagina-metadataHeap_tam());
+		if(offmetadata+metadataHeap_tam()+metadata.size>tamanioPagina-metadataHeap_tam()){
+			return 0;
+		}
+	}
+	//metadata free=false o hubo espacio para otro metadata
+	offlocal=offmetadata+metadataHeap_tam()+metadata.size;
+
+	*offsig=offlocal;
+	*siguiente=buscarMetadataHeap(pid,pag,offlocal);
+	/*
+	printf("BUSCAR SIG TEST\n");
+	visualizarMetadata(*siguiente);
+	*/
+	return 1;
+}
+
+int compactar(uint32_t pid,uint32_t pag,t_metadata_heap *metadata,uint32_t offset,t_metadata_heap siguiente,t_heap* heapKernel){
+	if(metadata->free==false)
+		return 0;
+	if(siguiente.free==false)
+		return 0;
+
+	metadata->size+=siguiente.size+metadataHeap_tam();
+	guardarMetadata(*metadata,pid,pag,offset);
+	heapKernel->tamDisp+=siguiente.size+metadataHeap_tam();
+
+	return 1;
+}
+
+void compactador(t_programa *programa,uint32_t pag,t_heap* heapKernel){
+	t_metadata_heap metadata,siguiente;
+	uint32_t offset=0,offsetsig,res;
+
+	metadata=buscarMetadataHeap(programa->pcb->pid,pag,0);
+	res=buscarSiguienteMetadataHeap(programa->pcb->pid,pag,offset,&offsetsig,metadata,&siguiente);
+/*
+	printf("COMPACTADOR test\n");
+	visualizarMetadata(metadata);
+	visualizarMetadata(siguiente);
+	printf("Offset: %i, offsig: %i\n",offset,offsetsig);
+*/
+	while(res){
+		if(compactar(programa->pcb->pid,pag,&metadata,offset,siguiente,heapKernel)){
+			//Se pudo compactar, busco otro metadata
+			res=buscarSiguienteMetadataHeap(programa->pcb->pid,pag,offset,&offsetsig,metadata,&siguiente);
+			/*
+			printf("COMPACTADOR test 1\n");
+			visualizarMetadata(siguiente);
+			printf("Offset: %i, offsig: %i\n",offset,offsetsig);
+			*/
+		}else{
+			//No se pudo compactar, me muevo a otro metadata
+			res=buscarSiguienteMetadataHeap(programa->pcb->pid,pag,offsetsig,&offset,siguiente,&metadata);
+			/*
+			printf("COMPACTADOR test 2\n");
+			visualizarMetadata(metadata);
+			printf("Offset: %i, offsig: %i\n",offset,offsetsig);
+			*/
+			if(res){
+				//Hay mas metadatas
+				res=buscarSiguienteMetadataHeap(programa->pcb->pid,pag,offset,&offsetsig,metadata,&siguiente);
+				/*
+				printf("COMPACTADOR test 3\n");
+				visualizarMetadata(siguiente);
+				printf("Offset: %i, offsig: %i\n",offset,offsetsig);
+				*/
+			}
+			else{
+				//No hubo mas metadatas
+				res=0;
+			}
+		}
+		//usleep(1000000);
+	}
+
+	/*printf("COMPACTADOR metadata size: %i, tampag-metaheaptam: %i\n",metadata.size,tamanioPagina-metadataHeap_tam());
+	visualizarMetadata(metadata);*/
+	if(metadata.size==tamanioPagina-metadataHeap_tam()){
+		liberarPaginaHeap(programa,pag,heapKernel);
+	}
+	/*
+	metadata=buscarMetadataHeap(programa->pcb->pid,pag,0);
+	printf("COMPACTADOR metadata size: %i, tampag-metaheaptam: %i\n",metadata.size,tamanioPagina-metadataHeap_tam());
+	visualizarMetadata(metadata);
+	metadata=buscarMetadataHeap(programa->pcb->pid,pag,55);
+	printf("COMPACTADOR metadata size: %i, tampag-metaheaptam: %i\n",metadata.size,tamanioPagina-metadataHeap_tam());
+	visualizarMetadata(metadata);
+	metadata=buscarMetadataHeap(programa->pcb->pid,pag,110);
+	printf("COMPACTADOR metadata size: %i, tampag-metaheaptam: %i\n",metadata.size,tamanioPagina-metadataHeap_tam());
+	visualizarMetadata(metadata);
+	metadata=buscarMetadataHeap(programa->pcb->pid,pag,165);
+	printf("COMPACTADOR metadata size: %i, tampag-metaheaptam: %i\n",metadata.size,tamanioPagina-metadataHeap_tam());
+	visualizarMetadata(metadata);
+*/
+}
+
+
+
+int liberar(t_programa* programa,t_puntero puntero){
+	t_pos pos=punteroAPos(puntero,tamanioPagina);
+	t_pos posMetadata=pos;
+	t_metadata_heap metadata;
+	t_heap *heapKernel;
+	//uint32_t offsetsig=0;
+
+	printf("Llamada a LIBERAR\n");
+
+	posMetadata.off-=metadataHeap_tam();
+	metadata=buscarMetadataHeap(programa->pcb->pid,posMetadata.pag,posMetadata.off);
+
+	//buscarSiguienteMetadataHeap(programa->pcb->pid,posMetadata.pag,posMetadata.off,&offsetsig,metadata,&siguiente);
+
+
+	bool _heapByPage(t_heap *self){
+		return self->nPag==posMetadata.pag;
+	}
+
+	heapKernel=list_find(programa->paginasHeap,(void*)_heapByPage);
+
+	metadata.free=true;
+	heapKernel->tamDisp+=metadata.size;
+
+	guardarMetadata(metadata,programa->pcb->pid,posMetadata.pag,posMetadata.off);
+
+	compactador(programa,posMetadata.pag,heapKernel);
+
+	return 1;
+}
+

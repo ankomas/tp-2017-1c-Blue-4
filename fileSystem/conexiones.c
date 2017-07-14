@@ -123,6 +123,7 @@ char* recibirPath(int socket)
 	int resultado;
 	char *path,*buffer;
 	tamanioTotalBuffer=recibirUint32_t(socket);
+	printf("el tamanio del buffer es: %d \n",tamanioTotalBuffer);
 	if(tamanioTotalBuffer==-1)return NULL;
 	buffer=recibirPaquete(socket,tamanioTotalBuffer,&resultado);
 	if(validarRecv(socket,resultado)<0)
@@ -133,6 +134,7 @@ char* recibirPath(int socket)
 	path=calloc(1,tamanioTotalBuffer+1);
 	memcpy(path,buffer,tamanioTotalBuffer);
 	free(buffer);
+	printf("el path es: %s \n ",path);
 	return path;
 
 }
@@ -163,6 +165,7 @@ void crear(int socket)
 {
 	int resultado;
 	char* path=recibirPath(socket);
+
 	if(path)
 	{
 		//send(socket,"Y",1,0);
@@ -209,29 +212,50 @@ char* obtenerDataSerializada(uint32_t* puntero,char* buffer)
 }
 
 
-char* recibir_offset_tamanio(int socket,uint32_t* offset,uint32_t* tamanio,uint32_t *puntero)
+/*
+void recibirParametrosDeLectua(int socket,uint32_t* offset,uint32_t* tamanio)
 {
-	uint32_t tamanioTotalBuffer;
-	*puntero=0;
+	uint32_t tamanioTotalBuffer=(sizeof(uint32_t))*2;
 	int resultado;
-	char *buffer;
-	tamanioTotalBuffer=recibirUint32_t(socket);
-	if(tamanioTotalBuffer==-1)return NULL;
+	char* buffer;
+    uint32_t *puntero=0;
+	buffer=recibirPaquete(socket,tamanioTotalBuffer,&resultado);
+		if(validarRecv(socket,resultado)<0)
+		{
+			free(buffer);
+			return ;
+		}
+		*offset=obtenerNumeroSerializado(puntero,buffer);
+		*tamanio=obtenerNumeroSerializado(puntero,buffer);
+		free(buffer);
+}
+*/
+
+
+void recibir_offset_tamanio(int socket,uint32_t* offset,uint32_t* tamanio)
+{
+	uint32_t tamanioTotalBuffer=(sizeof(uint32_t))*2;
+	int resultado;
+	char* buffer;
+	uint32_t *puntero=0;
 	buffer=recibirPaquete(socket,tamanioTotalBuffer,&resultado);
 	if(validarRecv(socket,resultado)<0)
 	{
 		free(buffer);
-		return NULL;
+		return ;
 	}
 	*offset=obtenerNumeroSerializado(puntero,buffer);
+	printf("el offset es: %d \n ",*offset);
 	*tamanio=obtenerNumeroSerializado(puntero,buffer);
-	return buffer;
+	printf("el tamanio es: %d \n ",*tamanio);
+	free(buffer);
 }
 
 
 
-/*char* recibir_offset_tamanio_data(int socket,uint32_t* offset,uint32_t* tamanio)
+char* recibir_offset_tamanio_data(int socket,uint32_t* offset,uint32_t* tamanio)
 {
+	/*
 	uint32_t puntero;
 	char *data,*buffer;
 	buffer=recibirPath_offset_tamanio(socket,offset,tamanio,&puntero);
@@ -243,15 +267,31 @@ char* recibir_offset_tamanio(int socket,uint32_t* offset,uint32_t* tamanio,uint3
 	}
 	printf("no se pudo recibir: offset,tamanio,data  de : %d \n",socket);
 	return NULL;
-}*/
+	*/
+	int resultado;
+	recibir_offset_tamanio(socket,offset,tamanio);
+	uint32_t tamanioTotalBuffer=recibirUint32_t(socket);
+	if(tamanioTotalBuffer==-1)return NULL;
+	printf("el tamaño del paquete es: %d \n",tamanioTotalBuffer);
+	char *data=recibirPaquete(socket,tamanioTotalBuffer,&resultado);
+	if(validarRecv(socket,resultado)<0)
+		{
+			printf("recv invalido \n");
+			free(data);
+			return NULL;
+		}
+
+	return data;
+
+}
 
 void leer(int socket)
 {
 	char* resultado;
 	uint32_t puntero,tamanio,offset;
-	char* buffer,*ruta;
+	char *ruta;
 	char* path=recibirPath(socket);
-	buffer=recibir_offset_tamanio(socket,&offset,&tamanio,&puntero);
+	recibir_offset_tamanio(socket,&offset,&tamanio);
 /*
 	if(buffer)
 	{
@@ -277,12 +317,13 @@ void leer(int socket)
 
 void escribir(int socket)
 {
-	/*
+
 	int resultado;
 	uint32_t puntero,tamanio,offset;
 	char* buffer,*data,*ruta;
 	char* path=recibirPath(socket);
 	data=recibir_offset_tamanio_data(socket,&offset,&tamanio);
+	/*
 	if(data)
 	{
 		ruta=rutaEnPuntoMontaje("/Archivos",path);
