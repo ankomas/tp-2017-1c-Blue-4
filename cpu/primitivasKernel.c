@@ -107,10 +107,70 @@ void dummy_liberar(t_puntero puntero){
 	}
 }
 
-t_puntero (*AnSISOP_reservar)(t_valor_variable espacio);
-void (*AnSISOP_liberar)(t_puntero puntero);
-
 //Filesystem
+
+t_descriptor_archivo dummy_abrir(t_direccion_archivo direccion, t_banderas flags){
+	if(finPrograma_global!='Y')
+		return -1;
+	int res;
+
+	printf("Llamada a "YEL"ABRIR"RESET"\n");
+	printf("Direccion: %s\n",direccion);
+	printf("L: %i E: %i C: %i\n",flags.lectura,flags.escritura,flags.lectura);
+
+	res=abrirArchivo(direccion,flags);
+
+	if(res==-1){
+		setExitCode(&pcb_global,"error al abrir archivo",2);
+		return -1;
+	}
+	printf("File descriptor: %i\n",res);
+	return res;
+}
+
+void dummy_borrar(t_descriptor_archivo descriptor_archivo){
+	if(finPrograma_global!='Y')
+		return;
+	int res;
+	printf("Llamada a "YEL"BORRAR"RESET" %i\n",descriptor_archivo);
+
+	res=borrarArchivo(descriptor_archivo);
+
+	if(res==-1){
+		setExitCode(&pcb_global,"error al borrar archivo",17);
+	}
+
+}
+
+void dummy_cerrar(t_descriptor_archivo descriptor_archivo){
+	if(finPrograma_global!='Y')
+		return;
+	int res;
+	printf("Llamada a "YEL"CERRAR"RESET" %i\n",descriptor_archivo);
+
+	res=cerrarArchivo(descriptor_archivo);
+
+	if(res==-1){
+		setExitCode(&pcb_global,"error al cerrar archivo",18);
+	}
+}
+
+void dummy_moverCursor(t_descriptor_archivo descriptor_archivo, t_valor_variable posicion){
+	if(finPrograma_global!='Y')
+		return;
+	printf("Llamada a "YEL"MOVER CURSOR"RESET" %i\n",descriptor_archivo);
+
+}
+void dummy_escribir(t_descriptor_archivo descriptor_archivo, void* informacion, t_valor_variable tamanio){
+	if(finPrograma_global!='Y')
+		return;
+	printf("Llamada a "YEL"ESCRIBIR"RESET" %i\n",descriptor_archivo);
+}
+void dummy_leer(t_descriptor_archivo descriptor_archivo, t_puntero informacion, t_valor_variable tamanio){
+	if(finPrograma_global!='Y')
+		return;
+	printf("Llamada a "YEL"LEER"RESET" %i\n",descriptor_archivo);
+}
 
 t_descriptor_archivo (*AnSISOP_abrir)(t_direccion_archivo direccion, t_banderas flags);
 void (*AnSISOP_borrar)(t_descriptor_archivo descriptor_archivo);

@@ -252,3 +252,15 @@ char liberar(t_puntero puntero){
 		return 'N';
 	}
 }
+
+int abrirArchivo(t_direccion_archivo direccion,t_banderas flags){
+	return 1;
+}
+
+int borrarArchivo(t_descriptor_archivo fd){
+	return 1;
+}
+
+int cerrarArchivo(t_descriptor_archivo fd){
+	return 1;
+}
