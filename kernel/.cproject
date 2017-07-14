@@ -36,8 +36,8 @@
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.525882982" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug">
 								<option id="gnu.c.link.option.paths.1107399946" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/parser/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/commons/Debug}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/parser/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/blue4-lib/Debug}&quot;"/>
 								</option>
 								<option id="gnu.c.link.option.libs.1989143014" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
