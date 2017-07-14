@@ -8,47 +8,162 @@
 #include <sys/socket.h>
 
 ///////////////// Funciones que interactuan con el FS
+// Usalas con sabiduria, porque requieren validaciones previas
 
-bool archivoValido(char* path,uint32_t tamPath){
+bool mandarOperacionFS(char* opcode,char* path,uint32_t tamPath,char* error){
 	uint32_t tamARecibir=0;
 	char * rev = malloc(1);
-	send(idFS,"V",1,0);
+	send(idFS,opcode,1,0);
+
+	char* tamPathStream = intToStream(tamPath);
+	if(sendall(idFS,tamPathStream, &tamPath) < 0){
+		log_error(logger,error);
+		return 0;
+	}
+	free(tamPathStream);
+
 	if(sendall(idFS,path, &tamPath) < 0){
-		log_error(logger,"Ocurrio un problema al validar un FD");
+		log_error(logger,error);
 		return 0;
 	}
 
 	// Recibo confirmacion
 	if(recv(idFS,rev,tamARecibir,MSG_WAITALL) <= 0){
-		log_error(logger,"Ocurrio un problema al validar un FD");
+		log_error(logger,error);
 		return 0;
 	}
+
 	if(rev[0]== 'Y')
 		return 1;
+
 	return 0;
+}
+
+char* continuacionPeticionLectura(uint32_t offset,uint32_t size,char*error){
+		uint32_t tamARecibir=0;
+		char * rev = NULL;
+		uint32_t tamAMandar=sizeof(uint32_t);
+
+		char* offsetStream = intToStream(offset);
+		char* sizeStream = intToStream(size);
+		if(sendall(idFS,offsetStream, &tamAMandar) < 0){
+			log_error(logger,error);
+			return 0;
+		}
+		free(offsetStream);
+
+		if(sendall(idFS,sizeStream, &tamAMandar) < 0){
+			log_error(logger,error);
+			return 0;
+		}
+		free(sizeStream);
+
+		// Recibo largo del data
+		if(recv(idFS,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0){
+			log_error(logger,error);
+			return NULL;
+		}
+
+		/*if(send(idFS,"Y",1,0) < 0)
+			log_error(logger,error);*/
+
+		// Recibo confirmacion
+		if(recv(idFS,rev,1,0) <= 0){
+			log_error(logger,error);
+			return NULL;
+		}
+
+		if(rev[0] == 'Y'){
+			rev=realloc(rev,tamARecibir);
+			memset(rev,'\0',tamARecibir);
+
+			// Recibo el data
+			if(recv(idFS,rev,tamARecibir,MSG_WAITALL) <= 0){
+				log_error(logger,error);
+				return NULL;
+			}
+			return rev;
+		}
+
+		//send(idFS,"Y",1,0);
+		return NULL;
+}
+
+bool continuacionPeticionEscritura(uint32_t offset,uint32_t size,char*buffer,uint32_t tamBuffer,char*error){
+		uint32_t tamARecibir=0;
+		char * rev = NULL;
+		uint32_t tamAMandar=sizeof(uint32_t);
+
+		char* offsetStream = intToStream(offset);
+		char* sizeStream = intToStream(size);
+		if(sendall(idFS,offsetStream, &tamAMandar) < 0){
+			log_error(logger,error);
+			return 0;
+		}
+		free(offsetStream);
+
+		if(sendall(idFS,sizeStream, &tamAMandar) < 0){
+			log_error(logger,error);
+			return 0;
+		}
+		free(sizeStream);
+
+		// Mando largo del buffer
+		char* tamBufferStream = intToStream(tamBuffer);
+		if(sendall(idFS,tamBufferStream,&tamBuffer) < 0){
+			log_error(logger,error);
+			return NULL;
+		}
+		free(tamBufferStream);
+
+		// Mando buffer
+		if(sendall(idFS,buffer,&tamBuffer) < 0){
+			log_error(logger,error);
+			return NULL;
+		}
+
+		// Recibo confirmacion
+		if(recv(idFS,rev,1,0) <= 0){
+			log_error(logger,error);
+			return NULL;
+		}
+
+		if(rev[0] == 'Y')
+			return 1;
+		else
+			return 0;
+}
+
+bool borrarArchivo(char* path,uint32_t tamPath){
+	return mandarOperacionFS("B",path,tamPath,"Ocurrio un error al crear un archivo");
 }
 
 bool crearArchivo(char* path,uint32_t tamPath){
-	uint32_t tamARecibir=0;
-	char * rev = malloc(1);
-	send(idFS,"C",1,0);
-	if(sendall(idFS,path, &tamPath) < 0){
-		log_error(logger,"Ocurrio un problema al crear un FD");
+	return mandarOperacionFS("C",path,tamPath,"Ocurrio un error al crear un archivo");
+}
+
+char* leerArchivo(char* path,uint32_t tamPath,uint32_t offset,uint32_t size){
+	if(mandarOperacionFS("L",path,tamPath,"Ocurrio un error al leer un archivo") == 0){
 		return 0;
 	}
+	return continuacionPeticionLectura(offset,size,"Ocurrio un error al leer un archivo");
 
-	// Recibo confirmacion
-	if(recv(idFS,rev,tamARecibir,MSG_WAITALL) <= 0){
-		log_error(logger,"Ocurrio un problema al crear un FD");
-		return 0;
-	}
 
-	if(rev[0]== 'Y')
-		return 1;
-
+		// mandar resto de cosas
 	return 0;
 }
 
+bool escribirArchivo(char* path,uint32_t tamPath){
+	if(mandarOperacionFS("E",path,tamPath,"Ocurrio un error al escribir un FD") == 0){
+		return 0;
+	}
+		// mandar resto de cosas
+	return 0;
+}
+
+bool validarArchivo(char* path,uint32_t tamPath){
+	return mandarOperacionFS("V",path,tamPath,"Ocurrio un error al validar un FD");
+}
 
 
 ////////////////// FIN Funciones que interactuan con el FS
@@ -91,7 +206,7 @@ uint32_t abrirFD(uint32_t i,t_programa* unPrograma){
 		log_error(logger,"Ocurrio un problema al abrir un FD");
 	send(i,"Y",1,0);
 
-	if(archivoValido(rev,tamARecibir) && tienePermisos('c',permisosRev)){
+	if(validarArchivo(rev,tamARecibir) && tienePermisos('c',permisosRev)){
 		crearArchivo(rev,tamARecibir);
 		send(i,"Y",1,0);
 		log_trace(logger,"Se creo un archivo con exito");

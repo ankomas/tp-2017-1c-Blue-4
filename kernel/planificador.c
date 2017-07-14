@@ -335,8 +335,10 @@ void* cpu(t_cpu * cpu){
 					semSignal(cpu->id);
 				} else if(res[0] == 'H'){
 					leerHeap(cpu->id);
-				}else if(res[0] == 'a'){
+				} else if(res[0] == 'a'){
 					abrirFD(cpu->id,proximoPrograma);
+				} else if(res[0] == 'b'){
+					borrarFD(cpu->id,proximoPrograma);
 				} else if(res[0] == 'G'){
 					//guardarEnHeap(cpu->id,proximoPrograma->paginasHeap,&proximoPrograma->id);
 					guardarHeapNico(cpu->id,proximoPrograma);
