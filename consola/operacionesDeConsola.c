@@ -19,7 +19,7 @@ void iniciarProgramaAnsisop(char* pathProgramaAsisop)
 {
 	//pthread_t hiloPrograma;
 	//conectarseAlKernel();
-	printf("la ruta es : %s \n",pathProgramaAsisop);
+	//printf("la ruta es : %s \n",pathProgramaAsisop);
 	//leerProgramaAnsisop(pathProgramaAsisop);
 	crearHiloPrograma(pathProgramaAsisop);
 	//sendall();
@@ -146,8 +146,14 @@ void crearMenuPrincipal()
 			case 1:
 				printf("Ingrese programa ANSISOP ");
 				scanf("%s",rutaPrograma);
-				printf("Iniciando programa ANSISOP..... \n\n");
-				iniciarProgramaAnsisop(rutaPrograma);
+				FILE*abrirArchivo = fopen(rutaPrograma,"r");
+				if(abrirArchivo == NULL){
+					textoAmarillo("Ruta de programa invalida, por favor verifique la ruta del mismo\n");
+				}else {
+					printf("Iniciando programa ANSISOP..... \n\n");
+					fclose(abrirArchivo);
+					iniciarProgramaAnsisop(rutaPrograma);
+				}
 				getchar();
 				break;
 			case 2:

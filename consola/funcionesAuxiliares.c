@@ -239,11 +239,11 @@ char* leerProgramaAnsisop(char* ruta)
 	//printf("ruta en leerPrograma : %s \n",ruta);
 
 	programa = fopen(ruta,"r");
-	if(programa==NULL)
+	while(programa==NULL)
 	{
 		textoEnColor("Ruta invalida del programa ",0,0);
-		free(contenido);
-		return NULL;
+		programa = fopen(ruta,"r");
+		scanf("%s",ruta);
 	}
 
 	fseek(programa, 0L, SEEK_END);
@@ -358,7 +358,6 @@ void gestionarProgramaAnsisop(dataHilos_t* dataHilo)
 	char* lecturaDeProgramaAnsisop = leerProgramaAnsisop(pathPrograma);
 	if(lecturaDeProgramaAnsisop==NULL)
 	{
-
 		free(dataHilo->path);
 		close(dataHilo->socketKernel);
 		free(dataHilo);
