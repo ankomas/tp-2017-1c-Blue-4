@@ -5,6 +5,53 @@
  *      Author: utnso
  */
 #include "capaFs.h"
+#include <sys/socket.h>
+
+///////////////// Funciones que interactuan con el FS
+
+bool archivoValido(char* path,uint32_t tamPath){
+	uint32_t tamARecibir=0;
+	char * rev = malloc(1);
+	send(idFS,"V",1,0);
+	if(sendall(idFS,path, &tamPath) < 0){
+		log_error(logger,"Ocurrio un problema al validar un FD");
+		return 0;
+	}
+
+	// Recibo confirmacion
+	if(recv(idFS,rev,tamARecibir,MSG_WAITALL) <= 0){
+		log_error(logger,"Ocurrio un problema al validar un FD");
+		return 0;
+	}
+	if(rev[0]== 'Y')
+		return 1;
+	return 0;
+}
+
+bool crearArchivo(char* path,uint32_t tamPath){
+	uint32_t tamARecibir=0;
+	char * rev = malloc(1);
+	send(idFS,"C",1,0);
+	if(sendall(idFS,path, &tamPath) < 0){
+		log_error(logger,"Ocurrio un problema al crear un FD");
+		return 0;
+	}
+
+	// Recibo confirmacion
+	if(recv(idFS,rev,tamARecibir,MSG_WAITALL) <= 0){
+		log_error(logger,"Ocurrio un problema al crear un FD");
+		return 0;
+	}
+
+	if(rev[0]== 'Y')
+		return 1;
+
+	return 0;
+}
+
+
+
+////////////////// FIN Funciones que interactuan con el FS
 
 void imprimirPorConsola(uint32_t socket,char*data,uint32_t tamanio){
 	uint32_t uno = 1;
@@ -14,21 +61,57 @@ void imprimirPorConsola(uint32_t socket,char*data,uint32_t tamanio){
 		log_trace(logger,"Ocurrio en error al tratar de imprimir data por la consola");
 }
 
-uint32_t abrirFD(t_programa* unPrograma,char* permisos){
-	char*path;
-	//char* path, char* permisos
+uint32_t abrirFD(uint32_t i,t_programa* unPrograma){
+	uint32_t tamARecibir=0;
+	char * rev = NULL;
+	char * permisosRev = NULL;
+
+	// Recibo largo del path
+	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
+		log_error(logger,"Ocurrio un problema al abrir un FD");
+	if(send(i,"Y",1,0) < 0)
+		log_error(logger,"Ocurrio un problema al abrir un FD");
+	rev=realloc(rev,tamARecibir+1);
+	memset(rev,'\0',tamARecibir+1);
+	// Recibo el nombre del semaforo
+	if(recv(i,rev,tamARecibir,MSG_WAITALL) <= 0)
+		log_error(logger,"Ocurrio un problema al abrir un FD");
+	send(i,"Y",1,0);
+
+	tamARecibir=0;
+	// Recibo longitud permisos
+	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
+		log_error(logger,"Ocurrio un problema al abrir un FD");
+	if(send(i,"Y",1,0) < 0)
+		log_error(logger,"Ocurrio un problema al abrir un FD");
+	rev=realloc(permisosRev,tamARecibir+1);
+	memset(rev,'\0',tamARecibir+1);
+	// Recibo permisos
+	if(recv(i,rev,tamARecibir,MSG_WAITALL) <= 0)
+		log_error(logger,"Ocurrio un problema al abrir un FD");
+	send(i,"Y",1,0);
+
+	if(archivoValido(rev,tamARecibir) && tienePermisos('c',permisosRev)){
+		crearArchivo(rev,tamARecibir);
+		send(i,"Y",1,0);
+		log_trace(logger,"Se creo un archivo con exito");
+	} else {
+		send(i,"N",1,0);
+		log_trace(logger,"No se pudo crear un archivo");
+	}
+
 	unPrograma->FDCounter++;
 	t_entradaTAP * nuevaEntradaTAP = malloc(sizeof(nuevaEntradaTAP));
-	nuevaEntradaTAP->flags = permisos;
+	nuevaEntradaTAP->flags = permisosRev;
 
-	t_entradaTGA * nuevaEntradaTGA = buscarFDPorPath(path);
+	t_entradaTGA * nuevaEntradaTGA = buscarFDPorPath(rev);
 	if(nuevaEntradaTGA != NULL){
 		nuevaEntradaTGA->abierto++;
-		nuevaEntradaTGA->archivo = path;
+		nuevaEntradaTGA->archivo = rev;
 	} else {
-		if(tienePermisos('c',permisos)){
+		if(tienePermisos('c',permisosRev)){
 			nuevaEntradaTGA = malloc(sizeof(nuevaEntradaTGA));
-			nuevaEntradaTGA->archivo = path;
+			nuevaEntradaTGA->archivo = rev;
 			nuevaEntradaTGA->abierto = 1;
 			nuevaEntradaTGA->indice = GlobalFDCounter;
 			list_add(tablaGlobalArchivos,nuevaEntradaTGA);

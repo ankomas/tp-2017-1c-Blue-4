@@ -26,7 +26,7 @@ typedef struct t_entradaTAP{
 }t_entradaTAP;
 
 void imprimirPorConsola();
-uint32_t abrirFD(t_programa* unPrograma, char* permisos);
+uint32_t abrirFD(uint32_t i,t_programa* unPrograma);
 void cerrarFD(t_programa* unPrograma,uint32_t fd);
 uint32_t escribirFD(t_programa* unPrograma,void* data,uint32_t fd, uint32_t offset, uint32_t tamanio);
 uint32_t leerFD(t_programa* unPrograma,uint32_t fd, uint32_t offset, uint32_t tamanio);
