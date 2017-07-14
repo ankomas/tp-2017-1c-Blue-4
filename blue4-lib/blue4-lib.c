@@ -119,7 +119,7 @@ int sendall(uint32_t s, char *buf, uint32_t *len)
     }
     aux=string_itoa(total);
     aux2=concat(2,"Cantidad enviada:",aux);
-    printf("A: %i\n",s);
+    //printf("A: %i\n",s);
     textoVerde(aux2);
     free(aux);
     free(aux2);
