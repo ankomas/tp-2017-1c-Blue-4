@@ -53,6 +53,8 @@ bool esArg(t_nombre_variable variable){
 }
 
 t_puntero dummy_definirVariable(t_nombre_variable variable){
+	if(finPrograma_global!='Y')
+		return -1;
 	t_stack *stack;
 	t_list *args,*vars;
 	t_pos pos;
@@ -92,6 +94,9 @@ t_puntero dummy_definirVariable(t_nombre_variable variable){
 }
 
 t_puntero dummy_obtenerPosicionVariable(t_nombre_variable variable) {
+	if(finPrograma_global!='Y')
+		return -1;
+
 	t_var *var=NULL;
 
 	printf("Llamada a " YEL"OBTENER POSICION VARIABLE"RESET" %c\n", variable);
@@ -121,6 +126,8 @@ t_puntero dummy_obtenerPosicionVariable(t_nombre_variable variable) {
 }
 
 void dummy_finalizar(void){
+	if(finPrograma_global!='Y')
+		return;
 	t_stack *stack;
 	printf("Llamada a " YEL "FINALIZAR" RESET "\n");
 	printf("\n");
@@ -140,6 +147,8 @@ void dummy_finalizar(void){
 }
 
 t_valor_variable dummy_dereferenciar(t_puntero puntero) {
+	if(finPrograma_global!='Y')
+		return -1;
 	t_valor_variable res;
 	t_pos pos;
 
@@ -164,6 +173,8 @@ t_valor_variable dummy_dereferenciar(t_puntero puntero) {
 }
 
 void dummy_asignar(t_puntero puntero, t_valor_variable variable) {
+	if(finPrograma_global!='Y')
+		return;
 	t_pos pos;
 	int res;
 	if(puntero==NO_EXISTE_VARIABLE)
@@ -183,6 +194,8 @@ void dummy_asignar(t_puntero puntero, t_valor_variable variable) {
 }
 
 void dummy_irAlLabel(t_nombre_etiqueta etiqueta){
+	if(finPrograma_global!='Y')
+		return;
 	t_puntero_instruccion instruccion=metadata_buscar_etiqueta(etiqueta, pcb_global.indiceEtiquetas, pcb_global.indiceEtiquetasSize);
 	int i;
 
@@ -209,6 +222,8 @@ void dummy_irAlLabel(t_nombre_etiqueta etiqueta){
 }
 
 void dummy_retornar(t_valor_variable retorno){
+	if(finPrograma_global!='Y')
+		return;
 	t_stack *stack;
 	t_puntero aux_puntero;
 
@@ -232,6 +247,8 @@ void dummy_retornar(t_valor_variable retorno){
 }
 
 void dummy_llamarSinRetorno(t_nombre_etiqueta etiqueta){
+	if(finPrograma_global!='Y')
+		return;
 	t_puntero_instruccion primeraInstruccion;
 	t_list *args=list_create(),*vars=list_create();
 	t_pos pos={0,0,0};
@@ -253,6 +270,8 @@ void dummy_llamarSinRetorno(t_nombre_etiqueta etiqueta){
 }
 
 void dummy_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retornar_puntero){
+	if(finPrograma_global!='Y')
+		return;
 	t_pos dondeRetornar = punteroAPos(donde_retornar_puntero,tamPag_global);
 	t_puntero_instruccion primeraInstruccion;
 	t_list *args=list_create(),*vars=list_create();
@@ -275,6 +294,8 @@ void dummy_llamarConRetorno(t_nombre_etiqueta etiqueta, t_puntero donde_retornar
 }
 
 t_valor_variable dummy_obtenerValorCompartida(t_nombre_compartida variable){
+	if(finPrograma_global!='Y')
+		return -1;
 	t_valor_variable compartida,res;
 	printf("Llamada a "YEL"OBTENER VALOR COMPARTIDA"RESET" %s\n",variable);
 	res= obtenerVarGlobal(variable,&compartida);
@@ -287,6 +308,8 @@ t_valor_variable dummy_obtenerValorCompartida(t_nombre_compartida variable){
 }
 
 t_valor_variable dummy_asignarValorCompartida(t_nombre_compartida variable, t_valor_variable valor){
+	if(finPrograma_global!='Y')
+		return -1;
 	t_valor_variable res;
 	printf("Llamada a "YEL"ASIGNAR VALOR COMPARTIDA"RESET"\n");
 	printf("Variable: %s, valor: %i\n",variable,valor);
