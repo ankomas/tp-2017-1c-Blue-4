@@ -37,6 +37,10 @@ extern t_dictionary * variablesCompartidas;
 extern t_list * tablaGlobalArchivos;
 extern t_config *cfg;
 
+extern pthread_mutex_t mutex_colasPlanificacion;
+extern pthread_mutex_t mutex_semaforos;
+extern pthread_mutex_t mutex_fs;
+
 extern t_log* logger;
 
 #endif /* MAIN_H_ */

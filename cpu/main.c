@@ -89,8 +89,13 @@ void initFunciones(){
 	AnSISOP_kernel j = {
 			.AnSISOP_wait					= dummy_wait,
 			.AnSISOP_signal					= dummy_signal,
+
 			.AnSISOP_reservar				= dummy_reservar,
-			.AnSISOP_liberar				= dummy_liberar
+			.AnSISOP_liberar				= dummy_liberar,
+
+			.AnSISOP_abrir					= dummy_abrir,
+			.AnSISOP_borrar					= dummy_borrar,
+			.AnSISOP_cerrar					= dummy_cerrar,
 	};
 	funciones=f;
 	kernel_functions=j;
@@ -152,7 +157,6 @@ int main() {
 	memoria=conectar(puertoMemoria, ipMemoria,ID_MEMORIA);
 
 	kernel=conectar(puertoKernel, ipKernel,ID_KERNEL);
-
 
 	//testTraerCodigo(memoria);
 	//return 0;

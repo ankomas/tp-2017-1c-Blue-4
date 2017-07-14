@@ -24,4 +24,8 @@ char semSignal(t_nombre_semaforo sem);
 char alloc(t_valor_variable valor,t_puntero *puntero);
 char liberar(t_puntero puntero);
 
+int abrirArchivo(t_direccion_archivo direccion,t_banderas flags);
+int borrarArchivo(t_descriptor_archivo fd);
+int cerrarArchivo(t_descriptor_archivo fd);
+
 #endif /* CAPAKERNEL_H_ */
