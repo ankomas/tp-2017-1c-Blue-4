@@ -114,7 +114,9 @@ void encolarReady(t_programa* nuevoProceso){
 				contadorPaginas++;
 			}*/
 			if(resultadoGuardarEnMemoria == 0){
+				pthread_mutex_lock(&mutex_colasPlanificacion);
 				queue_push(procesosREADY,nuevoProceso);
+				pthread_mutex_unlock(&mutex_colasPlanificacion);
 				error = 0;
 			}
 		//}
@@ -225,8 +227,10 @@ t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual){
 	}else{
 		/*if(send(i,"N",1,0) < 1)
 			log_error(logger,"ERROR, el kernel no le pudo enviar el mensaje de que no es posible crear un nuevo programa");*/
+		pthread_mutex_lock(&mutex_colasPlanificacion);
 		queue_push(procesosNEW,nuevoProceso);
 		log_info(logger,"No se pueden aceptar mas programas debido al grado de multiprogramacion definido. Encolando en NEW...");
+		pthread_mutex_unlock(&mutex_colasPlanificacion);
 	}
 	cantidadProgramasEnSistema++;
 	list_add(PROGRAMAs,nuevoProceso);
@@ -243,7 +247,9 @@ void* cpu(t_cpu * cpu){
 
 	printf("cpu: %i\n",cpu->id);
 	t_programa * proximoPrograma;
+	pthread_mutex_lock(&mutex_colasPlanificacion);
 	proximoPrograma = planificador(NULL);
+	pthread_mutex_unlock(&mutex_colasPlanificacion);
 	char*res = NULL;
 	while(1){
 		//TODO falta mutex en todos los accesos a las colas
@@ -336,15 +342,25 @@ void* cpu(t_cpu * cpu){
 				} else if(res[0] == 'H'){
 					leerHeap(cpu->id);
 				} else if(res[0] == 'a'){
+					pthread_mutex_lock(&mutex_fs);
 					abrirFD(cpu->id,proximoPrograma);
+					pthread_mutex_unlock(&mutex_fs);
 				} else if(res[0] == 'b'){
+					pthread_mutex_lock(&mutex_fs);
 					borrarFD(cpu->id,proximoPrograma);
+					pthread_mutex_unlock(&mutex_fs);
 				} else if(res[0] == 'c'){
-					bool cerrarFD(uint32_t i, t_programa* unPrograma);
+					pthread_mutex_lock(&mutex_fs);
+					cerrarFD(cpu->id,proximoPrograma);
+					pthread_mutex_unlock(&mutex_fs);
 				} else if(res[0] == 'l'){
-					char* leerFD(uint32_t i,t_programa* unPrograma);
+					pthread_mutex_lock(&mutex_fs);
+					leerFD(cpu->id,proximoPrograma);
+					pthread_mutex_unlock(&mutex_fs);
 				} else if(res[0] == 'e'){
-					bool escribirFD(uint32_t i,t_programa* unPrograma);
+					pthread_mutex_lock(&mutex_fs);
+					escribirFD(cpu->id,proximoPrograma);
+					pthread_mutex_unlock(&mutex_fs);
 				} else if(res[0] == 'G'){
 					//guardarEnHeap(cpu->id,proximoPrograma->paginasHeap,&proximoPrograma->id);
 					guardarHeapNico(cpu->id,proximoPrograma);
@@ -371,7 +387,9 @@ void* cpu(t_cpu * cpu){
 			}
 			// Esta Y debe ser reemplazada por el codigo que devuelva la cpu, cuando finalice tiene que limpiar las estructuras incluyendo cpu
 		} else {
+			pthread_mutex_lock(&mutex_colasPlanificacion);
 			proximoPrograma = planificador(NULL);
+			pthread_mutex_unlock(&mutex_colasPlanificacion);
 		}
 
 		usleep(500);
@@ -387,6 +405,7 @@ void* programa(t_programa *programa){
 }
 
 void moverPrograma(t_programa* unPrograma,t_queue* colaOrigen, t_queue* colaDestino){
+	pthread_mutex_lock(&mutex_colasPlanificacion);
 	if(!list_is_empty(colaOrigen->elements)){
 		int aux = 0;
 		t_programa *programaAux = list_get(colaOrigen->elements,aux);
@@ -400,6 +419,7 @@ void moverPrograma(t_programa* unPrograma,t_queue* colaOrigen, t_queue* colaDest
 			list_remove(colaOrigen->elements, aux);
 		}
 	}
+	pthread_mutex_unlock(&mutex_colasPlanificacion);
 }
 
 t_programa* planificador(t_programa* unPrograma){
@@ -439,4 +459,5 @@ t_programa* planificador(t_programa* unPrograma){
 	}
 	free(algoritmoPlanificador);
 	return 0;
+
 }
