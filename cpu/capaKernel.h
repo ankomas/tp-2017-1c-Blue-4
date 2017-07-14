@@ -10,6 +10,8 @@
 
 char finPrograma_global;
 
+int recibirTamStack();
+
 void recibirPCB(int socket);
 void enviarPCB(int socket);
 

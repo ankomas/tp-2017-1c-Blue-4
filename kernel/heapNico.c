@@ -27,10 +27,11 @@ t_size metadataHeap_tam(){
 }
 
 int buscarPaginaAdecuada(t_list *heap,uint32_t tam,int *desde,int inicioHeap){
+	t_heap *aux;
 	printf("BUSCAR PAGINA ADECUADA\n");
 	printf("Tam lista heap: %i, desde: %i\n",list_size(heap),*desde);
 	while(*desde<list_size(heap)+inicioHeap){
-		t_heap *aux=list_get(heap,*desde-inicioHeap);
+		aux=list_get(heap,*desde-inicioHeap);
 		if(aux->tamDisp>=tam)
 			return aux->nPag;
 		*desde+=1;
@@ -102,6 +103,15 @@ void guardarMetadata(t_metadata_heap metadata,uint32_t pid,uint32_t pag,uint32_t
 	guardarEnMemoria(idUMC ,pid,pag,off,metadataHeap_tam(),stream);
 }
 
+void visualizarMetadata(t_metadata_heap metadata){
+	printf("Metadata ");
+	if(metadata.free==true)
+		printf("FREE\n");
+	else
+		printf("USED\n");
+	printf("Metadata size: %i\n",metadata.size);
+}
+
 int asignarEnPagHeap(t_programa *programa,uint32_t pag, uint32_t tam){
 	t_metadata_heap metadata,newMetadata;
 	int offset=0,offset2=0;
@@ -110,7 +120,7 @@ int asignarEnPagHeap(t_programa *programa,uint32_t pag, uint32_t tam){
 
 	while(offset<=tamanioPagina){
 	metadata=buscarMetadataHeap(programa->pcb->pid,pag,offset);
-	printf("Metadata size: %i\n",metadata.size);
+	visualizarMetadata(metadata);
 
 	if(metadata.free==true){
 		if(metadata.size>=tam+metadataHeap_tam()){

@@ -156,6 +156,8 @@ int handshakeHandler(int i){
 			if(sendall(i,"2",&tamHandshake) == 0){
 				aux=string_itoa(i);
 				aux2= concat(2,"Se realizo el Handshake con exito con ",aux);
+				//todo fixme enviar tam stack aca?
+				send(nuevaCPU->id,&tamanioStack,sizeof(int32_t),0);
 				log_trace(logger, aux2);
 				free(aux);
 				free(aux2);

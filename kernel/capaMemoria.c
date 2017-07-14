@@ -140,7 +140,7 @@ int cargarDeMemoria(int socket,uint32_t pid,uint32_t pag, uint32_t off,uint32_t 
 	char* res;
 	//mandar cop y paquete
 	printf("Leyendo de memoria:\n");
-	printf("PAG: %i, OFF: %i, SIZE: %i\n",pag,off,size);
+	printf("PID: %i, PAG: %i, OFF: %i, SIZE: %i\n",pid,pag,off,size);
 	paquete=serializar(8,
 			sizeof(uint32_t),&pid,
 			sizeof(uint32_t),&pag,

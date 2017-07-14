@@ -32,6 +32,12 @@
 #define WHT   "\x1B[37m"
 #define RESET "\x1B[0m"
 
+int recibirTamStack(){
+	int32_t res;
+	recv(kernel,&res,sizeof(int32_t),0);
+	return res;
+}
+
 char* const lineaEnPrograma(t_pcb2* pcb,t_puntero_instruccion inicioDeLaInstruccion, t_size tamanio) {
 	char* aRetornar;
 	//aRetornar=pedirLineaAMemoria(pcb,inicioDeLaInstruccion,tamanio);

@@ -189,19 +189,27 @@ void cargarPaginaATabla(uint32_t pid, uint32_t pagina, unsigned marco) {
 	return;
 }
 
-void guardaProcesoEn(uint32_t pid, uint32_t paginasRequeridas) {
+void guardaProcesoEn(uint32_t pid, uint32_t paginasRequeridas,int32_t pos) {
 	uint32_t marco, pagina = 0;
 	while (pagina < paginasRequeridas) {
 		marco = nuevoMarco(pid, pagina);
 		if(marco == -1)
 			perror("No hay marcos disponibles");
 		cargarPaginaATabla(pid, pagina, marco);
+		uint32_t *pag=malloc(sizeof(uint32_t));
+		memcpy(pag,&pagina,sizeof(uint32_t));
+		//agrego pagina a la lista
+		pthread_mutex_lock(&mutex_procesosActivos);
+		//printf("  		Pag agregada: %i\n",*pag);
+		list_add(procesosActivos[pos].listaPaginas,pag);
+		pthread_mutex_unlock(&mutex_procesosActivos);
+
 		pagina++;
 	}
 }
 
-void agregarNuevoProceso(uint32_t pid, uint32_t paginasRequeridas) {
-	guardaProcesoEn(pid, paginasRequeridas);
+void agregarNuevoProceso(uint32_t pid, uint32_t paginasRequeridas,int32_t pos) {
+	guardaProcesoEn(pid, paginasRequeridas, pos);
 	actualizarMarcosDisponibles(paginasRequeridas);
 }
 
@@ -211,29 +219,68 @@ int tieneMarcosSuficientes(int paginasRequeridas) {
 
 void inicializarPrograma(uint32_t pid, uint32_t paginasRequeridas) {
 	//pthread_mutex_lock(mutexMemoria);
-	agregar_DataDeProcesoActivo(pid, paginasRequeridas);
-	agregarNuevoProceso(pid, paginasRequeridas);
+	int32_t pos;
+	pos=agregar_DataDeProcesoActivo(pid, paginasRequeridas);
+	agregarNuevoProceso(pid, paginasRequeridas,pos);
 	//pthread_mutex_unlock(mutexMemoria);
+}
+
+int eliminarPaginaDeUnProceso(uint32_t pid, uint32_t paginaAEliminar) {
+	tablaPaginas_t* tablaDePaginas;
+	tablaDePaginas = obtenerTablaDePaginas();
+	int marco = getMarco(pid, paginaAEliminar);
+	if (marco < 0)
+		return -1;
+	pthread_mutex_lock(&mutex_tablaDePaginas);
+	tablaDePaginas[marco].pid = -2;
+	tablaDePaginas[marco].pagina = -2;
+	pthread_mutex_unlock(&mutex_tablaDePaginas);
+	disminuir_PaginasActualesDeProcesoActivo(pid, paginaAEliminar);
+	return 0;
+}
+
+int paginasMax(uint32_t pid){
+	int res;
+	uint32_t posicion_PidBuscado=obtener_PosicionProcesoActivo(pid);
+	pthread_mutex_lock(&mutex_procesosActivos);
+	res=list_size(procesosActivos[posicion_PidBuscado].listaPaginas);
+	pthread_mutex_unlock(&mutex_procesosActivos);
+	return res;
+}
+
+int primerPagina(uint32_t pid){
+	int *res;
+	uint32_t posicion_PidBuscado=obtener_PosicionProcesoActivo(pid);
+	pthread_mutex_lock(&mutex_procesosActivos);
+	res=list_get(procesosActivos[posicion_PidBuscado].listaPaginas,0);
+	//printf("                     OBTENIDO: %i\n",*res);
+	pthread_mutex_unlock(&mutex_procesosActivos);
+	return *res;
 }
 
 uint32_t finalizarPrograma(uint32_t pid) {
 	tablaPaginas_t* tablaDePaginas = obtenerTablaDePaginas();
 	int pagina, paginasMaximas, i = 0;
-	pagina = obtener_PaginaDeInicioDeProcesoActivo(pid);
-	int marco = getMarco(pid, pagina);
-	if (marco < 0)
-		return -1;
-	paginasMaximas = obtener_ProximaPaginaAAsignar(pid);
+	//pagina = primerPagina(pid);
+	int marco/* = getMarco(pid, pagina)*/;
+	/*if (marco < 0)
+		return -1;*/
+	paginasMaximas = paginasMax(pid);
 	while (i < paginasMaximas) {
+		//printf("I:%i,paginasMax:%i\n",i,paginasMaximas);
+		pagina = primerPagina(pid);
+		marco = getMarco(pid, pagina);
 		if (marco >= 0) {
 			pthread_mutex_lock(&mutex_tablaDePaginas);
 			tablaDePaginas[marco].pid = -2;
 			tablaDePaginas[marco].pagina = marco;
 			pthread_mutex_unlock(&mutex_tablaDePaginas);
+			disminuir_PaginasActualesDeProcesoActivo(pid, pagina);
 		}
-		pagina++;
+
+
 		i++;
-		marco = getMarco(pid, pagina);
+
 	}
 	obtener_PosicionProcesoActivo(pid);
 	eliminar_DataDeProcesoActivo(pid);
@@ -248,6 +295,7 @@ int asignarPaginasAUnProceso(uint32_t pid, uint32_t paginasRequeridas) {
 		return -1;
 	tablaDePaginas = obtenerTablaDePaginas();
 	actualizarMarcosDisponibles(paginasRequeridas);
+	/*
 	pagina = obtener_ProximaPaginaAAsignar(pid);
 	while (i < paginasRequeridas) {
 		marco = nuevoMarco(pid, pagina);
@@ -258,21 +306,17 @@ int asignarPaginasAUnProceso(uint32_t pid, uint32_t paginasRequeridas) {
 		pagina++;
 		i++;
 	}
+	*/
+	while (i < paginasRequeridas) {
+		pagina = obtener_ProximaPaginaAAsignar(pid); //aca tmb agrego a la lista la pos nueva
+		marco = nuevoMarco(pid, pagina);
+		pthread_mutex_lock(&mutex_tablaDePaginas);
+		tablaDePaginas[marco].pid = pid;
+		tablaDePaginas[marco].pagina = pagina;
+		pthread_mutex_unlock(&mutex_tablaDePaginas);
+		i++;
+	}
 	aumentar_PaginasActualesDeProcesoActivo(pid, paginasRequeridas);
-	return 0;
-}
-
-int eliminarPaginaDeUnProceso(uint32_t pid, uint32_t paginaAEliminar) {
-	tablaPaginas_t* tablaDePaginas;
-	tablaDePaginas = obtenerTablaDePaginas();
-	int marco = getMarco(pid, paginaAEliminar);
-	if (marco < 0)
-		return -1;
-	pthread_mutex_lock(&mutex_tablaDePaginas);
-	tablaDePaginas[marco].pid = -2;
-	tablaDePaginas[marco].pagina = -2;
-	pthread_mutex_unlock(&mutex_tablaDePaginas);
-	disminuir_PaginasActualesDeProcesoActivo(pid, paginaAEliminar);
 	return 0;
 }
 

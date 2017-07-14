@@ -27,7 +27,7 @@ int cantidadProgramasEnSistema,gradoMultiprogramacion,retardo,quantum;
 int idFS;
 int idUMC;
 int tamanioPagina;
-int tamanioStack;
+int32_t tamanioStack;
 
 pthread_t hiloPlanificador,hiloConsolaKernel;
 

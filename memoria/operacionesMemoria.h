@@ -53,6 +53,13 @@ tablaPaginas_t* obtenerTablaDePaginas();
  */
 int tieneMarcosSuficientes(int );
 
+/**
+ * Elimina la pagina dada por parametro de un proceso
+ * @param uint32_t pid
+ * @param uint32_t pagina a eliminar
+ * @return 0 en caso de exito || -1 en caso de error
+ */
+int eliminarPaginaDeUnProceso(uint32_t ,uint32_t );
 
 /**
  * funcion que sirve para que el kernel finalize un proceso
@@ -71,14 +78,6 @@ uint32_t finalizarPrograma(uint32_t );
  * @return 0 en caso de exito || -1 en caso de error
  */
 int asignarPaginasAUnProceso(uint32_t ,uint32_t );
-
-/**
- * Elimina la pagina dada por parametro de un proceso
- * @param uint32_t pid
- * @param uint32_t pagina a eliminar
- * @return 0 en caso de exito || -1 en caso de error
- */
-int eliminarPaginaDeUnProceso(uint32_t ,uint32_t );
 
 int agregarProcesoACache(int, int);
 
