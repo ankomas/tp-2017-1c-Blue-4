@@ -25,11 +25,11 @@ t_pos punteroAPos(t_puntero puntero, uint32_t tamPag){
 t_size metadataHeap_tam(){
 	return sizeof(uint32_t)+sizeof(bool);
 }
-
+/*
 int buscarPaginaAdecuada(t_list *heap,uint32_t tam,int *desde,int inicioHeap){
 	t_heap *aux;
 	printf("BUSCAR PAGINA ADECUADA\n");
-	printf("Tam lista heap: %i, desde: %i\n",list_size(heap),*desde);
+	printf("Tam lista heap: %i, desde: %i, inicio heap: %i\n",list_size(heap),*desde,inicioHeap);
 	while(*desde<list_size(heap)+inicioHeap){
 		aux=list_get(heap,*desde-inicioHeap);
 		if(aux->tamDisp>=tam)
@@ -38,6 +38,29 @@ int buscarPaginaAdecuada(t_list *heap,uint32_t tam,int *desde,int inicioHeap){
 	}
 	return -1;
 
+}
+*/
+int buscarPaginaAdecuada(t_list *heap,uint32_t tam,int *desde,uint32_t inicioHeap){
+	t_heap *aux=NULL;
+
+	printf("BUSCAR PAGINA ADECUADA\n");
+	printf("Tam lista heap: %i, desde: %i, inicio heap: %i\n",list_size(heap),*desde,inicioHeap);
+	while(1){
+		bool _heapByPage(t_heap *self){
+			return self->nPag==*desde;
+		}
+		//Esta la pag x en el heap?
+		aux=list_find(heap,(void*)_heapByPage);
+
+		if(aux==NULL)
+			return -1;
+		printf("Encontre la pag %i del heap, tamanio disponible: %i\n",aux->nPag,aux->tamDisp);
+		//La pag x del heap tiene tam suficiente?
+		if(aux->tamDisp>=tam)
+			return *desde;
+		printf("El tamanio pedido %i es mayor al tamanio disponible %i\n",tam,aux->tamDisp);
+		*desde+=1;
+}
 }
 
 char* metadataHeapAStream(t_metadata_heap metadata){
@@ -178,8 +201,10 @@ t_puntero allocEnHeap(t_programa *programa,uint32_t tam){
 
 	while(res==-1){
 		//todo hacelo bien
+		printf("\n");
 		pag=buscarPaginaAdecuada(programa->paginasHeap,tam,&desde,inicioHeap);
-
+		printf("Res buscar pag adecuada: %i, valor desde: %i\n",pag,desde);
+		printf("\n");
 		if(pag==-1)
 			pag=nuevaPagHeap(programa,tam,desde);
 
