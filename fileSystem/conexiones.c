@@ -322,9 +322,9 @@ void escribir(int socket)
 	char* buffer,*data,*ruta;
 	char* path=recibirPath(socket);
 	data=recibir_offset_tamanio_data(socket,&offset,&tamanio);
-	/*
-	if(data)
-	{
+
+	//if(data)
+	//{
 		ruta=rutaEnPuntoMontaje("/Archivos",path);
 		resultado=guardarDatos(path,offset,tamanio,data);
 		if(resultado<0)
@@ -336,8 +336,8 @@ void escribir(int socket)
 		send(socket,"Y",1,0);
 		free(ruta);
 		return;
-	}
-	*/
+	//}
+
 }
 
 
