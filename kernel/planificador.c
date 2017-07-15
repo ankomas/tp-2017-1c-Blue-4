@@ -114,9 +114,7 @@ void encolarReady(t_programa* nuevoProceso){
 				contadorPaginas++;
 			}*/
 			if(resultadoGuardarEnMemoria == 0){
-				pthread_mutex_lock(&mutex_colasPlanificacion);
 				queue_push(procesosREADY,nuevoProceso);
-				pthread_mutex_unlock(&mutex_colasPlanificacion);
 				error = 0;
 			}
 		//}
@@ -222,18 +220,18 @@ t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual){
 	nuevoProceso->pcb->cantPagCod= cantidadPaginasCodigo;
 	nuevoProceso->pcb->ultimaPosUsada.pag=cantidadPaginasCodigo;
 
+	pthread_mutex_lock(&mutex_colasPlanificacion);
 	if(gradoMultiprogramacion > cantidadProgramasEnSistema){
 		encolarReady(nuevoProceso);
 	}else{
 		/*if(send(i,"N",1,0) < 1)
 			log_error(logger,"ERROR, el kernel no le pudo enviar el mensaje de que no es posible crear un nuevo programa");*/
-		pthread_mutex_lock(&mutex_colasPlanificacion);
 		queue_push(procesosNEW,nuevoProceso);
 		log_info(logger,"No se pueden aceptar mas programas debido al grado de multiprogramacion definido. Encolando en NEW...");
-		pthread_mutex_unlock(&mutex_colasPlanificacion);
 	}
 	cantidadProgramasEnSistema++;
 	list_add(PROGRAMAs,nuevoProceso);
+	pthread_mutex_unlock(&mutex_colasPlanificacion);
 	return nuevoProceso;
 }
 
