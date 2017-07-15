@@ -25,7 +25,7 @@ endif
 all: kernel
 
 dependents:
-	-cd /home/utnso/workspace/tp-2017-1c-Blue-4/blue4-lib/Debug && $(MAKE) clean all
+	-cd /home/utnso/workspace/tp-2017-1c-Blue-4/blue4-lib/Debug && $(MAKE) all
 
 # Tool invocations
 kernel: $(OBJS) $(USER_OBJS) /home/utnso/workspace/tp-2017-1c-Blue-4/blue4-lib/Debug/libblue4-lib.so
