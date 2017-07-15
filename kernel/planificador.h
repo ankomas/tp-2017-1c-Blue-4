@@ -27,6 +27,11 @@ typedef struct t_programa {
 	char* codigo;
 	t_pcb* pcb;
 	t_list * paginasHeap;
+	uint32_t rafagasEjecutadas;
+	uint32_t cantidadSyscallsEjecutadas;
+	uint32_t cantidadSyscallsEjecutadasBytes;
+	uint32_t cantidadLiberarEjecutados;
+	uint32_t cantidadLiberarEjecutadosBytes;
 } t_programa;
 
 typedef struct t_cpu {

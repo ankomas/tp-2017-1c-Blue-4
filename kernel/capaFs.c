@@ -192,7 +192,7 @@ uint32_t abrirFD(uint32_t i,t_programa* unPrograma){
 		log_error(logger,"Path NULL o permisos NULL");
 		return 9999;
 	}
-	if(validarArchivo(path,strlen(path)) == 1 || !tienePermisos('c',permisos)){
+	if(validarArchivo(path,strlen(path)) == 0 && !tienePermisos('c',permisos)){
 		send(i,"N",1,0);
 		log_error(logger,"No hay permisos para crear un nuevo archivo o el archivo ya esta abierto");
 		return 9999;
@@ -207,13 +207,15 @@ uint32_t abrirFD(uint32_t i,t_programa* unPrograma){
 		nuevaEntradaTGA->abierto++;
 		nuevaEntradaTGA->archivo = path;
 	} else {
-		nuevaEntradaTGA = malloc(sizeof(nuevaEntradaTGA));
-		nuevaEntradaTGA->archivo = path;
-		nuevaEntradaTGA->abierto = 1;
-		nuevaEntradaTGA->indice = GlobalFDCounter;
-		list_add(tablaGlobalArchivos,nuevaEntradaTGA);
-		GlobalFDCounter++;
-		log_trace(logger,"Nuevo FD creado");
+		if(crearArchivo(path,strlen(path))){
+			nuevaEntradaTGA = malloc(sizeof(nuevaEntradaTGA));
+			nuevaEntradaTGA->archivo = path;
+			nuevaEntradaTGA->abierto = 1;
+			nuevaEntradaTGA->indice = GlobalFDCounter;
+			list_add(tablaGlobalArchivos,nuevaEntradaTGA);
+			GlobalFDCounter++;
+			log_trace(logger,"Nuevo FD creado");
+		}
 	}
 
 	nuevaEntradaTAP->globalFD = nuevaEntradaTGA->indice;
@@ -344,6 +346,7 @@ bool escribirFD(uint32_t i,t_programa* unPrograma){
 			}
 		} else {
 			log_error(logger,"No hay permisos para escribir en un archivo");
+			send(i,"N",1,0);
 			return 0;
 		}
 	}
