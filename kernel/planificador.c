@@ -191,6 +191,7 @@ t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual){
 	nuevoProceso->paginasHeap = list_create();
 	nuevoProceso->quantumRestante = quantum;
 	nuevoProceso->pcb = nuevoPCB;
+	nuevoProceso->rafagasEjecutadas = 0;
 	nuevoProceso->cantidadSyscallsEjecutadas = 0;
 	nuevoProceso->cantidadAlocarEjecutados = 0;
 	nuevoProceso->cantidadAlocarEjecutadosBytes = 0;
@@ -292,6 +293,7 @@ void* cpu(t_cpu * cpu){
 
 				// Verifico si aun le falta ejecutar al proceso
 				if(res[0] == 'F'){
+					proximoPrograma->rafagasEjecutadas++;
 					log_trace(logger,"Moviendo el proceso de EXEC a EXIT");
 					if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
 						liberarCPU(proximoPrograma);
@@ -316,6 +318,7 @@ void* cpu(t_cpu * cpu){
 					break;
 				} else if(res[0] == 'Y'){
 					//log_trace(logger,"Moviendo el proceso de EXEC a READY");
+					proximoPrograma->rafagasEjecutadas++;
 					if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
 						liberarCPU(proximoPrograma);
 
@@ -334,43 +337,57 @@ void* cpu(t_cpu * cpu){
 					//TODO El planificador debe desencolar procesos ya terminados
 					proximoPrograma = planificador(proximoPrograma);
 					break;
+
 				}else if(res[0] == 'S'){
 					semSignal(cpu->id);
+					proximoPrograma->cantidadSyscallsEjecutadas++;
 				} else if(res[0] == 'A'){
 					guardarVarGlobal(cpu->id);
+					proximoPrograma->cantidadSyscallsEjecutadas++;
 				}  else if(res[0] == 'O'){
 					leerVarGlobal(cpu->id);
+					proximoPrograma->cantidadSyscallsEjecutadas++;
 				} else if(res[0] == 'W'){
 					semWait(cpu->id,&proximoPrograma->id);
+					proximoPrograma->cantidadSyscallsEjecutadas++;
 				} else if(res[0] == 'S'){
 					semSignal(cpu->id);
+					proximoPrograma->cantidadSyscallsEjecutadas++;
 				} else if(res[0] == 'H'){
 					leerHeap(cpu->id);
+					proximoPrograma->cantidadSyscallsEjecutadas++;
 				} else if(res[0] == 'a'){
 					pthread_mutex_lock(&mutex_fs);
 					abrirFD(cpu->id,proximoPrograma);
 					pthread_mutex_unlock(&mutex_fs);
+					proximoPrograma->cantidadSyscallsEjecutadas++;
 				} else if(res[0] == 'b'){
 					pthread_mutex_lock(&mutex_fs);
 					borrarFD(cpu->id,proximoPrograma);
 					pthread_mutex_unlock(&mutex_fs);
+					proximoPrograma->cantidadSyscallsEjecutadas++;
 				} else if(res[0] == 'c'){
 					pthread_mutex_lock(&mutex_fs);
 					cerrarFD(cpu->id,proximoPrograma);
 					pthread_mutex_unlock(&mutex_fs);
+					proximoPrograma->cantidadSyscallsEjecutadas++;
 				} else if(res[0] == 'l'){
 					pthread_mutex_lock(&mutex_fs);
 					leerFD(cpu->id,proximoPrograma);
 					pthread_mutex_unlock(&mutex_fs);
+					proximoPrograma->cantidadSyscallsEjecutadas++;
 				} else if(res[0] == 'e'){
 					pthread_mutex_lock(&mutex_fs);
 					escribirFD(cpu->id,proximoPrograma);
 					pthread_mutex_unlock(&mutex_fs);
+					proximoPrograma->cantidadSyscallsEjecutadas++;
 				} else if(res[0] == 'G'){
 					//guardarEnHeap(cpu->id,proximoPrograma->paginasHeap,&proximoPrograma->id);
 					guardarHeapNico(cpu->id,proximoPrograma);
+					proximoPrograma->cantidadSyscallsEjecutadas++;
 				} else if(res[0] == 'L'){
 					liberarHeapNico(cpu->id,proximoPrograma);
+					proximoPrograma->cantidadSyscallsEjecutadas++;
 				} else if(res[0] == 'B'){
 					if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
 						liberarCPU(proximoPrograma);

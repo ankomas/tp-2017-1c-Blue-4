@@ -365,6 +365,9 @@ int liberar(t_programa* programa,t_puntero puntero){
 	metadata.free=true;
 	heapKernel->tamDisp+=metadata.size;
 
+	programa->cantidadAlocarEjecutados++;
+	programa->cantidadAlocarEjecutadosBytes += metadata.size;
+
 	guardarMetadata(metadata,programa->pcb->pid,posMetadata.pag,posMetadata.off);
 
 	compactador(programa,posMetadata.pag,heapKernel);
