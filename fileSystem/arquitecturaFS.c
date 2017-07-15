@@ -102,6 +102,7 @@ void guardarBitmap()
 	archivo=fopen(ruta,"wb+"); //"ab+",si quisiera escribir siempre al final del archivo
 	bitmap=calloc(1,configFS.bloques);
 	fwrite(bitmap,1,configFS.bloques,archivo);
+	printf("bitmap: %s\n", bitmap);
 	free(ruta);
 	free(bitmap);
 	fclose(archivo);

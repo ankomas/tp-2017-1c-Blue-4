@@ -13,10 +13,12 @@
 bool mandarOperacionFS(char* opcode,char* path,uint32_t tamPath,char* error){
 	uint32_t tamARecibir=0;
 	char * rev = malloc(1);
+	log_trace(logger,"Llamada a MANDAR OPERACION FS");
 	send(idFS,opcode,1,0);
+	uint32_t tamuint=sizeof(uint32_t);
 
 	char* tamPathStream = intToStream(tamPath);
-	if(sendall(idFS,tamPathStream, &tamPath) < 0){
+	if(sendall(idFS,tamPathStream, &tamuint) < 0){
 		log_error(logger,error);
 		return 0;
 	}
@@ -180,9 +182,14 @@ void imprimirPorConsola(uint32_t socket,char*data,uint32_t tamanio){
 }
 
 uint32_t abrirFD(uint32_t i,t_programa* unPrograma){
+	log_trace(logger,"Llamada a ABRIR FD");
 	char* path = recibirPath(i);
 	char* permisos = recibirPermisos(i);
+
 	if(path == NULL || permisos == NULL){
+		send(i,"N",1,0);
+		printf("path: %p, permisos: %p\n",path,permisos);
+		log_error(logger,"Path NULL o permisos NULL");
 		return 9999;
 	}
 	if(validarArchivo(path,strlen(path)) == 1 || !tienePermisos('c',permisos)){
@@ -438,8 +445,10 @@ char* recibirPath(uint32_t i){
 		char * rev = NULL;
 
 		// Recibo largo del path
+		printf("  							1\n");
 		if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
 			log_error(logger,"Ocurrio un problema al abrir un FD");
+		printf("  							1\n");
 		if(send(i,"Y",1,0) < 0)
 			log_error(logger,"Ocurrio un problema al abrir un FD");
 		rev=realloc(rev,tamARecibir+1);
@@ -454,20 +463,22 @@ char* recibirPath(uint32_t i){
 char* recibirPermisos(uint32_t i){
 	uint32_t tamARecibir=0;
 	char * rev = NULL;
-	char * permisosRev = NULL;
+	//char * permisosRev = NULL;
 
 	// Recibo longitud permisos
 	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
 		log_error(logger,"No se pudieron recibir los permisos");
 	if(send(i,"Y",1,0) < 0)
 		log_error(logger,"No se pudieron recibir los permisos");
-	rev=realloc(permisosRev,tamARecibir+1);
+
+	rev=realloc(rev,tamARecibir+1);
 	memset(rev,'\0',tamARecibir+1);
+
 	// Recibo permisos
 	if(recv(i,rev,tamARecibir,MSG_WAITALL) <= 0)
 		log_error(logger,"No se pudieron recibir los permisos");
 	send(i,"Y",1,0);
 
-	return permisosRev;
+	return rev;
 
 }
