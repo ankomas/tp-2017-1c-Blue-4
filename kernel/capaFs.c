@@ -214,6 +214,7 @@ uint32_t abrirFD(uint32_t i,t_programa* unPrograma){
 	list_add(unPrograma->tablaArchivosPrograma,nuevaEntradaTAP);
 
 	send(i,"Y",1,0);
+	send(i,&nuevaEntradaTAP->indice,sizeof(uint32_t),0);
 	log_trace(logger,"Se creo un archivo con exito");
 	return nuevaEntradaTAP->indice;
 }
@@ -447,7 +448,7 @@ char* recibirPath(uint32_t i){
 		if(recv(i,rev,tamARecibir,MSG_WAITALL) <= 0)
 			log_error(logger,"Ocurrio un problema al abrir un FD");
 		send(i,"Y",1,0);
-	return NULL;
+		return rev;
 }
 
 char* recibirPermisos(uint32_t i){
@@ -467,6 +468,6 @@ char* recibirPermisos(uint32_t i){
 		log_error(logger,"No se pudieron recibir los permisos");
 	send(i,"Y",1,0);
 
-	return NULL;
+	return permisosRev;
 
 }
