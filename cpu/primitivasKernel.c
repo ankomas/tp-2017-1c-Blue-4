@@ -161,7 +161,7 @@ void dummy_moverCursor(t_descriptor_archivo descriptor_archivo, t_valor_variable
 	int res;
 	printf("Llamada a "YEL"MOVER CURSOR"RESET" %i\n",descriptor_archivo);
 	return;
-	res=cerrarArchivo(descriptor_archivo);
+	res=moverCursor(descriptor_archivo,posicion);
 
 	if(res==-1){
 		setExitCode(&pcb_global,"error al cerrar archivo",18);
@@ -189,7 +189,7 @@ void dummy_leer(t_descriptor_archivo descriptor_archivo, t_puntero informacion, 
 	return;
 	int res;
 
-	res=cerrarArchivo(descriptor_archivo);
+	res=leerArchivo(descriptor_archivo, tamanio);
 
 	if(res==-1){
 		setExitCode(&pcb_global,"error al cerrar archivo",18);

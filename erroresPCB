@@ -1,0 +1,11 @@
+10:stackoverflow
+11:error lectura memoria
+12:error escribir memoria
+13:etiqueta inexistente
+14:variable compartida inexistente
+15:semaforo inexistente
+16:error al reservar en heap
+17:error al borrar archivo
+18:error al cerrar archivo
+
+30:no existe variable
