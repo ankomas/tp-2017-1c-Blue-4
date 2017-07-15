@@ -418,6 +418,19 @@ void eliminarPaginaDe(int socket)
 	printf("Se elimino una pagina del proceso: %i\n", pid);
 }
 
+
+void ingresarSocketALista(int socket)
+{
+	pthread_mutex_lock(&mutex_operacion);
+	FD_SET(socket,&master);
+	if (socket > fdmax)
+	{   // keep track of the max
+		fdmax = socket;
+	}
+	pthread_mutex_unlock(&mutex_operacion);
+}
+
+
 void operacionesMemoria(dataHilo_t* dataHilo)
 {
 	//pthread_mutex_lock(&mutex_operacion);
@@ -436,6 +449,11 @@ void operacionesMemoria(dataHilo_t* dataHilo)
 		case 'W': almacenarBytes(socket);break;
 		default: break;
 	}
+
+	//pthread_mutex_lock(&mutex_operacion);
+	ingresarSocketALista(socket);
+	//pthread_mutex_unlock(&mutex_operacion);
+
 	//pthread_mutex_unlock(&mutex_operacion);
 }
 
@@ -445,9 +463,9 @@ void operacionesMemoria(dataHilo_t* dataHilo)
 
 int servidor()
 {
-    fd_set master;    // master file descriptor list
+    //fd_set master;    // master file descriptor list
     fd_set read_fds;  // temp file descriptor list for select()
-    int fdmax;        // maximum file descriptor number
+    //int fdmax;        // maximum file descriptor number
 
     int listener;     // listening socket descriptor
     int newfd;        // newly accept()ed socket descriptor
@@ -464,7 +482,9 @@ int servidor()
 
 	struct addrinfo hints, *ai, *p;
 
+	pthread_mutex_lock(&mutex_operacion);
     FD_ZERO(&master);    // clear the master and temp sets
+    pthread_mutex_unlock(&mutex_operacion);
     FD_ZERO(&read_fds);
 
 	// get us a socket and bind it
@@ -509,14 +529,18 @@ int servidor()
     }
 
     // add the listener to the master set
+    pthread_mutex_lock(&mutex_operacion);
     FD_SET(listener, &master);
+    pthread_mutex_unlock(&mutex_operacion);
 
     // keep track of the biggest file descriptor
     fdmax = listener; // so far, it's this one
 
     // main loop
 	while (1) {
+		pthread_mutex_lock(&mutex_operacion);
 		read_fds = master; // copy it
+		pthread_mutex_unlock(&mutex_operacion);
 		if (select(fdmax + 1, &read_fds, NULL, NULL, NULL) == -1) {
 			perror("select");
 			exit(4);
@@ -533,7 +557,9 @@ int servidor()
 					if (newfd == -1) {
 						perror("accept");
 					} else {
+						pthread_mutex_lock(&mutex_operacion);
 						FD_SET(newfd, &master); // add to master set
+						pthread_mutex_unlock(&mutex_operacion);
 						if (newfd > fdmax) {    // keep track of the max
 							fdmax = newfd;
 						}
@@ -545,7 +571,9 @@ int servidor()
 						if (handshakeHandler(newfd) == -1) {
 							send(newfd, "0", 1, 0);
 							close(newfd);  // Le cierro la conexion al intruso
+							pthread_mutex_lock(&mutex_operacion);
 							FD_CLR(newfd, &master); // lo elimino de la lista maestra de FD
+							pthread_mutex_unlock(&mutex_operacion);
 						}
 
 					}
@@ -563,7 +591,9 @@ int servidor()
 							perror("recv");
 						}
 						close(i); // bye!
+						pthread_mutex_lock(&mutex_operacion);
 						FD_CLR(i, &master); // remove from master set
+						pthread_mutex_unlock(&mutex_operacion);
 					} else {
 						// la i es el socket_cliente y el buff es el codigo de operacion!!!.
 						//pthread_mutex_lock(&mutex_operacion);
@@ -574,13 +604,16 @@ int servidor()
 						dataHilo->socket=i;
 
 						//dataHilo_t dataHilo;
-						/*pthread_attr_t hiloDetachable;
+						pthread_attr_t hiloDetachable;
 						pthread_t hilo;
 						pthread_attr_init(&hiloDetachable);
 						pthread_attr_setdetachstate(&hiloDetachable,PTHREAD_CREATE_DETACHED);
+						pthread_mutex_lock(&mutex_operacion);
+						FD_CLR(i,&master);
+						pthread_mutex_unlock(&mutex_operacion);
 						pthread_create(&hilo,&hiloDetachable,(void*)operacionesMemoria,(void*)dataHilo);
-						pthread_mutex_unlock(&mutex_operacion);*/
-						operacionesMemoria(dataHilo);
+						//pthread_mutex_unlock(&mutex_operacion);
+						//operacionesMemoria(dataHilo);
 						// we got some data from a client
 						/*for (j = 0; j <= fdmax; j++) {
 							// send to everyone!

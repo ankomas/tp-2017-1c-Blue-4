@@ -18,6 +18,9 @@ typedef struct
 	int socket;
 }dataHilo_t;
 
+fd_set master;
+int fdmax;
+
 void operacionesMemoria(dataHilo_t*);
 
 
