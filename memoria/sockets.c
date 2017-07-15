@@ -41,27 +41,11 @@ void *get_in_addr(struct sockaddr *sa)
 
 
 
-int handshakeHandler(int i){
 
-	int reconozcoCliente = -1;
-	char bufHandshake[1];
-	int tamHandshake = 1;
-	if(recvall(i, bufHandshake, sizeof(bufHandshake)) == 0){
-		if(bufHandshake[0] == KERNEL_ID || bufHandshake[0] == CPU_ID){
-			reconozcoCliente = 1;
-		}
-	} else {
-		return -1;
-	}
 
-	if(reconozcoCliente < 0){
-		return -1;
-	} else {
-		if(sendall(i,charToString(UMC_ID),(uint32_t*)&tamHandshake) == 0)
-			printf("Handshake exitoso\n");
-		return 0;
-	}
-}
+
+
+
 
 
 
@@ -420,25 +404,19 @@ void eliminarPaginaDe(int socket)
 }
 
 
-void ingresarSocketALista(int socket)
+
+void operacionesMemoria(int socket)
 {
 	//pthread_mutex_lock(&mutex_operacion);
-	FD_SET(socket,&master);
-    printf("entro a la actualizacion del socket \n");
-	if (socket > fdmax)
-	{   // keep track of the max
-		fdmax = socket;
-	}
-	//pthread_mutex_unlock(&mutex_operacion);
-	printf("salgo de la actualizacion del socket \n");
-}
-
-
-void operacionesMemoria(dataHilo_t* dataHilo)
-{
-	//pthread_mutex_lock(&mutex_operacion);
-	int socket=dataHilo->socket;
-	char cop=dataHilo->codOp;
+	//int socket=dataHilo->socket;
+	char cop;//=dataHilo->codOp;
+	while(1)
+	{
+	if(recv(socket,&cop,1,MSG_WAITALL)==0)
+		{
+			printf("se desconecto el cliente : %d",socket);
+			return;
+		}
 
 	printf("LLEGUE A OPERACIONES MEMORIA con %c\n", cop);
 	switch(cop)
@@ -452,10 +430,10 @@ void operacionesMemoria(dataHilo_t* dataHilo)
 		case 'W': almacenarBytes(socket);break;
 		default: break;
 	}
-
+  }
 	//pthread_mutex_lock(&mutex_operacion);
-	printf("el socket es : %d \n",socket);
-	ingresarSocketALista(socket);
+	//printf("el socket es : %d \n",socket);
+	//ingresarSocketALista(socket);
 	//pthread_mutex_unlock(&mutex_operacion);
 
 	//pthread_mutex_unlock(&mutex_operacion);
@@ -463,13 +441,45 @@ void operacionesMemoria(dataHilo_t* dataHilo)
 
 
 
+int handshakeHandler(int i){
 
+	int reconozcoCliente = -1;
+	char bufHandshake[1];
+	int tamHandshake = 1;
+	if(recvall(i, bufHandshake, sizeof(bufHandshake)) == 0){
+		if(bufHandshake[0] == KERNEL_ID || bufHandshake[0] == CPU_ID){
+			reconozcoCliente = 1;
+		}
+	} else {
+		return -1;
+	}
+
+	if(reconozcoCliente < 0){
+		return -1;
+	} else {
+		if(sendall(i,charToString(UMC_ID),(uint32_t*)&tamHandshake) == 0){
+			printf("Handshake exitoso\n");
+
+			pthread_attr_t hiloDetachable;
+			pthread_t hilo;
+			pthread_attr_init(&hiloDetachable);
+			pthread_attr_setdetachstate(&hiloDetachable,PTHREAD_CREATE_DETACHED);
+			pthread_mutex_lock(&mutex_operacion);
+			//FD_CLR(i,&master);
+			printf("entro al hilo \n");
+			pthread_mutex_unlock(&mutex_operacion);
+			pthread_create(&hilo,&hiloDetachable,(void*)operacionesMemoria,(void*)i);
+
+		return 0;
+		}
+	}
+}
 
 int servidor()
 {
-    //fd_set master;    // master file descriptor list
+    fd_set master;    // master file descriptor list
     fd_set read_fds;  // temp file descriptor list for select()
-    //int fdmax;        // maximum file descriptor number
+    int fdmax;        // maximum file descriptor number
 
     int listener;     // listening socket descriptor
     int newfd;        // newly accept()ed socket descriptor
@@ -550,6 +560,7 @@ int servidor()
 			exit(4);
 		}
 
+		printf("hasta aca llegue \n");
 		// run through the existing connections looking for data to read
 		for (i = 0; i <= fdmax; i++) {
 			if (FD_ISSET(i, &read_fds)) { // we got one!!
@@ -579,6 +590,7 @@ int servidor()
 							FD_CLR(newfd, &master); // lo elimino de la lista maestra de FD
 							pthread_mutex_unlock(&mutex_operacion);
 						}
+						FD_CLR(newfd,&master);
 
 					}
 
@@ -602,13 +614,14 @@ int servidor()
 					} else {
 						// la i es el socket_cliente y el buff es el codigo de operacion!!!.
 						//pthread_mutex_lock(&mutex_operacion);
-						char * opCode = malloc(1);
-						opCode[0] = buf;
-						dataHilo_t *dataHilo = malloc(sizeof(dataHilo_t));
-						dataHilo->codOp=opCode[0];
-						dataHilo->socket=i;
+						//char * opCode = malloc(1);
+						//opCode[0] = buf;
+						//dataHilo_t *dataHilo = malloc(sizeof(dataHilo_t));
+						//dataHilo->codOp=opCode[0];
+						//dataHilo->socket=i;
 
 						//dataHilo_t dataHilo;
+						/*
 						pthread_attr_t hiloDetachable;
 						pthread_t hilo;
 						pthread_attr_init(&hiloDetachable);
@@ -618,6 +631,7 @@ int servidor()
 						printf("entro al hilo \n");
 						pthread_mutex_unlock(&mutex_operacion);
 						pthread_create(&hilo,&hiloDetachable,(void*)operacionesMemoria,(void*)dataHilo);
+						*/
 						//pthread_mutex_unlock(&mutex_operacion);
 						//operacionesMemoria(dataHilo);
 						// we got some data from a client
