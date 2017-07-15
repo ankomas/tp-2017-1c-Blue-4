@@ -214,11 +214,11 @@ uint32_t abrirFD(uint32_t i,t_programa* unPrograma){
 		log_error(logger,"Path NULL o permisos NULL");
 		return 9999;
 	}
-	if(validarArchivo(path,strlen(path)) && !tienePermisos('c',permisos)){
+	/*if(validarArchivo(path,strlen(path)) && !tienePermisos('c',permisos)){
 		send(i,"N",1,0);
 		log_error(logger,"No hay permisos para crear un nuevo archivo o el archivo ya esta abierto");
 		return 9999;
-	}
+	}*/
 
 	unPrograma->FDCounter++;
 	t_entradaTAP * nuevaEntradaTAP = malloc(sizeof(nuevaEntradaTAP));
