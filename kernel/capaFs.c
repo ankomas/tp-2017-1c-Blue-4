@@ -18,12 +18,14 @@ bool mandarOperacionFS(char* opcode,char* path,uint32_t tamPath,char* error){
 
 	char* tamPathStream = intToStream(tamPath);
 	if(sendall(idFS,tamPathStream, &tamuint) < 0){
+		printf("1\n");
 		log_error(logger,error);
 		return 0;
 	}
 	free(tamPathStream);
 
 	if(sendall(idFS,path, &tamPath) < 0){
+		printf("2\n");
 		log_error(logger,error);
 		return 0;
 	}
@@ -294,26 +296,16 @@ bool cerrarFD(uint32_t i, t_programa* unPrograma){
 
 bool escribirFD(uint32_t i,t_programa* unPrograma){
 	uint32_t fd = 0;
-	recv(i,&fd,sizeof(fd),MSG_WAITALL);
-	send(i,"Y",1,0);
-
-	uint32_t offset = 0;
-	recv(i,&offset,sizeof(offset),MSG_WAITALL);
+	recv(i,&fd,sizeof(uint32_t),MSG_WAITALL);
 	send(i,"Y",1,0);
 
 	uint32_t tamanio = 0;
-	recv(i,&tamanio,sizeof(offset),MSG_WAITALL);
-	send(i,"Y",1,0);
-
-	uint32_t tamRecibirData = 0;
-	recv(i,&tamRecibirData,sizeof(tamRecibirData),MSG_WAITALL);
+	recv(i,&tamanio,sizeof(uint32_t),MSG_WAITALL);
 	send(i,"Y",1,0);
 
 	char* data = NULL;
-	data=realloc(data,tamRecibirData+1);
-	memset(data,'\0',tamRecibirData+1);
-	recv(i,&tamanio,sizeof(offset),MSG_WAITALL);
-	send(i,"Y",1,0);
+	data=realloc(data,tamanio+1);
+	memset(data,'\0',tamanio+1);
 
 	char* path = recibirPath(i);
 	char* permisos = recibirPermisos(i);

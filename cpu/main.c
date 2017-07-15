@@ -94,6 +94,9 @@ void initFunciones(){
 			.AnSISOP_abrir					= dummy_abrir,
 			.AnSISOP_borrar					= dummy_borrar,
 			.AnSISOP_cerrar					= dummy_cerrar,
+			.AnSISOP_escribir				= dummy_escribir,
+			.AnSISOP_leer					= dummy_leer,
+			.AnSISOP_moverCursor			= dummy_moverCursor,
 	};
 	funciones=f;
 	kernel_functions=j;
