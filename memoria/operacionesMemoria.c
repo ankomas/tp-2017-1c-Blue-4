@@ -403,7 +403,8 @@ int agregarProcesoACache(int pid, int pag) {
 void copiarMemoriaACache(int pid, int pag) {
 	int marco = getMarcoCache(pid, pag);
 	void* data = leerMemoria(pid, pag, 0, configDeMemoria.tamMarco);
-	escribirCache(marco, 0, configDeMemoria.tamMarco, data);
+	if(data != NULL) escribirCache(marco, 0, configDeMemoria.tamMarco, data);
+	free(data);
 }
 
 void* leer(uint32_t pid, uint32_t pag, uint32_t offset, uint32_t tam) { // SIGUE NECESITANDO UN FREE
