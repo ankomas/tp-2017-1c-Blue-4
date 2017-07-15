@@ -83,11 +83,27 @@ void testDefinitivo(){
 	free(ruta);
 }
 
+void testGrande(){
+	int i;
+	char*ruta=rutaEnPuntoMontaje("/Archivos","/Grande.bin");
+	validarArchivo("/Grande.bin");
+	crearArchivo("/Grande.bin");
+	validarArchivo("/Grande.bin");
+	for(i=0; i<configFS.bloques; i++){
+		guardarDatos(ruta,i*configFS.tamBloque, configFS.tamBloque, "Muy Grande");
+	}
+	printf("Aca Leemos: %s\n", obtenerDatos(ruta,0,configFS.tamBloque*configFS.bloques));
+	printf("Archivo Leido\n");
+	borrarArchivo("/Grande.bin");
+	free(ruta);
+}
+
 int main(void) {
 
 	inicializarFS();
+	//testGrande();
 	//bitMap_TEST();
-	testDefinitivo();
+	//testDefinitivo();
 	//generarArchivoDelFS_TEST();
 	//crearArchivo("/archivo_test.bin");
 	//borrar("/archivo_test.bin");

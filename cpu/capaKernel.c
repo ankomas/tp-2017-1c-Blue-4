@@ -327,3 +327,31 @@ int borrarArchivo(t_descriptor_archivo fd){
 int cerrarArchivo(t_descriptor_archivo fd){
 	return 1;
 }
+
+int escribirArchivo(t_descriptor_archivo descriptor_archivo, void* informacion, t_valor_variable tamanio){
+	/*
+	char* res;
+	uint32_t fd = 0;
+		send(kernel,&descriptor_archivo,sizeof(descriptor_archivo),0);
+		recv(kernel,&res,1,0);//recibo Y
+
+		uint32_t offset = 0;
+		recv(i,&offset,sizeof(offset),MSG_WAITALL);
+		send(i,"Y",1,0);
+
+		uint32_t tamanio = 0;
+		recv(i,&tamanio,sizeof(offset),MSG_WAITALL);
+		send(i,"Y",1,0);
+
+		uint32_t tamRecibirData = 0;
+		recv(i,&tamRecibirData,sizeof(tamRecibirData),MSG_WAITALL);
+		send(i,"Y",1,0);
+
+		char* data = NULL;
+		data=realloc(data,tamRecibirData+1);
+		memset(data,'\0',tamRecibirData+1);
+		recv(i,&tamanio,sizeof(offset),MSG_WAITALL);
+		send(i,"Y",1,0);
+		*/
+	return 1;
+}
