@@ -19,18 +19,21 @@ bool mandarOperacionFS(char* opcode,char* path,uint32_t tamPath,char* error){
 
 	char* tamPathStream = intToStream(tamPath);
 	if(sendall(idFS,tamPathStream, &tamuint) < 0){
+		printf("1\n");
 		log_error(logger,error);
 		return 0;
 	}
 	free(tamPathStream);
 
 	if(sendall(idFS,path, &tamPath) < 0){
+		printf("2\n");
 		log_error(logger,error);
 		return 0;
 	}
 
 	// Recibo confirmacion
-	if(recv(idFS,rev,tamARecibir,MSG_WAITALL) <= 0){
+	if(recv(idFS,rev,1,MSG_WAITALL) <= 0){
+		printf("3\n");
 		log_error(logger,error);
 		return 0;
 	}
