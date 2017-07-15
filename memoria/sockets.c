@@ -238,6 +238,7 @@ void peticionMemoria(uint32_t socket)
 	send(socket,"Y",1,0);
 	printf("Se van a reservar bytes de memoria para el proceso %i\n", pid);
 	inicializarPrograma(pid,paginasRequeridas);
+	printf("salgo del inicializar \n");
 }
 
 
@@ -421,13 +422,15 @@ void eliminarPaginaDe(int socket)
 
 void ingresarSocketALista(int socket)
 {
-	pthread_mutex_lock(&mutex_operacion);
+	//pthread_mutex_lock(&mutex_operacion);
 	FD_SET(socket,&master);
+    printf("entro a la actualizacion del socket \n");
 	if (socket > fdmax)
 	{   // keep track of the max
 		fdmax = socket;
 	}
-	pthread_mutex_unlock(&mutex_operacion);
+	//pthread_mutex_unlock(&mutex_operacion);
+	printf("salgo de la actualizacion del socket \n");
 }
 
 
@@ -451,6 +454,7 @@ void operacionesMemoria(dataHilo_t* dataHilo)
 	}
 
 	//pthread_mutex_lock(&mutex_operacion);
+	printf("el socket es : %d \n",socket);
 	ingresarSocketALista(socket);
 	//pthread_mutex_unlock(&mutex_operacion);
 
@@ -580,6 +584,7 @@ int servidor()
 
 				} else {
 					// handle data from a client
+					printf("entro al recv del cop \n");
 					if ((nbytes = recv(i, &buf, 1, 0)) <= 0) {
 
 						//queue_push(procesosNEW, 2);
@@ -610,6 +615,7 @@ int servidor()
 						pthread_attr_setdetachstate(&hiloDetachable,PTHREAD_CREATE_DETACHED);
 						pthread_mutex_lock(&mutex_operacion);
 						FD_CLR(i,&master);
+						printf("entro al hilo \n");
 						pthread_mutex_unlock(&mutex_operacion);
 						pthread_create(&hilo,&hiloDetachable,(void*)operacionesMemoria,(void*)dataHilo);
 						//pthread_mutex_unlock(&mutex_operacion);
