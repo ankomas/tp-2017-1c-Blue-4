@@ -17,7 +17,7 @@
 void testLectura(){
 	char*ruta=rutaEnPuntoMontaje("/Archivos","/archivo_test.bin");
 	char* data;
-	data=obtenerDatos(ruta,0,60);
+	data=obtenerDatos(ruta,0,49);
 	printf("la data es: %s \n",data);
 	free(data);
 	free(ruta);
@@ -31,9 +31,9 @@ void testEscrituraFacil(){
 
 void testEscrituraCompleta(){
 	char*ruta=rutaEnPuntoMontaje("/Archivos","/archivo_test.bin");
-	guardarDatos(ruta,0,25,"CARACARACARACARACARACAGON");
-	guardarDatos(ruta,25,20,"POPOPOPOPOPOPOPOPOPO");
-	guardarDatos(ruta,35,20,"PEDOPEDOPEDOPEDOPEDO");
+	guardarDatos(ruta,0,14,"Hola soy TOM. ");
+	guardarDatos(ruta,14,20,"Vengo a decirte Hola");
+	guardarDatos(ruta,30,15,"Que sos un gil!");
 	free(ruta);
 }
 
@@ -69,10 +69,26 @@ void testoo(){
 	free(ruta);
 }
 
+void testDefinitivo(){
+	//char*ruta=rutaEnPuntoMontaje("/Archivos","/testDefinitivo.bin");
+	int i = crearArchivo("/lala.bin");
+	if (i>=0) printf("Archivo Creado\n");
+	/*
+	guardarDatos(ruta,0,15,"Mi buen Archivo");
+	guardarDatos(ruta,15,13," Es muy lindo");
+	printf("Archivo listo para leer\n");
+	printf("Aca Leemos: %s\n", obtenerDatos(ruta,0,28));
+	printf("Archivo Leido\n");
+	*/
+	//borrarArchivo(ruta);
+	//free(ruta);
+}
+
 int main(void) {
 
 	inicializarFS();
 	//bitMap_TEST();
+	testDefinitivo();
 	//generarArchivoDelFS_TEST();
 	//crearArchivo("/archivo_test.bin");
 	//borrar("/archivo_test.bin");

@@ -115,16 +115,17 @@ void crearDirectorios(char* path)
 }
 
 
-int crearArchivo(char* ruta)
+int crearArchivoo(char* ruta)
 {
 	FILE* archivo;
 	char *numero_string,*bloques;
 	int bloqueLibre=getBloqueLibre();
-	if(bloqueLibre<0)return -1;
+	if(bloqueLibre<0) return -1;
 	//crear Directorios si los hay!!
 	crearDirectorios(ruta);
 	ocuparBloque(bloqueLibre);
 	char* ruta_Archivo=rutaArchivo(ruta);
+	//printf("Ruta Archivo: %s\n", ruta_Archivo);
 	archivo=fopen(ruta_Archivo,"wb");
 	generarFormatoArchivo(ruta_Archivo);
 	numero_string=string_itoa(bloqueLibre);
@@ -136,6 +137,30 @@ int crearArchivo(char* ruta)
 	free(numero_string);
 	free(ruta_Archivo);
 	return 0;
+}
+
+int crearArchivo(char* ruta)
+{
+ FILE* archivo;
+ char *numero_string,*bloques;
+ int bloqueLibre=getBloqueLibre();
+ printf("bloqueLibre: %i\n", bloqueLibre);
+ if(bloqueLibre<0)return -1;
+ //crear Directorios si los hay!!
+ crearDirectorios(ruta);
+ ocuparBloque(bloqueLibre);
+ char* ruta_Archivo=rutaArchivo(ruta);
+ archivo=fopen(ruta_Archivo,"wb");
+ generarFormatoArchivo(ruta_Archivo);
+ numero_string=string_itoa(bloqueLibre);
+ bloques=obtenerFormatoDeBloques(NULL,numero_string);
+ bloques=obtenerFormatoDeBloques(bloques,NULL);
+ cambiarFormatoDeArchivo(ruta_Archivo,0,bloques);
+ fclose(archivo);
+ free(bloques);
+ free(numero_string);
+ free(ruta_Archivo);
+ return 0;
 }
 
 /*
