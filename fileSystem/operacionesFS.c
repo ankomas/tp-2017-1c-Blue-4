@@ -433,6 +433,7 @@ int guardarDatos(char* path,int offset, int tam, char* texto){
 		}
 		free(info.bloques);
 		info=actualizarArchivo(path,bloques,nuevoTam);
+		printf("Offset: %i, tam: %i, info.bloques: %p, texto: %p\n",offset,tam,info.bloques,texto);
 		escribirEnBloques(offset, tam, info.bloques, texto);
 		//free(ruta);
 		free(bloques);

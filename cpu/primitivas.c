@@ -119,7 +119,7 @@ t_puntero dummy_obtenerPosicionVariable(t_nombre_variable variable) {
 		printf("\n");
 		return posAPuntero(var->pos,tamPag_global);
 	}else{
-		setExitCode(&pcb_global,"no existe variable",11);
+		setExitCode(&pcb_global,"no existe variable",30);
 		printf("\n");
 		return NO_EXISTE_VARIABLE;
 	}

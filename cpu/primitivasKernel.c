@@ -133,7 +133,7 @@ void dummy_borrar(t_descriptor_archivo descriptor_archivo){
 		return;
 	int res;
 	printf("Llamada a "YEL"BORRAR"RESET" %i\n",descriptor_archivo);
-	return;
+
 	res=borrarArchivo(descriptor_archivo);
 
 	if(res==-1){
@@ -173,8 +173,7 @@ void dummy_escribir(t_descriptor_archivo descriptor_archivo, void* informacion, 
 	if(finPrograma_global!='Y')
 		return;
 	int res;
-	printf("Llamada a "YEL"ESCRIBIR"RESET" %i\n",descriptor_archivo);
-	return;
+	printf("Llamada a "YEL"ESCRIBIR"RESET" %i,%i\n",descriptor_archivo,tamanio);
 	res=escribirArchivo(descriptor_archivo,informacion,tamanio);
 
 	if(res==-1){

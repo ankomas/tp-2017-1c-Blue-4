@@ -322,13 +322,21 @@ int abrirArchivo(t_direccion_archivo direccion,t_banderas flags){
 
 int borrarArchivo(t_descriptor_archivo fd){
 	char res;
-	uint32_t ufd;
+	uint32_t ufd=fd;
 	send(kernel,"b",1,0);
 	send(kernel,&ufd,sizeof(uint32_t),0);
 
 	recv(kernel,&res,1,0);
 
-	return 1;
+	switch(res){
+	case 'Y':
+		return 1;
+	case 'N':
+		return -1;
+	default:
+		printf("BORRAR ARCHIVO ERROR respuesta erronea\n");
+		return -1;
+	}
 }
 
 int cerrarArchivo(t_descriptor_archivo fd){

@@ -234,10 +234,11 @@ void recibirParametrosDeLectua(int socket,uint32_t* offset,uint32_t* tamanio)
 
 void recibir_offset_tamanio(int socket,uint32_t* offset,uint32_t* tamanio)
 {
-	uint32_t tamanioTotalBuffer=(sizeof(uint32_t))*2;
+	uint32_t tamanioTotalBuffer=(sizeof(uint32_t))*4;
 	int resultado;
 	char* buffer;
-	uint32_t *puntero=0;
+	uint32_t *puntero=malloc(sizeof(uint32_t));
+	*puntero=0;
 	buffer=recibirPaquete(socket,tamanioTotalBuffer,&resultado);
 	if(validarRecv(socket,resultado)<0)
 	{
@@ -321,12 +322,14 @@ void escribir(int socket)
 	uint32_t puntero,tamanio,offset;
 	char* buffer,*data,*ruta;
 	char* path=recibirPath(socket);
+	send(socket,"Y",1,0);
 	data=recibir_offset_tamanio_data(socket,&offset,&tamanio);
 
 	//if(data)
 	//{
 		ruta=rutaEnPuntoMontaje("/Archivos",path);
-		resultado=guardarDatos(path,offset,tamanio,data);
+		printf("Escribir en: %s\n",ruta);
+		resultado=guardarDatos(ruta,offset,tamanio,data);
 		if(resultado<0)
 		{
 			send(socket,"N",1,0);
