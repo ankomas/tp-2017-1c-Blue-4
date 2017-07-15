@@ -120,6 +120,8 @@ void encolarReady(t_programa* nuevoProceso){
 		//}
 	}
 	if(error == 1){
+		nuevoProceso->pcb->exitCode = -1;
+		queue_push(procesosEXIT,nuevoProceso);
 		log_error(logger,"ERROR, el kernel no pudo solicitar memoria correctamente");
 	}
 }
@@ -189,6 +191,10 @@ t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual){
 	nuevoProceso->paginasHeap = list_create();
 	nuevoProceso->quantumRestante = quantum;
 	nuevoProceso->pcb = nuevoPCB;
+	nuevoProceso->cantidadSyscallsEjecutadas = 0;
+	nuevoProceso->cantidadSyscallsEjecutadasBytes = 0;
+	nuevoProceso->cantidadLiberarEjecutados = 0;
+	nuevoProceso->cantidadLiberarEjecutadosBytes = 0;
 
 	uint32_t cantidadPaginasCodigo = 0;
 	if(tamanioPagina == -1)
@@ -314,7 +320,7 @@ void* cpu(t_cpu * cpu){
 
 					res=realloc(res,tamARecibir);
 					printf("Tam a recibir: %i\n",tamARecibir);
-					anuncio("PCB RECIBIDO DEL CPU");
+					log_trace(logger,"PCB RECIBIDO DEL CPU");
 					if(recv(cpu->id,res,tamARecibir,MSG_WAITALL) <= 0)
 						liberarCPU(proximoPrograma);
 					else{
