@@ -382,11 +382,11 @@ bool escribirFD(uint32_t i,t_programa* unPrograma){
 	//TODO cond
 	t_entradaTGA * aux = list_find(tablaGlobalArchivos,(void*)_condicion3);
 
-	if(validarArchivo(aux->archivo,strlen(aux->archivo)) == 0 || !tienePermisos('e',entradaFD->flags)){
+	/*if(validarArchivo(aux->archivo,strlen(aux->archivo)) == 0 || !tienePermisos('e',entradaFD->flags)){
 		send(i,"N",1,0);
 		log_error(logger,"No hay permisos para crear un nuevo archivo o el archivo no existe");
 		return 0;
-	}
+	}*/
 
 	if(auxFDTAP != 9999 || fd == 1){
 
@@ -446,11 +446,11 @@ char* leerFD(uint32_t i,t_programa* unPrograma){
 
 	//printf("Flags: %s\n",entradaFD->flags);
 	//printf("Validar archivo %i|| !tienePermisos %i\n",validarArchivo(aux->archivo,strlen(aux->archivo))==0,!tienePermisos('l',entradaFD->flags));
-	if(validarArchivo(aux->archivo,strlen(aux->archivo)) == 0 || !tienePermisos('l',entradaFD->flags)){
+	/*if(validarArchivo(aux->archivo,strlen(aux->archivo)) == 0 || !tienePermisos('l',entradaFD->flags)){
 		send(i,"N",1,0);
 		log_error(logger,"No hay permisos para crear un nuevo archivo o el archivo no existe");
 		return NULL;
-	}
+	}*/
 
 	if(auxFDTAP != 9999){
 		if(tienePermisos('l',entradaFD->flags)){
