@@ -207,14 +207,15 @@ uint32_t abrirFD(uint32_t i,t_programa* unPrograma){
 		nuevaEntradaTGA->abierto++;
 		nuevaEntradaTGA->archivo = path;
 	} else {
-		nuevaEntradaTGA = malloc(sizeof(nuevaEntradaTGA));
-		nuevaEntradaTGA->archivo = path;
-		nuevaEntradaTGA->abierto = 1;
-		nuevaEntradaTGA->indice = GlobalFDCounter;
-		list_add(tablaGlobalArchivos,nuevaEntradaTGA);
-		GlobalFDCounter++;
-		crearArchivo(path,strlen(path));
-		log_trace(logger,"Nuevo FD creado");
+		if(crearArchivo(path,strlen(path))){
+			nuevaEntradaTGA = malloc(sizeof(nuevaEntradaTGA));
+			nuevaEntradaTGA->archivo = path;
+			nuevaEntradaTGA->abierto = 1;
+			nuevaEntradaTGA->indice = GlobalFDCounter;
+			list_add(tablaGlobalArchivos,nuevaEntradaTGA);
+			GlobalFDCounter++;
+			log_trace(logger,"Nuevo FD creado");
+		}
 	}
 
 	nuevaEntradaTAP->globalFD = nuevaEntradaTGA->indice;
@@ -345,6 +346,7 @@ bool escribirFD(uint32_t i,t_programa* unPrograma){
 			}
 		} else {
 			log_error(logger,"No hay permisos para escribir en un archivo");
+			send(i,"N",1,0);
 			return 0;
 		}
 	}
