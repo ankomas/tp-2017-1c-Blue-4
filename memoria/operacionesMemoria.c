@@ -189,12 +189,14 @@ void cargarPaginaATabla(uint32_t pid, uint32_t pagina, unsigned marco) {
 	return;
 }
 
-void guardaProcesoEn(uint32_t pid, uint32_t paginasRequeridas,int32_t pos) {
+int guardaProcesoEn(uint32_t pid, uint32_t paginasRequeridas,int32_t pos) {
 	uint32_t marco, pagina = 0;
 	while (pagina < paginasRequeridas) {
 		marco = nuevoMarco(pid, pagina);
-		if(marco == -1)
-			perror("No hay marcos disponibles");
+		if(marco == -1){
+			perror("Memoria llena");
+			return -1;
+		}
 		cargarPaginaATabla(pid, pagina, marco);
 		uint32_t *pag=malloc(sizeof(uint32_t));
 		memcpy(pag,&pagina,sizeof(uint32_t));
@@ -206,6 +208,7 @@ void guardaProcesoEn(uint32_t pid, uint32_t paginasRequeridas,int32_t pos) {
 
 		pagina++;
 	}
+	return 0;
 }
 
 void agregarNuevoProceso(uint32_t pid, uint32_t paginasRequeridas,int32_t pos) {
@@ -310,6 +313,10 @@ int asignarPaginasAUnProceso(uint32_t pid, uint32_t paginasRequeridas) {
 	while (i < paginasRequeridas) {
 		pagina = obtener_ProximaPaginaAAsignar(pid); //aca tmb agrego a la lista la pos nueva
 		marco = nuevoMarco(pid, pagina);
+		if(marco == -1){
+			perror("Memoria Llena");
+			return -1;
+		}
 		pthread_mutex_lock(&mutex_tablaDePaginas);
 		tablaDePaginas[marco].pid = pid;
 		tablaDePaginas[marco].pagina = pagina;
@@ -417,6 +424,7 @@ void* leer(uint32_t pid, uint32_t pag, uint32_t offset, uint32_t tam) { // SIGUE
 int escribir(uint32_t pid, uint32_t pag, uint32_t offset, uint32_t tamData,
 	void *data) {
 	escribirMemoria(pid, pag, offset, tamData, data);
+	if(tamData==0 || data == NULL) return 0;
 	if (estaEnCache(pid, pag))
 		escribirCache(getMarcoCache(pid, pag), offset, tamData, data);
 	else {
