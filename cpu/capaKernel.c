@@ -321,10 +321,24 @@ int abrirArchivo(t_direccion_archivo direccion,t_banderas flags){
 }
 
 int borrarArchivo(t_descriptor_archivo fd){
+	char res;
+	uint32_t ufd;
+	send(kernel,"b",1,0);
+	send(kernel,&ufd,sizeof(uint32_t),0);
+
+	recv(kernel,&res,1,0);
+
 	return 1;
 }
 
 int cerrarArchivo(t_descriptor_archivo fd){
+	char res;
+	uint32_t ufd;
+	send(kernel,"c",1,0);
+	send(kernel,&ufd,sizeof(uint32_t),0);
+
+	recv(kernel,&res,1,0);
+
 	return 1;
 }
 
@@ -347,3 +361,28 @@ int escribirArchivo(t_descriptor_archivo descriptor_archivo, void* informacion, 
 
 	return 1;
 }
+
+int moverCursor(uint32_t fd,uint32_t nuevaPos){
+	char res;
+	send(kernel,"m",1,0);
+	send(kernel,&fd,sizeof(uint32_t),0);
+	recv(kernel,&res,1,0);//recibo Y
+
+	send(kernel,&nuevaPos,sizeof(uint32_t),0);
+	recv(kernel,&res,1,0);//recibo Y
+
+}
+
+int leerArchivo(uint32_t fd, uint32_t tamanio){
+	char res;
+	send(kernel,&fd,sizeof(uint32_t),0);
+	recv(kernel,&res,1,0);//recibo Y
+
+	send(kernel,&tamanio,sizeof(uint32_t),0);
+	recv(kernel,&res,1,0);//recibo Y
+
+	//verificar errores
+}
+
+
+
