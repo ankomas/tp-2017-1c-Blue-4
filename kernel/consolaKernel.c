@@ -120,11 +120,20 @@ void *consolaKernel(){
 			if(opcionInt >= 0 && opcionInt <= 5 )
 				listarProcesos(opcionInt);
 		} else if(opcion[0] == INFO_PROCESO){
+			mostrarYAgregarRuta(rutaOpciones," >> Mostrar info de proceso");
+			anuncio("\nPor favor ingrese el PID del proceso para mostrar info sobre el mismo:");
+			/*	nuevoProceso->cantidadSyscallsEjecutadas = 0;
+	nuevoProceso->cantidadSyscallsEjecutadasBytes = 0;
+	nuevoProceso->cantidadLiberarEjecutados = 0;
+	nuevoProceso->cantidadLiberarEjecutadosBytes = 0;*/
 			scanf("%s", opcion);
+			/*if(encontrarPrograma(opcion)){
+
+			}*/
 			if(opcion[0] == CANTIDAD_RAFAGAS_EJECUTADAS){
 
 			} else if(opcion[0] == CANTIDAD_OP_PRIVILEGIADAS){
-
+				//printf("Fueron realizadas %i",proceso->cantidadSyscallsEjecutadas);
 			} else if(opcion[0] == OBTENER_TABLA_ARCHIVOS_ABIERTOS){
 
 			} else if(opcion[0] == CANTIDAD_PAGINAS_HEAP){
