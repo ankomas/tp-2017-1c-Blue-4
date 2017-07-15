@@ -192,7 +192,8 @@ t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual){
 	nuevoProceso->quantumRestante = quantum;
 	nuevoProceso->pcb = nuevoPCB;
 	nuevoProceso->cantidadSyscallsEjecutadas = 0;
-	nuevoProceso->cantidadSyscallsEjecutadasBytes = 0;
+	nuevoProceso->cantidadAlocarEjecutados = 0;
+	nuevoProceso->cantidadAlocarEjecutadosBytes = 0;
 	nuevoProceso->cantidadLiberarEjecutados = 0;
 	nuevoProceso->cantidadLiberarEjecutadosBytes = 0;
 
