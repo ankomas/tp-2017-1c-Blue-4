@@ -71,6 +71,7 @@ void testoo(){
 
 void testDefinitivo(){
 	char*ruta=rutaEnPuntoMontaje("/Archivos","/lala.bin");
+	validarArchivo("/lala.bin");
 	int i = crearArchivo("/lala.bin");
 	if (i>=0) printf("Archivo Creado\n");
 	guardarDatos(ruta,0,15,"Mi buen Archivo");
@@ -86,7 +87,7 @@ int main(void) {
 
 	inicializarFS();
 	//bitMap_TEST();
-	//testDefinitivo();
+	testDefinitivo();
 	//generarArchivoDelFS_TEST();
 	//crearArchivo("/archivo_test.bin");
 	//borrar("/archivo_test.bin");

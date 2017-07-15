@@ -36,7 +36,7 @@ int archivoValido(char* path){
 	char* ruta=rutaArchivo(path);
 	archivo = fopen(ruta, "rb");
 	int booleano = (archivo != NULL);
-	if(archivo!=NULL)
+	if(booleano)
 	fclose(archivo);
 	free(ruta);
 	return booleano;
