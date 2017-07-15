@@ -292,6 +292,10 @@ void solicitarBytes(int socket)
 	void* data;
 	resultado=recibir_PID_PAGINA_OFFSET_TAMANIO(socket,&pid,&pagina,&offset,&tamanio);
 	if(resultado<0)return;
+	if(!validarPIDPAG(pid,pagina)){
+		send(socket,"N",1,0);
+		return;
+	}
 	data=leer(pid,pagina,offset,tamanio);
 /*
 	int wtf;
@@ -316,6 +320,10 @@ void almacenarBytes(int socket)
 	uint32_t pid,pagina,offset,tamanio,resultado;
 	void* data;
 	data=recibir_PID_PAGINA_OFFSET_TAMANIO_DATA(socket,&pid,&pagina,&offset,&tamanio);
+	if(!validarPIDPAG(pid,pagina)){
+		send(socket,"N",1,0);
+		return;
+	}
 	if(data)
 	{
 /*

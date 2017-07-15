@@ -434,3 +434,7 @@ int escribir(uint32_t pid, uint32_t pag, uint32_t offset, uint32_t tamData,
 	return 0;
 }
 
+int validarPIDPAG(int pid, int pag){
+	int resultado = getMarco(pid,pag);
+	return (resultado >= 0);
+}
