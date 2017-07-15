@@ -95,14 +95,13 @@ void testGrande(){
 	printf("Aca Leemos: %s\n", obtenerDatos(ruta,0,configFS.tamBloque*configFS.bloques));
 	printf("Archivo Leido\n");
 	borrarArchivo("/Grande.bin");
-	borrarArchivo("/Pequenio.bin");
 	free(ruta);
 }
 
 int main(void) {
 
 	inicializarFS();
-	testGrande();
+	//testGrande();
 	//bitMap_TEST();
 	//testDefinitivo();
 	//generarArchivoDelFS_TEST();
