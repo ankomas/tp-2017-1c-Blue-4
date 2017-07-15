@@ -189,6 +189,10 @@ int crearArchivo(char* path){ //No sabia que hacer
 }
 */
 void borrarArchivo(char* path){
+	if(validarArchivo(path)<0) {
+		perror("No se puede borrar un archivo que no existe");
+		return;
+	}
 	FILE* archivo;
 	t_infoArchivo info;
 	int num_bloque,posicion=0;
