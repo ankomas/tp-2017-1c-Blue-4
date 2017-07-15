@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include "planificador.h"
 #include <commons/string.h>
+#include "main.h"
 
 #define LISTADO_PROCESOS '1'
 	#define PROCESOS_TODOS '0'
@@ -122,10 +123,6 @@ void *consolaKernel(){
 		} else if(opcion[0] == INFO_PROCESO){
 			mostrarYAgregarRuta(rutaOpciones," >> Mostrar info de proceso");
 			anuncio("\nPor favor ingrese el PID del proceso para mostrar info sobre el mismo:");
-			/*	nuevoProceso->cantidadSyscallsEjecutadas = 0;
-	nuevoProceso->cantidadSyscallsEjecutadasBytes = 0;
-	nuevoProceso->cantidadLiberarEjecutados = 0;
-	nuevoProceso->cantidadLiberarEjecutadosBytes = 0;*/
 			scanf("%s", opcion);
 			/*if(encontrarPrograma(opcion)){
 
@@ -135,25 +132,36 @@ void *consolaKernel(){
 			} else if(opcion[0] == CANTIDAD_OP_PRIVILEGIADAS){
 				//printf("Fueron realizadas %i",proceso->cantidadSyscallsEjecutadas);
 			} else if(opcion[0] == OBTENER_TABLA_ARCHIVOS_ABIERTOS){
-
+				//imprimirTAP(nuevoProceso);
 			} else if(opcion[0] == CANTIDAD_PAGINAS_HEAP){
 				scanf("%s", opcion);
 				if(opcion[0] == CANTIDAD_ACCIONES_ALOCAR){
-
+					//printf("Cantidad ALOCAR realizados: %i",proceso->cantidadAlocarEjecutados);
+					//printf("Cantidad ALOCAR realizados en bytes: %i",proceso->cantidadAlocarEjecutadosBytes);
 				} else if(opcion[0] == CANTIDAD_ACCIONES_LIBERAR){
-
+					//printf("Cantidad LIBERAR realizados: %i",proceso->cantidadLiberarEjecutados);
+					//printf("Cantidad LIBERAR en bytes: %i",proceso->cantidadLiberarEjecutadosBytes);
 				}
 			} else if(opcion[0] == CANTIDAD_SYSCALLS_EJECUTADAS){
-
+				//printf("Cantidad de Syscalls ejecutadas: %i",proceso->cantidadSyscallsEjecutadas;
 			}
 		} else if(opcion[0] == TABLA_GLOBAL_ARCHIVOS){
-
+			//imprimirTablaArchivosAbiertos();
 		} else if(opcion[0] == MODIFICAR_GRADO_MULTIPROGRAMACION){
-
+			printf("Ingrese el nuevo grado de multiprogramacion:\n");
+			scanf("%s", opcion);
+			gradoMultiprogramacion = opcion;
 		} else if(opcion[0] == FINALIZAR_PROCESO){
-
+			printf("Ingrese el archivo que desee finalizar:\n");
+			scanf("%s", opcion);
 		} else if(opcion[0] == DETENER_PLANIFICACION){
-
+			if(detenerPlanificacion == 0){
+				log_info(logger,"Deteniendo la planificacion");
+				detenerPlanificacion = 1;
+			}else{
+				detenerPlanificacion = 0;
+				log_info(logger,"Deteniendo la planificacion");
+			}
 		}
 	}
 	return 0;

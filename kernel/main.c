@@ -27,6 +27,7 @@ int cantidadProgramasEnSistema,gradoMultiprogramacion,retardo,quantum;
 int idFS;
 int idUMC;
 int tamanioPagina;
+int detenerPlanificacion;
 int32_t tamanioStack;
 
 pthread_t hiloPlanificador,hiloConsolaKernel;
@@ -61,6 +62,7 @@ void inicializarDatos(){
 	cfg=config_create(rutaAbsolutaDe("config.cfg"));
 
 	GlobalFDCounter = 0;
+	detenerPlanificacion = 0;
 
 	PROGRAMAs = list_create();
 	CPUs = list_create();

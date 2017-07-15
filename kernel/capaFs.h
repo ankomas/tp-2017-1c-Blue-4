@@ -23,6 +23,7 @@ typedef struct t_entradaTAP{
 	uint32_t indice;
 	char* flags;
 	uint32_t globalFD;
+	uint32_t cursor;
 }t_entradaTAP;
 
 void imprimirPorConsola();

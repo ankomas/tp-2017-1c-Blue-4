@@ -29,7 +29,8 @@ typedef struct t_programa {
 	t_list * paginasHeap;
 	uint32_t rafagasEjecutadas;
 	uint32_t cantidadSyscallsEjecutadas;
-	uint32_t cantidadSyscallsEjecutadasBytes;
+	uint32_t cantidadAlocarEjecutados;
+	uint32_t cantidadAlocarEjecutadosBytes;
 	uint32_t cantidadLiberarEjecutados;
 	uint32_t cantidadLiberarEjecutadosBytes;
 } t_programa;

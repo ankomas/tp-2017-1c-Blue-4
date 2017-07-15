@@ -11,7 +11,6 @@
 // Usalas con sabiduria, porque requieren validaciones previas
 
 bool mandarOperacionFS(char* opcode,char* path,uint32_t tamPath,char* error){
-	uint32_t tamARecibir=0;
 	char * rev = malloc(1);
 	log_trace(logger,"Llamada a MANDAR OPERACION FS");
 	send(idFS,opcode,1,0);
@@ -30,7 +29,7 @@ bool mandarOperacionFS(char* opcode,char* path,uint32_t tamPath,char* error){
 	}
 
 	// Recibo confirmacion
-	if(recv(idFS,rev,tamARecibir,MSG_WAITALL) <= 0){
+	if(recv(idFS,rev,1,MSG_WAITALL) <= 0){
 		log_error(logger,error);
 		return 0;
 	}
@@ -92,8 +91,6 @@ char* continuacionPeticionLectura(uint32_t i,uint32_t offset,uint32_t size,char*
 }
 	return NULL;
 }
-
-
 
 bool continuacionPeticionEscritura(uint32_t offset,uint32_t size,char*buffer,uint32_t tamBuffer,char*error){
 		char * rev = NULL;
@@ -192,7 +189,7 @@ uint32_t abrirFD(uint32_t i,t_programa* unPrograma){
 		log_error(logger,"Path NULL o permisos NULL");
 		return 9999;
 	}
-	if(validarArchivo(path,strlen(path)) == 0 && !tienePermisos('c',permisos)){
+	if(validarArchivo(path,strlen(path)) && !tienePermisos('c',permisos)){
 		send(i,"N",1,0);
 		log_error(logger,"No hay permisos para crear un nuevo archivo o el archivo ya esta abierto");
 		return 9999;
@@ -201,6 +198,7 @@ uint32_t abrirFD(uint32_t i,t_programa* unPrograma){
 	unPrograma->FDCounter++;
 	t_entradaTAP * nuevaEntradaTAP = malloc(sizeof(nuevaEntradaTAP));
 	nuevaEntradaTAP->flags = permisos;
+	nuevaEntradaTAP->cursor = 0;
 
 	t_entradaTGA * nuevaEntradaTGA = buscarFDPorPath(path);
 	if(nuevaEntradaTGA != NULL){
@@ -218,6 +216,9 @@ uint32_t abrirFD(uint32_t i,t_programa* unPrograma){
 		}
 	}
 
+
+	//testi(nuevaEntradaTGA->indice);
+	testi(nuevaEntradaTAP->globalFD);
 	nuevaEntradaTAP->globalFD = nuevaEntradaTGA->indice;
 	nuevaEntradaTAP->indice = unPrograma->FDCounter;
 	list_add(unPrograma->tablaArchivosPrograma,nuevaEntradaTAP);
