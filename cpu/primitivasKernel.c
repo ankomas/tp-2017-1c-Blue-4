@@ -167,17 +167,19 @@ void dummy_moverCursor(t_descriptor_archivo descriptor_archivo, t_valor_variable
 	}
 
 }
+
 void dummy_escribir(t_descriptor_archivo descriptor_archivo, void* informacion, t_valor_variable tamanio){
 	if(finPrograma_global!='Y')
 		return;
 	int res;
 	printf("Llamada a "YEL"ESCRIBIR"RESET" %i\n",descriptor_archivo);
-	res=cerrarArchivo(descriptor_archivo);
+	res=escribirArchivo(descriptor_archivo,informacion,tamanio);
 
 	if(res==-1){
 		setExitCode(&pcb_global,"error al cerrar archivo",18);
 	}
 }
+
 void dummy_leer(t_descriptor_archivo descriptor_archivo, t_puntero informacion, t_valor_variable tamanio){
 	if(finPrograma_global!='Y')
 		return;
