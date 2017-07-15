@@ -365,9 +365,14 @@ int escribirArchivo(t_descriptor_archivo descriptor_archivo, void* informacion, 
 
 	uint32_t tamRecibirData = 0;
 	send(kernel,informacion,tam,MSG_WAITALL);
-	recv(kernel,&res,1,0);//recibo Y y N?
+	recv(kernel,&res,1,0);//recibo Y
 
+	recv(kernel,&res,1,0);//recibo Y o N
+
+	if(res=='Y')
 	return 1;
+	else
+		return -1;
 }
 
 int moverCursor(uint32_t fd,uint32_t nuevaPos){
@@ -383,11 +388,20 @@ int moverCursor(uint32_t fd,uint32_t nuevaPos){
 
 int leerArchivo(uint32_t fd, uint32_t tamanio){
 	char res;
+	send(kernel,"l",1,0);
+
 	send(kernel,&fd,sizeof(uint32_t),0);
 	recv(kernel,&res,1,0);//recibo Y
 
 	send(kernel,&tamanio,sizeof(uint32_t),0);
 	recv(kernel,&res,1,0);//recibo Y
+
+	recv(kernel,&res,1,0);//recibo Y o N
+
+	if(res=='Y')
+	return 1;
+	else
+		return -1;
 
 	//verificar errores
 }

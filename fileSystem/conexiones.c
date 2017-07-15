@@ -292,13 +292,14 @@ void leer(int socket)
 	uint32_t puntero,tamanio,offset;
 	char *ruta;
 	char* path=recibirPath(socket);
+	send(socket,"Y",1,0);
 	recibir_offset_tamanio(socket,&offset,&tamanio);
 
 	//if(buffer)
 	//{
 		//free(buffer);
 	ruta=rutaEnPuntoMontaje("/Archivos",path);
-	resultado=obtenerDatos(path,offset,tamanio);
+	resultado=obtenerDatos(ruta,offset,tamanio);
 	if(resultado)
 	{
 		send(socket,"Y",1,0);
@@ -330,6 +331,7 @@ void escribir(int socket)
 		ruta=rutaEnPuntoMontaje("/Archivos",path);
 		printf("Escribir en: %s\n",ruta);
 		resultado=guardarDatos(ruta,offset,tamanio,data);
+		testi(resultado);
 		if(resultado<0)
 		{
 			send(socket,"N",1,0);

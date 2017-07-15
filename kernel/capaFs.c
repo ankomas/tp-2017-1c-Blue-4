@@ -29,13 +29,13 @@ bool mandarOperacionFS(char* opcode,char* path,uint32_t tamPath,char* error){
 		log_error(logger,error);
 		return 0;
 	}
-	test("ESTA ES LA HIPOTESIS");
+//	test("ESTA ES LA HIPOTESIS");
 	// Recibo confirmacion
 	if(recv(idFS,rev,1,MSG_WAITALL) <= 0){
 		log_error(logger,error);
 		return 0;
 	}
-	test("ESTA ES LA TESIS");
+//	test("ESTA ES LA TESIS");
 
 	if(rev[0]== 'Y')
 		return 1;
@@ -43,32 +43,29 @@ bool mandarOperacionFS(char* opcode,char* path,uint32_t tamPath,char* error){
 	return 0;
 }
 
-char* continuacionPeticionLectura(uint32_t i,uint32_t offset,uint32_t size,char*error){
+char* continuacionPeticionLectura(uint32_t cpu,uint32_t offset,uint32_t size,char*error){
 	uint32_t tamARecibir=0;
 	char * rev = NULL;
 	uint32_t tamAMandar=sizeof(uint32_t);
 
 	char* offsetStream = intToStream(offset);
 	char* sizeStream = intToStream(size);
-	if(sendall(idFS,offsetStream, &tamAMandar) < 0){
+	package_t pk=serializar(4,
+			sizeof(uint32_t),&offset,
+			sizeof(uint32_t),&size
+			);
+
+	if(sendall(idFS,pk.data, &pk.data_size) < 0){
 		log_error(logger,error);
 		return 0;
 	}
-	free(offsetStream);
-
-	if(sendall(idFS,sizeStream, &tamAMandar) < 0){
-		log_error(logger,error);
-		return 0;
-	}
-	free(sizeStream);
-
+/*
 	// Recibo largo del data
 	if(recv(idFS,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0){
 		log_error(logger,error);
-		send(i,"N",1,0);
 		return NULL;
 	}
-
+*/
 	/*if(send(idFS,"Y",1,0) < 0)
 		log_error(logger,error);*/
 
@@ -77,25 +74,26 @@ char* continuacionPeticionLectura(uint32_t i,uint32_t offset,uint32_t size,char*
 		log_error(logger,error);
 		return NULL;
 	}
-
+tamARecibir=size;
 	if(rev[0] == 'Y'){
 		rev=realloc(rev,tamARecibir);
 		memset(rev,'\0',tamARecibir);
 
-	// Recibo el data
-	if(recv(idFS,rev,tamARecibir,MSG_WAITALL) <= 0){
-		log_error(logger,error);
-		return NULL;
+		// Recibo el data
+		if(recv(idFS,rev,tamARecibir,MSG_WAITALL) <= 0){
+			log_error(logger,error);
+			return NULL;
+		}
+
+		/*send(i,"Y",1,0);
+		sendall(i,rev,&tamARecibir);*/
+		return rev;
 	}
 
-	send(i,"Y",1,0);
-	sendall(i,rev,&tamARecibir);
-	return rev;
-}
 	return NULL;
 }
 
-bool continuacionPeticionEscritura(uint32_t i,uint32_t offset,uint32_t size,char*buffer,char*error){
+bool continuacionPeticionEscritura(uint32_t cpu,uint32_t offset,uint32_t size,char*buffer,char*error){
 		test("Continuacion peticion escritura");
 		char * rev = NULL;
 		uint32_t tamAMandar=sizeof(uint32_t);
@@ -127,8 +125,9 @@ bool continuacionPeticionEscritura(uint32_t i,uint32_t offset,uint32_t size,char
 
 		// Mando largo del buffer
 		char* tamBufferStream = intToStream(size);
-		if(sendall(idFS,tamBufferStream,&size) < 0){
+		if(sendall(idFS,tamBufferStream,&tamAMandar) < 0){
 			log_error(logger,error);
+			test("ASD");
 			return 0;
 		}
 		free(tamBufferStream);
@@ -136,13 +135,18 @@ bool continuacionPeticionEscritura(uint32_t i,uint32_t offset,uint32_t size,char
 		// Mando buffer
 		if(sendall(idFS,buffer,&size) < 0){
 			log_error(logger,error);
+			test("ASDD");
 			return 0;
 		}
 
 		// Recibo confirmacion
-		if(recv(idFS,rev,1,0) <= 0){
+		rev = malloc(1);
+		if(recv(idFS,rev,1,0) < 0){
 			log_error(logger,error);
+			test("ASDDD");
 			return 0;
+		} else {
+			test("wwoo");
 		}
 
 		if(rev[0] == 'Y')
@@ -152,7 +156,7 @@ bool continuacionPeticionEscritura(uint32_t i,uint32_t offset,uint32_t size,char
 }
 
 bool borrarArchivo(char* path,uint32_t tamPath){
-	return mandarOperacionFS("B",path,tamPath,"Ocurrio un error al crear un archivo");
+	return mandarOperacionFS("B",path,tamPath,"Ocurrio un error al borrar un archivo");
 }
 
 bool crearArchivo(char* path,uint32_t tamPath){
@@ -163,26 +167,23 @@ char* leerArchivo(char*path,uint32_t tamPath, uint32_t i,uint32_t offset,uint32_
 
 	if(mandarOperacionFS("L",path,tamPath,"Ocurrio un error al leer un archivo") == 0){
 		log_error(logger,"No se pudo leer archivo.");
-		send(i,"N",1,0);
-		return 0;
+		return NULL;
 	}
 	continuacionPeticionLectura(i,offset,size,"Ocurrio un error al leer un archivo");
-	return 0;
+	return NULL;
 }
 
 bool escribirArchivo(char* path,uint32_t tamPath,uint32_t i,uint32_t offset,uint32_t size,char*data){
 	test("AAA");
-	if(mandarOperacionFS("E",path,tamPath,"Ocurrio un error al escribir un FD") == 0){
+	if(mandarOperacionFS("E",path,tamPath,"Ocurrio un error al escribir un archivo") == 0){
 		log_error(logger,"No se pudo escribir un archivo.");
-		send(i,"N",1,0);
 		return 0;
 	}
-	if(continuacionPeticionEscritura(i,offset,size,data,"Ocurrio un error al leer un archivo")){
+	if(continuacionPeticionEscritura(i,offset,size,data,"Ocurrio un error al escribir un archivo")){
 		log_trace(logger,"Se pudo escribir correctamente el archivo");
 		return 1;
 	}else{
 		log_error(logger,"No se pudo escribir un archivo.");
-		send(i,"N",1,0);
 		return 0;
 	}
 }
@@ -359,6 +360,9 @@ bool escribirFD(uint32_t i,t_programa* unPrograma){
 	data=realloc(data,tamanio+1);
 	memset(data,'\0',tamanio+1);
 
+	recv(i,data,tamanio,0);
+	send(i,"Y",1,0);
+
 	/*char* path = recibirPath(i);
 	char* permisos = recibirPermisos(i);
 	if(path == NULL || permisos == NULL){
@@ -392,6 +396,7 @@ bool escribirFD(uint32_t i,t_programa* unPrograma){
 			} else {
 				if(escribirArchivo(aux->archivo,strlen(aux->archivo),i,entradaFD->cursor,tamanio,data)){
 					log_trace(logger,"Se escribio un archivo correctamente");
+					log_trace(logger,aux->archivo);
 					send(i,"Y",1,0);
 					return 1;
 				}else{
@@ -406,43 +411,62 @@ bool escribirFD(uint32_t i,t_programa* unPrograma){
 			return 0;
 		}
 	}
+	send(i,"N",1,0);
 	return 0;
 }
 
 char* leerFD(uint32_t i,t_programa* unPrograma){
-	char* path = recibirPath(i);
+	log_trace(logger,"Dentro de la funcion leerFD");
+	uint32_t fd = 0;
+	recv(i,&fd,sizeof(uint32_t),MSG_WAITALL);
+	send(i,"Y",1,0);
+
+	uint32_t tamanio = 0;
+	recv(i,&tamanio,sizeof(uint32_t),MSG_WAITALL);
+	send(i,"Y",1,0);
+
+	/*char* path = recibirPath(i);
 	char* permisos = recibirPermisos(i);
 	if(path == NULL || permisos == NULL){
 		send(i,"N",1,0);
 		return 0;
+	}*/
+
+	uint32_t auxFDTAP = buscarFDArchivoPorId(fd,unPrograma);
+	uint32_t indiceGlobalFD = buscarFDPorId(auxFDTAP);
+	t_entradaTAP* entradaFD = list_get(unPrograma->tablaArchivosPrograma,auxFDTAP);
+	bool _condicion3(t_entradaTGA* self){
+		return self->indice==indiceGlobalFD;
 	}
+	void _destroyer3(t_entradaTGA* self){
+		free(self);
+	}
+	//TODO cond
+	t_entradaTGA * aux = list_find(tablaGlobalArchivos,(void*)_condicion3);
 
-	uint32_t fd = 0;
-	recv(i,&fd,sizeof(fd),MSG_WAITALL);
-	send(i,"Y",1,0);
-
-	uint32_t offset = 0;
-	recv(i,&offset,sizeof(offset),MSG_WAITALL);
-	send(i,"Y",1,0);
-
-	uint32_t tamanio = 0;
-	recv(i,&tamanio,sizeof(offset),MSG_WAITALL);
-	send(i,"Y",1,0);
-
-	if(validarArchivo(path,strlen(path)) == 1 || !tienePermisos('l',permisos)){
+	//printf("Flags: %s\n",entradaFD->flags);
+	//printf("Validar archivo %i|| !tienePermisos %i\n",validarArchivo(aux->archivo,strlen(aux->archivo))==0,!tienePermisos('l',entradaFD->flags));
+	if(validarArchivo(aux->archivo,strlen(aux->archivo)) == 0 || !tienePermisos('l',entradaFD->flags)){
 		send(i,"N",1,0);
-		log_error(logger,"No hay permisos para crear un nuevo archivo");
-		return 0;
+		log_error(logger,"No hay permisos para crear un nuevo archivo o el archivo no existe");
+		return NULL;
 	}
 
-	uint32_t indiceFD = buscarFDArchivoPorId(fd,unPrograma);
-	if(indiceFD != 9999){
-		t_entradaTAP* entradaFD = list_get(unPrograma->tablaArchivosPrograma,indiceFD);
+	if(auxFDTAP != 9999){
 		if(tienePermisos('l',entradaFD->flags)){
-			leerArchivo(path,strlen(path),i,offset,tamanio);
-			send(i,"Y",1,0);
+			char* contenido = leerArchivo(aux->archivo,strlen(aux->archivo),i,entradaFD->cursor,tamanio);
+			if(contenido != NULL){
+				log_trace(logger,"Se escribio un archivo correctamente");
+				log_trace(logger,aux->archivo);
+				send(i,"Y",1,0);
+				return contenido;
+			}else{
+				log_error(logger,"No se pudo escribir un archivo correctamente");
+				send(i,"N",1,0);
+				return NULL;
+			}
 		} else {
-			log_error(logger,"No hay permisos para escribir un nuevo archivo");
+			log_error(logger,"No hay permisos para escribir en un archivo");
 			send(i,"N",1,0);
 			return NULL;
 		}

@@ -185,7 +185,6 @@ void dummy_leer(t_descriptor_archivo descriptor_archivo, t_puntero informacion, 
 	if(finPrograma_global!='Y')
 		return;
 	printf("Llamada a "YEL"LEER"RESET" %i,%i,%i\n",descriptor_archivo,informacion,tamanio);
-	return;
 	int res;
 
 	res=leerArchivo(descriptor_archivo, tamanio);
