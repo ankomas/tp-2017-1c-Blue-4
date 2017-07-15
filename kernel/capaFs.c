@@ -18,7 +18,7 @@ bool mandarOperacionFS(char* opcode,char* path,uint32_t tamPath,char* error){
 
 	char* tamPathStream = intToStream(tamPath);
 	if(sendall(idFS,tamPathStream, &tamuint) < 0){
-		printf("1\n");
+		printf("11\n");
 		log_error(logger,error);
 		return 0;
 	}
@@ -233,9 +233,10 @@ uint32_t abrirFD(uint32_t i,t_programa* unPrograma){
 
 bool borrarFD(uint32_t i,t_programa* unPrograma){
 	uint32_t fd = 0;
-	recv(i,&fd,sizeof(fd),MSG_WAITALL);
+	log_trace(logger,"Llamada a BORRAR FD");
+	recv(i,&fd,sizeof(uint32_t),MSG_WAITALL);
 	send(i,"Y",1,0);
-
+/*
 	char* path = recibirPath(i);
 	if(path == NULL){
 		return 0;
@@ -246,24 +247,45 @@ bool borrarFD(uint32_t i,t_programa* unPrograma){
 		log_error(logger,"No existe el archivo que se quiere borrar");
 		return 0;
 	}
-
-	uint32_t indiceGlobalFD = buscarFDPorId(fd);
+*/
+	uint32_t auxFDTAP = buscarFDArchivoPorId(fd,unPrograma);
+	uint32_t indiceGlobalFD = buscarFDPorId(auxFDTAP);
+	printf("FD: %i, indiceGlobalFD: %i\n",fd,indiceGlobalFD);
 	if(indiceGlobalFD != 9999){
 		t_entradaTGA * aux = list_get(tablaGlobalArchivos,indiceGlobalFD);
 		if(aux->abierto == 1){
 			if(borrarArchivo(aux->archivo,strlen(aux->archivo))){
-				list_remove(unPrograma->tablaArchivosPrograma,fd);
-				list_remove(tablaGlobalArchivos,indiceGlobalFD);
-				list_remove(unPrograma->tablaArchivosPrograma,buscarFDArchivoPorId(fd,unPrograma));
-				return 1;
+				bool _condicion(t_entradaTAP* self){
+					return self->indice==fd;
+				}
+				void _destroyer(t_entradaTAP* self){
+					free(self);
+				}
+				list_remove_and_destroy_by_condition(unPrograma->tablaArchivosPrograma,(void*)_condicion,(void*)_destroyer);
+				//list_remove(unPrograma->tablaArchivosPrograma,fd);
+
+				bool _condicion2(t_entradaTGA* self){
+					return self->indice==indiceGlobalFD;
+				}
+				void _destroyer2(t_entradaTGA* self){
+					free(self);
+				}
+				list_remove_and_destroy_by_condition(tablaGlobalArchivos,(void*)_condicion2,(void*)_destroyer2);
+				//list_remove(tablaGlobalArchivos,indiceGlobalFD);
+				//ist_remove(unPrograma->tablaArchivosPrograma,buscarFDArchivoPorId(fd,unPrograma));
+
 				log_trace(logger,"Se borro el FD correctamente");
 				send(i,"Y",1,0);
+				return 1;
 			} else {
-				return 0;
 				// mandar proceso a exit recibiendo pcb de cpu
 				log_trace(logger,"No se pudo borrar el FD correctamente");
 				send(i,"N",1,0);
+				return 0;
 			}
+		}else{
+			log_trace(logger,"No se pudo borrar el FD, otro lo tiene abierto");
+			send(i,"N",1,0);
 		}
 	}
 	return 0;
@@ -405,6 +427,7 @@ uint32_t buscarFDPorId(uint32_t id){
 	int contador = 0;
 	while(contador < list_size(tablaGlobalArchivos)){
 		t_entradaTGA * aux = list_get(tablaGlobalArchivos,contador);
+		printf("Comparando %i con ID %i\n",aux->indice,id);
 		if(aux->indice == id){
 			return id;
 		}
