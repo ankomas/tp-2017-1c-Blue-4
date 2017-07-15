@@ -134,7 +134,7 @@ char* recibirPath(int socket)
 	path=calloc(1,tamanioTotalBuffer+1);
 	memcpy(path,buffer,tamanioTotalBuffer);
 	free(buffer);
-	printf("el path es: %s \n ",path);
+	printf("el path es: %s\n ",path);
 	return path;
 
 }

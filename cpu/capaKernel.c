@@ -253,8 +253,71 @@ char liberar(t_puntero puntero){
 	}
 }
 
+package_t banderasAChar(t_banderas flags){
+	package_t res;
+	char* data=NULL;
+	int off=0;
+
+	if(flags.creacion){
+		off++;
+		data=realloc(data,off);
+		memcpy(data+off-1,"c",1);
+	}
+	if(flags.escritura){
+		off++;
+		data=realloc(data,off);
+		memcpy(data+off-1,"e",1);
+	}
+	if(flags.lectura){
+		off++;
+		data=realloc(data,off);
+		memcpy(data+off-1,"l",1);
+	}
+
+	res.data=data;
+	res.data_size=off;
+
+	return res;
+
+}
+
 int abrirArchivo(t_direccion_archivo direccion,t_banderas flags){
-	return 1;
+	uint32_t dirlen=strlen(direccion);
+	uint32_t fd;
+	char res;
+	package_t flags_p=banderasAChar(flags);
+	send(kernel,"a",1,0);
+
+	printf("Direccion: %s, strlen: %i\n",direccion,dirlen);
+
+	// Envio largo del path
+	send(kernel,&dirlen,sizeof(uint32_t),0);
+	recv(kernel,&res,1,0);//recibo Y
+
+	// Envio el nombre del semaforo
+	send(kernel,direccion,dirlen,0);
+	recv(kernel,&res,1,0);//recibo Y
+
+	// Envio longitud permisos
+	send(kernel,&flags_p.data_size,sizeof(uint32_t),0);
+	recv(kernel,&res,1,0); //recibo Y
+
+	// Envio permisos
+	send(kernel,flags_p.data,flags_p.data_size,0);
+	recv(kernel,&res,1,0); //recibo Y
+
+	recv(kernel,&res,1,0); //recibo Y o N
+
+	switch(res){
+	case 'Y':
+		recv(kernel,&fd,sizeof(uint32_t),0);
+		return fd;
+	case 'N':
+		return -1;
+	default :
+		printf("ABRIR ARCHIVO ERROR respuesta erronea\n");
+		return -1;
+	}
 }
 
 int borrarArchivo(t_descriptor_archivo fd){

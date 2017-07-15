@@ -89,10 +89,8 @@ void initFunciones(){
 	AnSISOP_kernel j = {
 			.AnSISOP_wait					= dummy_wait,
 			.AnSISOP_signal					= dummy_signal,
-
 			.AnSISOP_reservar				= dummy_reservar,
 			.AnSISOP_liberar				= dummy_liberar,
-
 			.AnSISOP_abrir					= dummy_abrir,
 			.AnSISOP_borrar					= dummy_borrar,
 			.AnSISOP_cerrar					= dummy_cerrar,
