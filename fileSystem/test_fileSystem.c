@@ -54,16 +54,18 @@ void bitMap_TEST()
 	*/
 	printf("tamaño del bitMap : %d \n",bitarray_get_max_bit(bitMap));
 	bitarray_set_bit(bitMap,0);
-	//bitarray_set_bit(bitMap,1);
+	bitarray_set_bit(bitMap,1);
 	bitarray_set_bit(bitMap,2);
 	//bitarray_set_bit(bitMap,4);
 	//bitarray_set_bit(bitMap,5);
 	//bitarray_set_bit(bitMap,6);
 	bitarray_set_bit(bitMap,7);
+	bitarray_set_bit(bitMap,9);
+	bitarray_set_bit(bitMap,10);
 	//bitarray_clean_bit(bitmap,0);
 	//bitarray_clean_bit(bitmap,7);
 	//bitarray_clean_bit(bitmap,3);
-
+	/*
 	printf("posicion 0 : %d \n",bitarray_test_bit(bitMap,0));
 	printf("posicion 1 : %d \n",bitarray_test_bit(bitMap,1));
 	printf("posicion 2 : %d \n",bitarray_test_bit(bitMap,2));
@@ -72,6 +74,7 @@ void bitMap_TEST()
 	printf("posicion 5 : %d \n",bitarray_test_bit(bitMap,5));
 	printf("posicion 6 : %d \n",bitarray_test_bit(bitMap,6));
 	printf("posicion 7 : %d \n",bitarray_test_bit(bitMap,7));
+	*/
 }
 
 

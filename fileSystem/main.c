@@ -17,7 +17,7 @@
 void testLectura(){
 	char*ruta=rutaEnPuntoMontaje("/Archivos","/archivo_test.bin");
 	char* data;
-	data=obtenerDatos(ruta,0,58);
+	data=obtenerDatos(ruta,0,60);
 	printf("la data es: %s \n",data);
 	free(data);
 	free(ruta);
@@ -25,15 +25,47 @@ void testLectura(){
 
 void testEscrituraFacil(){
 	char*ruta=rutaEnPuntoMontaje("/Archivos","/archivo_test.bin");
-	guardarDatos(ruta,0,20,"MIAUMIAU:3");
+	guardarDatos(ruta,0,20,"MIAUMIAU:3GuauGuau:3");
 	free(ruta);
 }
 
 void testEscrituraCompleta(){
 	char*ruta=rutaEnPuntoMontaje("/Archivos","/archivo_test.bin");
-	guardarDatos(ruta,5,20,"CARACARACARACARACARA");
+	guardarDatos(ruta,0,25,"CARACARACARACARACARACAGON");
 	guardarDatos(ruta,25,20,"POPOPOPOPOPOPOPOPOPO");
-	guardarDatos(ruta,45,20,"PEDOPEDOPEDOPEDOPEDO");
+	guardarDatos(ruta,35,20,"PEDOPEDOPEDOPEDOPEDO");
+	free(ruta);
+}
+
+void testE1(){
+	char*ruta=rutaEnPuntoMontaje("/Archivos","/archivo_test.bin");
+	guardarDatos(ruta,14,4,"HOLA");
+	free(ruta);
+}
+
+void testL1(){
+	char*ruta=rutaEnPuntoMontaje("/Archivos","/archivo_test.bin");
+	char* data;
+	data = obtenerDatos(ruta,14,4);
+	printf("La data es: %s \n", data);
+	free(data);
+	free(ruta);
+}
+
+void testEscrituraAlfabeto(){
+	char*ruta=rutaEnPuntoMontaje("/Archivos","/archivo_test.bin");
+	guardarDatos(ruta,0,10,"AAAAAAAAAA");
+	guardarDatos(ruta,10,10,"BBBBBBBBBB");
+	guardarDatos(ruta,20,10,"CCCCCCCCCC");
+	guardarDatos(ruta,30,10,"DDDDDDDDDD");
+	guardarDatos(ruta,40,10,"EEEEEEEEEE");
+	guardarDatos(ruta,50,10,"FFFFFFFFFF");
+	free(ruta);
+}
+
+void testoo(){
+	char*ruta=rutaEnPuntoMontaje("/Archivos","/archivo_test.bin");
+	guardarDatos(ruta,2,2,"oo");
 	free(ruta);
 }
 
@@ -44,10 +76,11 @@ int main(void) {
 	//generarArchivoDelFS_TEST();
 	//crearArchivo("/archivo_test.bin");
 	//borrar("/archivo_test.bin");
-	testLectura();
+	//testEscrituraAlfabeto();
 	//testEscrituraFacil();
-	testEscrituraCompleta();
-	testLectura();
+	//testEscrituraCompleta();
+	//testoo();
+	//testLectura();
 	servidor();
 
 	return 0;
