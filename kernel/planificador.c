@@ -316,6 +316,7 @@ void* cpu(t_cpu * cpu){
 					}
 
 					printf("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
+					send(proximoPrograma->id,"F",1,0);
 					moverPrograma(proximoPrograma,procesosEXEC,procesosEXIT);
 					proximoPrograma = NULL;
 					break;
@@ -468,21 +469,23 @@ t_programa* planificador(t_programa* unPrograma){
 			unPrograma = NULL;
 		}
 	}
-
 	if(strcmp(algoritmoPlanificador,"RR") == 0){
-		if(unPrograma->quantumRestante == 0){
-			unPrograma->quantumRestante = quantum;
-			return NULL;
-		} else {
-			unPrograma->quantumRestante--;
-			return unPrograma;
+		if(unPrograma != NULL){
+			if(unPrograma->quantumRestante == 0){
+				unPrograma->quantumRestante = quantum;
+				return NULL;
+			} else {
+				unPrograma->quantumRestante--;
+				return unPrograma;
+			}
 		}
 	} else if(strcmp(algoritmoPlanificador,"FIFO") == 0){
 		return unPrograma;
 	} else {
+		test(algoritmoPlanificador);
 		log_error(logger,"Algoritmo mal cargado al config.cfg");
 	}
-	free(algoritmoPlanificador);
+	//free(algoritmoPlanificador);
 	return 0;
 
 }

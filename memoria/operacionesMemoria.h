@@ -81,5 +81,6 @@ int asignarPaginasAUnProceso(uint32_t ,uint32_t );
 
 int agregarProcesoACache(int, int);
 
+int validarPIDPAG(int, int);
 
 #endif /* OPERACIONESMEMORIA_H_ */
