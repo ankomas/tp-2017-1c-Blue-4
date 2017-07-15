@@ -291,6 +291,9 @@ void* cpu(t_cpu * cpu){
 			while(1){
 				recv(cpu->id,res,1,MSG_WAITALL);
 
+				/*retardo = obtenerConfiguracion(cfg,"QUANTUM_SLEEP");
+				usleep(retardo);*/
+
 				// Verifico si aun le falta ejecutar al proceso
 				if(res[0] == 'F'){
 					proximoPrograma->rafagasEjecutadas++;
@@ -405,7 +408,6 @@ void* cpu(t_cpu * cpu){
 					proximoPrograma = NULL;
 					break;
 				}
-
 			}
 			// Esta Y debe ser reemplazada por el codigo que devuelva la cpu, cuando finalice tiene que limpiar las estructuras incluyendo cpu
 		} else {
@@ -469,10 +471,11 @@ t_programa* planificador(t_programa* unPrograma){
 
 	if(strcmp(algoritmoPlanificador,"RR") == 0){
 		if(unPrograma->quantumRestante == 0){
+			unPrograma->quantumRestante = quantum;
+			return NULL;
+		} else {
 			unPrograma->quantumRestante--;
 			return unPrograma;
-		} else {
-			return NULL;
 		}
 	} else if(strcmp(algoritmoPlanificador,"FIFO") == 0){
 		return unPrograma;

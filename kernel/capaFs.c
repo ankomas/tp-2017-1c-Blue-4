@@ -174,7 +174,7 @@ bool validarArchivo(char* path,uint32_t tamPath){
 
 void imprimirPorConsola(uint32_t socket,char*data,uint32_t tamanio){
 	uint32_t uno = 1;
-	if(sendall(socket,"I",&uno) < 0)
+	if(sendall(socket,"P",&uno) < 0)
 		log_trace(logger,"Ocurrio en error al tratar de imprimir data por la consola");
 	if(sendall(socket,data,&tamanio) < 0)
 		log_trace(logger,"Ocurrio en error al tratar de imprimir data por la consola");
@@ -314,7 +314,7 @@ bool escribirFD(uint32_t i,t_programa* unPrograma){
 		return 0;
 	}
 
-	if(validarArchivo(path,strlen(path)) == 1 || !tienePermisos('e',permisos)){
+	if(validarArchivo(path,strlen(path)) == 0 || !tienePermisos('e',permisos)){
 		send(i,"N",1,0);
 		log_error(logger,"No hay permisos para crear un nuevo archivo o el archivo no existe");
 		return 0;
@@ -327,6 +327,7 @@ bool escribirFD(uint32_t i,t_programa* unPrograma){
 			if(fd == 1){
 				imprimirPorConsola(unPrograma->id,data,tamanio);
 			} else {
+
 				if(escribirArchivo(path,strlen(path))){
 					log_trace(logger,"Se creo un archivo correctamente");
 					send(i,"Y",1,0);

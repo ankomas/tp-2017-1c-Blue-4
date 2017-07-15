@@ -28,6 +28,7 @@ int idFS;
 int idUMC;
 int tamanioPagina;
 int detenerPlanificacion;
+int retardoQuantum;
 int32_t tamanioStack;
 
 pthread_t hiloPlanificador,hiloConsolaKernel;
@@ -86,7 +87,7 @@ void inicializarDatos(){
 	if(idFS <= 0){
 		anuncio("No se conecto al FileSystem, abortando...");
 	}
-	retardo = obtenerConfiguracion(cfg,"RETARDO");
+	retardo = obtenerConfiguracion(cfg,"QUANTUM_SLEEP");
 
 	if(idFS <= 0){
 		log_error(logger,"No se pudo conectar al FileSystem");
