@@ -307,9 +307,6 @@ bool escribirFD(uint32_t i,t_programa* unPrograma){
 	data=realloc(data,tamanio+1);
 	memset(data,'\0',tamanio+1);
 
-	recv(i,data,tamanio,MSG_WAITALL);
-	send(i,"Y",1,0);
-
 	char* path = recibirPath(i);
 	char* permisos = recibirPermisos(i);
 	if(path == NULL || permisos == NULL){
