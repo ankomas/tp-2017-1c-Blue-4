@@ -64,7 +64,7 @@ void inicializarVariablesCompartidas() {
 
 	while (varCompartidas_ids[aux]){
 		printf("Agregado a VARIABLES COMPARTIDAS: %s\n",varCompartidas_ids[aux]);
-		dictionary_put(variablesCompartidas,varCompartidas_ids[aux],0);
+		dictionary_put(variablesCompartidas,string_substring_from(varCompartidas_ids[aux],1),0);
 		aux++;
 	}
 }
