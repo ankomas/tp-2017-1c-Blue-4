@@ -39,5 +39,30 @@ int conectarseAlKernel();
 datosConfig_t obtenerEstructurasDelConfig();
 void crearMenuPrincipal();
 
+/**
+ * Valida si se recibio data.
+ * @param socket
+ * @param resultadoRecv
+ * @return 0 en caso de exito y -1 en caso de error
+ */
+int validarRecv(int ,int );
+
+/**
+ * Recibe el tamanio de lo que me van a enviar.
+ * @param socket
+ * @return tamanio de lo que envian.
+ */
+uint32_t recibirTamPaquete(int );
+
+/**
+ * Recibe un paquete dado un socket y un tamanio
+ * @param socket
+ * @param tamanio
+ * @param resultadoDelRecv
+ * @return devuelve el buffer y por referencia si se lo pudo recibir adecuadamente.
+ */
+char* recibirPaquete(int ,uint32_t ,int* );
+
+
 
 #endif /* CONEXIONES_H_ */

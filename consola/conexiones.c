@@ -14,6 +14,7 @@
 #include <stdint.h>
 #include "conexiones.h"
 #include "hilos.h"
+#include "funcionesAuxiliares.h"
 #include <blue4-lib.h>
 
 
@@ -140,3 +141,114 @@ int conectarseAlKernel()
 	return -1;
 }
 
+
+
+
+
+
+
+
+int validarRecv(int socket,int resultadoRecv)
+{
+	if(resultadoRecv<0)
+	{
+		send(socket,"N",1,0);
+		return -1;
+	}
+	return 0;
+}
+
+
+
+
+uint32_t recibirTamPaquete(int socket)
+{
+	int resultado;
+	uint32_t uint;
+	printf("entro a recibir tamanio buffer \n");
+	uint32_t tambuffer=sizeof(uint32_t);
+	char* buffer=malloc(tambuffer);
+	memset(buffer,'\0',tambuffer);
+	resultado=recvall(socket,buffer,tambuffer);
+	if(validarRecv(socket,resultado)<0)
+	{
+		free(buffer);
+		return -1;
+	}
+	memcpy(&uint,buffer,tambuffer);
+	//tamanioTotal=*(uint32_t*)buffer;
+	free(buffer);
+	printf("se recibio: %u \n",uint);
+	return uint;
+}
+
+
+
+
+//TODO liberar la data cuando no se necesite mas !!!
+char* recibirPaquete(int socket,uint32_t tamanio,int* resultadoDelRecv)
+{
+	char* data=malloc(tamanio);
+	printf("entro al recvall \n");
+	printf("se va a recibir data de socket : %d ,tamanio: %d \n",socket,tamanio);
+	*resultadoDelRecv=recvall(socket,data,tamanio);
+	testi(*resultadoDelRecv);
+	printf("sali del recvall \n");
+	return data;
+}
+
+
+
+
+
+/**
+ * Recibe el socket para recibir un pid que devuelve como char*
+ *
+ * sino lo puede recibir devuelve NULL;
+ *
+ * @param socket
+ * @return pid_en_string;
+ */
+
+char* recibirPid(int socket_kernel)
+{
+	// recibir el PID del Kernel
+	char* pid_programa = malloc(4);
+	memset(pid_programa,'\0',4);
+
+	recv(socket_kernel,pid_programa,4,MSG_WAITALL);
+	//printf("el pid que recibo del kernel es: %s \n",pid_programa);
+
+	if(strcmp(pid_programa,"N")==0)
+	{
+		textoEnColor("El programa NO puede ser iniciado ",0,0);
+		// TODO averiguar si esta es la forma correcta de eliminar los recursos de este hilo si no pudo ser creado!!!
+		free(pid_programa);
+		//close(socket_kernel);
+		//pthread_exit(NULL);
+		return NULL;
+	}
+	return pid_programa;
+}
+
+
+
+
+// TODO liberar lo que devuelve cuando no se use mas!!!
+char* recibirSentencia(int socket)
+{
+	uint32_t tamBuffer=recibirTamPaquete(socket);
+	int resultado;
+	if(tamBuffer==-1)return NULL;
+	char* sentencia=recibirPaquete(socket,tamBuffer,&resultado);
+		if(validarRecv(socket,resultado)<0)
+		{
+			free(sentencia);
+			return NULL;
+		}
+	char* sentencia_string=calloc(1,tamBuffer+1);
+	memcpy(sentencia_string,sentencia,tamBuffer);
+	free(sentencia);
+	printf("la sentencia es: %s\n ",sentencia_string);
+	return sentencia_string;
+}
