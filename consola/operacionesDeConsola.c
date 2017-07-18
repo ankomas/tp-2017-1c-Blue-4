@@ -30,7 +30,7 @@ void finalizarPrograma(int id)
 
 	if(data==NULL)
 	{
-		textoEnColor("el ID ingresado no es valido",0,0);
+		textoRojo(" \n El ID ingresado no es valido");
 		return;
 	}
 	textoEnColor("El id Buscado es ",(*data).pidHilo,1);
@@ -145,11 +145,11 @@ void crearMenuPrincipal()
 		switch(opcion)
 			{
 			case 1:
-				printf("Ingrese programa ANSISOP ");
+				textoAzul("Ingrese programa ANSISOP: ");
 				scanf("%s",rutaPrograma);
 				FILE*abrirArchivo = fopen(rutaPrograma,"r");
 				if(abrirArchivo == NULL){
-					textoAmarillo("Ruta de programa invalida, por favor verifique la ruta del mismo\n");
+					textoRojo("Ruta de programa invalida, por favor verifique la ruta del mismo\n");
 				}else {
 					textoAzul("Iniciando programa ANSISOP..... \n\n");
 					fclose(abrirArchivo);
@@ -158,7 +158,7 @@ void crearMenuPrincipal()
 				getchar();
 				break;
 			case 2:
-				textoAzul("ingrese el id del programa que quiere finalizar ");
+				textoAzul("Ingrese el id del programa que quiere finalizar ");
 				scanf("%d",&id);
 				finalizarPrograma(id);
 				getchar();

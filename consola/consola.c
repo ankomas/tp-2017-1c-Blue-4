@@ -20,7 +20,9 @@ t_config* config;
 
 void inicializarEstructurasAdministrativas()
 {
-	config = config_create(rutaAbsolutaDe("configConsola.cfg"));
+	char* ruta=rutaAbsolutaDe("configConsola.cfg");
+	config = config_create(ruta);
+	free(ruta);
 	dataDeHilos = list_create();
 	dataDeProcesos= list_create();
 	pthread_mutex_init(&mutexDataDeHilos,NULL);
