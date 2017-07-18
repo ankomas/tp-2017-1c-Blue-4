@@ -77,6 +77,20 @@ t_programa * encontrarPrograma(uint32_t i){
 	return NULL;
 }
 
+t_programa * encontrarProgramaPorPID(uint32_t pid){
+	int contador = 0;
+	if(list_size(PROGRAMAs) > 0){
+		t_programa * programaAux;
+		while(contador < list_size(PROGRAMAs)){
+			programaAux = list_get(PROGRAMAs,contador);
+			if(programaAux->pcb->pid == pid)
+				return programaAux;
+			contador++;
+		}
+	}
+	return NULL;
+}
+
 t_cpu * encontrarCPUporPID(uint32_t pid){
 	int contador = 0;
 	if(list_size(CPUs) > 0){
@@ -234,7 +248,7 @@ t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual){
 	nuevoProceso->pcb->ultimaPosUsada.pag=cantidadPaginasCodigo;
 
 	pthread_mutex_lock(&mutex_colasPlanificacion);
-	if(gradoMultiprogramacion > cantidadProgramasEnSistema){
+	if(gradoMultiprogramacion >= cantidadProgramasEnSistema){
 		encolarReady(nuevoProceso);
 	}else{
 		/*if(send(i,"N",1,0) < 1)

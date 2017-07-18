@@ -52,5 +52,6 @@ t_programa* planificador();
 void *cpu();
 void encolarReady();
 void moverPrograma(t_programa* unPrograma,t_queue* colaOrigen, t_queue* colaDestino);
+t_programa * encontrarProgramaPorPID(uint32_t pid);
 
 #endif /* PLANIFICADOR_H_ */

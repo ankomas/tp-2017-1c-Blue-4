@@ -121,43 +121,72 @@ void *consolaKernel(){
 			if(opcionInt >= 0 && opcionInt <= 5 )
 				listarProcesos(opcionInt);
 		} else if(opcion[0] == INFO_PROCESO){
+			opcionInt = 0;
 			mostrarYAgregarRuta(rutaOpciones," >> Mostrar info de proceso");
 			anuncio("\nPor favor ingrese el PID del proceso para mostrar info sobre el mismo:");
-			scanf("%s", opcion);
-			/*if(encontrarPrograma(opcion)){
-
-			}*/
-			if(opcion[0] == CANTIDAD_RAFAGAS_EJECUTADAS){
-
-			} else if(opcion[0] == CANTIDAD_OP_PRIVILEGIADAS){
-				//printf("Fueron realizadas %i",proceso->cantidadSyscallsEjecutadas);
-			} else if(opcion[0] == OBTENER_TABLA_ARCHIVOS_ABIERTOS){
-				//imprimirTAP(nuevoProceso);
-			} else if(opcion[0] == CANTIDAD_PAGINAS_HEAP){
+			scanf("%d", &opcionInt);
+			t_programa* programaEncontrado = encontrarProgramaPorPID(opcionInt);
+			if(programaEncontrado != NULL){
+				anuncio("\nPor favor ingrese lo que desea conocer de este proceso:");
+				printf("1 - Cantidad de rafagas ejecutadas\n");
+				printf("2 - Cantidad Operaciones privilegiadas ejecutadas\n");
+				printf("3 - Tabla de archivos abiertos \n");
+				printf("4 - Cantidad de paginas de Heap\n");
+				printf("5 - Cantidad de syscalls realizadas\n");
 				scanf("%s", opcion);
-				if(opcion[0] == CANTIDAD_ACCIONES_ALOCAR){
-					//printf("Cantidad ALOCAR realizados: %i",proceso->cantidadAlocarEjecutados);
-					//printf("Cantidad ALOCAR realizados en bytes: %i",proceso->cantidadAlocarEjecutadosBytes);
-				} else if(opcion[0] == CANTIDAD_ACCIONES_LIBERAR){
-					//printf("Cantidad LIBERAR realizados: %i",proceso->cantidadLiberarEjecutados);
-					//printf("Cantidad LIBERAR en bytes: %i",proceso->cantidadLiberarEjecutadosBytes);
+				if(opcion[0] == CANTIDAD_RAFAGAS_EJECUTADAS){
+					mostrarYAgregarRuta(rutaOpciones," >> Cantidad rafagas ejecutadas");
+					printf("\nCantidad de rafagas ejecutadas: %i",programaEncontrado->rafagasEjecutadas);
+				} else if(opcion[0] == CANTIDAD_OP_PRIVILEGIADAS){
+					mostrarYAgregarRuta(rutaOpciones," >> Cantidad Operaciones privilegiadas");
+					printf("Fueron realizadas %i",programaEncontrado->cantidadSyscallsEjecutadas);
+				} else if(opcion[0] == OBTENER_TABLA_ARCHIVOS_ABIERTOS){
+					mostrarYAgregarRuta(rutaOpciones," >> Mostrar tabla archivos abiertos");
+					//imprimirTAP(nuevoProceso);
+				} else if(opcion[0] == CANTIDAD_PAGINAS_HEAP){
+					mostrarYAgregarRuta(rutaOpciones," >> Cantidad paginas heap");
+					printf("Cantidad Paginas de Heap utilizadas: %i",list_size(programaEncontrado->paginasHeap));
+					anuncio("\nDesea conocer la cantidad de acciones alocar o liberar?:");
+					printf("1 - Cantidad de acciones alocar realizados\n");
+					printf("2 - Cantidad de acciones liberar realizados\n");
+					scanf("%s", opcion);
+					if(opcion[0] == CANTIDAD_ACCIONES_ALOCAR){
+						mostrarYAgregarRuta(rutaOpciones," >> Cantidad acciones alocar");
+						printf("\nCantidad ALOCAR realizados: %i",programaEncontrado->cantidadAlocarEjecutados);
+						printf("\nCantidad ALOCAR realizados en bytes: %i",programaEncontrado->cantidadAlocarEjecutadosBytes);
+					} else if(opcion[0] == CANTIDAD_ACCIONES_LIBERAR){
+						mostrarYAgregarRuta(rutaOpciones," >> Cantidad acciones liberar");
+						printf("\nCantidad LIBERAR realizados: %i",programaEncontrado->cantidadLiberarEjecutados);
+						printf("\nCantidad LIBERAR en bytes: %i",programaEncontrado->cantidadLiberarEjecutadosBytes);
+					}
+				} else if(opcion[0] == CANTIDAD_SYSCALLS_EJECUTADAS){
+					// ? no son lo mismo que op privilegiadas?
+					//printf("Cantidad de Syscalls ejecutadas: %i",proceso->cantidadSyscallsEjecutadas;
 				}
-			} else if(opcion[0] == CANTIDAD_SYSCALLS_EJECUTADAS){
-				//printf("Cantidad de Syscalls ejecutadas: %i",proceso->cantidadSyscallsEjecutadas;
 			}
 		} else if(opcion[0] == TABLA_GLOBAL_ARCHIVOS){
-			//imprimirTablaArchivosAbiertos();
+			mostrarYAgregarRuta(rutaOpciones," >> Mostrar Tabla global de archivos");
+			//imprimirTGA();
 		} else if(opcion[0] == MODIFICAR_GRADO_MULTIPROGRAMACION){
-			printf("Ingrese el nuevo grado de multiprogramacion:\n");
-			scanf("%s", opcion);
-			gradoMultiprogramacion = atoi(opcion);
-			char * texto = concat(2,"Nuevo grado de multiprogramacion: ",opcion);
+			mostrarYAgregarRuta(rutaOpciones," >> Modificar el grado de multiprogramacion");
+			opcionInt = 0;
+			printf("\nIngrese el nuevo grado de multiprogramacion:\n");
+			scanf("%d", &opcionInt);
+			gradoMultiprogramacion = opcionInt;
+			char * texto = concat(2,"Nuevo grado de multiprogramacion: ",string_itoa(opcionInt));
 			log_info(logger,texto);
 			free(texto);
 		} else if(opcion[0] == FINALIZAR_PROCESO){
-			printf("Ingrese el archivo que desee finalizar:\n");
-			scanf("%s", opcion);
+			mostrarYAgregarRuta(rutaOpciones," >> Finalizar proceso");
+			opcionInt = 0;
+			printf("\nIngrese el PID del programa que desea finalizar:\n");
+			scanf("%d", &opcionInt);
+			t_programa* programaEncontrado = encontrarProgramaPorPID(opcionInt);
+			if(programaEncontrado != NULL){
+				//finalizar programa
+			}
 		} else if(opcion[0] == DETENER_PLANIFICACION){
+			mostrarYAgregarRuta(rutaOpciones," >> Cambiar el estado de planificacion");
 			if(detenerPlanificacion == 0){
 				log_info(logger,"La planificacion ha sido detenida por el usuario");
 				detenerPlanificacion = 1;
