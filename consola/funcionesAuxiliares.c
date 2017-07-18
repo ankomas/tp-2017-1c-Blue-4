@@ -365,7 +365,7 @@ void imprimirFinalizacionDeProceso(dataHilos_t* data)
 
 void imprimirSentenciaAnsisop(dataHilos_t* data)
 {
-	char* sentencia=recibirSentencia(data->socketKernel);
+	char* sentencia=recibirSentenciaAnsisop(data->socketKernel);
 	dataProceso_t* infoProceso=eliminarProcesoDeListaPorPid(data->pidHilo);
 
 	if(sentencia)
@@ -444,11 +444,11 @@ void gestionarProgramaAnsisop(dataHilos_t* dataHilo)
 	free(pid_programa);
 	agregarDataHilo(dataHilo);
 	//TODO liberar la estructura cuando ya no se necesite mas!!!
-	dataProceso_t dataProceso;//=malloc(sizeof(dataProceso_t));
-	dataProceso.PID=dataHilo->pidHilo;
-	dataProceso.fecha_Y_hora_DeInicio=time(0);
-	dataProceso.impresionesPorPantalla=0;
-	agregarDataDeProceso(&dataProceso);
+	dataProceso_t* dataProceso=malloc(sizeof(dataProceso_t));
+	dataProceso->PID=dataHilo->pidHilo;
+	dataProceso->fecha_Y_hora_DeInicio=time(0);
+	dataProceso->impresionesPorPantalla=0;
+	agregarDataDeProceso(dataProceso);
 
 	//dataHilos_t* hiloBuscado;
 

@@ -40,6 +40,13 @@ datosConfig_t obtenerEstructurasDelConfig();
 void crearMenuPrincipal();
 
 /**
+ *
+ * @param socket_kernel
+ * @return pid en string
+ */
+char* recibirPid(int );
+
+/**
  * Valida si se recibio data.
  * @param socket
  * @param resultadoRecv
@@ -63,6 +70,13 @@ uint32_t recibirTamPaquete(int );
  */
 char* recibirPaquete(int ,uint32_t ,int* );
 
+
+/**
+ *
+ * @param socket
+ * @return sentencia en string (liberar cuando no se use mas!!!).
+ */
+char* recibirSentenciaAnsisop(int );
 
 
 #endif /* CONEXIONES_H_ */

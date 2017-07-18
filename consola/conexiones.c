@@ -235,7 +235,7 @@ char* recibirPid(int socket_kernel)
 
 
 // TODO liberar lo que devuelve cuando no se use mas!!!
-char* recibirSentencia(int socket)
+char* recibirSentenciaAnsisop(int socket)
 {
 	uint32_t tamBuffer=recibirTamPaquete(socket);
 	int resultado;
