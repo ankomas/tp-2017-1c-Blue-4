@@ -198,6 +198,11 @@ t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual){
 	nuevoProceso->cantidadLiberarEjecutados = 0;
 	nuevoProceso->cantidadLiberarEjecutadosBytes = 0;
 
+	uint32_t p = 3;
+	send(i,"P",1,0);
+	send(i,&p,4,0);
+	send(i,"ASD",3,0);
+
 	uint32_t cantidadPaginasCodigo = 0;
 	if(tamanioPagina == -1)
 		anuncio("No se pueden cargar procesos porque la memoria no esta conectada");
