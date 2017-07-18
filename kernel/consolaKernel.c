@@ -101,7 +101,7 @@ void *consolaKernel(){
 		printf("1 - Listar procesos\n");
 		printf("2 - Obtener informacion de un proceso\n");
 		printf("3 - Obtener la tabla global de archivos\n");
-		printf("4 - Modificar el grado de programacion del sistema\n");
+		printf("4 - Modificar el grado de multiprogramacion del sistema\n");
 		printf("5 - Finalizar un proceso\n");
 		printf("6 - Detener la planificacion\n");
 		char opcion[1];
@@ -150,17 +150,20 @@ void *consolaKernel(){
 		} else if(opcion[0] == MODIFICAR_GRADO_MULTIPROGRAMACION){
 			printf("Ingrese el nuevo grado de multiprogramacion:\n");
 			scanf("%s", opcion);
-			gradoMultiprogramacion = opcion;
+			gradoMultiprogramacion = atoi(opcion);
+			char * texto = concat(2,"Nuevo grado de multiprogramacion: ",opcion);
+			log_info(logger,texto);
+			free(texto);
 		} else if(opcion[0] == FINALIZAR_PROCESO){
 			printf("Ingrese el archivo que desee finalizar:\n");
 			scanf("%s", opcion);
 		} else if(opcion[0] == DETENER_PLANIFICACION){
 			if(detenerPlanificacion == 0){
-				log_info(logger,"Deteniendo la planificacion");
+				log_info(logger,"La planificacion ha sido detenida por el usuario");
 				detenerPlanificacion = 1;
 			}else{
 				detenerPlanificacion = 0;
-				log_info(logger,"Deteniendo la planificacion");
+				log_info(logger,"La planificacion ha sido resumida por el usuario");
 			}
 		}
 	}

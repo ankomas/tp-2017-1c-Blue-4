@@ -448,6 +448,10 @@ void moverPrograma(t_programa* unPrograma,t_queue* colaOrigen, t_queue* colaDest
 }
 
 t_programa* planificador(t_programa* unPrograma){
+	if(detenerPlanificacion == 1){
+		usleep(1000);
+		return NULL;
+	}
 	// mutex por haber leido de un archivo que puede ser actualizado hasta antes del recv
 	algoritmoPlanificador = obtenerConfiguracionString(cfg,"ALGORITMO");
 	//printf("algoritmoPlanificador %s\n",algoritmoPlanificador);
@@ -486,6 +490,6 @@ t_programa* planificador(t_programa* unPrograma){
 		log_error(logger,"Algoritmo mal cargado al config.cfg");
 	}
 	//free(algoritmoPlanificador);
-	return 0;
+	return NULL;
 
 }
