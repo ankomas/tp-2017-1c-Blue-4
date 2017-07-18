@@ -17,24 +17,16 @@
  */
 void iniciarProgramaAnsisop(char* pathProgramaAsisop)
 {
-	//pthread_t hiloPrograma;
-	//conectarseAlKernel();
-	//printf("la ruta es : %s \n",pathProgramaAsisop);
-	//leerProgramaAnsisop(pathProgramaAsisop);
+
 	crearHiloPrograma(pathProgramaAsisop);
-	//sendall();
 }
 
 
 
 void finalizarPrograma(int id)
 {
-	//void * estado;
 
-	//printf("el size de la lista es : %d \n",list_size(dataDeHilos));
-	//pthread_mutex_lock(&mutexDataDeHilos);// QUIZA NO VALLAN ESTOS MUTEX!!!
 	dataHilos_t* data = buscaHiloPorPid(id);
-	//pthread_mutex_unlock(&mutexDataDeHilos);
 
 	if(data==NULL)
 	{
@@ -42,13 +34,15 @@ void finalizarPrograma(int id)
 		return;
 	}
 	textoEnColor("El id Buscado es ",(*data).pidHilo,1);
-	//pthread_mutex_lock(&mutexAListas);
 
+	/*
+	dataProceso_t* infoProceso=eliminarProcesoDeListaPorPid(data->pidHilo);
+	pthread_mutex_lock(&mutexDataDeProcesos);
+	listarInfoArchivo(infoProceso,data->pidHilo);
+	pthread_mutex_unlock(&mutexDataDeProcesos);
+	*/
+	send(data->socketKernel,"F",1,0);
 	eliminarHiloYrecursos(data);
-	//pthread_mutex_unlock(&mutexAListas);
-	//eliminarHiloDeListaPorPid(data->pidHilo);
-	//printf("nuevo tam antes de cerrar 2: %d \n",list_size(dataDeHilos));
-
 }
 
 
@@ -92,15 +86,6 @@ void menuDeControl()
 	switch(opcion)
 	{
 	case 1:
-		/*
-		printf("Conectando al Kernel..... \n\n");
-		socket_cliente=conectarseAlKernel();
-		if(socket_cliente<0)
-			return -2;
-		system("clear");
-		getchar();
-		return socket_cliente;
-		*/
 		getchar();
 		break;
 	case 2:
@@ -130,7 +115,6 @@ void crearMenuPrincipal()
 	char rutaPrograma[100];
 
 	do{
-
 		printf("BIENVENIDO AL MENU PRINCIPAL DE LA CONSOLA \n");
 		printf("ELIJA UNA OPCION \n\n");
 		printf("1-INICIAR PROGRAMA \n");

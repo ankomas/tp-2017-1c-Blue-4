@@ -22,9 +22,12 @@ void inicializarEstructurasAdministrativas()
 {
 	config = config_create(rutaAbsolutaDe("configConsola.cfg"));
 	dataDeHilos = list_create();
+	dataDeProcesos= list_create();
 	pthread_mutex_init(&mutexDataDeHilos,NULL);
 	pthread_mutex_init(&mutexAListas,NULL);
-	sem_init(&semaforo,0,0);
+	pthread_mutex_init(&mutexDataDeProcesos,NULL);
+	//sem_init(&semaforo,0,0);
+
 }
 
 
@@ -34,8 +37,6 @@ int main()
 
 	inicializarEstructurasAdministrativas();
 	menuDeControl();
-	//pthread_create(&hiloPrincipal,NULL,(void*)crearMenuPrincipal,NULL);
-	//pthread_join(hiloPrincipal,NULL);
 	crearMenuPrincipal();
 	return 0;
 }

@@ -39,8 +39,9 @@ char* leerProgramaAnsisop(char* );
 
 
 t_list* dataDeHilos;
+t_list* dataDeProcesos;
 pthread_mutex_t mutexDataDeHilos;
 pthread_mutex_t mutexAListas;
-sem_t semaforo;
+pthread_mutex_t mutexDataDeProcesos;
 
 #endif /* FUNCIONESAUXILIARES_H_ */

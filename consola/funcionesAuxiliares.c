@@ -63,6 +63,27 @@ dataHilos_t* buscaHiloPorPid(int pidBuscado)
 }
 
 
+
+
+dataProceso_t* buscaInfoProcesoPorPid(int pidBuscado)
+{
+	dataProceso_t *info;
+	//pthread_mutex_lock(&mutexAListas);
+	pthread_mutex_lock(&mutexDataDeProcesos);
+	int esIgualA(dataProceso_t* unaInfo)
+	{
+		//printf("en la funcion que filtro el pid es : %d \n",(*dataHilo).pidHilo);
+		//printf("en la funcion que filtro el socket es : %d \n",(*dataHilo).socketKernel);
+		return (*unaInfo).PID == pidBuscado;
+	}
+
+    info = list_find(dataDeProcesos,(void*) esIgualA);
+	pthread_mutex_unlock(&mutexDataDeProcesos);
+	//pthread_mutex_unlock(&mutexAListas);
+	return info;
+}
+
+
 void destruirElemento(dataHilos_t* data)
 {
 
@@ -99,6 +120,34 @@ dataHilos_t* eliminarHiloDeListaPorPid(int pid)
 
 
 
+
+dataProceso_t* eliminarProcesoDeListaPorPid(int pid)
+{
+	dataProceso_t* procesoRemovido;
+	procesoRemovido=buscaInfoProcesoPorPid(pid);
+	pthread_mutex_lock(&mutexDataDeProcesos);
+	int esIgual(dataProceso_t* data)
+	{
+		//printf("en la funcion que filtro el pid es : %d \n",(*data).pidHilo);
+		//printf("en la funcion que filtro el socket es : %d \n",(*data).socketKernel);
+		return (*data).PID==pid;
+	}
+	//printf("El pid que tengo que eliminar es : %d \n",pid);
+	//pthread_mutex_lock(&mutexDataDeHilos);
+	//printf("hiloRemovido->pid : %d\n",(*hiloRemovido).pidHilo);
+	//printf("hiloRemovido->socket : %d \n",(*hiloRemovido).socketKernel);
+    list_remove_by_condition(dataDeProcesos,(void*)esIgual);
+	//printf("tam de lista en funcion eliminarHilo es : %d \n",list_size(dataDeHilos));
+
+	pthread_mutex_unlock(&mutexDataDeProcesos);
+
+	return procesoRemovido;
+	//return list_remove_by_condition(dataDeHilos,(void*)esIgual);
+}
+
+
+
+
 /**
  * Agrega un dataHilo_t a una lista que sirve para poder administrar los datos de los hilos
  *
@@ -115,7 +164,12 @@ void agregarDataHilo(dataHilos_t* dataHilo)
 }
 
 
-
+void agregarDataDeProceso(dataProceso_t* dataProceso)
+{
+	pthread_mutex_lock(&mutexDataDeProcesos);
+		list_add(dataDeHilos,dataProceso);
+	pthread_mutex_unlock(&mutexDataDeProcesos);
+}
 
 /**
  * Funcion que cierra un socket(file descriptor) y
@@ -125,6 +179,8 @@ void agregarDataHilo(dataHilos_t* dataHilo)
  * @param socket
  */
 
+
+//TODO hacer que se pude usar para reutilizar codigo en gestionarPrograma
 void eliminarRecursos(dataHilos_t* datosDeHilo)
 {
 	close(datosDeHilo->socketKernel);
@@ -135,42 +191,6 @@ void eliminarRecursos(dataHilos_t* datosDeHilo)
 	free(hilo);
 	//printf("size en cerrarSocket es : %d \n",list_size(dataDeHilos));
 }
-
-
-
-/**
- * Recibe el socket para recibir un pid que devuelve como char*
- *
- * sino lo puede recibir cerrara el hilo en ejecucion y su socket;
- *
- * @param socket
- * @return pid_en_string;
- */
-
-char* recibirPid(int socket_kernel)
-{
-	// recibir el PID del Kernel
-	char* pid_programa = malloc(4);
-	memset(pid_programa,'\0',4);
-
-	recv(socket_kernel,pid_programa,4,MSG_WAITALL);
-	//printf("el pid que recibo del kernel es: %s \n",pid_programa);
-
-	if(strcmp(pid_programa,"N")==0)
-	{
-		textoEnColor("El programa NO puede ser iniciado ",0,0);
-		// TODO averiguar si esta es la forma correcta de eliminar los recursos de este hilo si no pudo ser creado!!!
-		free(pid_programa);
-		//close(socket_kernel);
-		//pthread_exit(NULL);
-		return NULL;
-	}
-	return pid_programa;
-}
-
-
-
-
 
 
 
@@ -193,28 +213,10 @@ void eliminarHiloYrecursos(dataHilos_t* hiloAEliminar)
 		}
 
 		textoEnColor("El programa finalizo exitosamente",0,0);
-		//eliminarHiloDeListaPorPid(hiloAEliminar.pidHilo);
-		//printf("nuevo tam de la lista : %d \n",list_size(dataDeHilos));
-		//cerrarSocket(hiloAEliminar);
-		//printf("el pid antes de cerrar en eliminarRecursos es: %d \n",hiloAEliminar->pidHilo);
 
 		pthread_cancel(hiloAEliminar->hilo);
 		eliminarRecursos(hiloAEliminar);
 		printf("el tamaño de la lista al terminar el hilo es : %d \n",list_size(dataDeHilos));
-
-		//sem_wait(&semaforo);
-
-		//eliminarHiloDeListaPorPid(hiloAEliminar.pidHilo);
-		//printf("tam de la lista antes de cerrar el hilo es: %d \n",list_size(dataDeHilos));
-		//pthread_mutex_unlock(&mutexAListas);
-		/*
-		pthread_mutex_lock(&mutexAListas);
-		eliminarHiloDeListaPorPid(hiloAEliminar.pidHilo);
-
-		printf("nuevo tam antes de cerrar 2: %d \n",list_size(dataDeHilos));
-		pthread_mutex_unlock(&mutexAListas);
-		*/
-		//socket_kernel=cerrarSocket(hiloAEliminar);
 
 }
 
@@ -262,46 +264,6 @@ char* leerProgramaAnsisop(char* ruta)
 	return contenido;
 }
 
-/*
-char* serializarMensaje(char* data,char* codigoDeOperacion)
-{
-	char* msg=string_new();
-	int tamData;
-	tamData= strlen(data);
-
-}
-char* serializar_msj(char* path,char codigoOp[1])
-{
-	char* msg;
-	int offset=0;
-	int tamPath;
-	//char stringTam;
-
-	tamPath=strlen(path);
-	printf("el codigoDeOp es : %c\n",codigoOp);
-	printf("la data es: %s \n",path);
-	printf("el tam de la data es: %d \n",tamPath);
-
-	msg=malloc(sizeof(int)+tamPath+sizeof(char));
-	memset(msg,'\0',sizeof(int)+tamPath+sizeof(char));
-	memcpy(msg,&codigoOp,sizeof(char));
-	printf(" el mensaje serializado es: %s \n",msg+offset);
-	offset=sizeof(char);
-	printf(" offset es: %d \n",offset);
-	memcpy(msg+offset,&tamPath,sizeof(int));
-	printf(" el mensaje serializado es: %s \n",msg+offset);
-	offset=offset+sizeof(int);
-	memcpy(msg+offset,path,tamPath);
-	printf(" el mensaje serializado es: %s \n",msg+offset);
-
-	printf(" el mensaje serializado es: %s \n",msg+5);
-	return msg;
-}
-
-*/
-
-
-
 
 
 
@@ -342,18 +304,106 @@ int enviarMensajeConCodigoDeOperacion(char codOp[1],int socket,char* contenido,u
 		return 0;
 }
 
+void listarInfoArchivo(dataProceso_t* infoProceso,int pid)
+{
 
+	textoAmarillo("\n INFORMACION DEL PROCESO: ");
+	char* pid_string=string_itoa(pid);
+	textoAmarillo(pid_string);
+	free(pid_string);
+
+	infoProceso->fecha_Y_hora_DeInicio=time(0);
+	printf("llego hasta aca \n");
+	struct tm *tlocal = localtime(&(infoProceso->fecha_Y_hora_DeInicio));
+	char inicio[128];
+	strftime(inicio,128,"%d/%m/%y %H:%M:%S",tlocal);
+	textoAmarillo("\n la fecha y hora de inicio es :");
+	textoAmarillo(inicio);
+
+	infoProceso->fecha_Y_hora_DeFin=time(0);
+	struct tm *tlocal2 = localtime(&(infoProceso->fecha_Y_hora_DeFin));
+	char fin[128];
+	strftime(fin,128,"%d/%m/%y %H:%M:%S",tlocal2);
+	textoAmarillo(" \n la fecha y hora de fin es :");
+	textoAmarillo(fin);
+
+	textoAmarillo(" \n cantidad de impresiones por pantala: ");
+	char* num_string=string_itoa(infoProceso->impresionesPorPantalla);
+	textoAmarillo(num_string);
+	free(num_string);
+
+	infoProceso->tiempoTotalDeEjecucion=infoProceso->fecha_Y_hora_DeFin - infoProceso->fecha_Y_hora_DeInicio;
+
+	struct tm *tlocal3 = localtime(&(infoProceso->fecha_Y_hora_DeFin));
+	char tiempoDeEjecucion[128];
+	strftime(fin,128,"%d/%m/%y %H:%M:%S",tlocal3);
+	textoAmarillo(" \n la fecha y hora de fin es :");
+	textoAmarillo(tiempoDeEjecucion);
+
+}
+
+
+void imprimirFinalizacionDeProceso(dataHilos_t* data)
+{
+	dataHilos_t* dataAEliminar = eliminarHiloDeListaPorPid(data->pidHilo);
+	dataProceso_t* infoProceso=eliminarProcesoDeListaPorPid(data->pidHilo);
+
+	pthread_mutex_lock(&mutexDataDeProcesos);
+	listarInfoArchivo(infoProceso,data->pidHilo);
+	free(infoProceso);
+	free(dataAEliminar->path);
+	close(dataAEliminar->socketKernel);
+	free(dataAEliminar);
+	pthread_mutex_unlock(&mutexDataDeProcesos);
+	pthread_exit(NULL);
+
+}
+
+
+
+
+
+void imprimirSentenciaAnsisop(dataHilos_t* data)
+{
+	char* sentencia=recibirSentencia(data->socketKernel);
+	dataProceso_t* infoProceso=eliminarProcesoDeListaPorPid(data->pidHilo);
+
+	if(sentencia)
+	{
+		pthread_mutex_lock(&mutexDataDeProcesos);
+		textoAmarillo("\n EL PROCESO:");
+		char* num_string=string_itoa(data->pidHilo);
+		textoAmarillo(num_string);
+		textoAmarillo("\n IMPRIME:");
+		textoAmarillo(sentencia);
+		free(num_string);
+		free(sentencia);
+		infoProceso->impresionesPorPantalla+=1;
+		pthread_mutex_unlock(&mutexDataDeProcesos);
+		agregarDataDeProceso(infoProceso);
+
+	}
+	printf("no se pudo recibir la sentencia \n");
+
+}
+
+void manejadorDeCodigosDeOperacion(char cop,dataHilos_t* data)
+{
+	if(cop=='F')
+	{
+		imprimirFinalizacionDeProceso(data);
+	}
+	else
+	{
+		imprimirSentenciaAnsisop(data);
+	}
+}
 
 
 void gestionarProgramaAnsisop(dataHilos_t* dataHilo)
 {
-	// TODO serializar!!!
-	//int tamanio_programa = strlen(pathPrograma);
-	// pido el PID al Kernel
-	//int socket_kernel=dataHilo.socket;
 	char* pathPrograma=dataHilo->path;
 	//printf("dataHilo.path: %s \n",dataHilo->path);
-	package_t mensaje;
 
 	char* lecturaDeProgramaAnsisop = leerProgramaAnsisop(pathPrograma);
 	if(lecturaDeProgramaAnsisop==NULL)
@@ -363,15 +413,11 @@ void gestionarProgramaAnsisop(dataHilos_t* dataHilo)
 		free(dataHilo);
 		pthread_exit(NULL);
 		return;
-	//printf("el mensaje enpaquetado es: \n%s \n",mensaje.data+4);
-	//memcpy(&tamPath,mensaje.data,sizeof(uint32_t));
-	//printf("el tamaño del mensaje enpaquetado es: %d \n",tamPath);
 	}
 	//printf("el paquete es: \n\n %s \n",mensaje);
 	int respuesta=enviarMensajeConCodigoDeOperacion("A",dataHilo->socketKernel,lecturaDeProgramaAnsisop,strlen(lecturaDeProgramaAnsisop));
 	if(respuesta<0)
 	{
-		//TODO cerrar el hilo y liberar recursos
 		free(dataHilo->path);
 		close(dataHilo->socketKernel);
 		free(dataHilo);
@@ -397,18 +443,26 @@ void gestionarProgramaAnsisop(dataHilos_t* dataHilo)
 
 	free(pid_programa);
 	agregarDataHilo(dataHilo);
-	// recibir un mensaje del kernel y validar que sea el PID correspondiente al programa enviado por este hilo
+	//TODO liberar la estructura cuando ya no se necesite mas!!!
+	dataProceso_t dataProceso;//=malloc(sizeof(dataProceso_t));
+	dataProceso.PID=dataHilo->pidHilo;
+	dataProceso.fecha_Y_hora_DeInicio=time(0);
+	dataProceso.impresionesPorPantalla=0;
+	agregarDataDeProceso(&dataProceso);
 
 	//dataHilos_t* hiloBuscado;
 
 
+	char cop;
 
 	while(1)
 	{
 
-		sleep(500);
-
-		//printf("NO FUNCIONA EL PTHREAD_CLOSE() \n");
+		if(recv(dataHilo->socketKernel,&cop,1,0)==0){
+			printf("se desconecto el kernel \n ");
+			break;
+		}
+		manejadorDeCodigosDeOperacion(cop,dataHilo);
 
 	}
 
