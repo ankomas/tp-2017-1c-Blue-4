@@ -287,8 +287,8 @@ int liberarPagina(uint32_t pid,uint32_t pagina){
 
 }
 
-int finalizarProcesoMemoria(uint32_t pid){
-	t_programa * aux = encontrarPrograma(pid);
+int finalizarProcesoMemoria(uint32_t pid,bool force){
+	t_programa * aux = encontrarProgramaPorPID(pid);
 	if(aux == NULL){
 		return -1;
 	}
@@ -300,11 +300,14 @@ int finalizarProcesoMemoria(uint32_t pid){
 	if(list_find(procesosEXIT->elements,(void*)_condicion) != NULL){
 		return -1; // El proceso ya estaba finalizado
 	}
-
-	while(list_find(procesosEXEC->elements,(void*)_condicion) != NULL){
-		usleep(1000); // No finaliza un proceso hasta que deje de estar en Running
+	if(list_find(procesosEXEC->elements,(void*)_condicion) != NULL){
+		// force es para forzar un movimiento de exec a exit, solo se debe ejecutar desde la funcion cpu
+		if(!force){
+			aux->debeFinalizar = 1;
+			aux->pcb->exitCode = -6;
+			return -2; // No finaliza un proceso hasta que deje de estar en Running
+		}
 	}
-
 	// Si esta en NEW, no tengo que eliminarlo de memoria
 	if(list_find(procesosNEW->elements,(void*)_condicion) != NULL){
 		char* charsito = malloc(1);
@@ -321,7 +324,6 @@ int finalizarProcesoMemoria(uint32_t pid){
 			// puedo continuar, no debo retornar nada aun
 		}
 	}
-
 	if(list_find(procesosBLOCK->elements,(void*)_condicion) != NULL){
 		moverPrograma(aux,procesosBLOCK,procesosEXIT);
 	}
@@ -333,7 +335,6 @@ int finalizarProcesoMemoria(uint32_t pid){
 	if(list_find(procesosNEW->elements,(void*)_condicion) != NULL){
 		moverPrograma(aux,procesosNEW,procesosEXIT);
 	}
-
 	return 0;
 }
 

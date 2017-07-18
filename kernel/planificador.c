@@ -200,6 +200,7 @@ t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual){
 	metadata_destruir(metadata);
 
 	nuevoProceso->id = i;
+	nuevoProceso->debeFinalizar = 0;
 	nuevoProceso->tablaArchivosPrograma = list_create();
 	nuevoProceso->FDCounter = 2;
 	nuevoProceso->paginasHeap = list_create();
@@ -265,7 +266,9 @@ t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual){
 void* cpu(t_cpu * cpu){
 	void liberarCPU(t_programa* programaDeCPU){
 		log_error(logger,"Se esta por eliminar una CPU");
+		pthread_mutex_lock(&mutex_colasPlanificacion);
 		moverPrograma(programaDeCPU,procesosEXEC,procesosEXIT);
+		pthread_mutex_unlock(&mutex_colasPlanificacion);
 		eliminarSiHayCPU(cpu->id);
 		pthread_exit(&cpu->hilo);
 	}
@@ -309,6 +312,9 @@ void* cpu(t_cpu * cpu){
 
 			while(1){
 				recv(cpu->id,res,1,MSG_WAITALL);
+				if(proximoPrograma->debeFinalizar == 1)
+					res[0] = 'F';
+
 
 				/*retardo = obtenerConfiguracion(cfg,"QUANTUM_SLEEP");
 				usleep(retardo);*/
@@ -337,7 +343,8 @@ void* cpu(t_cpu * cpu){
 					printf("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
 					send(proximoPrograma->id,"F",1,0);
 					pthread_mutex_lock(&mutex_colasPlanificacion);
-					finalizarProcesoMemoria(proximoPrograma->pcb->pid);
+
+					finalizarProcesoMemoria(proximoPrograma->pcb->pid,true);
 					log_trace(logger,"Un programa ha sido movido a EXIT");
 					pthread_mutex_unlock(&mutex_colasPlanificacion);
 					proximoPrograma = NULL;
@@ -361,7 +368,9 @@ void* cpu(t_cpu * cpu){
 					}
 
 					//TODO El planificador debe desencolar procesos ya terminados
+					pthread_mutex_lock(&mutex_colasPlanificacion);
 					proximoPrograma = planificador(proximoPrograma);
+					pthread_mutex_unlock(&mutex_colasPlanificacion);
 					break;
 
 				}else if(res[0] == 'S'){
@@ -427,7 +436,9 @@ void* cpu(t_cpu * cpu){
 						res=NULL;
 					}
 					log_trace(logger,"Moviendo el proceso de EXEC a bloqueado");
+					pthread_mutex_lock(&mutex_colasPlanificacion);
 					moverPrograma(proximoPrograma,procesosEXEC,procesosBLOCK);
+					pthread_mutex_unlock(&mutex_colasPlanificacion);
 					proximoPrograma = NULL;
 					break;
 				}
@@ -448,23 +459,20 @@ void* cpu(t_cpu * cpu){
 void* programa(t_programa *programa){
 	char * charsito = malloc(1);
 	recv(programa->id,charsito,1,0);
-	if(recv(programa->id,charsito,1,0) <= 0){
-		pthread_mutex_lock(&mutex_colasPlanificacion);
-		finalizarProcesoMemoria(programa->pcb->pid);
+	if(recv(programa->id,charsito,1,0) <= 0){}
+	if(charsito[0] == 'F'){}
+
+	pthread_mutex_lock(&mutex_colasPlanificacion);
+	int resFinalizarPrograma = finalizarProcesoMemoria(programa->pcb->pid,false);
+
+	if(resFinalizarPrograma == 0){
 		log_trace(logger,"Un programa ha sido movido a EXIT");
-		pthread_mutex_unlock(&mutex_colasPlanificacion);
 	}
-	if(charsito[0] == 'F'){
-		pthread_mutex_lock(&mutex_colasPlanificacion);
-		finalizarProcesoMemoria(programa->pcb->pid);
-		log_trace(logger,"Un programa ha sido movido a EXIT");
-		pthread_mutex_unlock(&mutex_colasPlanificacion);
-	}
+	pthread_mutex_unlock(&mutex_colasPlanificacion);
 	return NULL;
 }
 
 void moverPrograma(t_programa* unPrograma,t_queue* colaOrigen, t_queue* colaDestino){
-	pthread_mutex_lock(&mutex_colasPlanificacion);
 	if(!list_is_empty(colaOrigen->elements)){
 		int aux = 0;
 		t_programa *programaAux = list_get(colaOrigen->elements,aux);
@@ -478,7 +486,6 @@ void moverPrograma(t_programa* unPrograma,t_queue* colaOrigen, t_queue* colaDest
 			list_remove(colaOrigen->elements, aux);
 		}
 	}
-	pthread_mutex_unlock(&mutex_colasPlanificacion);
 }
 
 t_programa* planificador(t_programa* unPrograma){
