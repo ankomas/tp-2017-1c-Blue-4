@@ -167,7 +167,7 @@ void agregarDataHilo(dataHilos_t* dataHilo)
 void agregarDataDeProceso(dataProceso_t* dataProceso)
 {
 	pthread_mutex_lock(&mutexDataDeProcesos);
-		list_add(dataDeHilos,dataProceso);
+		list_add(dataDeProcesos,dataProceso);
 	pthread_mutex_unlock(&mutexDataDeProcesos);
 }
 
@@ -231,7 +231,7 @@ void eliminarHiloYrecursos(dataHilos_t* hiloAEliminar)
  * @param ruta_del_archivo
  * @return contenido_leido
  */
-char* leerProgramaAnsisop(char* ruta)
+char* leerProgramaAnsisop(char* ruta,int* tamanio)
 {
 
 	FILE* programa;
@@ -252,6 +252,7 @@ char* leerProgramaAnsisop(char* ruta)
 	size = ftell(programa);
 	rewind(programa);
 
+	*tamanio=size;
 	contenido=calloc(1,size);
 
 	while(!feof(programa))
@@ -304,6 +305,17 @@ int enviarMensajeConCodigoDeOperacion(char codOp[1],int socket,char* contenido,u
 		return 0;
 }
 
+
+
+void listarFechaYhora(time_t tiempo,char* mensaje)
+{
+	struct tm *tlocal = localtime(&(tiempo));
+	char inicio[128];
+	strftime(inicio,128,"%d/%m/%y %H:%M:%S",tlocal);
+	textoAmarillo(mensaje);
+	textoAmarillo(inicio);
+}
+
 void listarInfoArchivo(dataProceso_t* infoProceso,int pid)
 {
 
@@ -311,34 +323,19 @@ void listarInfoArchivo(dataProceso_t* infoProceso,int pid)
 	char* pid_string=string_itoa(pid);
 	textoAmarillo(pid_string);
 	free(pid_string);
-
-	infoProceso->fecha_Y_hora_DeInicio=time(0);
-	printf("llego hasta aca \n");
-	struct tm *tlocal = localtime(&(infoProceso->fecha_Y_hora_DeInicio));
-	char inicio[128];
-	strftime(inicio,128,"%d/%m/%y %H:%M:%S",tlocal);
-	textoAmarillo("\n la fecha y hora de inicio es :");
-	textoAmarillo(inicio);
+	listarFechaYhora(infoProceso->fecha_Y_hora_DeInicio,"\n La fecha y hora de inicio es :");
 
 	infoProceso->fecha_Y_hora_DeFin=time(0);
-	struct tm *tlocal2 = localtime(&(infoProceso->fecha_Y_hora_DeFin));
-	char fin[128];
-	strftime(fin,128,"%d/%m/%y %H:%M:%S",tlocal2);
-	textoAmarillo(" \n la fecha y hora de fin es :");
-	textoAmarillo(fin);
+	listarFechaYhora(infoProceso->fecha_Y_hora_DeFin," \n La fecha y hora de fin es :");
 
-	textoAmarillo(" \n cantidad de impresiones por pantala: ");
+	textoAmarillo(" \n Cantidad de impresiones por pantala: ");
 	char* num_string=string_itoa(infoProceso->impresionesPorPantalla);
 	textoAmarillo(num_string);
 	free(num_string);
 
 	infoProceso->tiempoTotalDeEjecucion=infoProceso->fecha_Y_hora_DeFin - infoProceso->fecha_Y_hora_DeInicio;
-
-	struct tm *tlocal3 = localtime(&(infoProceso->fecha_Y_hora_DeFin));
-	char tiempoDeEjecucion[128];
-	strftime(fin,128,"%d/%m/%y %H:%M:%S",tlocal3);
-	textoAmarillo(" \n la fecha y hora de fin es :");
-	textoAmarillo(tiempoDeEjecucion);
+	textoAmarillo("\n Tiempo total de ejecucion: ");
+	printf("%s %2f %s \n",KYEL,(double)infoProceso->tiempoTotalDeEjecucion,KNRM);
 
 }
 
@@ -368,19 +365,24 @@ void imprimirSentenciaAnsisop(dataHilos_t* data)
 	char* sentencia=recibirSentenciaAnsisop(data->socketKernel);
 	dataProceso_t* infoProceso=eliminarProcesoDeListaPorPid(data->pidHilo);
 
+	if(infoProceso==NULL){
+		textoAzul("SOY NULL \n");
+		return;
+	}
 	if(sentencia)
 	{
 		pthread_mutex_lock(&mutexDataDeProcesos);
 		textoAmarillo("\n EL PROCESO:");
-		char* num_string=string_itoa(data->pidHilo);
+		char* num_string=string_itoa(infoProceso->PID);
 		textoAmarillo(num_string);
 		textoAmarillo("\n IMPRIME:");
 		textoAmarillo(sentencia);
 		free(num_string);
 		free(sentencia);
-		infoProceso->impresionesPorPantalla+=1;
+		infoProceso->impresionesPorPantalla=infoProceso->impresionesPorPantalla+1;
 		pthread_mutex_unlock(&mutexDataDeProcesos);
 		agregarDataDeProceso(infoProceso);
+		return;
 
 	}
 	printf("no se pudo recibir la sentencia \n");
@@ -404,8 +406,8 @@ void gestionarProgramaAnsisop(dataHilos_t* dataHilo)
 {
 	char* pathPrograma=dataHilo->path;
 	//printf("dataHilo.path: %s \n",dataHilo->path);
-
-	char* lecturaDeProgramaAnsisop = leerProgramaAnsisop(pathPrograma);
+	int tamanio;
+	char* lecturaDeProgramaAnsisop = leerProgramaAnsisop(pathPrograma,&tamanio);
 	if(lecturaDeProgramaAnsisop==NULL)
 	{
 		free(dataHilo->path);
@@ -414,8 +416,8 @@ void gestionarProgramaAnsisop(dataHilos_t* dataHilo)
 		pthread_exit(NULL);
 		return;
 	}
-	//printf("el paquete es: \n\n %s \n",mensaje);
-	int respuesta=enviarMensajeConCodigoDeOperacion("A",dataHilo->socketKernel,lecturaDeProgramaAnsisop,strlen(lecturaDeProgramaAnsisop));
+	printf("el tamanio es: %d \n",tamanio);
+	int respuesta=enviarMensajeConCodigoDeOperacion("A",dataHilo->socketKernel,lecturaDeProgramaAnsisop,tamanio);
 	if(respuesta<0)
 	{
 		free(dataHilo->path);
@@ -448,6 +450,7 @@ void gestionarProgramaAnsisop(dataHilos_t* dataHilo)
 	dataProceso->PID=dataHilo->pidHilo;
 	dataProceso->fecha_Y_hora_DeInicio=time(0);
 	dataProceso->impresionesPorPantalla=0;
+	printf("impresionesPorPantalla inicial: %d \n",dataProceso->impresionesPorPantalla);
 	agregarDataDeProceso(dataProceso);
 
 	//dataHilos_t* hiloBuscado;

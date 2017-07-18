@@ -35,12 +35,11 @@ void finalizarPrograma(int id)
 	}
 	textoEnColor("El id Buscado es ",(*data).pidHilo,1);
 
-	/*
+
 	dataProceso_t* infoProceso=eliminarProcesoDeListaPorPid(data->pidHilo);
 	pthread_mutex_lock(&mutexDataDeProcesos);
 	listarInfoArchivo(infoProceso,data->pidHilo);
 	pthread_mutex_unlock(&mutexDataDeProcesos);
-	*/
 	send(data->socketKernel,"F",1,0);
 	eliminarHiloYrecursos(data);
 }
@@ -50,7 +49,25 @@ void finalizarPrograma(int id)
 
 void desconectarConsola()
 {
-
+	pthread_mutex_lock(&mutexDataDeHilos);
+	textoAzul("\n DESCONECTANDO CONSOLA.....");
+	int cant_procesos=list_size(dataDeHilos);
+	pthread_mutex_unlock(&mutexDataDeHilos);
+	if(cant_procesos==0)
+	{
+		textoAzul(" \n .....CONSOLA DESCONECTADA");
+		return;
+	}
+	int i=0;
+	while(i<cant_procesos)
+	{
+		pthread_mutex_lock(&mutexDataDeHilos);
+		dataHilos_t* data=list_get(dataDeHilos,i);
+		pthread_mutex_unlock(&mutexDataDeHilos);
+		finalizarPrograma(data->pidHilo);
+		i++;
+	}
+	textoAzul(" \n .....CONSOLA DESCONECTADA");
 }
 
 
@@ -134,20 +151,19 @@ void crearMenuPrincipal()
 				if(abrirArchivo == NULL){
 					textoAmarillo("Ruta de programa invalida, por favor verifique la ruta del mismo\n");
 				}else {
-					printf("Iniciando programa ANSISOP..... \n\n");
+					textoAzul("Iniciando programa ANSISOP..... \n\n");
 					fclose(abrirArchivo);
 					iniciarProgramaAnsisop(rutaPrograma);
 				}
 				getchar();
 				break;
 			case 2:
-				printf("ingrese el id del programa que quiere finalizar ");
+				textoAzul("ingrese el id del programa que quiere finalizar ");
 				scanf("%d",&id);
 				finalizarPrograma(id);
 				getchar();
 				break;
 			case 3:
-				printf("Desconectando Consola..... \n\n");
 				desconectarConsola();
 				getchar();
 				break;
@@ -156,7 +172,7 @@ void crearMenuPrincipal()
 				getchar();
 				break;
 			default:
-				printf("Opcion ingresada invalida \n\n");
+				textoRojo("Opcion ingresada invalida \n\n");
 				getchar();
 				break;
 			}

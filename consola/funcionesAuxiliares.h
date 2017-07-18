@@ -25,6 +25,7 @@
 #include <commons/collections/list.h>
 #include <commons/string.h>
 #include <blue4-lib.h>
+#include "operacionesDeConsola.h"
 
 
 void textoEnColor(char* ,int ,int );
@@ -32,11 +33,18 @@ void textoEnColor(char* ,int ,int );
 void gestionarProgramaAnsisop(dataHilos_t*);
 
 void eliminarRecursos(dataHilos_t* );
-dataHilos_t* buscaHiloPorPid(int );
-dataHilos_t* eliminarHiloDeListaPorPid(int );
-void eliminarHiloYrecursos(dataHilos_t* );
-char* leerProgramaAnsisop(char* );
 
+dataHilos_t* buscaHiloPorPid(int );
+
+dataHilos_t* eliminarHiloDeListaPorPid(int );
+
+void eliminarHiloYrecursos(dataHilos_t* );
+
+char* leerProgramaAnsisop(char* ,int*);
+
+dataProceso_t* eliminarProcesoDeListaPorPid(int );
+
+void listarInfoArchivo(dataProceso_t* ,int );
 
 t_list* dataDeHilos;
 t_list* dataDeProcesos;
