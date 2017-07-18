@@ -287,6 +287,56 @@ int liberarPagina(uint32_t pid,uint32_t pagina){
 
 }
 
+int finalizarProcesoMemoria(uint32_t pid){
+	t_programa * aux = encontrarPrograma(pid);
+	if(aux == NULL){
+		return -1;
+	}
+
+	bool _condicion(t_programa * self){
+		return self->pcb->pid==pid;
+	}
+
+	if(list_find(procesosEXIT->elements,(void*)_condicion) != NULL){
+		return -1; // El proceso ya estaba finalizado
+	}
+
+	while(list_find(procesosEXEC->elements,(void*)_condicion) != NULL){
+		usleep(1000); // No finaliza un proceso hasta que deje de estar en Running
+	}
+
+	// Si esta en NEW, no tengo que eliminarlo de memoria
+	if(list_find(procesosNEW->elements,(void*)_condicion) != NULL){
+		char* charsito = malloc(1);
+		if(send(idUMC,"F",1,0)<=0){
+			return -1;
+		}
+		if(send(idUMC,&pid,sizeof(uint32_t),0) <=0){
+			return -1;
+		}
+		if(recv(idUMC,&pid,sizeof(uint32_t),0) <=0){
+			return -1;
+		}
+		if(charsito[0] == 'Y'){
+			// puedo continuar, no debo retornar nada aun
+		}
+	}
+
+	if(list_find(procesosBLOCK->elements,(void*)_condicion) != NULL){
+		moverPrograma(aux,procesosBLOCK,procesosEXIT);
+	}
+
+	if(list_find(procesosREADY->elements,(void*)_condicion) != NULL){
+		moverPrograma(aux,procesosREADY,procesosEXIT);
+	}
+
+	if(list_find(procesosNEW->elements,(void*)_condicion) != NULL){
+		moverPrograma(aux,procesosNEW,procesosEXIT);
+	}
+
+	return 0;
+}
+
 // SYSCALLS Memoria
 void leerVarGlobal(uint32_t i){
 	// Envio el valor de una variable global

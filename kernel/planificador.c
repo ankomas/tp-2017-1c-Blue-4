@@ -336,7 +336,10 @@ void* cpu(t_cpu * cpu){
 
 					printf("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
 					send(proximoPrograma->id,"F",1,0);
-					moverPrograma(proximoPrograma,procesosEXEC,procesosEXIT);
+					pthread_mutex_lock(&mutex_colasPlanificacion);
+					finalizarProcesoMemoria(proximoPrograma->pcb->pid);
+					log_trace(logger,"Un programa ha sido movido a EXIT");
+					pthread_mutex_unlock(&mutex_colasPlanificacion);
 					proximoPrograma = NULL;
 					break;
 				} else if(res[0] == 'Y'){
@@ -443,9 +446,21 @@ void* cpu(t_cpu * cpu){
 }
 
 void* programa(t_programa *programa){
-	while(1){
-		usleep(5000);
+	char * charsito = malloc(1);
+	recv(programa->id,charsito,1,0);
+	if(recv(programa->id,charsito,1,0) <= 0){
+		pthread_mutex_lock(&mutex_colasPlanificacion);
+		finalizarProcesoMemoria(programa->pcb->pid);
+		log_trace(logger,"Un programa ha sido movido a EXIT");
+		pthread_mutex_unlock(&mutex_colasPlanificacion);
 	}
+	if(charsito[0] == 'F'){
+		pthread_mutex_lock(&mutex_colasPlanificacion);
+		finalizarProcesoMemoria(programa->pcb->pid);
+		log_trace(logger,"Un programa ha sido movido a EXIT");
+		pthread_mutex_unlock(&mutex_colasPlanificacion);
+	}
+	return NULL;
 }
 
 void moverPrograma(t_programa* unPrograma,t_queue* colaOrigen, t_queue* colaDestino){
