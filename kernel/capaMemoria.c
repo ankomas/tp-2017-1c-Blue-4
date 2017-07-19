@@ -335,6 +335,12 @@ int finalizarProcesoMemoria(uint32_t pid,bool force){
 	if(list_find(procesosNEW->elements,(void*)_condicion) != NULL){
 		moverPrograma(aux,procesosNEW,procesosEXIT);
 	}
+
+	if(force){
+		if(list_find(procesosEXEC->elements,(void*)_condicion) != NULL){
+			moverPrograma(aux,procesosEXEC,procesosEXIT);
+		}
+	}
 	return 0;
 }
 

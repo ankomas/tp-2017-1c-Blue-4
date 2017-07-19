@@ -213,10 +213,12 @@ t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual){
 	nuevoProceso->cantidadLiberarEjecutados = 0;
 	nuevoProceso->cantidadLiberarEjecutadosBytes = 0;
 
+	/*
+	Probando el imprimir:
 	uint32_t p = 3;
 	send(i,"P",1,0);
 	send(i,&p,4,0);
-	send(i,"ASD",3,0);
+	send(i,"ASD",3,0);*/
 
 	uint32_t cantidadPaginasCodigo = 0;
 	if(tamanioPagina == -1)
@@ -322,7 +324,6 @@ void* cpu(t_cpu * cpu){
 				// Verifico si aun le falta ejecutar al proceso
 				if(res[0] == 'F'){
 					proximoPrograma->rafagasEjecutadas++;
-					log_trace(logger,"Moviendo el proceso de EXEC a EXIT");
 					if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
 						liberarCPU(proximoPrograma);
 					res=realloc(res,tamARecibir);
@@ -369,6 +370,7 @@ void* cpu(t_cpu * cpu){
 
 					//TODO El planificador debe desencolar procesos ya terminados
 					pthread_mutex_lock(&mutex_colasPlanificacion);
+					finalizarProcesoMemoria(proximoPrograma->pcb->pid,true);
 					proximoPrograma = planificador(proximoPrograma);
 					pthread_mutex_unlock(&mutex_colasPlanificacion);
 					break;
