@@ -494,10 +494,28 @@ t_programa* planificador(t_programa* unPrograma){
 		usleep(1000);
 		return NULL;
 	}
+	usleep(retardo);
 	// mutex por haber leido de un archivo que puede ser actualizado hasta antes del recv
-	algoritmoPlanificador = obtenerConfiguracionString(cfg,"ALGORITMO");
-	//printf("algoritmoPlanificador %s\n",algoritmoPlanificador);
+	char* rutaConfigActualizada = rutaAbsolutaDe("config.cfg");
+	t_config* cfgActualizada = config_create(rutaConfigActualizada);
+	quantum = obtenerConfiguracion(cfgActualizada,"QUANTUM");
+	algoritmoPlanificador = obtenerConfiguracionString(cfgActualizada,"ALGORITMO");
+	retardo = obtenerConfiguracion(cfgActualizada,"QUANTUM_SLEEP");
+	while(quantum == -1 || algoritmoPlanificador == -1){
+		free(cfgActualizada);
+		free(rutaConfigActualizada);
+		quantum = obtenerConfiguracion(cfgActualizada,"QUANTUM");
+		algoritmoPlanificador = obtenerConfiguracionString(cfgActualizada,"ALGORITMO");
+		retardo = obtenerConfiguracion(cfgActualizada,"QUANTUM_SLEEP");
+		rutaConfigActualizada = rutaAbsolutaDe("config.cfg");
+		cfgActualizada = config_create(rutaConfigActualizada);
+	}
 
+	test("Valor de quantum:");
+	testi(quantum);
+	test("algoritmo");
+	test(algoritmoPlanificador);
+	//printf("algoritmoPlanificador %s\n",algoritmoPlanificador);
 	if(unPrograma == NULL){
 		if(queue_size(procesosREADY) > 0){
 			log_trace(logger,"Moviendo el proceso de Ready a EXEC");
@@ -519,19 +537,26 @@ t_programa* planificador(t_programa* unPrograma){
 		if(unPrograma != NULL){
 			if(unPrograma->quantumRestante == 0){
 				unPrograma->quantumRestante = quantum;
+				config_destroy(cfgActualizada);
+				free(rutaConfigActualizada);
 				return NULL;
 			} else {
 				unPrograma->quantumRestante--;
+				config_destroy(cfgActualizada);
+				free(rutaConfigActualizada);
 				return unPrograma;
 			}
 		}
 	} else if(strcmp(algoritmoPlanificador,"FIFO") == 0){
+		config_destroy(cfgActualizada);
+		free(rutaConfigActualizada);
 		return unPrograma;
 	} else {
 		test(algoritmoPlanificador);
 		log_error(logger,"Algoritmo mal cargado al config.cfg");
 	}
-	//free(algoritmoPlanificador);
+	config_destroy(cfgActualizada);
+	free(rutaConfigActualizada);
 	return NULL;
 
 }
