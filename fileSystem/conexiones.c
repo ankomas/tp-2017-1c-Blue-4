@@ -112,6 +112,7 @@ char* recibirPaquete(int socket,uint32_t tamanio,int* resultadoDelRecv)
 	printf("se va a recibir data de socket : %d ,tamanio: %d \n",socket,tamanio);
 	*resultadoDelRecv=recvall(socket,data,tamanio);
 	testi(*resultadoDelRecv);
+	test(concat(2,data,"\0"));
 	printf("sali del recvall \n");
 	return data;
 }
@@ -275,6 +276,13 @@ char* recibir_offset_tamanio_data(int socket,uint32_t* offset,uint32_t* tamanio)
 	if(tamanioTotalBuffer==-1)return NULL;
 	printf("el tamaño del paquete es: %d \n",tamanioTotalBuffer);
 	char *data=recibirPaquete(socket,tamanioTotalBuffer,&resultado);
+	int contador = 0;
+	textoRojo("TESTEANDO");
+	while(tamanioTotalBuffer > contador){
+		printf("%c\n",data[contador]);
+		contador++;
+	}
+	textoRojo("FIN TESTEANDO");
 	if(validarRecv(socket,resultado)<0)
 		{
 			printf("recv invalido \n");
