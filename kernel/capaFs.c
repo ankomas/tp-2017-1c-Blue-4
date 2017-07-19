@@ -39,10 +39,8 @@ bool mandarOperacionFS(char* opcode,char* path,uint32_t tamPath,char* error){
 //	test("ESTA ES LA TESIS");
 
 	if(rev[0]== 'Y'){
-		test("X");
 		return 1;
 	}
-	test("XX");
 	test(rev);
 	return 0;
 }
@@ -341,6 +339,14 @@ bool escribirFD(uint32_t i,t_programa* unPrograma){
 
 	recv(i,data,tamanio,0);
 	send(i,"Y",1,0);
+
+	int contador = 0;
+	textoRojo("TESTEANDO");
+	while(tamanio > contador){
+		printf("%c\n",data[contador]);
+		contador++;
+	}
+	textoRojo("FIN TESTEANDO");
 
 	/*char* path = recibirPath(i);
 	char* permisos = recibirPermisos(i);
