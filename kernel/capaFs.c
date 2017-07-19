@@ -13,6 +13,7 @@
 bool mandarOperacionFS(char* opcode,char* path,uint32_t tamPath,char* error){
 	char * rev = malloc(1);
 	log_trace(logger,"Llamada a MANDAR OPERACION FS");
+	log_trace(logger,opcode);
 	send(idFS,opcode,1,0);
 	uint32_t tamuint=sizeof(uint32_t);
 
@@ -37,19 +38,19 @@ bool mandarOperacionFS(char* opcode,char* path,uint32_t tamPath,char* error){
 	}
 //	test("ESTA ES LA TESIS");
 
-	if(rev[0]== 'Y')
+	if(rev[0]== 'Y'){
+		test("X");
 		return 1;
-
+	}
+	test("XX");
+	test(rev);
 	return 0;
 }
 
 char* continuacionPeticionLectura(uint32_t cpu,uint32_t offset,uint32_t size,char*error){
 	uint32_t tamARecibir=0;
-	char * rev = NULL;
-	uint32_t tamAMandar=sizeof(uint32_t);
+	char * rev = malloc(1);
 
-	char* offsetStream = intToStream(offset);
-	char* sizeStream = intToStream(size);
 	package_t pk=serializar(4,
 			sizeof(uint32_t),&offset,
 			sizeof(uint32_t),&size
@@ -59,22 +60,14 @@ char* continuacionPeticionLectura(uint32_t cpu,uint32_t offset,uint32_t size,cha
 		log_error(logger,error);
 		return 0;
 	}
-/*
-	// Recibo largo del data
-	if(recv(idFS,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0){
-		log_error(logger,error);
-		return NULL;
-	}
-*/
-	/*if(send(idFS,"Y",1,0) < 0)
-		log_error(logger,error);*/
 
 	// Recibo confirmacion
 	if(recv(idFS,rev,1,0) <= 0){
 		log_error(logger,error);
 		return NULL;
 	}
-tamARecibir=size;
+	test("Entro a continuacion1");
+	tamARecibir=size;
 	if(rev[0] == 'Y'){
 		rev=realloc(rev,tamARecibir);
 		memset(rev,'\0',tamARecibir);
@@ -85,10 +78,9 @@ tamARecibir=size;
 			return NULL;
 		}
 
-		/*send(i,"Y",1,0);
-		sendall(i,rev,&tamARecibir);*/
 		return rev;
 	}
+	printf("Respuesta del FS: %s\n",rev);
 
 	return NULL;
 }
@@ -98,30 +90,16 @@ bool continuacionPeticionEscritura(uint32_t cpu,uint32_t offset,uint32_t size,ch
 		char * rev = NULL;
 		uint32_t tamAMandar=sizeof(uint32_t);
 
-		//char* offsetStream = intToStream(offset);
-		//char* sizeStream = intToStream(size);
-		/*if(sendall(idFS,offsetStream, &tamAMandar) < 0){
-			log_error(logger,error);
-			return 0;
-		}
-		free(offsetStream);*/
 		printf("OFFSET: %i SIZE: %i\n",offset,size);
 		package_t pk=serializar(4,
 				sizeof(uint32_t),&offset,
 				sizeof(uint32_t),&size
 				);
 
-		//printf("PTM %i\n",pk.data_size);
 		if(sendall(idFS,pk.data, &pk.data_size) < 0){
 			log_error(logger,error);
 			return 0;
 		}
-
-		/*if(sendall(idFS,sizeStream, &tamAMandar) < 0){
-			log_error(logger,error);
-			return 0;
-		}*/
-		//free(sizeStream);
 
 		// Mando largo del buffer
 		char* tamBufferStream = intToStream(size);
@@ -146,7 +124,7 @@ bool continuacionPeticionEscritura(uint32_t cpu,uint32_t offset,uint32_t size,ch
 			test("ASDDD");
 			return 0;
 		} else {
-			test("wwoo");
+			printf("Respuesta del FS: %s\n",rev);
 		}
 
 		if(rev[0] == 'Y')
@@ -164,17 +142,15 @@ bool crearArchivo(char* path,uint32_t tamPath){
 }
 
 char* leerArchivo(char*path,uint32_t tamPath, uint32_t i,uint32_t offset,uint32_t size){
-
+	test("Entro a leer Archivo");
 	if(mandarOperacionFS("L",path,tamPath,"Ocurrio un error al leer un archivo") == 0){
 		log_error(logger,"No se pudo leer archivo.");
 		return NULL;
 	}
-	continuacionPeticionLectura(i,offset,size,"Ocurrio un error al leer un archivo");
-	return NULL;
+	return continuacionPeticionLectura(i,offset,size,"Ocurrio un error al leer un archivo");
 }
 
 bool escribirArchivo(char* path,uint32_t tamPath,uint32_t i,uint32_t offset,uint32_t size,char*data){
-	test("AAA");
 	if(mandarOperacionFS("E",path,tamPath,"Ocurrio un error al escribir un archivo") == 0){
 		log_error(logger,"No se pudo escribir un archivo.");
 		return 0;
@@ -219,31 +195,34 @@ uint32_t abrirFD(uint32_t i,t_programa* unPrograma){
 		log_error(logger,"El archivo no existe y no hay permisos para crear un nuevo archivo");
 		return 9999;
 	}
-	test("A");
 	unPrograma->FDCounter++;
-	t_entradaTAP * nuevaEntradaTAP = malloc(sizeof(nuevaEntradaTAP));
+	t_entradaTAP * nuevaEntradaTAP = malloc(sizeof(t_entradaTAP));
 	nuevaEntradaTAP->flags = permisos;
 	nuevaEntradaTAP->cursor = 0;
 
 	t_entradaTGA * nuevaEntradaTGA = buscarFDPorPath(path);
 	if(nuevaEntradaTGA != NULL){
+		test("A");
 		nuevaEntradaTGA->abierto++;
 		nuevaEntradaTGA->archivo = path;
 	} else {
+		test("B");
 		if(crearArchivo(path,strlen(path))){
-			nuevaEntradaTGA = malloc(sizeof(nuevaEntradaTGA));
+			test("C");
+			nuevaEntradaTGA = malloc(sizeof(t_entradaTGA));
 			nuevaEntradaTGA->archivo = path;
 			nuevaEntradaTGA->abierto = 1;
 			nuevaEntradaTGA->indice = GlobalFDCounter;
 			list_add(tablaGlobalArchivos,nuevaEntradaTGA);
 			GlobalFDCounter++;
 			log_trace(logger,"Nuevo FD creado");
+		} else {
+			send(i,"N",1,0);
+			log_error(logger,"No se pudo crear el nuevo archivo");
+			return 9999;
 		}
 	}
 
-
-	//testi(nuevaEntradaTGA->indice);
-	testi(nuevaEntradaTAP->globalFD);
 	nuevaEntradaTAP->globalFD = nuevaEntradaTGA->indice;
 	nuevaEntradaTAP->indice = unPrograma->FDCounter;
 	list_add(unPrograma->tablaArchivosPrograma,nuevaEntradaTAP);
@@ -456,17 +435,17 @@ char* leerFD(uint32_t i,t_programa* unPrograma){
 		if(tienePermisos('l',entradaFD->flags)){
 			char* contenido = leerArchivo(aux->archivo,strlen(aux->archivo),i,entradaFD->cursor,tamanio);
 			if(contenido != NULL){
-				log_trace(logger,"Se escribio un archivo correctamente");
+				log_trace(logger,"Se leyo un archivo correctamente");
 				log_trace(logger,aux->archivo);
 				send(i,"Y",1,0);
 				return contenido;
 			}else{
-				log_error(logger,"No se pudo escribir un archivo correctamente");
+				log_error(logger,"No se pudo leer un archivo correctamente");
 				send(i,"N",1,0);
 				return NULL;
 			}
 		} else {
-			log_error(logger,"No hay permisos para escribir en un archivo");
+			log_error(logger,"No hay permisos para leer un archivo");
 			send(i,"N",1,0);
 			return NULL;
 		}

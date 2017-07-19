@@ -314,6 +314,7 @@ void* cpu(t_cpu * cpu){
 
 			while(1){
 				recv(cpu->id,res,1,MSG_WAITALL);
+				proximoPrograma->rafagasEjecutadas++;
 				if(proximoPrograma->debeFinalizar == 1)
 					res[0] = 'F';
 
@@ -323,7 +324,6 @@ void* cpu(t_cpu * cpu){
 
 				// Verifico si aun le falta ejecutar al proceso
 				if(res[0] == 'F'){
-					proximoPrograma->rafagasEjecutadas++;
 					if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
 						liberarCPU(proximoPrograma);
 					res=realloc(res,tamARecibir);
@@ -352,7 +352,6 @@ void* cpu(t_cpu * cpu){
 					break;
 				} else if(res[0] == 'Y'){
 					//log_trace(logger,"Moviendo el proceso de EXEC a READY");
-					proximoPrograma->rafagasEjecutadas++;
 					if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
 						liberarCPU(proximoPrograma);
 
