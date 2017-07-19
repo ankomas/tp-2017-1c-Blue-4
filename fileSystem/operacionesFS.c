@@ -225,10 +225,12 @@ char* obtenerArchivoSegunBloque(char* numeroDeBloque)
 
 int cuantosBloquesRepresenta(int tam){
 	int i=0;
+	printf("tam : %d \n ",tam);
 	while(tam >= configFS.tamBloque){
 		tam -= configFS.tamBloque;
 		i++;
 	}
+	printf("bloques a pedir : %d \n",i);
 	if(tam>0) i++;
 	return i;
 }

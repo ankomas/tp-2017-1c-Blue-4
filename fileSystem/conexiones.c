@@ -338,6 +338,7 @@ void escribir(int socket)
 			free(ruta);
 			return;
 		}
+		textoAmarillo("\n wachin te envio una Y \n");
 		send(socket,"Y",1,0);
 		free(ruta);
 		return;
@@ -362,6 +363,7 @@ void borrar(int socket)
 
 void operacionesFS(int socket,char cop)
 {
+	printf(" \n llego al fs con el cod. de operacion: %c \n",cop);
 	switch(cop)
 	{
 	case 'V': validar(socket);break;
