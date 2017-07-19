@@ -511,11 +511,6 @@ t_programa* planificador(t_programa* unPrograma){
 		cfgActualizada = config_create(rutaConfigActualizada);
 	}
 
-	test("Valor de quantum:");
-	testi(quantum);
-	test("algoritmo");
-	test(algoritmoPlanificador);
-	//printf("algoritmoPlanificador %s\n",algoritmoPlanificador);
 	if(unPrograma == NULL){
 		if(queue_size(procesosREADY) > 0){
 			log_trace(logger,"Moviendo el proceso de Ready a EXEC");
