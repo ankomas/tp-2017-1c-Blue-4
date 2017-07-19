@@ -116,7 +116,7 @@ void imprimirTAP(t_programa *nuevoProceso){
 		free(linea);
 		contador++;
 	}
-	textoAzul("---------------------------------------------------- ");
+	textoAzul("-------------------------------------------------------- ");
 }
 
 void *consolaKernel(){

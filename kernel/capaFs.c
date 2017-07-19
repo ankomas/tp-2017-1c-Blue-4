@@ -458,7 +458,7 @@ t_entradaTGA * buscarFDPorPath(char* path){
 	int contador = 0;
 	while(contador < list_size(tablaGlobalArchivos)){
 		t_entradaTGA * aux = list_get(tablaGlobalArchivos,contador);
-		if(strcmp(aux->archivo,path)){
+		if(strcmp(aux->archivo,path) == 0){
 			return aux;
 		}
 		contador++;
