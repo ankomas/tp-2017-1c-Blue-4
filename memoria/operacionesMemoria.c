@@ -211,20 +211,21 @@ int guardaProcesoEn(uint32_t pid, uint32_t paginasRequeridas,int32_t pos) {
 	return 0;
 }
 
-void agregarNuevoProceso(uint32_t pid, uint32_t paginasRequeridas,int32_t pos) {
-	guardaProcesoEn(pid, paginasRequeridas, pos);
+int agregarNuevoProceso(uint32_t pid, uint32_t paginasRequeridas,int32_t pos) {
+	int i = guardaProcesoEn(pid, paginasRequeridas, pos);
 	actualizarMarcosDisponibles(paginasRequeridas);
+	return i;
 }
 
 int tieneMarcosSuficientes(int paginasRequeridas) {
 	return paginasRequeridas <= configDeMemoria.marcosDisponibles;
 }
 
-void inicializarPrograma(uint32_t pid, uint32_t paginasRequeridas) {
+int inicializarPrograma(uint32_t pid, uint32_t paginasRequeridas) {
 	//pthread_mutex_lock(mutexMemoria);
 	int32_t pos;
 	pos=agregar_DataDeProcesoActivo(pid, paginasRequeridas);
-	agregarNuevoProceso(pid, paginasRequeridas,pos);
+	return agregarNuevoProceso(pid, paginasRequeridas,pos);
 	//pthread_mutex_unlock(mutexMemoria);
 }
 

@@ -17,7 +17,7 @@ uint32_t tamanioDeTabla();
 
 uint32_t tamanioDeTablaCache();
 
-void inicializarPrograma(uint32_t ,uint32_t);
+int inicializarPrograma(uint32_t ,uint32_t);
 
 tablaPaginas_t* obtenerTablaDePaginas();
 tablaCache_t* obtenerTablaCache();
