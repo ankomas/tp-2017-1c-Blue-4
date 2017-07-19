@@ -122,9 +122,31 @@ void testFuncionesAProcesosActivos()
 	listar_DataDeProcesoActivo(200);
 }
 
+void testLlenar(){
+	int i=100;
+	printf("Marcos Disponibles: %i\n", configDeMemoria.marcosDisponibles);
+/*
+	while(configDeMemoria.marcosDisponibles > (i-100)){
+		inicializarPrograma(i,1);
+		escribir(i,0,0,8,"Iniciado");
+		i++;
+	}
+	i = 100;
+	while(asignarPaginasAUnProceso(i,1) >= 0){
+		escribir(i,1,0,8,"Agregado");
+		i++;
+	*/
+	while(inicializarPrograma(i,1) != -1){
+		escribir(i,0,0,8,"Iniciado");
+		i++;
+	}
+	inicializarPrograma(600,1);
+}
+
 int main(void) {
 
 	inicializarEstructurasAdministrativas();
+	//testLlenar();
 	//inicializarPrograma(1,3);
 	//NPAC(1,2);
 	//nuevoMarcoDelMismoProceso(1);
