@@ -365,10 +365,8 @@ void imprimirSentenciaAnsisop(dataHilos_t* data)
 	char* sentencia=recibirSentenciaAnsisop(data->socketKernel);
 	dataProceso_t* infoProceso=eliminarProcesoDeListaPorPid(data->pidHilo);
 
-	if(infoProceso==NULL){
-		textoAzul("SOY NULL \n");
-		return;
-	}
+	if(infoProceso==NULL)return;
+
 	if(sentencia)
 	{
 		pthread_mutex_lock(&mutexDataDeProcesos);
@@ -385,7 +383,7 @@ void imprimirSentenciaAnsisop(dataHilos_t* data)
 		return;
 
 	}
-	printf("no se pudo recibir la sentencia \n");
+	textoRojo("no se pudo recibir la sentencia \n");
 
 }
 
@@ -416,24 +414,24 @@ void gestionarProgramaAnsisop(dataHilos_t* dataHilo)
 		pthread_exit(NULL);
 		return;
 	}
-	printf("el tamanio es: %d \n",tamanio);
 	int respuesta=enviarMensajeConCodigoDeOperacion("A",dataHilo->socketKernel,lecturaDeProgramaAnsisop,tamanio);
 	if(respuesta<0)
 	{
 		free(dataHilo->path);
 		close(dataHilo->socketKernel);
 		free(dataHilo);
+		free(lecturaDeProgramaAnsisop);
 		pthread_exit(NULL);
 		return;
 	}
 	char* pid_programa;
 
-
+	free(lecturaDeProgramaAnsisop);
 	pid_programa=recibirPid(dataHilo->socketKernel);
 	printf("pid_programa: %s \n",pid_programa);
 	if(pid_programa==NULL)
 	{
-		printf(" No se pudo recibir un pid \n");
+		textoRojo(" No se pudo recibir un pid \n");
 		free(dataHilo->path);
 		close(dataHilo->socketKernel);
 		free(dataHilo);

@@ -129,13 +129,13 @@ int conectarseAlKernel()
 	int socket_cliente;
 	datosConfig_t datosDelConfig = obtenerEstructurasDelConfig();
 	char* ip = datosDelConfig.ip;
-	printf("el ip usado es: %s \n",ip);
+	//printf("el ip usado es: %s \n",ip);
 	int puerto_kernel = datosDelConfig.puerto_kernel;
-	printf("el puerto usado es: %d \n",puerto_kernel);
+	//printf("el puerto usado es: %d \n",puerto_kernel);
 	socket_cliente=conectar(puerto_kernel, ip,id_kernel);
 	if(socket_cliente>0)
 	{
-		printf("Conexion Exitosa!!! \n\n");
+		textoVerde("Conexion Exitosa!!! \n\n");
 		return socket_cliente;
 	}
 	return -1;
@@ -165,7 +165,7 @@ uint32_t recibirTamPaquete(int socket)
 {
 	int resultado;
 	uint32_t uint;
-	printf("entro a recibir tamanio buffer \n");
+	//printf("entro a recibir tamanio buffer \n");
 	uint32_t tambuffer=sizeof(uint32_t);
 	char* buffer=malloc(tambuffer);
 	memset(buffer,'\0',tambuffer);
@@ -178,7 +178,7 @@ uint32_t recibirTamPaquete(int socket)
 	memcpy(&uint,buffer,tambuffer);
 	//tamanioTotal=*(uint32_t*)buffer;
 	free(buffer);
-	printf("se recibio: %u \n",uint);
+	//printf("se recibio: %u \n",uint);
 	return uint;
 }
 
@@ -189,11 +189,11 @@ uint32_t recibirTamPaquete(int socket)
 char* recibirPaquete(int socket,uint32_t tamanio,int* resultadoDelRecv)
 {
 	char* data=malloc(tamanio);
-	printf("entro al recvall \n");
-	printf("se va a recibir data de socket : %d ,tamanio: %d \n",socket,tamanio);
+	//printf("entro al recvall \n");
+	//printf("se va a recibir data de socket : %d ,tamanio: %d \n",socket,tamanio);
 	*resultadoDelRecv=recvall(socket,data,tamanio);
-	testi(*resultadoDelRecv);
-	printf("sali del recvall \n");
+	//testi(*resultadoDelRecv);
+	//printf("sali del recvall \n");
 	return data;
 }
 
