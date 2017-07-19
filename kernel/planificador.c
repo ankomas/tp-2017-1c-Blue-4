@@ -504,7 +504,7 @@ t_programa* planificador(t_programa* unPrograma){
 			t_programa* aux = queue_pop(procesosREADY);
 			queue_push(procesosEXEC,aux);
 			unPrograma = aux;
-		} else if(queue_size(procesosNEW) > 0){
+		} else if(queue_size(procesosNEW) > 0 && gradoMultiprogramacion >= cantidadProgramasEnSistema){
 			log_trace(logger,"Moviendo el proceso de New a READY");
 			t_programa* aux = queue_pop(procesosNEW);
 			testi(queue_size(procesosNEW));

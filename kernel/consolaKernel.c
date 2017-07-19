@@ -92,6 +92,33 @@ void mostrarYAgregarRuta(char* rutaOpciones,char*ruta){
 	printf("%s",rutaOpciones);
 }
 
+
+void imprimirTGA(){
+	int contador = 0;
+	textoAzul("\n------------- Tabla Global de Archivos ------------- ");
+	while(list_size(tablaGlobalArchivos) > contador){
+		t_entradaTGA * entradaAux = list_get(tablaGlobalArchivos,contador);
+		char* linea = concat(3,string_itoa(entradaAux->abierto)," | ",entradaAux->archivo);
+		textoAzul(linea);
+		free(linea);
+		contador++;
+	}
+	textoAzul("---------------------------------------------------- ");
+}
+
+void imprimirTAP(t_programa *nuevoProceso){
+	int contador = 0;
+	textoAzul("\n------------- Tabla de archivos de proceso ------------- ");
+	while(list_size(nuevoProceso->tablaArchivosPrograma) > contador){
+		t_entradaTAP * entradaAux = list_get(nuevoProceso->tablaArchivosPrograma,contador);
+		char* linea = concat(3,string_itoa(entradaAux->globalFD)," | ",entradaAux->flags);
+		textoAzul(linea);
+		free(linea);
+		contador++;
+	}
+	textoAzul("---------------------------------------------------- ");
+}
+
 void *consolaKernel(){
 	int opcionInt = 0;
 	while(1){
@@ -142,7 +169,7 @@ void *consolaKernel(){
 					printf("Fueron realizadas %i",programaEncontrado->cantidadSyscallsEjecutadas);
 				} else if(opcion[0] == OBTENER_TABLA_ARCHIVOS_ABIERTOS){
 					mostrarYAgregarRuta(rutaOpciones," >> Mostrar tabla archivos abiertos");
-					//imprimirTAP(nuevoProceso);
+					imprimirTAP(programaEncontrado);
 				} else if(opcion[0] == CANTIDAD_PAGINAS_HEAP){
 					mostrarYAgregarRuta(rutaOpciones," >> Cantidad paginas heap");
 					printf("Cantidad Paginas de Heap utilizadas: %i",list_size(programaEncontrado->paginasHeap));
@@ -166,7 +193,7 @@ void *consolaKernel(){
 			}
 		} else if(opcion[0] == TABLA_GLOBAL_ARCHIVOS){
 			mostrarYAgregarRuta(rutaOpciones," >> Mostrar Tabla global de archivos");
-			//imprimirTGA();
+			imprimirTGA();
 		} else if(opcion[0] == MODIFICAR_GRADO_MULTIPROGRAMACION){
 			mostrarYAgregarRuta(rutaOpciones," >> Modificar el grado de multiprogramacion");
 			opcionInt = 0;
