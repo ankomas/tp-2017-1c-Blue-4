@@ -159,7 +159,6 @@ void *consolaKernel(){
 				printf("2 - Cantidad Operaciones privilegiadas ejecutadas\n");
 				printf("3 - Tabla de archivos abiertos \n");
 				printf("4 - Cantidad de paginas de Heap\n");
-				printf("5 - Cantidad de syscalls realizadas\n");
 				scanf("%s", opcion);
 				if(opcion[0] == CANTIDAD_RAFAGAS_EJECUTADAS){
 					mostrarYAgregarRuta(rutaOpciones," >> Cantidad rafagas ejecutadas");
@@ -186,9 +185,6 @@ void *consolaKernel(){
 						printf("\nCantidad LIBERAR realizados: %i",programaEncontrado->cantidadLiberarEjecutados);
 						printf("\nCantidad LIBERAR en bytes: %i",programaEncontrado->cantidadLiberarEjecutadosBytes);
 					}
-				} else if(opcion[0] == CANTIDAD_SYSCALLS_EJECUTADAS){
-					// ? no son lo mismo que op privilegiadas?
-					//printf("Cantidad de Syscalls ejecutadas: %i",proceso->cantidadSyscallsEjecutadas;
 				}
 			}
 		} else if(opcion[0] == TABLA_GLOBAL_ARCHIVOS){

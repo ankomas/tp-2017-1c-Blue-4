@@ -315,6 +315,7 @@ void* cpu(t_cpu * cpu){
 			while(1){
 				recv(cpu->id,res,1,MSG_WAITALL);
 				proximoPrograma->rafagasEjecutadas++;
+				proximoPrograma->quantumRestante--;
 				if(proximoPrograma->debeFinalizar == 1)
 					res[0] = 'F';
 
@@ -536,7 +537,7 @@ t_programa* planificador(t_programa* unPrograma){
 				free(rutaConfigActualizada);
 				return NULL;
 			} else {
-				unPrograma->quantumRestante--;
+				//unPrograma->quantumRestante--;
 				config_destroy(cfgActualizada);
 				free(rutaConfigActualizada);
 				return unPrograma;
