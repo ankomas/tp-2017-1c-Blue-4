@@ -314,8 +314,6 @@ void* cpu(t_cpu * cpu){
 
 			while(1){
 				recv(cpu->id,res,1,MSG_WAITALL);
-				proximoPrograma->rafagasEjecutadas++;
-				proximoPrograma->quantumRestante--;
 				if(proximoPrograma->debeFinalizar == 1)
 					res[0] = 'F';
 
@@ -325,6 +323,7 @@ void* cpu(t_cpu * cpu){
 
 				// Verifico si aun le falta ejecutar al proceso
 				if(res[0] == 'F'){
+					proximoPrograma->rafagasEjecutadas++;
 					if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
 						liberarCPU(proximoPrograma);
 					res=realloc(res,tamARecibir);
@@ -352,6 +351,7 @@ void* cpu(t_cpu * cpu){
 					proximoPrograma = NULL;
 					break;
 				} else if(res[0] == 'Y'){
+					proximoPrograma->rafagasEjecutadas++;
 					//log_trace(logger,"Moviendo el proceso de EXEC a READY");
 					if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
 						liberarCPU(proximoPrograma);
@@ -491,9 +491,8 @@ void moverPrograma(t_programa* unPrograma,t_queue* colaOrigen, t_queue* colaDest
 }
 
 t_programa* planificador(t_programa* unPrograma){
-	if(detenerPlanificacion == 1){
+	while(detenerPlanificacion == 1){
 		usleep(1000);
-		return NULL;
 	}
 	usleep(retardo);
 	// mutex por haber leido de un archivo que puede ser actualizado hasta antes del recv
@@ -537,7 +536,7 @@ t_programa* planificador(t_programa* unPrograma){
 				free(rutaConfigActualizada);
 				return NULL;
 			} else {
-				//unPrograma->quantumRestante--;
+				unPrograma->quantumRestante--;
 				config_destroy(cfgActualizada);
 				free(rutaConfigActualizada);
 				return unPrograma;
