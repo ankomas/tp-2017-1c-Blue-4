@@ -308,8 +308,7 @@ int finalizarProcesoMemoria(uint32_t pid,bool force){
 			return -2; // No finaliza un proceso hasta que deje de estar en Running
 		}
 	}
-	// Si esta en NEW, no tengo que eliminarlo de memoria
-	if(list_find(procesosNEW->elements,(void*)_condicion) != NULL){
+	if(list_find(procesosREADY->elements,(void*)_condicion) != NULL || list_find(procesosNEW->elements,(void*)_condicion) != NULL || list_find(procesosEXEC->elements,(void*)_condicion) != NULL){
 		char* charsito = malloc(1);
 		if(send(idUMC,"F",1,0)<=0){
 			return -1;
@@ -317,11 +316,13 @@ int finalizarProcesoMemoria(uint32_t pid,bool force){
 		if(send(idUMC,&pid,sizeof(uint32_t),0) <=0){
 			return -1;
 		}
-		if(recv(idUMC,&pid,sizeof(uint32_t),0) <=0){
+		if(recv(idUMC,charsito,1,0) <=0){
 			return -1;
 		}
 		if(charsito[0] == 'Y'){
 			// puedo continuar, no debo retornar nada aun
+		} else {
+			return -1;
 		}
 	}
 	if(list_find(procesosBLOCK->elements,(void*)_condicion) != NULL){

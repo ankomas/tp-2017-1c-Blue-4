@@ -251,7 +251,7 @@ t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual){
 	nuevoProceso->pcb->ultimaPosUsada.pag=cantidadPaginasCodigo;
 
 	pthread_mutex_lock(&mutex_colasPlanificacion);
-	if(gradoMultiprogramacion >= cantidadProgramasEnSistema){
+	if(gradoMultiprogramacion+queue_size(procesosEXIT) >= cantidadProgramasEnSistema){
 		encolarReady(nuevoProceso);
 	}else{
 		/*if(send(i,"N",1,0) < 1)
@@ -345,8 +345,11 @@ void* cpu(t_cpu * cpu){
 					send(proximoPrograma->id,"F",1,0);
 					pthread_mutex_lock(&mutex_colasPlanificacion);
 
-					finalizarProcesoMemoria(proximoPrograma->pcb->pid,true);
-					log_trace(logger,"Un programa ha sido movido a EXIT");
+					if(finalizarProcesoMemoria(proximoPrograma->pcb->pid,true) == 0)
+						log_trace(logger,"Un programa ha sido movido a EXIT");
+					else
+						log_trace(logger,"Fallo el liberar memoria");
+
 					pthread_mutex_unlock(&mutex_colasPlanificacion);
 					proximoPrograma = NULL;
 					break;
@@ -370,7 +373,10 @@ void* cpu(t_cpu * cpu){
 
 					//TODO El planificador debe desencolar procesos ya terminados
 					pthread_mutex_lock(&mutex_colasPlanificacion);
-					finalizarProcesoMemoria(proximoPrograma->pcb->pid,true);
+					/*if(finalizarProcesoMemoria(proximoPrograma->pcb->pid,true) == 0)
+						log_trace(logger,"Un programa ha sido movido a EXIT");
+					else
+						log_trace(logger,"Fallo el liberar memoria");*/
 					proximoPrograma = planificador(proximoPrograma);
 					pthread_mutex_unlock(&mutex_colasPlanificacion);
 					break;
@@ -517,7 +523,7 @@ t_programa* planificador(t_programa* unPrograma){
 			t_programa* aux = queue_pop(procesosREADY);
 			queue_push(procesosEXEC,aux);
 			unPrograma = aux;
-		} else if(queue_size(procesosNEW) > 0 && gradoMultiprogramacion >= cantidadProgramasEnSistema){
+		} else if(queue_size(procesosNEW) > 0 && gradoMultiprogramacion+queue_size(procesosEXIT) >= cantidadProgramasEnSistema){
 			log_trace(logger,"Moviendo el proceso de New a READY");
 			t_programa* aux = queue_pop(procesosNEW);
 			testi(queue_size(procesosNEW));
