@@ -617,6 +617,11 @@ int guardarHeapNico(uint32_t socket,t_programa* programa){
 		send(socket,"N",1,0);
 		return 1;
 	}
+	if(res==-2){
+		printf("ERROR: no se pudo asignar paginas al proceso\n");
+		send(socket,"N",1,0);
+		return 1;
+	}
 
 	send(socket,"Y",1,0);
 	send(socket,&res,sizeof(uint32_t),0);
