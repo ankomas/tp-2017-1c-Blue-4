@@ -21,6 +21,7 @@
 #include "operacionesMemoria.h"
 #include "sockets.h"
 #include "configuraciones.h"
+#include "estructurasAdministrativas.h"
 
 const char CONSOLA_ID = '1';
 const char KERNEL_ID = '2';
@@ -364,6 +365,7 @@ void agregarPaginasA(int socket)
 		resultado=asignarPaginasAUnProceso(pid,paginasRequeridas);
 		if(resultado<0)
 		{
+			texto_en_color_de_error(" LA MEMORIA NO POSEE MAS PAGINAS DISPONIBLES \n");
 			send(socket,"N",1,0);
 			return;
 		}
@@ -426,7 +428,7 @@ void operacionesMemoria(int socket)
 			return;
 		}
 
-	printf("LLEGUE A OPERACIONES MEMORIA con %c\n", cop);
+	printf(" \n %s LLEGUE A OPERACIONES MEMORIA con %c %s \n",KBLU, cop,KNRM);
 	switch(cop)
 	{
 		case 'A': agregarPaginasA(socket);break;
