@@ -351,7 +351,7 @@ int cerrarArchivo(t_descriptor_archivo fd){
 }
 
 int escribirArchivo(t_descriptor_archivo descriptor_archivo, void* informacion, t_valor_variable tamanio){
-	char* res;
+	char res;
 	uint32_t fd = descriptor_archivo;
 	uint32_t tam= tamanio;
 
@@ -368,9 +368,10 @@ int escribirArchivo(t_descriptor_archivo descriptor_archivo, void* informacion, 
 	recv(kernel,&res,1,0);//recibo Y
 
 	recv(kernel,&res,1,0);//recibo Y o N
+	printf("ESCRIBIR ARCHIVO res: %c\n",res);
 
 	if(res=='Y')
-	return 1;
+		return 1;
 	else
 		return -1;
 }

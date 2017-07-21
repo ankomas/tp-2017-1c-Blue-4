@@ -61,10 +61,13 @@ void inicializarSemaforos() {
 void inicializarVariablesCompartidas() {
 	char** varCompartidas_ids = obtenerConfiguracionArray(cfg,"SHARED_VARS");
 	int aux = 0;
+	int* valInicial=NULL;
 
 	while (varCompartidas_ids[aux]){
 		printf("Agregado a VARIABLES COMPARTIDAS: %s\n",varCompartidas_ids[aux]);
-		dictionary_put(variablesCompartidas,string_substring_from(varCompartidas_ids[aux],1),0);
+		valInicial=malloc(sizeof(int));
+		*valInicial=0;
+		dictionary_put(variablesCompartidas,string_substring_from(varCompartidas_ids[aux],1),valInicial);
 		aux++;
 	}
 }
@@ -437,7 +440,9 @@ void guardarVarGlobal(uint32_t i){
 
 	printf("Nuevo valor var: %i, rev: %s\n",*nuevoValorVar,rev);
 	if(dictionary_has_key(variablesCompartidas,rev)){
-		dictionary_remove(variablesCompartidas,rev);
+		int *aux;
+		aux=dictionary_remove(variablesCompartidas,rev);
+		free(aux);
 	}
 
 	dictionary_put(variablesCompartidas,rev,nuevoValorVar);
