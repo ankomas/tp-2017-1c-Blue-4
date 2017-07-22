@@ -393,9 +393,13 @@ void manejadorDeCodigosDeOperacion(char cop,dataHilos_t* data)
 	{
 		imprimirFinalizacionDeProceso(data);
 	}
-	else
+	else if(cop=='P')
 	{
 		imprimirSentenciaAnsisop(data);
+	}
+	else
+	{
+		//todo error
 	}
 }
 

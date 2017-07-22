@@ -174,8 +174,6 @@ void dummy_escribir(t_descriptor_archivo descriptor_archivo, void* informacion, 
 		return;
 	int res;
 	printf("Llamada a "YEL"ESCRIBIR"RESET" %i,%i\n",descriptor_archivo,tamanio);
-	if(descriptor_archivo==1)
-		return;
 	res=escribirArchivo(descriptor_archivo,informacion,tamanio);
 
 	if(res==-1){
