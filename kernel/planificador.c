@@ -498,6 +498,9 @@ void moverPrograma(t_programa* unPrograma,t_queue* colaOrigen, t_queue* colaDest
 		t_programa *programaAux = list_get(colaOrigen->elements,aux);
 		while (programaAux->pcb->pid != unPrograma->pcb->pid && aux < list_size(colaOrigen->elements)){
 			programaAux = list_get(colaOrigen->elements,aux);
+			if(programaAux->pcb->pid == unPrograma->pcb->pid){
+				break;
+			}
 			aux++;
 		}
 
