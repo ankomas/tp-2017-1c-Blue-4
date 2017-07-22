@@ -13,6 +13,8 @@
 #include "main.h"
 #include "error.h"
 #include <sys/socket.h>
+#include <signal.h>
+#include <sys/socket.h>
 
 const int EXIT_OK = 1;
 //El programa finalizó correctamente.
@@ -265,9 +267,8 @@ t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual){
 	return nuevoProceso;
 }
 
-void* cpu(t_cpu * cpu){
-	void liberarCPU(t_programa* programaDeCPU){
-		log_error(logger,"Se esta por eliminar una CPU");
+void liberarCPU(t_cpu* cpu, t_programa* programaDeCPU){
+		log_error(logger,"Se esta por eliminar una CPU,");
 		pthread_mutex_lock(&mutex_colasPlanificacion);
 		moverPrograma(programaDeCPU,procesosEXEC,procesosEXIT);
 		pthread_mutex_unlock(&mutex_colasPlanificacion);
@@ -275,32 +276,45 @@ void* cpu(t_cpu * cpu){
 		pthread_exit(&cpu->hilo);
 	}
 
+void* cpu(t_cpu * cpu){
+
+
 	printf("cpu: %i\n",cpu->id);
 	t_programa * proximoPrograma;
 	pthread_mutex_lock(&mutex_colasPlanificacion);
-	proximoPrograma = planificador(NULL);
+	proximoPrograma = planificador(NULL,cpu,0);
+	if(proximoPrograma == NULL){
+		proximoPrograma = planificador(NULL,cpu,1);
+	}
 	pthread_mutex_unlock(&mutex_colasPlanificacion);
-	char*res = NULL;
+	char*res = malloc(1);
+	int hiloCreado = 0;
+	//pthread_t watcherThread;
+	int envioConfirmacion = 0;
+
+	void liberarCPUSinPrograma(){
+		log_error(logger,"Se esta por eliminar una CPU,");
+		eliminarSiHayCPU(cpu->id);
+		pthread_mutex_unlock(&mutex_colasPlanificacion);
+		pthread_exit(&cpu->hilo);
+	}
+
 	while(1){
-		//TODO falta mutex en todos los accesos a las colas
+		signal(SIGPIPE, liberarCPUSinPrograma);
 		if(proximoPrograma != 0 && proximoPrograma!=NULL){
+
 			t_pcb proximoPCB = *(proximoPrograma->pcb);
 			package_t paquete = serializarPCB(proximoPCB);
 			uint32_t tamUint=sizeof(uint32_t),tamChar=1;
 			uint32_t tamARecibir=0;
-			//char* streamTamPaquete = intToStream(paquete.data_size);
-			//send al proximoProceso->id
 
 			res=realloc(res,1);
 
-			if(sendall(cpu->id, "0", &tamChar) < 0)
-				liberarCPU(proximoPrograma);
-
 			if(sendall(cpu->id, (char*)&paquete.data_size, &tamUint) < 0)
-				liberarCPU(proximoPrograma);
+				liberarCPU(cpu,proximoPrograma);
 
 			if(sendall(cpu->id, paquete.data, &paquete.data_size) < 0)
-				liberarCPU(proximoPrograma);
+				liberarCPU(cpu,proximoPrograma);
 
 			free(paquete.data);
 
@@ -309,7 +323,7 @@ void* cpu(t_cpu * cpu){
 				log_error(logger,"La CPU no recibio el PCB");
 				test(res);
 				//todo no mates el programa, mata al cpu
-				liberarCPU(proximoPrograma);
+				liberarCPU(cpu,proximoPrograma);
 			}
 
 			while(1){
@@ -317,18 +331,14 @@ void* cpu(t_cpu * cpu){
 				if(proximoPrograma->debeFinalizar == 1)
 					res[0] = 'F';
 
-
-				/*retardo = obtenerConfiguracion(cfg,"QUANTUM_SLEEP");
-				usleep(retardo);*/
-
 				// Verifico si aun le falta ejecutar al proceso
 				if(res[0] == 'F'){
 					proximoPrograma->rafagasEjecutadas++;
 					if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
-						liberarCPU(proximoPrograma);
+						liberarCPU(cpu,proximoPrograma);
 					res=realloc(res,tamARecibir);
 					if(recv(cpu->id,res,tamARecibir,MSG_WAITALL) <= 0)
-						liberarCPU(proximoPrograma);
+						liberarCPU(cpu,proximoPrograma);
 					else{
 						liberarPCB(*(proximoPrograma->pcb));
 						*(proximoPrograma->pcb)=deserializarPCB(res);
@@ -341,7 +351,6 @@ void* cpu(t_cpu * cpu){
 						anuncio(concat(2,"Ocurrio un error #",string_itoa(proximoPrograma->pcb->exitCode)));
 					}
 
-					printf("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
 					send(proximoPrograma->id,"F",1,0);
 					pthread_mutex_lock(&mutex_colasPlanificacion);
 
@@ -355,15 +364,14 @@ void* cpu(t_cpu * cpu){
 					break;
 				} else if(res[0] == 'Y'){
 					proximoPrograma->rafagasEjecutadas++;
-					//log_trace(logger,"Moviendo el proceso de EXEC a READY");
 					if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
-						liberarCPU(proximoPrograma);
+						liberarCPU(cpu,proximoPrograma);
 
 					res=realloc(res,tamARecibir);
 					printf("Tam a recibir: %i\n",tamARecibir);
 					log_trace(logger,"PCB RECIBIDO DEL CPU");
 					if(recv(cpu->id,res,tamARecibir,MSG_WAITALL) <= 0)
-						liberarCPU(proximoPrograma);
+						liberarCPU(cpu,proximoPrograma);
 					else{
 						liberarPCB(*(proximoPrograma->pcb));
 						*(proximoPrograma->pcb)=deserializarPCB(res);
@@ -371,13 +379,13 @@ void* cpu(t_cpu * cpu){
 						res=NULL;
 					}
 
-					//TODO El planificador debe desencolar procesos ya terminados
 					pthread_mutex_lock(&mutex_colasPlanificacion);
-					/*if(finalizarProcesoMemoria(proximoPrograma->pcb->pid,true) == 0)
-						log_trace(logger,"Un programa ha sido movido a EXIT");
-					else
-						log_trace(logger,"Fallo el liberar memoria");*/
-					proximoPrograma = planificador(proximoPrograma);
+					log_trace(logger,"Moviendo el proceso de EXEC a Ready");
+					moverPrograma(proximoPrograma,procesosEXEC,procesosREADY);
+					proximoPrograma = planificador(NULL,cpu,0);
+					if(proximoPrograma == NULL){
+						proximoPrograma = planificador(NULL,cpu,1);
+					}
 					pthread_mutex_unlock(&mutex_colasPlanificacion);
 					break;
 
@@ -433,18 +441,18 @@ void* cpu(t_cpu * cpu){
 					proximoPrograma->cantidadSyscallsEjecutadas++;
 				} else if(res[0] == 'B'){
 					if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
-						liberarCPU(proximoPrograma);
+						liberarCPU(cpu,proximoPrograma);
 					res=realloc(res,tamARecibir);
 					if(recv(cpu->id,res,tamARecibir,MSG_WAITALL) <= 0)
-						liberarCPU(proximoPrograma);
+						liberarCPU(cpu,proximoPrograma);
 					else{
 						liberarPCB(*(proximoPrograma->pcb));
 						*(proximoPrograma->pcb)=deserializarPCB(res);
 						free(res);
 						res=NULL;
 					}
-					log_trace(logger,"Moviendo el proceso de EXEC a bloqueado");
 					pthread_mutex_lock(&mutex_colasPlanificacion);
+					log_trace(logger,"Moviendo el proceso de EXEC a bloqueado");
 					moverPrograma(proximoPrograma,procesosEXEC,procesosBLOCK);
 					pthread_mutex_unlock(&mutex_colasPlanificacion);
 					proximoPrograma = NULL;
@@ -454,8 +462,12 @@ void* cpu(t_cpu * cpu){
 			// Esta Y debe ser reemplazada por el codigo que devuelva la cpu, cuando finalice tiene que limpiar las estructuras incluyendo cpu
 		} else {
 			pthread_mutex_lock(&mutex_colasPlanificacion);
-			proximoPrograma = planificador(NULL);
+			proximoPrograma = planificador(NULL,cpu,0);
+			if(proximoPrograma == NULL){
+				proximoPrograma = planificador(NULL,cpu,1);
+			}
 			pthread_mutex_unlock(&mutex_colasPlanificacion);
+
 		}
 
 		usleep(500);
@@ -496,11 +508,13 @@ void moverPrograma(t_programa* unPrograma,t_queue* colaOrigen, t_queue* colaDest
 	}
 }
 
-t_programa* planificador(t_programa* unPrograma){
+t_programa* planificador(t_programa* unPrograma,t_cpu* cpu,uint32_t confirmado){
 	while(detenerPlanificacion == 1){
 		usleep(1000);
 	}
 	usleep(retardo);
+	uint32_t confirmacionEnviada = 0;
+	uint32_t uno = 1;
 	// mutex por haber leido de un archivo que puede ser actualizado hasta antes del recv
 	char* rutaConfigActualizada = rutaAbsolutaDe("config.cfg");
 	t_config* cfgActualizada = config_create(rutaConfigActualizada);
@@ -516,19 +530,43 @@ t_programa* planificador(t_programa* unPrograma){
 		rutaConfigActualizada = rutaAbsolutaDe("config.cfg");
 		cfgActualizada = config_create(rutaConfigActualizada);
 	}
-
 	if(unPrograma == NULL){
 		if(queue_size(procesosREADY) > 0){
-			log_trace(logger,"Moviendo el proceso de Ready a EXEC");
-			t_programa* aux = queue_pop(procesosREADY);
-			queue_push(procesosEXEC,aux);
-			unPrograma = aux;
+			t_programa* aux = NULL;
+			if(confirmado == 0){
+				if(encontrarCPU(cpu->id) == NULL){
+					return NULL;
+				}
+				if(sendall(cpu->id,"0",&uno) < 0){
+					return NULL;
+				}
+				if(sendall(cpu->id,"0",&uno) < 0){
+					return NULL;
+				}
+			}
+			usleep(100);
+			if(encontrarCPU(cpu->id) == NULL){
+				log_error(logger,"Se esta por eliminar una CPU.");
+				eliminarSiHayCPU(cpu->id);
+				pthread_exit(&cpu->hilo);
+				return NULL;
+			}else{
+				testi(confirmado);
+				if(confirmado == 0){
+					return NULL;
+				} else {
+					log_trace(logger,"Moviendo el proceso de Ready a EXEC");
+					confirmacionEnviada = 1;
+					aux = queue_pop(procesosREADY);
+					queue_push(procesosEXEC,aux);
+					unPrograma = aux;
+				}
+			}
 		} else if(queue_size(procesosNEW) > 0 && gradoMultiprogramacion+queue_size(procesosEXIT) >= cantidadProgramasEnSistema){
 			log_trace(logger,"Moviendo el proceso de New a READY");
 			t_programa* aux = queue_pop(procesosNEW);
 			testi(queue_size(procesosNEW));
 			encolarReady(aux);
-			///queue_push(procesosEXEC,aux);
 			unPrograma = NULL;
 		} else {
 			unPrograma = NULL;
@@ -545,12 +583,30 @@ t_programa* planificador(t_programa* unPrograma){
 				unPrograma->quantumRestante--;
 				config_destroy(cfgActualizada);
 				free(rutaConfigActualizada);
+
+				test("MANDO 01");
+				if(sendall(cpu->id,"0",&uno) <= 0){
+					log_error(logger,"Se esta por eliminar una CPU.");
+					eliminarSiHayCPU(cpu->id);
+					pthread_exit(&cpu->hilo);
+				}
+
 				return unPrograma;
 			}
 		}
 	} else if(strcmp(algoritmoPlanificador,"FIFO") == 0){
 		config_destroy(cfgActualizada);
 		free(rutaConfigActualizada);
+
+		if(unPrograma != NULL && confirmacionEnviada == 0){
+			test("MANDO 02");
+			if(sendall(cpu->id,"0",&uno) <= 0){
+				log_error(logger,"Se esta por eliminar una CPU.");
+				eliminarSiHayCPU(cpu->id);
+				pthread_exit(&cpu->hilo);
+			}
+		}
+
 		return unPrograma;
 	} else {
 		test(algoritmoPlanificador);

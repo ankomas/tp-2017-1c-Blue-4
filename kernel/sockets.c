@@ -153,6 +153,7 @@ int handshakeHandler(int i){
 			nuevaCPU->programaEnEjecucion = NULL;
 			nuevaCPU->disponible = true;
 			pthread_t thread;
+			nuevaCPU->hilo = thread;
 			if(sendall(i,"2",&tamHandshake) == 0){
 				aux=string_itoa(i);
 				aux2= concat(2,"Se realizo el Handshake con exito con ",aux);

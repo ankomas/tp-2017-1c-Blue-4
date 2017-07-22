@@ -74,14 +74,19 @@ void ejecutarPCB(t_pcb2 *pcb, int socket){
 void recibirPCB(int socket){
 	uint32_t tam;
 	char* buffer=NULL;
-	package_t paquete;
+	char op2;
+
+	if(recv(socket,&op2,1,MSG_WAITALL)<1){
+		perror("Error al recibir confirmacion para empezar desde el kernel");
+		return;
+	}
+	printf("ASD: %c",op2);
 
 	buffer=malloc(sizeof(uint32_t));
 	if(recv(socket,buffer,4,0)==-1){
 		perror("Error al recibir tamanio en recibirPCB");
 		return;
 	}
-
 	memcpy(&tam,buffer,4);
 	printf("RECIBIENDO PCB, TAMANIO DEL PAQUETE: %i\n",tam);
 	buffer=realloc(buffer,tam);
