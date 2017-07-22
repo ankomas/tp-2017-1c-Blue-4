@@ -472,7 +472,7 @@ void semWait(uint32_t i,uint32_t *pid){
 	if(recv(i,rev,tamARecibir,MSG_WAITALL) <= 0)
 		anuncio("Ocurrio un problema al hacer un Wait");
 	send(i,"Y",1,0);
-	printf("Llamada a SEM WAIT: %s\n",rev);
+	//printf("Llamada a SEM WAIT: %s\n",rev);
 	pthread_mutex_lock(&mutex_semaforos);
 	t_semaforo * semaforoObtenido =(t_semaforo *)dictionary_get(semaforos,rev);
 	if(dictionary_has_key(semaforos,rev)){

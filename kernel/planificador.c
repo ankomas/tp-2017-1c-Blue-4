@@ -52,58 +52,74 @@ const int EXIT_NOT_DEFINED = -20;
 char *algoritmoPlanificador;
 
 t_cpu * encontrarCPU(uint32_t i){
+	pthread_mutex_lock(&mutex_cpu);
 	int contador = 0;
 	if(list_size(CPUs) > 0){
 		t_cpu * cpuAux;
 		while(contador < list_size(CPUs)){
 			cpuAux = list_get(CPUs,contador);
-			if(cpuAux->id == i)
+			if(cpuAux->id == i){
+				pthread_mutex_unlock(&mutex_cpu);
 				return cpuAux;
+			}
 			contador++;
 		}
 	}
+	pthread_mutex_unlock(&mutex_cpu);
 	return NULL;
 }
 
 t_programa * encontrarPrograma(uint32_t i){
+	pthread_mutex_lock(&mutex_programas);
 	int contador = 0;
 	if(list_size(PROGRAMAs) > 0){
 		t_programa * programaAux;
 		while(contador < list_size(PROGRAMAs)){
 			programaAux = list_get(PROGRAMAs,contador);
-			if(programaAux->id == i)
+			if(programaAux->id == i){
+				pthread_mutex_unlock(&mutex_programas);
 				return programaAux;
+			}
 			contador++;
 		}
 	}
+	pthread_mutex_unlock(&mutex_programas);
 	return NULL;
 }
 
 t_programa * encontrarProgramaPorPID(uint32_t pid){
+	pthread_mutex_lock(&mutex_programas);
 	int contador = 0;
 	if(list_size(PROGRAMAs) > 0){
 		t_programa * programaAux;
 		while(contador < list_size(PROGRAMAs)){
 			programaAux = list_get(PROGRAMAs,contador);
-			if(programaAux->pcb->pid == pid)
+			if(programaAux->pcb->pid == pid){
+				pthread_mutex_unlock(&mutex_programas);
 				return programaAux;
+			}
 			contador++;
 		}
 	}
+	pthread_mutex_unlock(&mutex_programas);
 	return NULL;
 }
 
 t_cpu * encontrarCPUporPID(uint32_t pid){
+	pthread_mutex_lock(&mutex_cpu);
 	int contador = 0;
 	if(list_size(CPUs) > 0){
 		t_cpu * cpuAux;
 		while(contador < list_size(CPUs)){
 			cpuAux = list_get(CPUs,contador);
-			if(cpuAux->programaEnEjecucion->pid == pid)
+			if(cpuAux->programaEnEjecucion->pid == pid){
+				pthread_mutex_unlock(&mutex_cpu);
 				return cpuAux;
+			}
 			contador++;
 		}
 	}
+	pthread_mutex_unlock(&mutex_cpu);
 	return NULL;
 }
 
@@ -143,6 +159,7 @@ void encolarReady(t_programa* nuevoProceso){
 }
 
 t_cpu* indiceProximaCPULibre(){
+	pthread_mutex_lock(&mutex_cpu);
 	int indice = 0;
 	t_cpu * CPUaux;
 	if(list_size(CPUs) >0){
@@ -159,6 +176,7 @@ t_cpu* indiceProximaCPULibre(){
 
 		return CPUaux;
 	}
+	pthread_mutex_unlock(&mutex_cpu);
 	return NULL;
 }
 
