@@ -147,14 +147,16 @@ void crearMenuPrincipal()
 			case 1:
 				textoAzul("Ingrese programa ANSISOP: ");
 				scanf("%s",rutaPrograma);
-				FILE*abrirArchivo = fopen(rutaPrograma,"r");
+				char *rutaConcatenada = concat(3,rutaAbsoluta(),"scripts/",rutaPrograma);
+				FILE*abrirArchivo = fopen(rutaConcatenada,"r");
 				if(abrirArchivo == NULL){
 					textoRojo("Ruta de programa invalida, por favor verifique la ruta del mismo\n");
 				}else {
 					textoAzul("Iniciando programa ANSISOP..... \n\n");
 					fclose(abrirArchivo);
-					iniciarProgramaAnsisop(rutaPrograma);
+					iniciarProgramaAnsisop(rutaConcatenada);
 				}
+				free(rutaConcatenada);
 				getchar();
 				break;
 			case 2:

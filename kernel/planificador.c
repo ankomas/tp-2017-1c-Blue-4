@@ -321,8 +321,6 @@ void* cpu(t_cpu * cpu){
 			recv(cpu->id,res,1,MSG_WAITALL);
 			if(res[0]!= 'Y'){
 				log_error(logger,"La CPU no recibio el PCB");
-				test(res);
-				//todo no mates el programa, mata al cpu
 				liberarCPU(cpu,proximoPrograma);
 			}
 
@@ -554,7 +552,6 @@ t_programa* planificador(t_programa* unPrograma,t_cpu* cpu,uint32_t confirmado){
 				pthread_exit(&cpu->hilo);
 				return NULL;
 			}else{
-				testi(confirmado);
 				if(confirmado == 0){
 					return NULL;
 				} else {
@@ -568,7 +565,6 @@ t_programa* planificador(t_programa* unPrograma,t_cpu* cpu,uint32_t confirmado){
 		} else if(queue_size(procesosNEW) > 0 && gradoMultiprogramacion+queue_size(procesosEXIT) >= cantidadProgramasEnSistema){
 			log_trace(logger,"Moviendo el proceso de New a READY");
 			t_programa* aux = queue_pop(procesosNEW);
-			testi(queue_size(procesosNEW));
 			encolarReady(aux);
 			unPrograma = NULL;
 		} else {
@@ -587,7 +583,6 @@ t_programa* planificador(t_programa* unPrograma,t_cpu* cpu,uint32_t confirmado){
 				config_destroy(cfgActualizada);
 				free(rutaConfigActualizada);
 
-				test("MANDO 01");
 				if(sendall(cpu->id,"0",&uno) <= 0){
 					log_error(logger,"Se esta por eliminar una CPU.");
 					eliminarSiHayCPU(cpu->id);
@@ -602,7 +597,6 @@ t_programa* planificador(t_programa* unPrograma,t_cpu* cpu,uint32_t confirmado){
 		free(rutaConfigActualizada);
 
 		if(unPrograma != NULL && confirmacionEnviada == 0){
-			test("MANDO 02");
 			if(sendall(cpu->id,"0",&uno) <= 0){
 				log_error(logger,"Se esta por eliminar una CPU.");
 				eliminarSiHayCPU(cpu->id);
@@ -612,7 +606,6 @@ t_programa* planificador(t_programa* unPrograma,t_cpu* cpu,uint32_t confirmado){
 
 		return unPrograma;
 	} else {
-		test(algoritmoPlanificador);
 		log_error(logger,"Algoritmo mal cargado al config.cfg");
 	}
 	config_destroy(cfgActualizada);

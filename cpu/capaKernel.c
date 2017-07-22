@@ -80,7 +80,6 @@ void recibirPCB(int socket){
 		perror("Error al recibir confirmacion para empezar desde el kernel");
 		return;
 	}
-	printf("ASD: %c",op2);
 
 	buffer=malloc(sizeof(uint32_t));
 	if(recv(socket,buffer,4,0)==-1){
