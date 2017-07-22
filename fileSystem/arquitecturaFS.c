@@ -45,9 +45,10 @@ void leerConfig(){
 	char* ruta,*string_configuracion;
 	ruta= rutaAbsolutaDe("config.cfg");
 	config=config_create(ruta);
-	string_configuracion=obtenerConfiguracionString(config,"PUNTO_MONTAJE");
-	configFS.puntoMontaje = rutaAbsolutaDe(string_configuracion);
-	free(string_configuracion);
+	//string_configuracion=obtenerConfiguracionString(config,"PUNTO_MONTAJE");
+	configFS.puntoMontaje=obtenerConfiguracionString(config,"PUNTO_MONTAJE");
+	//configFS.puntoMontaje = rutaAbsolutaDe(string_configuracion);
+	//free(string_configuracion);
 	char* config_string=obtenerConfiguracionString(config,"PUERTO");
 	char* concat_string = concat(2,"Puerto: ",config_string);
 	anuncio(concat_string);
