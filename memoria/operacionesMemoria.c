@@ -238,6 +238,7 @@ int eliminarPaginaDeUnProceso(uint32_t pid, uint32_t paginaAEliminar) {
 	pthread_mutex_lock(&mutex_tablaDePaginas);
 	tablaDePaginas[marco].pid = -2;
 	tablaDePaginas[marco].pagina = -2;
+	aumentarMarcosDisponibles(1);
 	pthread_mutex_unlock(&mutex_tablaDePaginas);
 	disminuir_PaginasActualesDeProcesoActivo(pid, paginaAEliminar);
 	return 0;
@@ -264,7 +265,7 @@ int primerPagina(uint32_t pid){
 
 uint32_t finalizarPrograma(uint32_t pid) {
 	tablaPaginas_t* tablaDePaginas = obtenerTablaDePaginas();
-	int pagina, paginasMaximas, i = 0;
+	int pagina,paginasTotales=0, paginasMaximas, i = 0;
 	//pagina = primerPagina(pid);
 	int marco/* = getMarco(pid, pagina)*/;
 	/*if (marco < 0)
@@ -278,6 +279,7 @@ uint32_t finalizarPrograma(uint32_t pid) {
 			pthread_mutex_lock(&mutex_tablaDePaginas);
 			tablaDePaginas[marco].pid = -2;
 			tablaDePaginas[marco].pagina = marco;
+			paginasTotales++;
 			pthread_mutex_unlock(&mutex_tablaDePaginas);
 			disminuir_PaginasActualesDeProcesoActivo(pid, pagina);
 		}
@@ -288,6 +290,18 @@ uint32_t finalizarPrograma(uint32_t pid) {
 	}
 	obtener_PosicionProcesoActivo(pid);
 	eliminar_DataDeProcesoActivo(pid);
+	tablaCache_t* tablaCache = obtenerTablaCache();
+	for(i=0; i< configDeMemoria.entradasCache; i++){
+		pthread_mutex_lock(&mutex_tablaCache);
+		if(tablaCache[i].pid == pid) tablaCache[i].pid = -2;
+		pthread_mutex_unlock(&mutex_tablaCache);
+	}
+
+	textoAmarillo("LAS PAGINAS TOTALES SON: ");
+	char* string_num = string_itoa(paginasTotales);
+	textoAmarillo(string_num);
+	free(string_num);
+	aumentarMarcosDisponibles(paginasTotales);
 	return 0;
 }
 
@@ -385,14 +399,18 @@ int buscarMarcoVacioCache() {
 	tablaCache_t* tabla = obtenerTablaCache();
 	int marco = 0;
 	while (marco < configDeMemoria.entradasCache) {
-		if (tabla[marco].pid == -2)
+		pthread_mutex_lock(&mutex_tablaCache);
+		if (tabla[marco].pid == -2){
+			pthread_mutex_unlock(&mutex_tablaCache);
 			return marco;
+		}
+		pthread_mutex_unlock(&mutex_tablaCache);
 		marco++;
 	}
 	return -2;
 }
 
-int agregarProcesoACache(int pid, int pag) {
+int agregarProcesoACache(int pid, int pag, int *pidViejo, int *pagVieja) {
 	int marco = nuevoMarcoDelMismoProceso(pid);
 	if (marco < 0) {
 		if (configDeMemoria.cacheDisponible > 0) {
@@ -402,9 +420,13 @@ int agregarProcesoACache(int pid, int pag) {
 			marco = lru();
 	}
 	tablaCache_t* tabla = obtenerTablaCache();
+	pthread_mutex_lock(&mutex_tablaCache);
+	*pidViejo = tabla[marco].pid;
+	*pagVieja = tabla[marco].pagina;
 	tabla[marco].pid = pid;
 	tabla[marco].pagina = pag;
 	tabla[marco].counter = contador++;
+	pthread_mutex_unlock(&mutex_tablaCache);
 	return marco;
 }
 
@@ -424,12 +446,14 @@ void* leer(uint32_t pid, uint32_t pag, uint32_t offset, uint32_t tam) { // SIGUE
 
 int escribir(uint32_t pid, uint32_t pag, uint32_t offset, uint32_t tamData,
 	void *data) {
-	escribirMemoria(pid, pag, offset, tamData, data);
 	if(tamData==0 || data == NULL) return 0;
 	if (estaEnCache(pid, pag))
 		escribirCache(getMarcoCache(pid, pag), offset, tamData, data);
 	else {
-		agregarProcesoACache(pid, pag);
+		int pidViejo, pagVieja;
+		escribirMemoria(pid, pag, offset, tamData, data);
+		agregarProcesoACache(pid, pag, &pidViejo, &pagVieja);
+		escribirMemoria(pidViejo, pagVieja, 0, configDeMemoria.tamMarco, leerCache(pid, pag,0, configDeMemoria.tamMarco));
 		copiarMemoriaACache(pid, pag);
 	}
 	return 0;
