@@ -238,6 +238,7 @@ int eliminarPaginaDeUnProceso(uint32_t pid, uint32_t paginaAEliminar) {
 	pthread_mutex_lock(&mutex_tablaDePaginas);
 	tablaDePaginas[marco].pid = -2;
 	tablaDePaginas[marco].pagina = -2;
+	aumentarMarcosDisponibles(1);
 	pthread_mutex_unlock(&mutex_tablaDePaginas);
 	disminuir_PaginasActualesDeProcesoActivo(pid, paginaAEliminar);
 	return 0;
@@ -264,7 +265,7 @@ int primerPagina(uint32_t pid){
 
 uint32_t finalizarPrograma(uint32_t pid) {
 	tablaPaginas_t* tablaDePaginas = obtenerTablaDePaginas();
-	int pagina, paginasMaximas, i = 0;
+	int pagina,paginasTotales=0, paginasMaximas, i = 0;
 	//pagina = primerPagina(pid);
 	int marco/* = getMarco(pid, pagina)*/;
 	/*if (marco < 0)
@@ -278,6 +279,7 @@ uint32_t finalizarPrograma(uint32_t pid) {
 			pthread_mutex_lock(&mutex_tablaDePaginas);
 			tablaDePaginas[marco].pid = -2;
 			tablaDePaginas[marco].pagina = marco;
+			paginasTotales++;
 			pthread_mutex_unlock(&mutex_tablaDePaginas);
 			disminuir_PaginasActualesDeProcesoActivo(pid, pagina);
 		}
@@ -294,6 +296,12 @@ uint32_t finalizarPrograma(uint32_t pid) {
 		if(tablaCache[i].pid == pid) tablaCache[i].pid = -2;
 		pthread_mutex_unlock(&mutex_tablaCache);
 	}
+
+	textoAmarillo("LAS PAGINAS TOTALES SON: ");
+	char* string_num = string_itoa(paginasTotales);
+	textoAmarillo(string_num);
+	free(string_num);
+	aumentarMarcosDisponibles(paginasTotales);
 	return 0;
 }
 
