@@ -153,6 +153,7 @@ int handshakeHandler(int i){
 			nuevaCPU->programaEnEjecucion = NULL;
 			nuevaCPU->disponible = true;
 			pthread_t thread;
+			nuevaCPU->hilo = thread;
 			if(sendall(i,"2",&tamHandshake) == 0){
 				aux=string_itoa(i);
 				aux2= concat(2,"Se realizo el Handshake con exito con ",aux);
@@ -163,7 +164,9 @@ int handshakeHandler(int i){
 				free(aux2);
 			}
 			pthread_create(&thread, NULL, cpu,nuevaCPU);
+			pthread_mutex_lock(&mutex_cpu);
 			list_add(CPUs,nuevaCPU);
+			pthread_mutex_unlock(&mutex_cpu);
 			reconozcoCliente = 1;
 		}
 
@@ -196,12 +199,15 @@ int handshakeHandler(int i){
 }*/
 
 void eliminarSiHayCPU(int i) {
+	pthread_mutex_lock(&mutex_cpu);
 	if(!list_is_empty(CPUs)){
 		uint32_t aux = 0;
 		t_cpu *cpuAux = list_get(CPUs,aux);
 		while (cpuAux->id != i && aux < list_size(CPUs)){
-
 			cpuAux = list_get(CPUs,aux);
+			if(cpuAux->id == i){
+				break;
+			}
 			aux++;
 		}
 
@@ -211,7 +217,7 @@ void eliminarSiHayCPU(int i) {
 			log_trace(logger,"CPU eliminada");
 		}
 	}
-
+	pthread_mutex_unlock(&mutex_cpu);
 }
 
 void liberarRecursos(int i,int codigoError){

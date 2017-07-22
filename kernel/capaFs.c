@@ -41,7 +41,7 @@ bool mandarOperacionFS(char* opcode,char* path,uint32_t tamPath,char* error){
 	if(rev[0]== 'Y'){
 		return 1;
 	}
-	test(rev);
+	//test(rev);
 	return 0;
 }
 
@@ -64,7 +64,7 @@ char* continuacionPeticionLectura(uint32_t cpu,uint32_t offset,uint32_t size,cha
 		log_error(logger,error);
 		return NULL;
 	}
-	test("Entro a continuacion1");
+	//test("Entro a continuacion1");
 	tamARecibir=size;
 	if(rev[0] == 'Y'){
 		rev=realloc(rev,tamARecibir);
@@ -84,7 +84,7 @@ char* continuacionPeticionLectura(uint32_t cpu,uint32_t offset,uint32_t size,cha
 }
 
 bool continuacionPeticionEscritura(uint32_t cpu,uint32_t offset,uint32_t size,char*buffer,char*error){
-		test("Continuacion peticion escritura");
+		//test("Continuacion peticion escritura");
 		char * rev = NULL;
 		uint32_t tamAMandar=sizeof(uint32_t);
 
@@ -103,7 +103,7 @@ bool continuacionPeticionEscritura(uint32_t cpu,uint32_t offset,uint32_t size,ch
 		char* tamBufferStream = intToStream(size);
 		if(sendall(idFS,tamBufferStream,&tamAMandar) < 0){
 			log_error(logger,error);
-			test("ASD");
+			//test("ASD");
 			return 0;
 		}
 		free(tamBufferStream);
@@ -111,7 +111,7 @@ bool continuacionPeticionEscritura(uint32_t cpu,uint32_t offset,uint32_t size,ch
 		// Mando buffer
 		if(sendall(idFS,buffer,&size) < 0){
 			log_error(logger,error);
-			test("ASDD");
+			//test("ASDD");
 			return 0;
 		}
 
@@ -119,10 +119,10 @@ bool continuacionPeticionEscritura(uint32_t cpu,uint32_t offset,uint32_t size,ch
 		rev = malloc(1);
 		if(recv(idFS,rev,1,0) < 0){
 			log_error(logger,error);
-			test("ASDDD");
+			//test("ASDDD");
 			return 0;
 		} else {
-			printf("Respuesta del FS: %s\n",rev);
+			//printf("Respuesta del FS: %s\n",rev);
 		}
 
 		if(rev[0] == 'Y')
@@ -140,7 +140,7 @@ bool crearArchivo(char* path,uint32_t tamPath){
 }
 
 char* leerArchivo(char*path,uint32_t tamPath, uint32_t i,uint32_t offset,uint32_t size){
-	test("Entro a leer Archivo");
+	//test("Entro a leer Archivo");
 	if(mandarOperacionFS("L",path,tamPath,"Ocurrio un error al leer un archivo") == 0){
 		log_error(logger,"No se pudo leer archivo.");
 		return NULL;
@@ -200,13 +200,10 @@ uint32_t abrirFD(uint32_t i,t_programa* unPrograma){
 
 	t_entradaTGA * nuevaEntradaTGA = buscarFDPorPath(path);
 	if(nuevaEntradaTGA != NULL){
-		test("A");
 		nuevaEntradaTGA->abierto++;
 		nuevaEntradaTGA->archivo = path;
 	} else {
-		test("B");
 		if(crearArchivo(path,strlen(path))){
-			test("C");
 			nuevaEntradaTGA = malloc(sizeof(t_entradaTGA));
 			nuevaEntradaTGA->archivo = path;
 			nuevaEntradaTGA->abierto = 1;
@@ -341,12 +338,12 @@ bool escribirFD(uint32_t i,t_programa* unPrograma){
 	send(i,"Y",1,0);
 
 	int contador = 0;
-	textoRojo("TESTEANDO");
+	/*textoRojo("TESTEANDO");
 	while(tamanio > contador){
 		printf("%c\n",data[contador]);
 		contador++;
 	}
-	textoRojo("FIN TESTEANDO");
+	textoRojo("FIN TESTEANDO");*/
 
 	/*char* path = recibirPath(i);
 	char* permisos = recibirPermisos(i);
@@ -514,10 +511,10 @@ char* recibirPath(uint32_t i){
 		char * rev = NULL;
 
 		// Recibo largo del path
-		printf("  							1\n");
+		//printf("  							1\n");
 		if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
 			log_error(logger,"Ocurrio un problema al abrir un FD");
-		printf("  							1\n");
+		//printf("  							1\n");
 		if(send(i,"Y",1,0) < 0)
 			log_error(logger,"Ocurrio un problema al abrir un FD");
 		rev=realloc(rev,tamARecibir+1);

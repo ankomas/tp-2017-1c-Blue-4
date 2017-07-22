@@ -74,11 +74,14 @@ tablaPaginas_t* crearTablaDePaginas(){
 
 int actualizarMarcosDisponibles(int marcosAUsar)
 {
-	if((configDeMemoria.marcosDisponibles-marcosAUsar)>0)
+	texto_en_color_de_exito("marcos a usar ",marcosAUsar);
+	if((configDeMemoria.marcosDisponibles-marcosAUsar)>=0)
 	{
 		configDeMemoria.marcosDisponibles-=marcosAUsar;
+		texto_en_color_de_exito(" marcos disponibles ",configDeMemoria.marcosDisponibles);
 		return 0;
 	}
+	texto_en_color_de_error("NO PUEDO ASIGAR MAS MARCOS!!!");
 	return -1;
 }
 

@@ -34,17 +34,26 @@
 #define DETENER_PLANIFICACION '6'
 
 
-void imprimirPIDs(t_queue* colaConsultada){
+void imprimirPIDs(t_queue* colaConsultada,uint8_t showExitCode){
 	int i = 0;
+	anuncio("----------");
 	while(queue_size(colaConsultada) > 0 && i < queue_size(colaConsultada)){
 		t_programa *aux = list_get(colaConsultada->elements,i);
+
 		anuncio(string_itoa(aux->pcb->pid));
+		if(showExitCode){
+			char * mensaje = concat(2,"Codigo de Exit: ",string_itoa(aux->pcb->exitCode));
+			anuncio(mensaje);
+			free(mensaje);
+		}
+		anuncio("----------");
 		i++;
 	}
 }
 
 void listarProcesos(int opcion){
 	t_queue *colaConsultada = NULL;
+	bool showExitCode = 0;
 	char* mensaje = string_new();
 	if(opcion == 1){
 		colaConsultada = procesosNEW;
@@ -60,13 +69,14 @@ void listarProcesos(int opcion){
 		string_append(&mensaje,"bloqueados");
 	} else if(opcion == 5){
 		colaConsultada = procesosEXIT;
+		showExitCode = 1;
 		string_append(&mensaje,"exit");
 	}
 
 
 	if(colaConsultada != NULL){
 		printf("Cantidad procesos actuales %s: %d\n",mensaje,queue_size(colaConsultada));
-		imprimirPIDs(colaConsultada);
+		imprimirPIDs(colaConsultada,showExitCode);
 	} else {
 		int cantidadTotalProcesos =
 				queue_size(procesosNEW)+
@@ -75,11 +85,11 @@ void listarProcesos(int opcion){
 				queue_size(procesosBLOCK)+
 				queue_size(procesosEXIT);
 		printf("Cantidad procesos totales: %d\n",cantidadTotalProcesos);
-		imprimirPIDs(procesosNEW);
-		imprimirPIDs(procesosREADY);
-		imprimirPIDs(procesosEXEC);
-		imprimirPIDs(procesosBLOCK);
-		imprimirPIDs(procesosEXIT);
+		imprimirPIDs(procesosNEW,false);
+		imprimirPIDs(procesosREADY,false);
+		imprimirPIDs(procesosEXEC,false);
+		imprimirPIDs(procesosBLOCK,false);
+		imprimirPIDs(procesosEXIT,true);
 	}
 
 	free(mensaje);
@@ -146,13 +156,17 @@ void *consolaKernel(){
 			scanf("%s", opcion);
 			opcionInt = opcion[0] - '0';
 			if(opcionInt >= 0 && opcionInt <= 5 )
+				pthread_mutex_lock(&mutex_colasPlanificacion);
 				listarProcesos(opcionInt);
+				pthread_mutex_unlock(&mutex_colasPlanificacion);
 		} else if(opcion[0] == INFO_PROCESO){
 			opcionInt = 0;
 			mostrarYAgregarRuta(rutaOpciones," >> Mostrar info de proceso");
 			anuncio("\nPor favor ingrese el PID del proceso para mostrar info sobre el mismo:");
 			scanf("%d", &opcionInt);
+			pthread_mutex_lock(&mutex_colasPlanificacion);
 			t_programa* programaEncontrado = encontrarProgramaPorPID(opcionInt);
+			pthread_mutex_unlock(&mutex_colasPlanificacion);
 			if(programaEncontrado != NULL){
 				anuncio("\nPor favor ingrese lo que desea conocer de este proceso:");
 				printf("1 - Cantidad de rafagas ejecutadas\n");

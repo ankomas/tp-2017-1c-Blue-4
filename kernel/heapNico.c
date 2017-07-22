@@ -207,6 +207,10 @@ t_puntero allocEnHeap(t_programa *programa,uint32_t tam){
 		printf("\n");
 		if(pag==-1)
 			pag=nuevaPagHeap(programa,tam,desde);
+		if(pag==-1){
+			res=-2;
+			break;
+		}
 
 		res=asignarEnPagHeap(programa,pag,tam);
 	}
