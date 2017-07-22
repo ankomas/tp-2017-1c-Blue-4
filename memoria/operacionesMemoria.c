@@ -288,6 +288,12 @@ uint32_t finalizarPrograma(uint32_t pid) {
 	}
 	obtener_PosicionProcesoActivo(pid);
 	eliminar_DataDeProcesoActivo(pid);
+	tablaCache_t* tablaCache = obtenerTablaCache();
+	for(i=0; i< configDeMemoria.entradasCache; i++){
+		pthread_mutex_lock(&mutex_tablaCache);
+		if(tablaCache[i].pid == pid) tablaCache[i].pid = -2;
+		pthread_mutex_unlock(&mutex_tablaCache);
+	}
 	return 0;
 }
 
@@ -385,14 +391,18 @@ int buscarMarcoVacioCache() {
 	tablaCache_t* tabla = obtenerTablaCache();
 	int marco = 0;
 	while (marco < configDeMemoria.entradasCache) {
-		if (tabla[marco].pid == -2)
+		pthread_mutex_lock(&mutex_tablaCache);
+		if (tabla[marco].pid == -2){
+			pthread_mutex_unlock(&mutex_tablaCache);
 			return marco;
+		}
+		pthread_mutex_unlock(&mutex_tablaCache);
 		marco++;
 	}
 	return -2;
 }
 
-int agregarProcesoACache(int pid, int pag) {
+int agregarProcesoACache(int pid, int pag, int *pidViejo, int *pagVieja) {
 	int marco = nuevoMarcoDelMismoProceso(pid);
 	if (marco < 0) {
 		if (configDeMemoria.cacheDisponible > 0) {
@@ -402,9 +412,13 @@ int agregarProcesoACache(int pid, int pag) {
 			marco = lru();
 	}
 	tablaCache_t* tabla = obtenerTablaCache();
+	pthread_mutex_lock(&mutex_tablaCache);
+	*pidViejo = tabla[marco].pid;
+	*pagVieja = tabla[marco].pagina;
 	tabla[marco].pid = pid;
 	tabla[marco].pagina = pag;
 	tabla[marco].counter = contador++;
+	pthread_mutex_unlock(&mutex_tablaCache);
 	return marco;
 }
 
@@ -424,12 +438,14 @@ void* leer(uint32_t pid, uint32_t pag, uint32_t offset, uint32_t tam) { // SIGUE
 
 int escribir(uint32_t pid, uint32_t pag, uint32_t offset, uint32_t tamData,
 	void *data) {
-	escribirMemoria(pid, pag, offset, tamData, data);
 	if(tamData==0 || data == NULL) return 0;
 	if (estaEnCache(pid, pag))
 		escribirCache(getMarcoCache(pid, pag), offset, tamData, data);
 	else {
-		agregarProcesoACache(pid, pag);
+		int pidViejo, pagVieja;
+		escribirMemoria(pid, pag, offset, tamData, data);
+		agregarProcesoACache(pid, pag, &pidViejo, &pagVieja);
+		escribirMemoria(pidViejo, pagVieja, 0, configDeMemoria.tamMarco, leerCache(pid, pag,0, configDeMemoria.tamMarco));
 		copiarMemoriaACache(pid, pag);
 	}
 	return 0;

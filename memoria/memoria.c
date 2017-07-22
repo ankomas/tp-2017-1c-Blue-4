@@ -46,7 +46,7 @@ void testLecturaMemoria()
 		escribirMemoria(100,18,0,16,"salva es re mani");
 		printf("la wea dice: %s\n",(char*)leerMemoria(100,18,0,16));
 }
-
+/*
 void testLecturaCache(){
 	agregarProcesoACache(1,0);
 	agregarProcesoACache(1,1);
@@ -73,6 +73,7 @@ void testLecturaCache(){
 	agregarProcesoACache(10,0);
 
 }
+*/
 
 void testEscritura()
 {
@@ -151,7 +152,7 @@ int main(void) {
 	//NPAC(1,2);
 	//nuevoMarcoDelMismoProceso(1);
 	//printf("entro al test de escritura \n");
-	//testEscritura();
+	testEscritura();
 	//inicializarPrograma(100,8);
 	//escribir(100,0,0,4, "Hola");
 	//mostrarProcesoEnMemoria(100);
