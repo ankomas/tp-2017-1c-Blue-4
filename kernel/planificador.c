@@ -288,11 +288,13 @@ t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual){
 }
 
 void liberarCPU(t_cpu* cpu, t_programa* programaDeCPU){
-		log_error(logger,"Se esta por eliminar una CPU,");
+		log_error(logger,"Se esta por eliminar una CPU");
 		pthread_mutex_lock(&mutex_colasPlanificacion);
 		moverPrograma(programaDeCPU,procesosEXEC,procesosEXIT);
 		pthread_mutex_unlock(&mutex_colasPlanificacion);
 		eliminarSiHayCPU(cpu->id);
+		programaDeCPU->pcb->exitCode= -10;
+		send(programaDeCPU->id,"F",1,0);
 		pthread_exit(&cpu->hilo);
 	}
 
@@ -590,6 +592,7 @@ t_programa* planificador(t_programa* unPrograma,t_cpu* cpu,uint32_t confirmado){
 				log_error(logger,"Se esta por eliminar una CPU...");
 				eliminarSiHayCPU(cpu->id);
 				pthread_exit(&cpu->hilo);
+				pthread_mutex_unlock(&mutex_colasPlanificacion);
 				return NULL;
 			}else{
 				if(confirmado == 0){
