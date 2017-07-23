@@ -113,7 +113,7 @@ int sendall(uint32_t s, char *buf, uint32_t *len)
     while(total < *len) {
         n = send(s, buf+total, bytesleft, 0);
         if (n == -1) { break; }
-        if (n == 0) { break; }
+        if (n == 0) {n=-1; break; }
         total += n;
         bytesleft -= n;
     }

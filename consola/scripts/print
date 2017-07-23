@@ -1,0 +1,7 @@
+begin
+	variables a
+	alocar a 20
+	*a=1095520072
+	prints s a
+	liberar a
+end
