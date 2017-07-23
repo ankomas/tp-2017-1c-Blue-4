@@ -370,9 +370,11 @@ void* cpu(t_cpu * cpu){
 					send(proximoPrograma->id,"F",1,0);
 					pthread_mutex_lock(&mutex_colasPlanificacion);
 
-					if(finalizarProcesoMemoria(proximoPrograma->pcb->pid,true) == 0)
-						log_trace(logger,"Un programa ha sido movido a EXIT");
-					else
+					if(finalizarProcesoMemoria(proximoPrograma->pcb->pid,true) == 0){
+						char * string = concat(3,"Moviendo el proceso ",string_itoa(proximoPrograma->pcb->pid)," a EXIT");
+						log_trace(logger,string);
+						free(string);
+					}else
 						log_trace(logger,"Fallo el liberar memoria");
 
 					pthread_mutex_unlock(&mutex_colasPlanificacion);
@@ -389,14 +391,18 @@ void* cpu(t_cpu * cpu){
 					if(recv(cpu->id,res,tamARecibir,MSG_WAITALL) <= 0)
 						liberarCPU(cpu,proximoPrograma);
 					else{
+						pthread_mutex_lock(&mutex_colasPlanificacion);
 						liberarPCB(*(proximoPrograma->pcb));
 						*(proximoPrograma->pcb)=deserializarPCB(res);
 						free(res);
 						res=NULL;
+						pthread_mutex_unlock(&mutex_colasPlanificacion);
 					}
 
 					pthread_mutex_lock(&mutex_colasPlanificacion);
-					log_trace(logger,"Moviendo el proceso de EXEC a Ready");
+					char * string = concat(3,"Moviendo el proceso ",string_itoa(proximoPrograma->pcb->pid)," de EXEC a READY");
+					log_trace(logger,string);
+					free(string);
 					moverPrograma(proximoPrograma,procesosEXEC,procesosREADY);
 					proximoPrograma = planificador(NULL,cpu,0);
 					if(proximoPrograma == NULL){
@@ -406,8 +412,10 @@ void* cpu(t_cpu * cpu){
 					break;
 
 				}else if(res[0] == 'S'){
+					pthread_mutex_lock(&mutex_colasPlanificacion);
 					semSignal(cpu->id);
 					proximoPrograma->cantidadSyscallsEjecutadas++;
+					pthread_mutex_unlock(&mutex_colasPlanificacion);
 				} else if(res[0] == 'A'){
 					guardarVarGlobal(cpu->id);
 					proximoPrograma->cantidadSyscallsEjecutadas++;
@@ -415,11 +423,10 @@ void* cpu(t_cpu * cpu){
 					leerVarGlobal(cpu->id);
 					proximoPrograma->cantidadSyscallsEjecutadas++;
 				} else if(res[0] == 'W'){
-					semWait(cpu->id,&proximoPrograma->id);
+					pthread_mutex_lock(&mutex_colasPlanificacion);
+					semWait(cpu->id,proximoPrograma->pcb->pid,proximoPrograma);
 					proximoPrograma->cantidadSyscallsEjecutadas++;
-				} else if(res[0] == 'S'){
-					semSignal(cpu->id);
-					proximoPrograma->cantidadSyscallsEjecutadas++;
+					pthread_mutex_unlock(&mutex_colasPlanificacion);
 				} else if(res[0] == 'H'){
 					leerHeap(cpu->id);
 					proximoPrograma->cantidadSyscallsEjecutadas++;
@@ -462,15 +469,14 @@ void* cpu(t_cpu * cpu){
 					if(recv(cpu->id,res,tamARecibir,MSG_WAITALL) <= 0)
 						liberarCPU(cpu,proximoPrograma);
 					else{
+						pthread_mutex_lock(&mutex_colasPlanificacion);
 						liberarPCB(*(proximoPrograma->pcb));
 						*(proximoPrograma->pcb)=deserializarPCB(res);
 						free(res);
 						res=NULL;
+						pthread_mutex_unlock(&mutex_colasPlanificacion);
 					}
-					pthread_mutex_lock(&mutex_colasPlanificacion);
-					log_trace(logger,"Moviendo el proceso de EXEC a bloqueado");
-					moverPrograma(proximoPrograma,procesosEXEC,procesosBLOCK);
-					pthread_mutex_unlock(&mutex_colasPlanificacion);
+
 					proximoPrograma = NULL;
 					break;
 				}
@@ -573,11 +579,13 @@ t_programa* planificador(t_programa* unPrograma,t_cpu* cpu,uint32_t confirmado){
 				if(confirmado == 0){
 					return NULL;
 				} else {
-					log_trace(logger,"Moviendo el proceso de Ready a EXEC");
 					confirmacionEnviada = 1;
 					aux = queue_pop(procesosREADY);
 					queue_push(procesosEXEC,aux);
 					unPrograma = aux;
+					char * string = concat(3,"Moviendo el proceso ",string_itoa(unPrograma->pcb->pid)," de READY a EXEC");
+					log_trace(logger,string);
+					free(string);
 				}
 			}
 		} else if(queue_size(procesosNEW) > 0 && gradoMultiprogramacion+queue_size(procesosEXIT) >= cantidadProgramasEnSistema){
