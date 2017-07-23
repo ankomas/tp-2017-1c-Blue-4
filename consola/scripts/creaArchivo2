@@ -1,0 +1,9 @@
+begin
+  variables a, f
+  alocar a 100
+  abrir f LEC /smallFile.bin
+  *a=1095520072
+  escribir f a 20
+  cerrar f
+  liberar a
+end

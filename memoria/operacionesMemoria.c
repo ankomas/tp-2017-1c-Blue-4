@@ -447,6 +447,11 @@ void* leer(uint32_t pid, uint32_t pag, uint32_t offset, uint32_t tam) { // SIGUE
 int escribir(uint32_t pid, uint32_t pag, uint32_t offset, uint32_t tamData,
 	void *data) {
 	if(tamData==0 || data == NULL) return 0;
+	if(configDeMemoria.cachePorProceso==0)
+		{
+			int resultado=escribirMemoria(pid,pag,offset,tamData,data);
+			return resultado;
+		}
 	if (estaEnCache(pid, pag))
 		escribirCache(getMarcoCache(pid, pag), offset, tamData, data);
 	else {

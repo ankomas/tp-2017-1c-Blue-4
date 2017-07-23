@@ -235,7 +235,7 @@ bool borrarFD(uint32_t i,t_programa* unPrograma){
 	uint32_t fd = 0;
 	log_trace(logger,"Llamada a BORRAR FD");
 	recv(i,&fd,sizeof(uint32_t),MSG_WAITALL);
-	send(i,"Y",1,0);
+	//send(i,"Y",1,0);
 /*
 	char* path = recibirPath(i);
 	if(path == NULL){

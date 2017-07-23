@@ -14,6 +14,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <commons/string.h>
 
 #include <blue4-lib.h>
 #include "operacionesFS.h"
@@ -311,6 +312,17 @@ void leer(int socket)
 	if(resultado)
 	{
 		send(socket,"Y",1,0);
+		textoVerde("LO LEIDO ES :");
+		char* res = calloc(1,tamanio+1);
+		memcpy(res,resultado,tamanio);
+		printf(" %s \n",res);
+		int i=0;
+		while(i<string_length(res))
+		{
+			printf("el char es :%c \n",res[i]);
+			i++;
+		}
+		free(res);
 		sendall(socket,resultado,&tamanio);
 		free(ruta);
 		free(resultado);

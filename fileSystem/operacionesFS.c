@@ -306,6 +306,7 @@ void* lecturaSegunTamanio(int offset, int tam, char** bloques) {
 		}
 		if (i + 1 == cantBloquesLeo && offsetFinal > 0) tamALeer = offsetFinal;
 		fread(buffer, 1, tamALeer, archivo);
+		printf("lo que se lee del fread es : %s \n",buffer);
 		memcpy(cadena + tamLeido, buffer, tamALeer);
 		tamLeido += tamALeer;
 		fclose(archivo);
