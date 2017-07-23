@@ -301,6 +301,7 @@ void* cpu(t_cpu * cpu){
 
 	printf("cpu: %i\n",cpu->id);
 	t_programa * proximoPrograma;
+	t_programa * preConfirmacion;
 	pthread_mutex_lock(&mutex_colasPlanificacion);
 	proximoPrograma = planificador(NULL,cpu,0);
 	if(proximoPrograma == NULL){
@@ -322,7 +323,7 @@ void* cpu(t_cpu * cpu){
 			char* aString1 = string_itoa(proximoPrograma->pcb->pid);
 			char* aString2 = string_itoa(cpu->id);
 			char* aString = concat(4,"Ejecutando el proceso ",aString1," en la CPU ",aString2);
-			log_trace(logger,aString);
+			log_warning(logger,aString);
 			free(aString1);
 			free(aString2);
 			free(aString);
@@ -409,13 +410,21 @@ void* cpu(t_cpu * cpu){
 					}
 
 					pthread_mutex_lock(&mutex_colasPlanificacion);
-					char * string = concat(3,"Moviendo el proceso ",string_itoa(proximoPrograma->pcb->pid)," de EXEC a READY");
+					/*char * string = concat(3,"Moviendo el proceso ",string_itoa(proximoPrograma->pcb->pid)," de EXEC a READY");
 					log_trace(logger,string);
 					free(string);
-					moverPrograma(proximoPrograma,procesosEXEC,procesosREADY);
-					proximoPrograma = planificador(NULL,cpu,0);
-					if(proximoPrograma == NULL){
-						proximoPrograma = planificador(NULL,cpu,1);
+					moverPrograma(proximoPrograma,procesosEXEC,procesosREADY);*/
+					test("B");
+					preConfirmacion = planificador(proximoPrograma,cpu,0);
+					test("BB");
+					if(preConfirmacion == NULL){
+						test("BBB");
+						proximoPrograma = planificador(proximoPrograma,cpu,1);
+						if(proximoPrograma == NULL){
+							test("wait,wat");
+						}
+					} else {
+						proximoPrograma = preConfirmacion;
 					}
 					pthread_mutex_unlock(&mutex_colasPlanificacion);
 					break;
@@ -551,23 +560,27 @@ t_programa* planificador(t_programa* unPrograma,t_cpu* cpu,uint32_t confirmado){
 		rutaConfigActualizada = rutaAbsolutaDe("config.cfg");
 		cfgActualizada = config_create(rutaConfigActualizada);
 	}
+
+	if(queue_size(procesosREADY)>0 || unPrograma !=NULL){
+		if(confirmado == 0){
+			if(encontrarCPU(cpu->id) == NULL){
+				return NULL;
+			}
+			if(sendall(cpu->id,"0",&uno) < 0){
+				return NULL;
+			}
+			if(sendall(cpu->id,"0",&uno) < 0){
+				return NULL;
+			}
+		}
+	}
+
 	if(unPrograma == NULL){
 		if(queue_size(procesosREADY) > 0){
 			t_programa* aux = NULL;
-			if(confirmado == 0){
-				if(encontrarCPU(cpu->id) == NULL){
-					return NULL;
-				}
-				if(sendall(cpu->id,"0",&uno) < 0){
-					return NULL;
-				}
-				if(sendall(cpu->id,"0",&uno) < 0){
-					return NULL;
-				}
-			}
 			usleep(100);
 			if(encontrarCPU(cpu->id) == NULL){
-				log_error(logger,"Se esta por eliminar una CPU.");
+				log_error(logger,"Se esta por eliminar una CPU...");
 				eliminarSiHayCPU(cpu->id);
 				pthread_exit(&cpu->hilo);
 				return NULL;
@@ -608,23 +621,21 @@ t_programa* planificador(t_programa* unPrograma,t_cpu* cpu,uint32_t confirmado){
 			unPrograma = NULL;
 		}
 	}
+
 	if(strcmp(algoritmoPlanificador,"RR") == 0){
 		config_destroy(cfgActualizada);
 		free(rutaConfigActualizada);
 
-		if(unPrograma != NULL && confirmacionEnviada == 0){
+		if(unPrograma != NULL && confirmado != 0){
 				if(unPrograma->quantumRestante == 0){
 					unPrograma->quantumRestante = quantum;
 					moverPrograma(unPrograma,procesosEXEC,procesosREADY);
 					return NULL;
 				}
 
-				if(sendall(cpu->id,"0",&uno) <= 0){
-					log_error(logger,"Se esta por eliminar una CPU.");
-					eliminarSiHayCPU(cpu->id);
-					pthread_exit(&cpu->hilo);
-				}
 				unPrograma->quantumRestante--;
+		}else {
+			return NULL;
 		}
 
 		return unPrograma;
@@ -632,13 +643,13 @@ t_programa* planificador(t_programa* unPrograma,t_cpu* cpu,uint32_t confirmado){
 	} else if(strcmp(algoritmoPlanificador,"FIFO") == 0){
 		config_destroy(cfgActualizada);
 		free(rutaConfigActualizada);
-
-		if(unPrograma != NULL && confirmacionEnviada == 0){
-			if(sendall(cpu->id,"0",&uno) <= 0){
-				log_error(logger,"Se esta por eliminar una CPU.");
-				eliminarSiHayCPU(cpu->id);
-				pthread_exit(&cpu->hilo);
-			}
+		test("A");
+		if(unPrograma != NULL && confirmado == 1){
+			test("AA");
+			return unPrograma;
+		} else {
+			test("AAA");
+			return NULL;
 		}
 
 		return unPrograma;
