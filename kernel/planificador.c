@@ -562,7 +562,14 @@ t_programa* planificador(t_programa* unPrograma,t_cpu* cpu,uint32_t confirmado){
 	}
 
 	if(queue_size(procesosREADY)>0 || unPrograma !=NULL){
-		if(confirmado == 0){
+		int quedaQuantum = 1;
+
+		if(strcmp(algoritmoPlanificador,"RR") == 0){
+			if(unPrograma != NULL && unPrograma->quantumRestante == 0)
+				quedaQuantum= 0;
+		}
+
+		if(confirmado == 0 && quedaQuantum == 1){
 			if(encontrarCPU(cpu->id) == NULL){
 				return NULL;
 			}
@@ -623,24 +630,25 @@ t_programa* planificador(t_programa* unPrograma,t_cpu* cpu,uint32_t confirmado){
 	}
 
 	if(strcmp(algoritmoPlanificador,"RR") == 0){
+
 		config_destroy(cfgActualizada);
 		free(rutaConfigActualizada);
-
-		if(unPrograma != NULL && confirmado != 0){
-				if(unPrograma->quantumRestante == 0){
-					unPrograma->quantumRestante = quantum;
-					moverPrograma(unPrograma,procesosEXEC,procesosREADY);
-					return NULL;
-				}
-
+		if(unPrograma != NULL && confirmado == 1){
+			if(unPrograma->quantumRestante == 0){
+				unPrograma->quantumRestante = quantum;
+				moverPrograma(unPrograma,procesosEXEC,procesosREADY);
+				return NULL;
+			} else {
 				unPrograma->quantumRestante--;
-		}else {
+				return unPrograma;
+			}
+
+		} else {
 			return NULL;
 		}
 
-		return unPrograma;
-
 	} else if(strcmp(algoritmoPlanificador,"FIFO") == 0){
+
 		config_destroy(cfgActualizada);
 		free(rutaConfigActualizada);
 		test("A");
@@ -652,7 +660,6 @@ t_programa* planificador(t_programa* unPrograma,t_cpu* cpu,uint32_t confirmado){
 			return NULL;
 		}
 
-		return unPrograma;
 	} else {
 		log_error(logger,"Algoritmo mal cargado al config.cfg");
 	}
