@@ -319,7 +319,13 @@ void* cpu(t_cpu * cpu){
 	while(1){
 		signal(SIGPIPE, liberarCPUSinPrograma);
 		if(proximoPrograma != 0 && proximoPrograma!=NULL){
-
+			char* aString1 = string_itoa(proximoPrograma->pcb->pid);
+			char* aString2 = string_itoa(cpu->id);
+			char* aString = concat(4,"Ejecutando el proceso ",aString1," en la CPU ",aString2);
+			log_trace(logger,aString);
+			free(aString1);
+			free(aString2);
+			free(aString);
 			pthread_mutex_lock(&mutex_colasPlanificacion);
 			t_pcb proximoPCB = *(proximoPrograma->pcb);
 			package_t paquete = serializarPCB(proximoPCB);
@@ -345,8 +351,10 @@ void* cpu(t_cpu * cpu){
 
 			while(1){
 				recv(cpu->id,res,1,MSG_WAITALL);
+				pthread_mutex_lock(&mutex_colasPlanificacion);
 				if(proximoPrograma->debeFinalizar == 1)
 					res[0] = 'F';
+				pthread_mutex_unlock(&mutex_colasPlanificacion);
 
 				// Verifico si aun le falta ejecutar al proceso
 				if(res[0] == 'F'){
@@ -569,11 +577,26 @@ t_programa* planificador(t_programa* unPrograma,t_cpu* cpu,uint32_t confirmado){
 				} else {
 					confirmacionEnviada = 1;
 					aux = queue_pop(procesosREADY);
-					queue_push(procesosEXEC,aux);
-					unPrograma = aux;
-					char * string = concat(3,"Moviendo el proceso ",string_itoa(unPrograma->pcb->pid)," de READY a EXEC");
-					log_trace(logger,string);
-					free(string);
+					if(strcmp(algoritmoPlanificador,"RR") == 0){
+						if(aux->quantumRestante == 0){
+							aux->quantumRestante = quantum;
+							queue_push(procesosREADY,aux);
+							return NULL;
+						}else{
+							queue_push(procesosEXEC,aux);
+							unPrograma = aux;
+							char * string = concat(3,"Moviendo el proceso ",string_itoa(unPrograma->pcb->pid)," de READY a EXEC");
+							log_trace(logger,string);
+							free(string);
+						}
+					} else {
+						queue_push(procesosEXEC,aux);
+						unPrograma = aux;
+						char * string = concat(3,"Moviendo el proceso ",string_itoa(unPrograma->pcb->pid)," de READY a EXEC");
+						log_trace(logger,string);
+						free(string);
+					}
+
 				}
 			}
 		} else if(queue_size(procesosNEW) > 0 && gradoMultiprogramacion+queue_size(procesosEXIT) >= cantidadProgramasEnSistema){
@@ -586,26 +609,26 @@ t_programa* planificador(t_programa* unPrograma,t_cpu* cpu,uint32_t confirmado){
 		}
 	}
 	if(strcmp(algoritmoPlanificador,"RR") == 0){
-		if(unPrograma != NULL){
-			if(unPrograma->quantumRestante == 0){
-				unPrograma->quantumRestante = quantum;
-				config_destroy(cfgActualizada);
-				free(rutaConfigActualizada);
-				return NULL;
-			} else {
-				unPrograma->quantumRestante--;
-				config_destroy(cfgActualizada);
-				free(rutaConfigActualizada);
+		config_destroy(cfgActualizada);
+		free(rutaConfigActualizada);
+
+		if(unPrograma != NULL && confirmacionEnviada == 0){
+				if(unPrograma->quantumRestante == 0){
+					unPrograma->quantumRestante = quantum;
+					moverPrograma(unPrograma,procesosEXEC,procesosREADY);
+					return NULL;
+				}
 
 				if(sendall(cpu->id,"0",&uno) <= 0){
 					log_error(logger,"Se esta por eliminar una CPU.");
 					eliminarSiHayCPU(cpu->id);
 					pthread_exit(&cpu->hilo);
 				}
-
-				return unPrograma;
-			}
+				unPrograma->quantumRestante--;
 		}
+
+		return unPrograma;
+
 	} else if(strcmp(algoritmoPlanificador,"FIFO") == 0){
 		config_destroy(cfgActualizada);
 		free(rutaConfigActualizada);
