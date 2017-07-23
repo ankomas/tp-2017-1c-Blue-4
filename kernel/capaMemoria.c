@@ -455,7 +455,7 @@ void guardarVarGlobal(uint32_t i){
 
 
 
-void semWait(uint32_t i,uint32_t pid, t_programa * proximoPrograma){
+bool semWait(uint32_t i,uint32_t pid, t_programa * proximoPrograma){
 	// Wait semaforo
 
 	uint32_t tamARecibir=0;
@@ -495,14 +495,35 @@ void semWait(uint32_t i,uint32_t pid, t_programa * proximoPrograma){
 
 			if(send(i,"B",1,0) <= 0)
 				anuncio("Ocurrio un problema al hacer un Wait");
+			//
+			char* res = malloc(1);
+			recv(i,res,1,MSG_WAITALL);
+			if(res[0] == 'B'){
+				if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
+					liberarCPU(cpu,proximoPrograma);
+				res=realloc(res,tamARecibir);
+				if(recv(i,res,tamARecibir,MSG_WAITALL) <= 0)
+					liberarCPU(cpu,proximoPrograma);
+				else{
+					liberarPCB(*(proximoPrograma->pcb));
+					*(proximoPrograma->pcb)=deserializarPCB(res);
+					free(res);
+					res=NULL;
+				}
+
+				free(rev);
+				pthread_mutex_unlock(&mutex_semaforos);
+				return 1;
+			}
+			//
 		}
 	} else {
 		if(send(i,"N",1,0) <= 0)
 			anuncio("Ocurrio un problema al hacer un Wait");
 	}
-
 	free(rev);
 	pthread_mutex_unlock(&mutex_semaforos);
+	return 0;
 
 }
 

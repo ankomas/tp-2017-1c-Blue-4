@@ -215,8 +215,10 @@ t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual){
 	// Inicializo Metadata
 	t_metadata_program* metadata=metadata_desde_literal(codigo);
 
+	pthread_mutex_lock(&mutex_colasPlanificacion);
 	// Creo PCB y libero metadata
 	nuevoPCB=crearPCB(metadata,pidActual);
+	pthread_mutex_unlock(&mutex_colasPlanificacion);
 	metadata_destruir(metadata);
 
 	nuevoProceso->id = i;
@@ -306,9 +308,6 @@ void* cpu(t_cpu * cpu){
 	}
 	pthread_mutex_unlock(&mutex_colasPlanificacion);
 	char*res = malloc(1);
-	int hiloCreado = 0;
-	//pthread_t watcherThread;
-	int envioConfirmacion = 0;
 
 	void liberarCPUSinPrograma(){
 		log_error(logger,"Se esta por eliminar una CPU,");
@@ -321,10 +320,12 @@ void* cpu(t_cpu * cpu){
 		signal(SIGPIPE, liberarCPUSinPrograma);
 		if(proximoPrograma != 0 && proximoPrograma!=NULL){
 
+			pthread_mutex_lock(&mutex_colasPlanificacion);
 			t_pcb proximoPCB = *(proximoPrograma->pcb);
 			package_t paquete = serializarPCB(proximoPCB);
-			uint32_t tamUint=sizeof(uint32_t),tamChar=1;
+			uint32_t tamUint=sizeof(uint32_t);
 			uint32_t tamARecibir=0;
+			pthread_mutex_unlock(&mutex_colasPlanificacion);
 
 			res=realloc(res,1);
 
@@ -424,8 +425,12 @@ void* cpu(t_cpu * cpu){
 					proximoPrograma->cantidadSyscallsEjecutadas++;
 				} else if(res[0] == 'W'){
 					pthread_mutex_lock(&mutex_colasPlanificacion);
-					semWait(cpu->id,proximoPrograma->pcb->pid,proximoPrograma);
 					proximoPrograma->cantidadSyscallsEjecutadas++;
+					if(semWait(cpu->id,proximoPrograma->pcb->pid,proximoPrograma)){
+						proximoPrograma = NULL;
+						pthread_mutex_unlock(&mutex_colasPlanificacion);
+						break;
+					}
 					pthread_mutex_unlock(&mutex_colasPlanificacion);
 				} else if(res[0] == 'H'){
 					leerHeap(cpu->id);
@@ -462,23 +467,6 @@ void* cpu(t_cpu * cpu){
 				} else if(res[0] == 'L'){
 					liberarHeapNico(cpu->id,proximoPrograma);
 					proximoPrograma->cantidadSyscallsEjecutadas++;
-				} else if(res[0] == 'B'){
-					if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
-						liberarCPU(cpu,proximoPrograma);
-					res=realloc(res,tamARecibir);
-					if(recv(cpu->id,res,tamARecibir,MSG_WAITALL) <= 0)
-						liberarCPU(cpu,proximoPrograma);
-					else{
-						pthread_mutex_lock(&mutex_colasPlanificacion);
-						liberarPCB(*(proximoPrograma->pcb));
-						*(proximoPrograma->pcb)=deserializarPCB(res);
-						free(res);
-						res=NULL;
-						pthread_mutex_unlock(&mutex_colasPlanificacion);
-					}
-
-					proximoPrograma = NULL;
-					break;
 				}
 			}
 			// Esta Y debe ser reemplazada por el codigo que devuelva la cpu, cuando finalice tiene que limpiar las estructuras incluyendo cpu
