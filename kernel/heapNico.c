@@ -171,6 +171,35 @@ int asignarEnPagHeap(t_programa *programa,uint32_t pag, uint32_t tam){
 				heapKernel=list_find(programa->paginasHeap,(void*)_heapByPage);
 				heapKernel->tamDisp-=tam+metadataHeap_tam();
 
+				//programa->cantidadAlocarEjecutados++;
+				//programa->cantidadAlocarEjecutadosBytes+=tam;
+
+				pos.pag=pag;
+				pos.off=offset2;
+				pos.size=tam;
+
+				printf("Asignar en heap correcto, pos: %i (%i,%i,%i)\n",posAPuntero(pos,tamanioPagina),pos.pag,pos.off,pos.size);
+				return posAPuntero(pos,tamanioPagina);
+			}else if(metadata.size==tam&&!(offset+metadata.size+metadataHeap_tam()==tamanioPagina)){
+				//cambiar a ocupado
+				metadata.free=false;
+				//restar el size
+				metadata.size=tam;
+
+				offset2=offset+metadataHeap_tam(); // guardo el offset despues de la estructura en memoria
+
+				guardarMetadata(metadata,programa->pcb->pid,pag,offset);
+
+				bool _heapByPage(t_heap *self){
+					return self->nPag==pag;
+				}
+
+				heapKernel=list_find(programa->paginasHeap,(void*)_heapByPage);
+				heapKernel->tamDisp-=tam;
+
+				//programa->cantidadAlocarEjecutados++;
+				//programa->cantidadAlocarEjecutadosBytes+=tam;
+
 				pos.pag=pag;
 				pos.off=offset2;
 				pos.size=tam;
@@ -257,7 +286,7 @@ int buscarSiguienteMetadataHeap(uint32_t pid, uint32_t pag,uint32_t offmetadata,
 	return 1;
 }
 
-int compactar(uint32_t pid,uint32_t pag,t_metadata_heap *metadata,uint32_t offset,t_metadata_heap siguiente,t_heap* heapKernel){
+int compactar(uint32_t pid,uint32_t pag,t_metadata_heap *metadata,uint32_t offset,t_metadata_heap siguiente,t_heap* heapKernel,t_programa* programa){
 	if(metadata->free==false)
 		return 0;
 	if(siguiente.free==false)
@@ -265,7 +294,7 @@ int compactar(uint32_t pid,uint32_t pag,t_metadata_heap *metadata,uint32_t offse
 
 	metadata->size+=siguiente.size+metadataHeap_tam();
 	guardarMetadata(*metadata,pid,pag,offset);
-	heapKernel->tamDisp+=siguiente.size+metadataHeap_tam();
+	heapKernel->tamDisp+=metadataHeap_tam();
 
 	return 1;
 }
@@ -283,7 +312,7 @@ void compactador(t_programa *programa,uint32_t pag,t_heap* heapKernel){
 	printf("Offset: %i, offsig: %i\n",offset,offsetsig);
 */
 	while(res){
-		if(compactar(programa->pcb->pid,pag,&metadata,offset,siguiente,heapKernel)){
+		if(compactar(programa->pcb->pid,pag,&metadata,offset,siguiente,heapKernel,programa)){
 			//Se pudo compactar, busco otro metadata
 			printf("COMPACTADO, NUEVO METADATA: \n");
 			visualizarMetadata(metadata);
@@ -369,8 +398,8 @@ int liberar(t_programa* programa,t_puntero puntero){
 	metadata.free=true;
 	heapKernel->tamDisp+=metadata.size;
 
-	programa->cantidadAlocarEjecutados++;
-	programa->cantidadAlocarEjecutadosBytes += metadata.size;
+	programa->cantidadLiberarEjecutados++;
+	programa->cantidadLiberarEjecutadosBytes+=metadata.size;
 
 	guardarMetadata(metadata,programa->pcb->pid,posMetadata.pag,posMetadata.off);
 
