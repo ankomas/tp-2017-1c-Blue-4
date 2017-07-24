@@ -9,6 +9,7 @@
 #define CAPAFS_H_
 
 #include "main.h"
+#include "heapNico.h"
 #include "planificador.h"
 
 //TGA es Tabla Global de Archivos
