@@ -394,7 +394,7 @@ void* cpu(t_cpu * cpu){
 
 					if(finalizarProcesoMemoria(proximoPrograma->pcb->pid,true) == 0){
 						char * string = concat(3,"Moviendo el proceso ",string_itoa(proximoPrograma->pcb->pid)," a EXIT");
-<<<<<<< HEAD
+
 
 						//todo ponerlo donde debe
 						printf("Calculando memory leak: \n");
@@ -414,10 +414,7 @@ void* cpu(t_cpu * cpu){
 						printf("Bytes alocados(%i): %i\n",proximoPrograma->cantidadAlocarEjecutados,proximoPrograma->cantidadAlocarEjecutadosBytes);
 						printf("Bytes liberados(%i): %i\n",proximoPrograma->cantidadLiberarEjecutados,proximoPrograma->cantidadLiberarEjecutadosBytes);
 
-
-=======
 						cantidadMemoryLeak(proximoPrograma);
->>>>>>> ba09096d237599b6c102d3083003cb8b637d6564
 						log_trace(logger,string);
 						free(string);
 					}else
