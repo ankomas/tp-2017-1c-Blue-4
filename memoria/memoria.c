@@ -156,7 +156,7 @@ int main(void) {
 	//NPAC(1,2);
 	//nuevoMarcoDelMismoProceso(1);
 	//printf("entro al test de escritura \n");
-	testEscritura();
+	//testEscritura();
 	//inicializarPrograma(100,8);
 	//escribir(100,0,0,4, "Hola");
 	//mostrarProcesoEnMemoria(100);
