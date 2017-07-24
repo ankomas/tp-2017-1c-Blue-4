@@ -150,7 +150,7 @@ void testLlenar(){
 int main(void) {
 
 	inicializarEstructurasAdministrativas();
-	testLlenar();
+	//testLlenar();
 	//inicializarPrograma(1,3);
 	//NPAC(1,2);
 	//nuevoMarcoDelMismoProceso(1);
