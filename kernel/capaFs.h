@@ -9,6 +9,7 @@
 #define CAPAFS_H_
 
 #include "main.h"
+#include "heapNico.h"
 #include "planificador.h"
 
 //TGA es Tabla Global de Archivos
@@ -39,4 +40,5 @@ uint32_t buscarFDArchivoPorId(uint32_t id,t_programa*unPrograma);
 bool tienePermisos(char acceso,char*permisos);
 char* recibirPath(uint32_t i);
 char* recibirPermisos(uint32_t i);
+void cantidadMemoryLeak(t_programa* unPrograma);
 #endif /* CAPAFS_H_ */

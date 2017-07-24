@@ -16,5 +16,5 @@ begin
 	liberar c
 	
 	alocar f 60
-	
+
 end

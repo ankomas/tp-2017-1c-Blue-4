@@ -30,7 +30,7 @@ typedef struct{
 	uint32_t paginas;
 	//t_list* listaPaginas;
 	uint32_t paginaDeInicio;
-	uint32_t proximaPaginaAAsignar;
+	uint32_t paginasMaximas;
 }procesoActivo_t;
 
 typedef struct{

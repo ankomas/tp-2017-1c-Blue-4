@@ -1,0 +1,9 @@
+begin
+	variables a, b, c
+	alocar a 200
+	alocar b 200
+	alocar c 200
+
+	liberar b
+	alocar b 200
+end

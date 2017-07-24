@@ -579,3 +579,20 @@ char* recibirPermisos(uint32_t i){
 	return rev;
 
 }
+
+void cantidadMemoryLeak(t_programa* unPrograma){
+	//todo ponerlo donde debe
+	//pregunto si hay elementos en la lista
+	if(list_size(unPrograma->paginasHeap)>0){
+		//hay elementos, entonces hay memory leak
+		int memoryLeak=0;
+		void _sumador(t_heap* elem){
+			memoryLeak+=tamanioPagina-elem->tamDisp;
+		}
+		list_iterate(unPrograma->paginasHeap,(void*)_sumador);
+		log_trace(logger,"El memory leak es de: %i\n",memoryLeak);
+	}else{
+		//no hay elementos, no hay memory leak
+		log_trace(logger,"No hay memory leaks\n");
+	}
+}

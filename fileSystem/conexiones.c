@@ -317,7 +317,8 @@ void leer(int socket)
 		memcpy(res,resultado,tamanio);
 		printf(" %s \n",res);
 		int i=0;
-		while(i<string_length(res))
+		printf("el length de lo leido es: %d \n",string_length(res));
+		while(i<tamanio)
 		{
 			printf("el char es :%c \n",res[i]);
 			i++;
