@@ -265,20 +265,23 @@ int primerPagina(uint32_t pid){
 */
 uint32_t finalizarPrograma(uint32_t pid) {
 	tablaPaginas_t* tablaDePaginas = obtenerTablaDePaginas();
-	int pagina,paginasTotales=0, paginasMaximas, i = 0;
+	int pagina=0,paginasTotales=0, paginasMaximas, i = 0;
 
 	//pagina = primerPagina(pid);
 	//int marco/* = getMarco(pid, pagina)*/;
 	/*if (marco < 0)
 		return -1;*/
 	//paginasMaximas = paginasMax(pid);
-
+/*
 	pagina = obtener_PaginaDeInicioDeProcesoActivo(pid);
 	int marco = getMarco(pid, pagina);
 	if (marco < 0)
 		return -1;
-	paginasMaximas = obtener_ProximaPaginaAAsignar(pid);
+		*/
+	paginasMaximas = obtener_PaginasMaximas(pid);
+	if(paginasMaximas==-1)return -1;
 
+	int marco=getMarco(pid,pagina);
 	while (i < paginasMaximas) {
 		//printf("I:%i,paginasMax:%i\n",i,paginasMaximas);
 		//pagina = primerPagina(pid);
@@ -296,8 +299,7 @@ uint32_t finalizarPrograma(uint32_t pid) {
 		i++;
 		marco = getMarco(pid, pagina);
 	}
-	obtener_PosicionProcesoActivo(pid);
-	eliminar_DataDeProcesoActivo(pid);
+	//obtener_PosicionProcesoActivo(pid);
 	tablaCache_t* tablaCache = obtenerTablaCache();
 	for(i=0; i< configDeMemoria.entradasCache; i++){
 		pthread_mutex_lock(&mutex_tablaCache);
@@ -306,13 +308,30 @@ uint32_t finalizarPrograma(uint32_t pid) {
 	}
 
 	textoAmarillo("LAS PAGINAS TOTALES SON: ");
+	paginasTotales=obtener_paginasActualesDeProcesoActivo(pid);
 	char* string_num = string_itoa(paginasTotales);
 	textoAmarillo(string_num);
 	free(string_num);
 	aumentarMarcosDisponibles(paginasTotales);
+	eliminar_DataDeProcesoActivo(pid);
 	return 0;
 }
 
+
+int proximaPaginaAAsignar(uint32_t pid,uint32_t paginasMaximas)
+{
+	int i=0;
+	int marco=getMarco(pid,i);
+	while(i<paginasMaximas)
+	{
+		// Esta seria la proxima pagina a asignar!!!
+		if(marco==-1)return i;
+		i++;
+		marco=getMarco(pid,i);
+	}
+	// en este caso no hay paginas intermedias que asignar!!!
+	return paginasMaximas;
+}
 int asignarPaginasAUnProceso(uint32_t pid, uint32_t paginasRequeridas) {
 	int pagina, marco, i = 0;
 	tablaPaginas_t* tablaDePaginas;
@@ -322,13 +341,20 @@ int asignarPaginasAUnProceso(uint32_t pid, uint32_t paginasRequeridas) {
 	tablaDePaginas = obtenerTablaDePaginas();
 	actualizarMarcosDisponibles(paginasRequeridas);
 
-	pagina = obtener_ProximaPaginaAAsignar(pid);
+	int paginasMaximas=obtener_PaginasMaximas(pid);
+
 	while (i < paginasRequeridas) {
+		pagina = proximaPaginaAAsignar(pid,paginasMaximas);
+		char* prox_pagina_string= string_itoa(pagina);
+		textoAmarillo("LA PROXIMA PAGINA A ASIGNAR ES : ");
+		textoAmarillo(prox_pagina_string);
+		free(prox_pagina_string);
 		marco = nuevoMarco(pid, pagina);
 		pthread_mutex_lock(&mutex_tablaDePaginas);
 		tablaDePaginas[marco].pid = pid;
 		tablaDePaginas[marco].pagina = pagina;
 		pthread_mutex_unlock(&mutex_tablaDePaginas);
+		paginasMaximas++;
 		pagina++;
 		i++;
 	}
