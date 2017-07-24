@@ -41,10 +41,12 @@ void imprimirPIDs(t_queue* colaConsultada,uint8_t showExitCode){
 		t_programa *aux = list_get(colaConsultada->elements,i);
 
 		anuncio(string_itoa(aux->pcb->pid));
+
 		if(showExitCode){
 			char * mensaje = concat(2,"Codigo de Exit: ",string_itoa(aux->pcb->exitCode));
 			anuncio(mensaje);
 			free(mensaje);
+			imprimirDescripcionError(aux->pcb->exitCode);
 		}
 		anuncio("----------");
 		i++;
