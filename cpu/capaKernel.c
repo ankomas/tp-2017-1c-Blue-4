@@ -345,7 +345,7 @@ int borrarArchivo(t_descriptor_archivo fd){
 
 int cerrarArchivo(t_descriptor_archivo fd){
 	char res;
-	uint32_t ufd;
+	uint32_t ufd=fd;
 	send(kernel,"c",1,0);
 	send(kernel,&ufd,sizeof(uint32_t),0);
 

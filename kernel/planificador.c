@@ -416,15 +416,9 @@ void* cpu(t_cpu * cpu){
 					log_trace(logger,string);
 					free(string);
 					moverPrograma(proximoPrograma,procesosEXEC,procesosREADY);*/
-					test("B");
 					preConfirmacion = planificador(proximoPrograma,cpu,0);
-					test("BB");
 					if(preConfirmacion == NULL){
-						test("BBB");
 						proximoPrograma = planificador(proximoPrograma,cpu,1);
-						if(proximoPrograma == NULL){
-							test("wait,wat");
-						}
 					} else {
 						proximoPrograma = preConfirmacion;
 					}
@@ -654,12 +648,9 @@ t_programa* planificador(t_programa* unPrograma,t_cpu* cpu,uint32_t confirmado){
 
 		config_destroy(cfgActualizada);
 		free(rutaConfigActualizada);
-		test("A");
 		if(unPrograma != NULL && confirmado == 1){
-			test("AA");
 			return unPrograma;
 		} else {
-			test("AAA");
 			return NULL;
 		}
 

@@ -30,18 +30,15 @@ bool mandarOperacionFS(char* opcode,char* path,uint32_t tamPath,char* error){
 		log_error(logger,error);
 		return 0;
 	}
-//	test("ESTA ES LA HIPOTESIS");
 	// Recibo confirmacion
 	if(recv(idFS,rev,1,MSG_WAITALL) <= 0){
 		log_error(logger,error);
 		return 0;
 	}
-//	test("ESTA ES LA TESIS");
 
 	if(rev[0]== 'Y'){
 		return 1;
 	}
-	//test(rev);
 	return 0;
 }
 
@@ -206,24 +203,30 @@ uint32_t abrirFD(uint32_t i,t_programa* unPrograma){
 		nuevaEntradaTGA->abierto++;
 		nuevaEntradaTGA->archivo = path;
 	} else {
-		if(crearArchivo(path,strlen(path))){
-			nuevaEntradaTGA = malloc(sizeof(t_entradaTGA));
-			nuevaEntradaTGA->archivo = path;
-			nuevaEntradaTGA->abierto = 1;
-			nuevaEntradaTGA->indice = GlobalFDCounter;
-			list_add(tablaGlobalArchivos,nuevaEntradaTGA);
-			GlobalFDCounter++;
-			log_trace(logger,"Nuevo FD creado");
-		} else {
-			send(i,"N",1,0);
-			log_error(logger,"No se pudo crear el nuevo archivo");
-			return 9999;
+		if(!validarArchivo(path,strlen(path))){
+			if(crearArchivo(path,strlen(path))){
+
+			} else {
+				send(i,"N",1,0);
+				log_error(logger,"No se pudo crear el nuevo archivo");
+				return 9999;
+			}
 		}
+
+		nuevaEntradaTGA = malloc(sizeof(t_entradaTGA));
+		nuevaEntradaTGA->archivo = path;
+		nuevaEntradaTGA->abierto = 1;
+		nuevaEntradaTGA->indice = GlobalFDCounter;
+		list_add(tablaGlobalArchivos,nuevaEntradaTGA);
+
 	}
 
 	nuevaEntradaTAP->globalFD = nuevaEntradaTGA->indice;
 	nuevaEntradaTAP->indice = unPrograma->FDCounter;
 	list_add(unPrograma->tablaArchivosPrograma,nuevaEntradaTAP);
+
+	GlobalFDCounter++;
+	log_trace(logger,"Nuevo FD creado");
 
 	send(i,"Y",1,0);
 	send(i,&nuevaEntradaTAP->indice,sizeof(uint32_t),0);
@@ -233,7 +236,6 @@ uint32_t abrirFD(uint32_t i,t_programa* unPrograma){
 
 bool borrarFD(uint32_t i,t_programa* unPrograma){
 	uint32_t fd = 0;
-	log_trace(logger,"Llamada a BORRAR FD");
 	recv(i,&fd,sizeof(uint32_t),MSG_WAITALL);
 	//send(i,"Y",1,0);
 /*
@@ -249,7 +251,8 @@ bool borrarFD(uint32_t i,t_programa* unPrograma){
 	}
 */
 	uint32_t auxFDTAP = buscarFDArchivoPorId(fd,unPrograma);
-	uint32_t indiceGlobalFD = buscarFDPorId(auxFDTAP);
+	t_entradaTAP* entradaFD = list_get(unPrograma->tablaArchivosPrograma,auxFDTAP);
+	uint32_t indiceGlobalFD = entradaFD->globalFD;
 	printf("FD: %i, indiceGlobalFD: %i\n",fd,indiceGlobalFD);
 	if(indiceGlobalFD != 9999){
 		bool _condicion3(t_entradaTGA* self){
@@ -262,7 +265,7 @@ bool borrarFD(uint32_t i,t_programa* unPrograma){
 		t_entradaTGA * aux = list_find(tablaGlobalArchivos,(void*)_condicion3);
 		if(aux->abierto == 1){
 			if(borrarArchivo(aux->archivo,strlen(aux->archivo))){
-				bool _condicion(t_entradaTAP* self){
+				/*bool _condicion(t_entradaTAP* self){
 					return self->indice==fd;
 				}
 				void _destroyer(t_entradaTAP* self){
@@ -280,44 +283,51 @@ bool borrarFD(uint32_t i,t_programa* unPrograma){
 				list_remove_and_destroy_by_condition(tablaGlobalArchivos,(void*)_condicion2,(void*)_destroyer2);
 				//list_remove(tablaGlobalArchivos,indiceGlobalFD);
 				//ist_remove(unPrograma->tablaArchivosPrograma,buscarFDArchivoPorId(fd,unPrograma));
-
+				*/
 				log_trace(logger,"Se borro el FD correctamente");
 				send(i,"Y",1,0);
 				return 1;
 			} else {
 				// mandar proceso a exit recibiendo pcb de cpu
-				log_trace(logger,"No se pudo borrar el FD correctamente");
+				log_trace(logger,"No se pudo borrar el archivo correctamente");
 				send(i,"N",1,0);
 				return 0;
 			}
 		}else{
-			log_trace(logger,"No se pudo borrar el FD, otro lo tiene abierto");
+			log_trace(logger,"No se pudo borrar el archivo, otro lo tiene abierto");
 			send(i,"N",1,0);
 		}
 	}
+	log_trace(logger,"No se pudo borrar el archivo correctamente.");
+	send(i,"N",1,0);
 	return 0;
 }
 
 bool cerrarFD(uint32_t i, t_programa* unPrograma){
 	uint32_t fd = 0;
 	recv(i,&fd,sizeof(fd),MSG_WAITALL);
-	send(i,"Y",1,0);
-
-	uint32_t indiceGlobalFD = buscarFDPorId(fd);
+	uint32_t auxFDTAP = buscarFDArchivoPorId(fd,unPrograma);
+	t_entradaTAP* entradaFD = list_get(unPrograma->tablaArchivosPrograma,auxFDTAP);
+	uint32_t indiceGlobalFD = entradaFD->globalFD;
 	if(indiceGlobalFD != 9999){
-		list_remove(unPrograma->tablaArchivosPrograma,fd);//ojo este fd es un puntero que no es absoluto
-		t_entradaTGA * aux = list_get(tablaGlobalArchivos,indiceGlobalFD);
+		list_remove(unPrograma->tablaArchivosPrograma,auxFDTAP);//ojo este fd es un puntero que no es absoluto
+		bool _condicion3(t_entradaTGA* self){
+			return self->indice==indiceGlobalFD;
+		}
+		//TODO cond
+		t_entradaTGA * aux = list_find(tablaGlobalArchivos,(void*)_condicion3);
+
 		if(aux->abierto == 1){
-			list_remove(tablaGlobalArchivos,indiceGlobalFD);
+			list_remove_by_condition(tablaGlobalArchivos,(void*)_condicion3);
 		} else {
 			aux->abierto--;
 		}
 		list_remove(unPrograma->tablaArchivosPrograma,buscarFDArchivoPorId(fd,unPrograma));
-		log_trace(logger,"Archivo cerrado");
+		log_trace(logger,"FD cerrado");
 		send(i,"Y",1,0);
 		return 1;
 	}else{
-		log_trace(logger,"Se intento cerrar un archivo que no existia");
+		log_trace(logger,"Se intento cerrar un FD que no existia");
 		send(i,"N",1,0);
 		return 0;
 	}
@@ -355,9 +365,15 @@ bool escribirFD(uint32_t i,t_programa* unPrograma){
 		return 0;
 	}*/
 
+	if(fd == 1){
+		imprimirPorConsola(unPrograma->id,data,tamanio);
+		send(i,"Y",1,0);
+		return 0;
+	}
+
 	uint32_t auxFDTAP = buscarFDArchivoPorId(fd,unPrograma);
-	uint32_t indiceGlobalFD = buscarFDPorId(auxFDTAP);
 	t_entradaTAP* entradaFD = list_get(unPrograma->tablaArchivosPrograma,auxFDTAP);
+	uint32_t indiceGlobalFD = entradaFD->globalFD;
 	bool _condicion3(t_entradaTGA* self){
 		return self->indice==indiceGlobalFD;
 	}
@@ -367,16 +383,16 @@ bool escribirFD(uint32_t i,t_programa* unPrograma){
 	//TODO cond
 	t_entradaTGA * aux = list_find(tablaGlobalArchivos,(void*)_condicion3);
 
+	if(aux == NULL){
+		log_error(logger,"Se trato de escribir un archivo que no ha sido abierto");
+		return NULL;
+	}
+
 	/*if(validarArchivo(aux->archivo,strlen(aux->archivo)) == 0 || !tienePermisos('e',entradaFD->flags)){
 		send(i,"N",1,0);
 		log_error(logger,"No hay permisos para crear un nuevo archivo o el archivo no existe");
 		return 0;
 	}*/
-	if(fd == 1){
-		imprimirPorConsola(unPrograma->id,data,tamanio);
-		send(i,"Y",1,0);
-		return 0;
-	}
 
 	if(auxFDTAP != 9999 || fd == 1){
 
@@ -420,8 +436,9 @@ char* leerFD(uint32_t i,t_programa* unPrograma){
 	}*/
 
 	uint32_t auxFDTAP = buscarFDArchivoPorId(fd,unPrograma);
-	uint32_t indiceGlobalFD = buscarFDPorId(auxFDTAP);
 	t_entradaTAP* entradaFD = list_get(unPrograma->tablaArchivosPrograma,auxFDTAP);
+
+	uint32_t indiceGlobalFD = entradaFD->globalFD;
 	bool _condicion3(t_entradaTGA* self){
 		return self->indice==indiceGlobalFD;
 	}
@@ -430,6 +447,11 @@ char* leerFD(uint32_t i,t_programa* unPrograma){
 	}
 	//TODO cond
 	t_entradaTGA * aux = list_find(tablaGlobalArchivos,(void*)_condicion3);
+
+	if(aux == NULL){
+		log_error(logger,"Se trato de leer un archivo que no ha sido abierto");
+		return NULL;
+	}
 
 	//printf("Flags: %s\n",entradaFD->flags);
 	//printf("Validar archivo %i|| !tienePermisos %i\n",validarArchivo(aux->archivo,strlen(aux->archivo))==0,!tienePermisos('l',entradaFD->flags));

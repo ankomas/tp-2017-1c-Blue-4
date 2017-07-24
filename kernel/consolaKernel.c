@@ -106,9 +106,10 @@ void mostrarYAgregarRuta(char* rutaOpciones,char*ruta){
 void imprimirTGA(){
 	int contador = 0;
 	textoAzul("\n------------- Tabla Global de Archivos ------------- ");
+	textoAzul("Open | Path");
 	while(list_size(tablaGlobalArchivos) > contador){
 		t_entradaTGA * entradaAux = list_get(tablaGlobalArchivos,contador);
-		char* linea = concat(3,string_itoa(entradaAux->abierto)," | ",entradaAux->archivo);
+		char* linea = concat(3,string_itoa(entradaAux->abierto),"    | ",entradaAux->archivo);
 		textoAzul(linea);
 		free(linea);
 		contador++;
@@ -119,9 +120,10 @@ void imprimirTGA(){
 void imprimirTAP(t_programa *nuevoProceso){
 	int contador = 0;
 	textoAzul("\n------------- Tabla de archivos de proceso ------------- ");
+	textoAzul("GFD | Permisos");
 	while(list_size(nuevoProceso->tablaArchivosPrograma) > contador){
 		t_entradaTAP * entradaAux = list_get(nuevoProceso->tablaArchivosPrograma,contador);
-		char* linea = concat(3,string_itoa(entradaAux->globalFD)," | ",entradaAux->flags);
+		char* linea = concat(3,string_itoa(entradaAux->globalFD),"   | ",entradaAux->flags);
 		textoAzul(linea);
 		free(linea);
 		contador++;

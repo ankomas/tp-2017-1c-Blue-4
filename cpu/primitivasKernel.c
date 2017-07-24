@@ -147,7 +147,6 @@ void dummy_cerrar(t_descriptor_archivo descriptor_archivo){
 		return;
 	int res;
 	printf("Llamada a "YEL"CERRAR"RESET" %i\n",descriptor_archivo);
-	return;
 	res=cerrarArchivo(descriptor_archivo);
 
 	if(res==-1){
