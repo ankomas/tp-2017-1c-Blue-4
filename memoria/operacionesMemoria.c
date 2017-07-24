@@ -445,7 +445,7 @@ int buscarMarcoVacioCache() {
 	return -2;
 }
 
-int agregarProcesoACache(int pid, int pag, int *pidViejo, int *pagVieja) {
+int agregarProcesoACache(int pid, int pag) {
 	int marco = nuevoMarcoDelMismoProceso(pid);
 	if (marco < 0) {
 		if (configDeMemoria.cacheDisponible > 0) {
@@ -456,8 +456,6 @@ int agregarProcesoACache(int pid, int pag, int *pidViejo, int *pagVieja) {
 	}
 	tablaCache_t* tabla = obtenerTablaCache();
 	pthread_mutex_lock(&mutex_tablaCache);
-	*pidViejo = tabla[marco].pid;
-	*pagVieja = tabla[marco].pagina;
 	tabla[marco].pid = pid;
 	tabla[marco].pagina = pag;
 	tabla[marco].counter = contador++;
@@ -473,11 +471,44 @@ void copiarMemoriaACache(int pid, int pag) {
 }
 
 void* leer(uint32_t pid, uint32_t pag, uint32_t offset, uint32_t tam) { // SIGUE NECESITANDO UN FREE
+	if(configDeMemoria.cachePorProceso==0)
+		return leerMemoria(pid,pag,offset,tam);
+	if (!estaEnCache(pid, pag)){
+		agregarProcesoACache(pid, pag);
+		copiarMemoriaACache(pid, pag);
+	}
+	return leerCache(pid,pag,offset, tam);
+}
+
+int escribir(uint32_t pid, uint32_t pag, uint32_t offset, uint32_t tamData,
+	void *data) {
+	if(tamData==0 || data == NULL) return 0;
+	if(configDeMemoria.cachePorProceso==0)
+		{
+			int resultado=escribirMemoria(pid,pag,offset,tamData,data);
+			return resultado;
+		}
+	escribirMemoria(pid,pag,offset,tamData,data);
+	if (estaEnCache(pid, pag))
+		escribirCache(getMarcoCache(pid, pag), offset, tamData, data);
+	return 0;
+}
+
+int validarPIDPAG(int pid, int pag){
+	int resultado = getMarco(pid,pag);
+	return (resultado >= 0);
+}
+
+/*
+void* leer(uint32_t pid, uint32_t pag, uint32_t offset, uint32_t tam) { // SIGUE NECESITANDO UN FREE
 	if (estaEnCache(pid, pag))
 		return leerCache(pid, pag, offset, tam);
 	else
 		return leerMemoria(pid, pag, offset, tam);
 }
+
+
+
 
 int escribir(uint32_t pid, uint32_t pag, uint32_t offset, uint32_t tamData,
 	void *data) {
@@ -498,8 +529,4 @@ int escribir(uint32_t pid, uint32_t pag, uint32_t offset, uint32_t tamData,
 	}
 	return 0;
 }
-
-int validarPIDPAG(int pid, int pag){
-	int resultado = getMarco(pid,pag);
-	return (resultado >= 0);
-}
+*/

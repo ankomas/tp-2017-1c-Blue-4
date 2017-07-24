@@ -79,7 +79,7 @@ uint32_t finalizarPrograma(uint32_t );
  */
 int asignarPaginasAUnProceso(uint32_t ,uint32_t );
 
-int agregarProcesoACache(int, int, int*, int*);
+int agregarProcesoACache(int, int);
 
 int validarPIDPAG(int, int);
 
