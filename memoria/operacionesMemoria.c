@@ -342,17 +342,19 @@ int asignarPaginasAUnProceso(uint32_t pid, uint32_t paginasRequeridas) {
 	actualizarMarcosDisponibles(paginasRequeridas);
 
 	int paginasMaximas=obtener_PaginasMaximas(pid);
-	pagina = proximaPaginaAAsignar(pid,paginasMaximas);
-	char* prox_pagina_string= string_itoa(pagina);
-	textoAmarillo("LA PROXIMA PAGINA A ASIGNAR ES : ");
-	textoAmarillo(prox_pagina_string);
-	free(prox_pagina_string);
+
 	while (i < paginasRequeridas) {
+		pagina = proximaPaginaAAsignar(pid,paginasMaximas);
+		char* prox_pagina_string= string_itoa(pagina);
+		textoAmarillo("LA PROXIMA PAGINA A ASIGNAR ES : ");
+		textoAmarillo(prox_pagina_string);
+		free(prox_pagina_string);
 		marco = nuevoMarco(pid, pagina);
 		pthread_mutex_lock(&mutex_tablaDePaginas);
 		tablaDePaginas[marco].pid = pid;
 		tablaDePaginas[marco].pagina = pagina;
 		pthread_mutex_unlock(&mutex_tablaDePaginas);
+		paginasMaximas++;
 		pagina++;
 		i++;
 	}

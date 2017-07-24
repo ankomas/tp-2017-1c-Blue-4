@@ -85,15 +85,9 @@ void testEscritura()
 	escribir(100,0,26,6," Mucho");
 	escribir(100,4,0,3,"Men");
 	eliminarPaginaDeUnProceso(100,2);
-	int proximaPagina=proximaPaginaAAsignar(100,23);
-	printf("la proxima pagina a asignar es : %d \n",proximaPagina);
-	asignarPaginasAUnProceso(100,1);
+	asignarPaginasAUnProceso(100,5);
 	eliminarPaginaDeUnProceso(100,22);
-	proximaPagina=proximaPaginaAAsignar(100,23);
-	printf("la proxima pagina a asignar es : %d \n",proximaPagina);
 	asignarPaginasAUnProceso(100,1);
-	proximaPagina=proximaPaginaAAsignar(100,23);
-	printf("la proxima pagina a asignar es : %d \n",proximaPagina);
 
 	inicializarPrograma(200,1);
 	escribir(200,0,0,15,"PID 200 PAG 001");
@@ -162,7 +156,7 @@ int main(void) {
 	//NPAC(1,2);
 	//nuevoMarcoDelMismoProceso(1);
 	//printf("entro al test de escritura \n");
-	//testEscritura();
+	testEscritura();
 	//inicializarPrograma(100,8);
 	//escribir(100,0,0,4, "Hola");
 	//mostrarProcesoEnMemoria(100);
