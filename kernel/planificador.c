@@ -389,7 +389,7 @@ void* cpu(t_cpu * cpu){
 						//todo ponerlo donde debe
 						printf("Calculando memory leak: \n");
 						//pregunto si hay elementos en la lista
-						if(proximoPrograma->paginasHeap){
+						if(list_size(proximoPrograma->paginasHeap)>0){
 							//hay elementos, entonces hay memory leak
 							int memoryLeak=0;
 							void _sumador(t_heap* elem){
