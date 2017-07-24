@@ -12,6 +12,7 @@
 #include "capaMemoria.h"
 #include "main.h"
 #include "error.h"
+#include "heapNico.h"
 #include <sys/socket.h>
 #include <signal.h>
 #include <sys/socket.h>
@@ -384,6 +385,24 @@ void* cpu(t_cpu * cpu){
 
 					if(finalizarProcesoMemoria(proximoPrograma->pcb->pid,true) == 0){
 						char * string = concat(3,"Moviendo el proceso ",string_itoa(proximoPrograma->pcb->pid)," a EXIT");
+
+						//todo ponerlo donde debe
+						printf("Calculando memory leak: \n");
+						//pregunto si hay elementos en la lista
+						if(proximoPrograma->paginasHeap){
+							//hay elementos, entonces hay memory leak
+							int memoryLeak=0;
+							void _sumador(t_heap* elem){
+								memoryLeak+=tamanioPagina-elem->tamDisp;
+							}
+							list_iterate(proximoPrograma->paginasHeap,(void*)_sumador);
+							printf("El memory leak es de: %i\n",memoryLeak);
+						}else{
+							//no hay elementos, no hay memory leak
+							printf("No hay memory leaks\n");
+						}
+
+
 						log_trace(logger,string);
 						free(string);
 					}else
