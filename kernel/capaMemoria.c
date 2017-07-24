@@ -636,9 +636,6 @@ int guardarHeapNico(uint32_t socket,t_programa* programa){
 
 	res=allocEnHeap(programa,tam);
 
-	programa->cantidadAlocarEjecutados++;
-	programa->cantidadAlocarEjecutadosBytes += tam;
-
 	if(res==-1){
 		printf("ERROR: tamanio mas grande que el de pagina\n");
 		send(socket,"N",1,0);
@@ -649,6 +646,9 @@ int guardarHeapNico(uint32_t socket,t_programa* programa){
 		send(socket,"N",1,0);
 		return 1;
 	}
+
+	programa->cantidadAlocarEjecutados++;
+	programa->cantidadAlocarEjecutadosBytes += tam;
 
 	send(socket,"Y",1,0);
 	send(socket,&res,sizeof(uint32_t),0);

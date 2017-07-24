@@ -401,6 +401,8 @@ void* cpu(t_cpu * cpu){
 							//no hay elementos, no hay memory leak
 							printf("No hay memory leaks\n");
 						}
+						printf("Bytes alocados(%i): %i\n",proximoPrograma->cantidadAlocarEjecutados,proximoPrograma->cantidadAlocarEjecutadosBytes);
+						printf("Bytes liberados(%i): %i\n",proximoPrograma->cantidadLiberarEjecutados,proximoPrograma->cantidadLiberarEjecutadosBytes);
 
 
 						log_trace(logger,string);
