@@ -9,6 +9,7 @@
 #define HEAPNICO_H_
 
 #include <commons/collections/list.h>
+#include "planificador.h"
 
 typedef struct{
 	uint32_t pid;

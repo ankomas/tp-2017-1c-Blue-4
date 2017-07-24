@@ -292,6 +292,15 @@ void liberarCPU(t_cpu* cpu, t_programa* programaDeCPU){
 		log_error(logger,"Se esta por eliminar una CPU");
 		pthread_mutex_lock(&mutex_colasPlanificacion);
 		moverPrograma(programaDeCPU,procesosEXEC,procesosEXIT);
+		int resFinalizarPrograma = finalizarProcesoMemoria(programaDeCPU->pcb->pid,false);
+
+		if(resFinalizarPrograma == 0){
+			log_trace(logger,"Un programa ha sido movido a EXIT");
+			cantidadMemoryLeak(programa);
+		} else {
+			log_trace(logger,"Excepcion de memoria. No se pudo liberar recursos del programa");
+			programaDeCPU->pcb->exitCode = -5;
+		}
 		pthread_mutex_unlock(&mutex_colasPlanificacion);
 		eliminarSiHayCPU(cpu->id);
 		programaDeCPU->pcb->exitCode= -10;
@@ -385,24 +394,7 @@ void* cpu(t_cpu * cpu){
 
 					if(finalizarProcesoMemoria(proximoPrograma->pcb->pid,true) == 0){
 						char * string = concat(3,"Moviendo el proceso ",string_itoa(proximoPrograma->pcb->pid)," a EXIT");
-
-						//todo ponerlo donde debe
-						printf("Calculando memory leak: \n");
-						//pregunto si hay elementos en la lista
-						if(list_size(proximoPrograma->paginasHeap)>0){
-							//hay elementos, entonces hay memory leak
-							int memoryLeak=0;
-							void _sumador(t_heap* elem){
-								memoryLeak+=tamanioPagina-elem->tamDisp;
-							}
-							list_iterate(proximoPrograma->paginasHeap,(void*)_sumador);
-							printf("El memory leak es de: %i\n",memoryLeak);
-						}else{
-							//no hay elementos, no hay memory leak
-							printf("No hay memory leaks\n");
-						}
-
-
+						cantidadMemoryLeak(proximoPrograma);
 						log_trace(logger,string);
 						free(string);
 					}else
@@ -529,6 +521,7 @@ void* programa(t_programa *programa){
 
 	if(resFinalizarPrograma == 0){
 		log_trace(logger,"Un programa ha sido movido a EXIT");
+		cantidadMemoryLeak(programa);
 	} else {
 		log_trace(logger,"Excepcion de memoria. No se pudo liberar recursos del programa");
 		programa->pcb->exitCode = -5;
