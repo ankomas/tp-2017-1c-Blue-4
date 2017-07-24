@@ -159,7 +159,6 @@ void dummy_moverCursor(t_descriptor_archivo descriptor_archivo, t_valor_variable
 		return;
 	int res;
 	printf("Llamada a "YEL"MOVER CURSOR"RESET" %i\n",descriptor_archivo);
-	return;
 	res=moverCursor(descriptor_archivo,posicion);
 
 	if(res==-1){

@@ -122,16 +122,18 @@ void elegirFuncion(char op,int socket){
 	}
 }
 
-int pedirAMemoria(t_pcb2* pcb,t_pos pos){
+int pedirAMemoria(t_pcb2* pcb,t_pos pos,int32_t *valor){
 	int res=0;
 	package_t paquete;
-	cargarDeMemoria(memoria, pcb->pid,pos.pag, pos.off,pos.size,&paquete);
-	memcpy(&res,paquete.data,pos.size);
-	free(paquete.data);
+	res=cargarDeMemoria(memoria, pcb->pid,pos.pag, pos.off,pos.size,&paquete);
+	if(res==0){
+		memcpy(valor,paquete.data,pos.size);
+		free(paquete.data);
+	}
 	return res;
 }
 
-int asignarAMemoria(t_pos pos,uint32_t valor){
+int asignarAMemoria(t_pos pos,int32_t valor){
 	return guardarEnMemoria(memoria,pcb_global.pid,pos.pag,pos.off,pos.size,(char*)&valor);
 }
 
