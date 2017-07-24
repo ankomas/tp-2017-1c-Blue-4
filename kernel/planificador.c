@@ -151,10 +151,10 @@ void encolarReady(t_programa* nuevoProceso){
 			}
 		//}
 	}
-	if(error == 1){
+	if(error == -1){
 		nuevoProceso->pcb->exitCode = -1;
 		queue_push(procesosEXIT,nuevoProceso);
-		log_error(logger,"ERROR, el kernel no pudo solicitar memoria correctamente");
+		log_error(logger,"No se pudieron reservar recursos para ejecutar el programa");
 	}
 }
 
@@ -502,14 +502,17 @@ void* cpu(t_cpu * cpu){
 void* programa(t_programa *programa){
 	char * charsito = malloc(1);
 	recv(programa->id,charsito,1,0);
-	if(recv(programa->id,charsito,1,0) <= 0){}
-	if(charsito[0] == 'F'){}
+	if(recv(programa->id,charsito,1,0) <= 0){programa->pcb->exitCode = -6;}
+	if(charsito[0] == 'F'){programa->pcb->exitCode = -7;}
 
 	pthread_mutex_lock(&mutex_colasPlanificacion);
 	int resFinalizarPrograma = finalizarProcesoMemoria(programa->pcb->pid,false);
 
 	if(resFinalizarPrograma == 0){
 		log_trace(logger,"Un programa ha sido movido a EXIT");
+	} else {
+		log_trace(logger,"Excepcion de memoria. No se pudo liberar recursos del programa");
+		programa->pcb->exitCode = -5;
 	}
 	pthread_mutex_unlock(&mutex_colasPlanificacion);
 	return NULL;

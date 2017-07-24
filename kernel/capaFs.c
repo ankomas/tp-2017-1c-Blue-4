@@ -190,6 +190,7 @@ uint32_t abrirFD(uint32_t i,t_programa* unPrograma){
 	}
 	if(!validarArchivo(path,strlen(path)) && !tienePermisos('c',permisos)){
 		send(i,"N",1,0);
+		unPrograma->pcb->exitCode = -2;
 		log_error(logger,"El archivo no existe y no hay permisos para crear un nuevo archivo");
 		return 9999;
 	}
@@ -384,6 +385,7 @@ bool escribirFD(uint32_t i,t_programa* unPrograma){
 	t_entradaTGA * aux = list_find(tablaGlobalArchivos,(void*)_condicion3);
 
 	if(aux == NULL){
+		unPrograma->pcb->exitCode = -2;
 		log_error(logger,"Se trato de escribir un archivo que no ha sido abierto");
 		return NULL;
 	}
@@ -407,9 +409,9 @@ bool escribirFD(uint32_t i,t_programa* unPrograma){
 					send(i,"N",1,0);
 					return 0;
 				}
-			}
-		 else {
+		} else {
 			log_error(logger,"No hay permisos para escribir en un archivo");
+			unPrograma->pcb->exitCode = -4;
 			send(i,"N",1,0);
 			return 0;
 		}
@@ -449,6 +451,7 @@ char* leerFD(uint32_t i,t_programa* unPrograma){
 	t_entradaTGA * aux = list_find(tablaGlobalArchivos,(void*)_condicion3);
 
 	if(aux == NULL){
+		unPrograma->pcb->exitCode = -2;
 		log_error(logger,"Se trato de leer un archivo que no ha sido abierto");
 		return NULL;
 	}
@@ -457,6 +460,7 @@ char* leerFD(uint32_t i,t_programa* unPrograma){
 	//printf("Validar archivo %i|| !tienePermisos %i\n",validarArchivo(aux->archivo,strlen(aux->archivo))==0,!tienePermisos('l',entradaFD->flags));
 	if(validarArchivo(aux->archivo,strlen(aux->archivo)) == 0 || !tienePermisos('l',entradaFD->flags)){
 		send(i,"N",1,0);
+		unPrograma->pcb->exitCode = -3;
 		log_error(logger,"No hay permisos para crear un nuevo archivo o el archivo no existe");
 		return NULL;
 	}
