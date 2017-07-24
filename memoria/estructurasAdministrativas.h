@@ -161,6 +161,6 @@ uint32_t obtener_PaginaDeInicioDeProcesoActivo(uint32_t );
  * @param uint32_t pid
  * @return 0 (en caso de exito) | -1(en caso de error)
  */
-uint32_t obtener_ProximaPaginaAAsignar(uint32_t );
+uint32_t obtener_PaginasMaximas(uint32_t );
 
 #endif /* ESTRUCTURASADMINISTRATIVAS_H_ */

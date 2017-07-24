@@ -77,13 +77,23 @@ void testLecturaCache(){
 
 void testEscritura()
 {
-	inicializarPrograma(100,3);
+	inicializarPrograma(100,23);
 	escribir(100,0,0,26,"tu vieja en tanga me gusta");
-	asignarPaginasAUnProceso(100,20);
+	//asignarPaginasAUnProceso(100,20);
 	escribir(100,18,0,16,"necesito 16 cars");
 	escribir(100,15,0,4,"Hola");
 	escribir(100,0,26,6," Mucho");
 	escribir(100,4,0,3,"Men");
+	eliminarPaginaDeUnProceso(100,2);
+	int proximaPagina=proximaPaginaAAsignar(100,23);
+	printf("la proxima pagina a asignar es : %d \n",proximaPagina);
+	asignarPaginasAUnProceso(100,1);
+	eliminarPaginaDeUnProceso(100,22);
+	proximaPagina=proximaPaginaAAsignar(100,23);
+	printf("la proxima pagina a asignar es : %d \n",proximaPagina);
+	asignarPaginasAUnProceso(100,1);
+	proximaPagina=proximaPaginaAAsignar(100,23);
+	printf("la proxima pagina a asignar es : %d \n",proximaPagina);
 
 	inicializarPrograma(200,1);
 	escribir(200,0,0,15,"PID 200 PAG 001");

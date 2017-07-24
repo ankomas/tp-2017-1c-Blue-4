@@ -120,7 +120,7 @@ void inicializarProcesosActivos()
 		procesosActivos[i].pid=-2;
 		procesosActivos[i].paginas=-2;
 		procesosActivos[i].paginaDeInicio=-2;
-		procesosActivos[i].proximaPaginaAAsignar=-2;
+		procesosActivos[i].paginasMaximas=-2;
 		i++;
 	}
 }
@@ -236,7 +236,7 @@ uint32_t obtener_PaginaDeInicioDeProcesoActivo(uint32_t pid)
 	return paginaDeInicio;
 }
 
-uint32_t obtener_ProximaPaginaAAsignar(uint32_t pid)
+uint32_t obtener_PaginasMaximas(uint32_t pid)
 {
 	uint32_t proximaPagina=0;
 	uint32_t *aux;
@@ -245,7 +245,7 @@ uint32_t obtener_ProximaPaginaAAsignar(uint32_t pid)
 	if(posicion_PidBuscado==-1)return -1;
 	pthread_mutex_lock(&mutex_procesosActivos);
 
-	proximaPagina=procesosActivos[posicion_PidBuscado].proximaPaginaAAsignar;
+	proximaPagina=procesosActivos[posicion_PidBuscado].paginasMaximas;
 	/*bool _byPag(uint32_t* pag){
 		return proximaPagina==*pag;
 	}
@@ -274,7 +274,7 @@ int32_t agregar_DataDeProcesoActivo(uint32_t pid,uint32_t paginasActuales)
 	procesosActivos[posicionLibre].pid=pid;
 	procesosActivos[posicionLibre].paginas=paginasActuales;
 	procesosActivos[posicionLibre].paginaDeInicio=0;
-	procesosActivos[posicionLibre].proximaPaginaAAsignar=paginasActuales;
+	procesosActivos[posicionLibre].paginasMaximas=paginasActuales;
 	//procesosActivos[posicionLibre].listaPaginas=list_create();
 	pthread_mutex_unlock(&mutex_procesosActivos);
 	return posicionLibre;
@@ -289,7 +289,7 @@ uint32_t eliminar_DataDeProcesoActivo(uint32_t pid)
 	procesosActivos[posicion_PidBuscado].pid=-2;
 	procesosActivos[posicion_PidBuscado].paginas=-2;
 	procesosActivos[posicion_PidBuscado].paginaDeInicio=-2;
-	procesosActivos[posicion_PidBuscado].proximaPaginaAAsignar=-2;
+	procesosActivos[posicion_PidBuscado].paginasMaximas=-2;
 	//void _destroy(uint32_t* self){
 	//	free(self);
 	//}
@@ -305,7 +305,7 @@ uint32_t aumentar_PaginasActualesDeProcesoActivo(uint32_t pid,uint32_t paginas)
 	if(posicion_PidBuscado==-1)return -1;
 	pthread_mutex_lock(&mutex_procesosActivos);
 	procesosActivos[posicion_PidBuscado].paginas+=paginas;
-	procesosActivos[posicion_PidBuscado].proximaPaginaAAsignar+=paginas;
+	procesosActivos[posicion_PidBuscado].paginasMaximas+=paginas;
 	pthread_mutex_unlock(&mutex_procesosActivos);
 	return 0;
 }
