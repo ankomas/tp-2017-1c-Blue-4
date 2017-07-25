@@ -122,12 +122,15 @@ int cargarDeMemoria(int socket,uint32_t pid,uint32_t pag, uint32_t off,uint32_t 
 
 	if(send(socket,"R",1,0)==-1){
 		perror("Error socket memoria");
+		return -1;
 	}
 	if(send(socket,&paquete.data_size,sizeof(uint32_t),0)==-1){
 		perror("Error socket memoria");
+		return -1;
 	}
 	if(send(socket,paquete.data,paquete.data_size,0)==-1){
 		perror("Error socket memoria");
+		return -1;
 	}
 
 	free(paquete.data);
@@ -149,6 +152,7 @@ int cargarDeMemoria(int socket,uint32_t pid,uint32_t pag, uint32_t off,uint32_t 
 	res=realloc(res,tamARecibir);
 	if(recv(socket,res,tamARecibir,0)<=0){
 		printf("Error al recibir'n");
+		return -1;
 	}
 
 	//paquete=deserializar(&pointer,res);

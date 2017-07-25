@@ -149,7 +149,7 @@ void dummy_finalizar(void){
 t_valor_variable dummy_dereferenciar(t_puntero puntero) {
 	if(finPrograma_global!='Y')
 		return -1;
-	t_valor_variable res;
+	t_valor_variable res,valor;
 	t_pos pos;
 
 	if(puntero==NO_EXISTE_VARIABLE)
@@ -159,7 +159,7 @@ t_valor_variable dummy_dereferenciar(t_puntero puntero) {
 
 	printf("Llamada a "YEL"DEREFERENCIAR"RESET" Pag %i Off %i\n",pos.pag,pos.off);
 	pos.size=4;
-	res=pedirAMemoria(&pcb_global,pos);
+	res=pedirAMemoria(&pcb_global,pos,&valor);
 
 	if(res==-1){
 		printf("ERROR: fallo al leer en memoria\n");
@@ -167,9 +167,9 @@ t_valor_variable dummy_dereferenciar(t_puntero puntero) {
 		printf("\n");
 		return NO_EXISTE_VARIABLE;
 	}
-	printf("Valor obtenido en DEREFERENCIAR: %i\n",res);
+	printf("Valor obtenido en DEREFERENCIAR: %i\n",valor);
 	printf("\n");
-	return res;
+	return valor;
 }
 
 void dummy_asignar(t_puntero puntero, t_valor_variable variable) {

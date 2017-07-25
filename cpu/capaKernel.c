@@ -389,6 +389,10 @@ int moverCursor(uint32_t fd,uint32_t nuevaPos){
 	send(kernel,&nuevaPos,sizeof(uint32_t),0);
 	recv(kernel,&res,1,0);//recibo Y
 
+	if(res=='Y')
+		return 1;
+	else
+		return -1;
 }
 
 int leerArchivo(uint32_t fd, uint32_t tamanio){

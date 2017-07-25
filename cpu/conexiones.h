@@ -21,8 +21,8 @@ struct data_socket crearSocket(int, char* );
 int enviarMensaje(int ,char*,int );
 int conectar(char* , char* ,int );
 void cerrarConexion(int );
-int pedirAMemoria(t_pcb2* pcb,t_pos pos);
-int asignarAMemoria(t_pos pos,uint32_t valor);
+int pedirAMemoria(t_pcb2* pcb,t_pos pos,int32_t *valor);
+int asignarAMemoria(t_pos pos,int32_t valor);
 void standby(int );
 t_pcb2 testPCB();
 
