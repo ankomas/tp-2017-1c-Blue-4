@@ -52,6 +52,9 @@ void imprimirDescripcionError(int error){
 		case -10:
 			textoAzul("La cpu que estaba ejecutando el programa se desconecto");
 			break;
+		case -11:
+			textoAzul("Programa eliminado por el usuario");
+			break;
 		case -20:
 			textoAzul("Error sin definicion");
 			break;

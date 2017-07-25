@@ -224,7 +224,40 @@ void *consolaKernel(){
 			scanf("%d", &opcionInt);
 			t_programa* programaEncontrado = encontrarProgramaPorPID(opcionInt);
 			if(programaEncontrado != NULL){
-				//finalizar programa
+				pthread_mutex_lock(&mutex_colasPlanificacion);
+
+				bool _condicion3(t_programa* self){
+					return self->pcb->pid==programaEncontrado->pcb->pid;
+				}
+				t_programa * programaExit = list_find(procesosEXIT->elements,(void*)_condicion3);
+				if(programaExit == NULL){
+					t_programa * programaRunning = list_find(procesosEXEC->elements,(void*)_condicion3);
+					t_programa * programaNew = list_find(procesosNEW->elements,(void*)_condicion3);
+					t_programa * programaBlock = list_find(procesosBLOCK->elements,(void*)_condicion3);
+					t_programa * programaReady = list_find(procesosREADY->elements,(void*)_condicion3);
+
+					if(programaRunning != NULL){
+						programaEncontrado->debeFinalizar = 1;
+						programaEncontrado->pcb->exitCode = -11;
+					} else if(programaNew != NULL){
+						moverPrograma(programaEncontrado,procesosNEW,procesosEXIT);
+					} else {
+
+						int resFinalizarPrograma = finalizarProcesoMemoria(programaEncontrado->pcb->pid,false);
+
+						if(resFinalizarPrograma == 0){
+							log_trace(logger,"Un programa ha sido movido a EXIT");
+							cantidadMemoryLeak(programaEncontrado);
+						} else {
+							log_trace(logger,"Excepcion de memoria. No se pudo liberar recursos del programa");
+							programaEncontrado->pcb->exitCode = -5;
+						}
+					}
+
+				} else {
+					anuncio("No se puede finalizar un programa ya finalizado");
+				}
+				pthread_mutex_unlock(&mutex_colasPlanificacion);
 			}
 		} else if(opcion[0] == DETENER_PLANIFICACION){
 			mostrarYAgregarRuta(rutaOpciones," >> Cambiar el estado de planificacion");
