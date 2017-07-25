@@ -26,7 +26,7 @@ endif
 all: libparser.so
 
 dependents:
-	-cd /home/utnso/workspace/tp-2017-1c-Blue-4/commons/Debug && $(MAKE) all
+	-cd /home/utnso/workspace/tp-2017-1c-Blue-4/commons/Debug && $(MAKE) clean all
 
 # Tool invocations
 libparser.so: $(OBJS) $(USER_OBJS) /home/utnso/workspace/tp-2017-1c-Blue-4/commons/Debug/libcommons.so
