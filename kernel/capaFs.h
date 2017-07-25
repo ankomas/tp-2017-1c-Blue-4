@@ -41,4 +41,5 @@ bool tienePermisos(char acceso,char*permisos);
 char* recibirPath(uint32_t i);
 char* recibirPermisos(uint32_t i);
 void cantidadMemoryLeak(t_programa* unPrograma);
+void moverPunteroFD(uint32_t i,t_programa * unPrograma);
 #endif /* CAPAFS_H_ */

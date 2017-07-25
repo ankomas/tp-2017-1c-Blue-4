@@ -507,6 +507,11 @@ void* cpu(t_cpu * cpu){
 					cerrarFD(cpu->id,proximoPrograma);
 					pthread_mutex_unlock(&mutex_fs);
 					proximoPrograma->cantidadSyscallsEjecutadas++;
+				} else if(res[0] == 'm'){
+					pthread_mutex_lock(&mutex_fs);
+					moverPunteroFD(cpu->id,proximoPrograma);
+					pthread_mutex_unlock(&mutex_fs);
+					proximoPrograma->cantidadSyscallsEjecutadas++;
 				} else if(res[0] == 'l'){
 					pthread_mutex_lock(&mutex_fs);
 					leerFD(cpu->id,proximoPrograma);
