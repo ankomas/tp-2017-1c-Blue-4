@@ -647,10 +647,10 @@ t_programa* planificador(t_programa* unPrograma,t_cpu* cpu,uint32_t confirmado){
 			t_programa* aux = NULL;
 			usleep(100);
 			if(encontrarCPU(cpu->id) == NULL){
-				log_error(logger,"Se esta por eliminar una CPU...");
+				/*log_error(logger,"Se esta por eliminar una CPU...");
 				eliminarSiHayCPU(cpu->id);
 				pthread_exit(&cpu->hilo);
-				pthread_mutex_unlock(&mutex_colasPlanificacion);
+				pthread_mutex_unlock(&mutex_colasPlanificacion);*/
 				return NULL;
 			}else{
 				if(confirmado == 0){

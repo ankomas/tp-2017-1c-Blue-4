@@ -13,6 +13,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <signal.h>
 
 #include <pthread.h>
 #include <blue4-lib.h>
@@ -414,7 +415,9 @@ void eliminarPaginaDe(int socket)
 }
 
 
+void manejarProgramaCaido(){
 
+}
 void operacionesMemoria(int socket)
 {
 	//pthread_mutex_lock(&mutex_operacion);
@@ -427,7 +430,7 @@ void operacionesMemoria(int socket)
 			printf("se desconecto el cliente : %d",socket);
 			return;
 		}
-
+	signal(SIGPIPE, manejarProgramaCaido);
 	printf(" \n %s LLEGUE A OPERACIONES MEMORIA con %c %s \n",KBLU, cop,KNRM);
 	switch(cop)
 	{
