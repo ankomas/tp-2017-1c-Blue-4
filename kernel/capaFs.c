@@ -304,6 +304,35 @@ bool borrarFD(uint32_t i,t_programa* unPrograma){
 	return 0;
 }
 
+void moverPunteroFD(uint32_t i,t_programa * unPrograma) {
+	uint32_t fd = 0;
+	recv(i,&fd,sizeof(uint32_t),MSG_WAITALL);
+	send(i,"Y",1,0);
+
+	uint32_t posicion = 0;
+	recv(i,&posicion,sizeof(uint32_t),MSG_WAITALL);
+
+
+	uint32_t auxFDTAP = buscarFDArchivoPorId(fd,unPrograma);
+	if(auxFDTAP != 9999){
+		t_entradaTAP* entradaFD = list_get(unPrograma->tablaArchivosPrograma,auxFDTAP);
+		if(entradaFD != NULL){
+			entradaFD->cursor = posicion;
+			log_trace(logger,"Cursor movido correctamente");
+			send(i,"Y",1,0);
+		} else {
+			log_error(logger,"No se pudo mover el cursor");
+			unPrograma->pcb->exitCode = -2;
+			send(i,"N",1,0);
+		}
+	} else {
+		log_error(logger,"No se pudo mover el cursor");
+		unPrograma->pcb->exitCode = -2;
+		send(i,"N",1,0);
+	}
+
+}
+
 bool cerrarFD(uint32_t i, t_programa* unPrograma){
 	uint32_t fd = 0;
 	recv(i,&fd,sizeof(fd),MSG_WAITALL);

@@ -17,38 +17,51 @@
 #include <signal.h>
 #include <sys/socket.h>
 
-const int EXIT_OK = 1;
-//El programa finalizó correctamente.
-
-const int EXIT_RESOURCES_NOT_ASSIGNED = -1;
-//No se pudieron reservar recursos para ejecutar el programa.
-
-const int EXIT_FILE_DOES_NOT_EXIST = -2;
-//El programa intentó acceder a un archivo que no existe.
-
-const int EXIT_UNAUTHORIZED_READ = -3;
-//El programa intentó leer un archivo sin permisos.
-
-const int EXIT_UNAUTHORIZED_WRITE = -4;
-//El programa intentó escribir un archivo sin permisos.
-
-const int EXIT_MEMORY_EXCEPTION = -5;
-//Excepción de memoria.
-
-const int EXIT_CONSOLE_DISCONNECTED = -6;
-//Finalizado a través de desconexión de consola.
-
-const int EXIT_CONSOLE_TERMINATED = -7;
-//Finalizado a través del comando Finalizar Programa de la consola.
-
-const int EXIT_MAX_SIZE_PAGE_OVERFLOW = -8;
-//Se intentó reservar más memoria que el tamaño de una página
-
-const int EXIT_MAX_AMOUNT_PAGES_PROCESS = -9;
-//No se pueden asignar más páginas al proceso
-
-const int EXIT_NOT_DEFINED = -20;
-//Error sin definición
+void imprimirDescripcionError(int error){
+	switch(error){
+		case 0:
+			textoAzul("El programa finalizo correctamente");
+			break;
+		case -1:
+			textoAzul("No se pudieron reservar recursos para ejecutar el programa.");
+			break;
+		case -2:
+			textoAzul("El programa intento acceder a un archivo que no existe.");
+			break;
+		case -3:
+			textoAzul("El programa intento leer un archivo sin permisos.");
+			break;
+		case -4:
+			textoAzul("El programa intento escribir un archivo sin permisos.");
+			break;
+		case -5:
+			textoAzul("Excepcion de memoria.");
+			break;
+		case -6:
+			textoAzul("Finalizado a traves de desconexión de consola.");
+			break;
+		case -7:
+			textoAzul("Finalizado a traves del comando Finalizar Programa de la consola.");
+			break;
+		case -8:
+			textoAzul("Se intentó reservar mas memoria que el tamaño de una pagina");
+			break;
+		case -9:
+			textoAzul("No se pueden asignar mas páginas al proceso");
+			break;
+		case -10:
+			textoAzul("La cpu que estaba ejecutando el programa se desconecto");
+			break;
+		case -11:
+			textoAzul("Programa eliminado por el usuario");
+			break;
+		case -20:
+			textoAzul("Error sin definicion");
+			break;
+		default:
+			break;
+	}
+}
 
 char *algoritmoPlanificador;
 
@@ -383,10 +396,10 @@ void* cpu(t_cpu * cpu){
 						free(res);
 						res=NULL;
 					}
-					if(proximoPrograma->pcb->exitCode == EXIT_OK){
+					if(proximoPrograma->pcb->exitCode == 0){
 						anuncio("Programa finalizo con exito");
 					} else if(proximoPrograma->pcb->exitCode < 0){
-						anuncio(concat(2,"Ocurrio un error #",string_itoa(proximoPrograma->pcb->exitCode)));
+						imprimirDescripcionError(proximoPrograma->pcb->exitCode);
 					}
 
 					send(proximoPrograma->id,"F",1,0);
@@ -494,6 +507,11 @@ void* cpu(t_cpu * cpu){
 					cerrarFD(cpu->id,proximoPrograma);
 					pthread_mutex_unlock(&mutex_fs);
 					proximoPrograma->cantidadSyscallsEjecutadas++;
+				} else if(res[0] == 'm'){
+					pthread_mutex_lock(&mutex_fs);
+					moverPunteroFD(cpu->id,proximoPrograma);
+					pthread_mutex_unlock(&mutex_fs);
+					proximoPrograma->cantidadSyscallsEjecutadas++;
 				} else if(res[0] == 'l'){
 					pthread_mutex_lock(&mutex_fs);
 					leerFD(cpu->id,proximoPrograma);
@@ -531,20 +549,31 @@ void* cpu(t_cpu * cpu){
 }
 
 void* programa(t_programa *programa){
-	char * charsito = malloc(1);
-	recv(programa->id,charsito,1,0);
-	if(recv(programa->id,charsito,1,0) <= 0){programa->pcb->exitCode = -6;}
-	if(charsito[0] == 'F'){programa->pcb->exitCode = -7;}
 
+	char * charsito = malloc(1);
+	int rev = recv(programa->id,charsito,1,0);
 	pthread_mutex_lock(&mutex_colasPlanificacion);
+	bool _condicion3(t_programa* self){
+		return self->pcb->pid==programa->pcb->pid;
+	}
+	t_programa * aux = list_find(procesosEXIT->elements,(void*)_condicion3);
+	if(charsito[0] == 'F' && aux == NULL){
+		programa->pcb->exitCode = -7;
+		test("A");
+	}
+	if(rev <= 0 && aux == NULL){
+		test("B");
+		programa->pcb->exitCode = -6;
+	}
+
 	int resFinalizarPrograma = finalizarProcesoMemoria(programa->pcb->pid,false);
 
 	if(resFinalizarPrograma == 0){
 		log_trace(logger,"Un programa ha sido movido a EXIT");
 		cantidadMemoryLeak(programa);
 	} else {
-		log_trace(logger,"Excepcion de memoria. No se pudo liberar recursos del programa");
-		programa->pcb->exitCode = -5;
+		//log_trace(logger,"Excepcion de memoria. No se pudo liberar recursos del programa");
+		//programa->pcb->exitCode = -5;
 	}
 	pthread_mutex_unlock(&mutex_colasPlanificacion);
 	return NULL;
