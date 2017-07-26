@@ -496,6 +496,7 @@ char* leerFD(uint32_t i,t_programa* unPrograma){
 				log_trace(logger,"Se leyo un archivo correctamente");
 				log_trace(logger,aux->archivo);
 				send(i,"Y",1,0);
+				sendall(i,contenido,&tamanio); 
 				return contenido;
 			}else{
 				log_error(logger,"No se pudo leer un archivo correctamente");
