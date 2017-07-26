@@ -287,7 +287,7 @@ t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual){
 	nuevoProceso->pcb->ultimaPosUsada.pag=cantidadPaginasCodigo;
 
 	pthread_mutex_lock(&mutex_colasPlanificacion);
-	if(gradoMultiprogramacion+queue_size(procesosEXIT) >= cantidadProgramasEnSistema){
+	if(gradoMultiprogramacion > cantidadProgramasEnSistema-queue_size(procesosEXIT)-queue_size(procesosNEW)){
 		encolarReady(nuevoProceso);
 	}else{
 		/*if(send(i,"N",1,0) < 1)
@@ -621,6 +621,14 @@ t_programa* planificador(t_programa* unPrograma,t_cpu* cpu,uint32_t confirmado){
 		cfgActualizada = config_create(rutaConfigActualizada);
 	}
 
+	// Si la multiprogramacion me lo permite, saco los procesos de NEW y los mando a READY
+	if(queue_size(procesosNEW) > 0 && gradoMultiprogramacion > cantidadProgramasEnSistema-queue_size(procesosEXIT)-queue_size(procesosNEW)){
+		log_trace(logger,"Moviendo el proceso de New a READY");
+		t_programa* aux = queue_pop(procesosNEW);
+		encolarReady(aux);
+		unPrograma = NULL;
+	}
+
 	if(queue_size(procesosREADY)>0 || unPrograma !=NULL){
 		int quedaQuantum = 1;
 
@@ -680,11 +688,6 @@ t_programa* planificador(t_programa* unPrograma,t_cpu* cpu,uint32_t confirmado){
 
 				}
 			}
-		} else if(queue_size(procesosNEW) > 0 && gradoMultiprogramacion+queue_size(procesosEXIT) >= cantidadProgramasEnSistema){
-			log_trace(logger,"Moviendo el proceso de New a READY");
-			t_programa* aux = queue_pop(procesosNEW);
-			encolarReady(aux);
-			unPrograma = NULL;
 		} else {
 			unPrograma = NULL;
 		}
