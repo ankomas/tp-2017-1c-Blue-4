@@ -195,16 +195,12 @@ t_cpu* indiceProximaCPULibre(){
 }
 
 t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual){
-	//Recibo codigo
-	printf("Codigo OP: A\n");
-	//char* tamanioCodigoString = malloc(4/*+1*/);
-	uint32_t tamanioCodigo;/* = atoi(tamanioCodigoString);*/
-	//memset(tamanioCodigoString,0,5);
+	uint32_t tamanioCodigo;
 	if(recv(i,&tamanioCodigo,4,MSG_WAITALL) < 0)
-		printf("Error al recibir el tamanio de codigo");
+		log_error(logger,"Error al recibir el tamanio de codigo de nuevo programa");
 
 	//memcpy(&tamanioCodigo,tamanioCodigoString,4);
-	printf("Tamanio codigo de %i: %i\n",i,tamanioCodigo);
+	//log_info("Tamanio codigo de %i: %i\n",i,tamanioCodigo);
 	char* codigo;/* = malloc(tamanioCodigo);*/
 
 	//todo verificar logica
@@ -217,7 +213,7 @@ t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual){
 	//codigo=calloc(1,tamanioCodigo);
 
 	if(recv(i,codigo,tamanioCodigo,MSG_WAITALL) < 0)
-		printf("Error al recibir el codigo");
+		log_error(logger,"Error al recibir el codigo de nuevo programa");
 
 	//Envio PID a consola
 	enviarPID(i);
@@ -258,9 +254,9 @@ t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual){
 
 	uint32_t cantidadPaginasCodigo = 0;
 	if(tamanioPagina == -1)
-		anuncio("No se pueden cargar procesos porque la memoria no esta conectada");
+		log_error(logger,"No se pueden cargar procesos porque la memoria no esta conectada");
 	else if(tamanioPagina == 0)
-		anuncio("El tamanio de una pagina no puede ser 0");
+		log_error(logger,"El tamanio de una pagina no puede ser 0");
 	else{
 		//todo verificar logica
 		if(tamanioCodigo%tamanioPagina!=0)
@@ -269,19 +265,12 @@ t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual){
 			cantidadPaginasCodigo = tamanioCodigo/tamanioPagina;
 	}
 
-	printf("PID: %i, Cantidad de paginas de codigo: %i\n",nuevoPCB->pid,cantidadPaginasCodigo);
+	log_info(logger,"PID: %i, Cantidad de paginas de codigo: %i\n",nuevoPCB->pid,cantidadPaginasCodigo);
 
 	if(cantidadPaginasCodigo == 0)
 		killme();
 
 	nuevoProceso->codigo = codigo;
-/*
-	int wtf;
-	printf("\n");
-	for(wtf=0;wtf<535;wtf++)
-		printf("%c",nuevoProceso->codigo[wtf]);
-	printf("\n");
-	*/
 	nuevoProceso->paginasCodigo = cantidadPaginasCodigo;
 	nuevoProceso->pcb->cantPagCod= cantidadPaginasCodigo;
 	nuevoProceso->pcb->ultimaPosUsada.pag=cantidadPaginasCodigo;
@@ -315,6 +304,9 @@ void liberarCPU(t_cpu* cpu, t_programa* programaDeCPU){
 			programaDeCPU->pcb->exitCode = -5;
 		}
 		pthread_mutex_unlock(&mutex_colasPlanificacion);
+		pthread_mutex_lock(&mutex_fs);
+		cerrarFD(cpu->id, programaDeCPU);
+		pthread_mutex_unlock(&mutex_fs);
 		eliminarSiHayCPU(cpu->id);
 		programaDeCPU->pcb->exitCode= -10;
 		send(programaDeCPU->id,"F",1,0);
@@ -322,9 +314,7 @@ void liberarCPU(t_cpu* cpu, t_programa* programaDeCPU){
 	}
 
 void* cpu(t_cpu * cpu){
-
-
-	printf("cpu: %i\n",cpu->id);
+	//log_info("Cpu: #%i\n",cpu->id);
 	t_programa * proximoPrograma;
 	t_programa * preConfirmacion;
 	pthread_mutex_lock(&mutex_colasPlanificacion);
@@ -407,26 +397,6 @@ void* cpu(t_cpu * cpu){
 
 					if(finalizarProcesoMemoria(proximoPrograma->pcb->pid,true) == 0){
 						char * string = concat(3,"Moviendo el proceso ",string_itoa(proximoPrograma->pcb->pid)," a EXIT");
-
-
-						//todo ponerlo donde debe
-						printf("Calculando memory leak: \n");
-						//pregunto si hay elementos en la lista
-						if(list_size(proximoPrograma->paginasHeap)>0){
-							//hay elementos, entonces hay memory leak
-							int memoryLeak=0;
-							void _sumador(t_heap* elem){
-								memoryLeak+=tamanioPagina-elem->tamDisp;
-							}
-							list_iterate(proximoPrograma->paginasHeap,(void*)_sumador);
-							printf("El memory leak es de: %i\n",memoryLeak);
-						}else{
-							//no hay elementos, no hay memory leak
-							printf("No hay memory leaks\n");
-						}
-						printf("Bytes alocados(%i): %i\n",proximoPrograma->cantidadAlocarEjecutados,proximoPrograma->cantidadAlocarEjecutadosBytes);
-						printf("Bytes liberados(%i): %i\n",proximoPrograma->cantidadLiberarEjecutados,proximoPrograma->cantidadLiberarEjecutadosBytes);
-
 						cantidadMemoryLeak(proximoPrograma);
 						log_trace(logger,string);
 						free(string);
@@ -442,7 +412,7 @@ void* cpu(t_cpu * cpu){
 						liberarCPU(cpu,proximoPrograma);
 
 					res=realloc(res,tamARecibir);
-					printf("Tam a recibir: %i\n",tamARecibir);
+					log_info(logger,"Tam PCB a recibir: %i\n",tamARecibir);
 					log_trace(logger,"PCB RECIBIDO DEL CPU");
 					if(recv(cpu->id,res,tamARecibir,MSG_WAITALL) <= 0)
 						liberarCPU(cpu,proximoPrograma);
@@ -471,17 +441,25 @@ void* cpu(t_cpu * cpu){
 
 				}else if(res[0] == 'S'){
 					pthread_mutex_lock(&mutex_colasPlanificacion);
+					log_trace(logger,"Llamada a SIGNAL");
 					semSignal(cpu->id);
 					proximoPrograma->cantidadSyscallsEjecutadas++;
 					pthread_mutex_unlock(&mutex_colasPlanificacion);
 				} else if(res[0] == 'A'){
+					pthread_mutex_lock(&mutex_varGlobales);
+					log_trace(logger,"Llamada a Guardar Var Global");
 					guardarVarGlobal(cpu->id);
 					proximoPrograma->cantidadSyscallsEjecutadas++;
+					pthread_mutex_unlock(&mutex_varGlobales);
 				}  else if(res[0] == 'O'){
+					pthread_mutex_lock(&mutex_varGlobales);
+					log_trace(logger,"Llamada a Leer Var Global");
 					leerVarGlobal(cpu->id);
 					proximoPrograma->cantidadSyscallsEjecutadas++;
+					pthread_mutex_unlock(&mutex_varGlobales);
 				} else if(res[0] == 'W'){
 					pthread_mutex_lock(&mutex_colasPlanificacion);
+					log_trace(logger,"Llamada a WAIT");
 					proximoPrograma->cantidadSyscallsEjecutadas++;
 					if(semWait(cpu->id,proximoPrograma->pcb->pid,proximoPrograma)){
 						proximoPrograma = NULL;
@@ -490,43 +468,52 @@ void* cpu(t_cpu * cpu){
 					}
 					pthread_mutex_unlock(&mutex_colasPlanificacion);
 				} else if(res[0] == 'H'){
+					log_trace(logger,"Llamada a Leer Heap");
 					leerHeap(cpu->id);
 					proximoPrograma->cantidadSyscallsEjecutadas++;
 				} else if(res[0] == 'a'){
 					pthread_mutex_lock(&mutex_fs);
+					log_trace(logger,"Llamada a AbrirFD");
 					abrirFD(cpu->id,proximoPrograma);
 					pthread_mutex_unlock(&mutex_fs);
 					proximoPrograma->cantidadSyscallsEjecutadas++;
 				} else if(res[0] == 'b'){
 					pthread_mutex_lock(&mutex_fs);
+					log_trace(logger,"Llamada a BorrarFD");
 					borrarFD(cpu->id,proximoPrograma);
 					pthread_mutex_unlock(&mutex_fs);
 					proximoPrograma->cantidadSyscallsEjecutadas++;
 				} else if(res[0] == 'c'){
 					pthread_mutex_lock(&mutex_fs);
+					log_trace(logger,"Llamada a CerrarFD");
 					cerrarFD(cpu->id,proximoPrograma);
 					pthread_mutex_unlock(&mutex_fs);
 					proximoPrograma->cantidadSyscallsEjecutadas++;
 				} else if(res[0] == 'm'){
 					pthread_mutex_lock(&mutex_fs);
+					log_trace(logger,"Llamada a MoverPunteroFD");
 					moverPunteroFD(cpu->id,proximoPrograma);
 					pthread_mutex_unlock(&mutex_fs);
 					proximoPrograma->cantidadSyscallsEjecutadas++;
 				} else if(res[0] == 'l'){
 					pthread_mutex_lock(&mutex_fs);
+					log_trace(logger,"Llamada a LeerFD");
 					leerFD(cpu->id,proximoPrograma);
 					pthread_mutex_unlock(&mutex_fs);
 					proximoPrograma->cantidadSyscallsEjecutadas++;
 				} else if(res[0] == 'e'){
 					pthread_mutex_lock(&mutex_fs);
+					log_trace(logger,"Llamada a EscribirFD");
 					escribirFD(cpu->id,proximoPrograma);
 					pthread_mutex_unlock(&mutex_fs);
 					proximoPrograma->cantidadSyscallsEjecutadas++;
 				} else if(res[0] == 'G'){
 					//guardarEnHeap(cpu->id,proximoPrograma->paginasHeap,&proximoPrograma->id);
+					log_trace(logger,"Llamada a GuardarHeap");
 					guardarHeapNico(cpu->id,proximoPrograma);
 					proximoPrograma->cantidadSyscallsEjecutadas++;
 				} else if(res[0] == 'L'){
+					log_trace(logger,"Llamada a LiberarHeap");
 					liberarHeapNico(cpu->id,proximoPrograma);
 					proximoPrograma->cantidadSyscallsEjecutadas++;
 				}

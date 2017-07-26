@@ -64,7 +64,7 @@ void inicializarVariablesCompartidas() {
 	int* valInicial=NULL;
 
 	while (varCompartidas_ids[aux]){
-		printf("Agregado a VARIABLES COMPARTIDAS: %s\n",varCompartidas_ids[aux]);
+		log_info(logger,"Agregado a VARIABLES COMPARTIDAS: %s\n",varCompartidas_ids[aux]);
 		valInicial=malloc(sizeof(int));
 		*valInicial=0;
 		dictionary_put(variablesCompartidas,string_substring_from(varCompartidas_ids[aux],1),valInicial);
@@ -142,8 +142,8 @@ int cargarDeMemoria(int socket,uint32_t pid,uint32_t pag, uint32_t off,uint32_t 
 	package_t paquete;
 	char* res;
 	//mandar cop y paquete
-	printf("Leyendo de memoria:\n");
-	printf("PID: %i, PAG: %i, OFF: %i, SIZE: %i\n",pid,pag,off,size);
+	log_info(logger,"Leyendo de memoria:\n");
+	//log_info("PID: %i, PAG: %i, OFF: %i, SIZE: %i\n",pid,pag,off,size);
 	paquete=serializar(8,
 			sizeof(uint32_t),&pid,
 			sizeof(uint32_t),&pag,
@@ -166,9 +166,9 @@ int cargarDeMemoria(int socket,uint32_t pid,uint32_t pag, uint32_t off,uint32_t 
 	res=malloc(1);
 
 	recv(socket,res,1,0);
-	printf("Leyendo de memoria, respuesta: %c\n",res[0]);
+	//log_info("Leyendo de memoria, respuesta: %c\n",res[0]);
 	if(res[0]=='N'){
-		printf("Error al recibir contenido de la memoria\n");
+		log_error(logger,"Error al recibir contenido de la memoria\n");
 		free(res);
 		return -1;
 	}
@@ -176,10 +176,10 @@ int cargarDeMemoria(int socket,uint32_t pid,uint32_t pag, uint32_t off,uint32_t 
 	recv(socket,res,sizeof(uint32_t),0);
 	memcpy(&tamARecibir,res,sizeof(uint32_t));*/
 	tamARecibir=size;
-	printf("Leyendo de memoria, tamanio a recibir: %i\n",tamARecibir);
+	log_info(logger,"Leyendo de memoria, tamanio a recibir: %i\n",tamARecibir);
 	res=realloc(res,tamARecibir);
 	if(recv(socket,res,tamARecibir,0)<=0){
-		printf("Error al recibir'n");
+		log_error(logger,"Error al recibir'n");
 	}
 
 	//paquete=deserializar(&pointer,res);
@@ -384,12 +384,12 @@ void leerVarGlobal(uint32_t i){
 	//Existe, sigo
 
 	if(send(i,"Y",1,0) < 0)
-		anuncio("Ocurrio un problema al enviar un valor de variable global");
+		log_error(logger,"Ocurrio un problema al enviar un valor de variable global");
 
 	int32_t res = *(int32_t*)dictionary_get(variablesCompartidas,rev);
-	printf("Valor de la variable global a enviar: %i\n",*(int32_t*)dictionary_get(variablesCompartidas,rev));
+	log_info(logger,"Valor de la variable global a enviar: %i\n",*(int32_t*)dictionary_get(variablesCompartidas,rev));
 	if(sendall(i, (char*)&res, &tamInt) < 0)
-		anuncio("Ocurrio un problema al enviar un valor de variable global");
+		log_error(logger,"Ocurrio un problema al enviar un valor de variable global");
 	free(rev);
 	//free(res);
 }
@@ -427,7 +427,7 @@ void guardarVarGlobal(uint32_t i){
 	free(aux);
 	aux=NULL;
 
-	printf("%i,%i\n",dictionary_has_key(variablesCompartidas,rev),dictionary_has_key(variablesCompartidas,"Ca"));
+	log_info(logger,"%i,%i\n",dictionary_has_key(variablesCompartidas,rev),dictionary_has_key(variablesCompartidas,"Ca"));
 	if(dictionary_has_key(variablesCompartidas,rev)!=true){
 		log_error(logger,"La variable global no existe");
 		if(send(i,"N",1,0) < 0)
@@ -438,7 +438,7 @@ void guardarVarGlobal(uint32_t i){
 
 	// Existe, ingresar nuevo valor
 
-	printf("Nuevo valor var: %i, rev: %s\n",*nuevoValorVar,rev);
+	log_info(logger,"Nuevo valor var: %i, rev: %s\n",*nuevoValorVar,rev);
 	if(dictionary_has_key(variablesCompartidas,rev)){
 		int *aux;
 		aux=dictionary_remove(variablesCompartidas,rev);

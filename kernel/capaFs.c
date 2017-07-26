@@ -19,14 +19,12 @@ bool mandarOperacionFS(char* opcode,char* path,uint32_t tamPath,char* error){
 
 	char* tamPathStream = intToStream(tamPath);
 	if(sendall(idFS,tamPathStream, &tamuint) < 0){
-		printf("11\n");
 		log_error(logger,error);
 		return 0;
 	}
 	free(tamPathStream);
 
 	if(sendall(idFS,path, &tamPath) < 0){
-		printf("2\n");
 		log_error(logger,error);
 		return 0;
 	}
@@ -75,7 +73,7 @@ char* continuacionPeticionLectura(uint32_t cpu,uint32_t offset,uint32_t size,cha
 
 		return rev;
 	}
-	printf("Respuesta del FS: %s\n",rev);
+	log_info(logger,"Respuesta del FS: %s\n",rev);
 
 	return NULL;
 }
@@ -85,7 +83,7 @@ bool continuacionPeticionEscritura(uint32_t cpu,uint32_t offset,uint32_t size,ch
 		char * rev = NULL;
 		uint32_t tamAMandar=sizeof(uint32_t);
 
-		printf("OFFSET: %i SIZE: %i\n",offset,size);
+		log_info("OFFSET: %i SIZE: %i\n",offset,size);
 		package_t pk=serializar(4,
 				sizeof(uint32_t),&offset,
 				sizeof(uint32_t),&size
@@ -178,13 +176,12 @@ void imprimirPorConsola(uint32_t socket,char*data,uint32_t tamanio){
 }
 
 uint32_t abrirFD(uint32_t i,t_programa* unPrograma){
-	log_trace(logger,"Llamada a ABRIR FD");
 	char* path = recibirPath(i);
 	char* permisos = recibirPermisos(i);
 
 	if(path == NULL || permisos == NULL){
 		send(i,"N",1,0);
-		printf("path: %p, permisos: %p\n",path,permisos);
+		log_info("path: %p, permisos: %p\n",path,permisos);
 		log_error(logger,"Path NULL o permisos NULL");
 		return 9999;
 	}
@@ -254,7 +251,7 @@ bool borrarFD(uint32_t i,t_programa* unPrograma){
 	uint32_t auxFDTAP = buscarFDArchivoPorId(fd,unPrograma);
 	t_entradaTAP* entradaFD = list_get(unPrograma->tablaArchivosPrograma,auxFDTAP);
 	uint32_t indiceGlobalFD = entradaFD->globalFD;
-	printf("FD: %i, indiceGlobalFD: %i\n",fd,indiceGlobalFD);
+	log_info("FD: %i, indiceGlobalFD: %i\n",fd,indiceGlobalFD);
 	if(indiceGlobalFD != 9999){
 		bool _condicion3(t_entradaTGA* self){
 			return self->indice==indiceGlobalFD;
@@ -364,7 +361,6 @@ bool cerrarFD(uint32_t i, t_programa* unPrograma){
 }
 
 bool escribirFD(uint32_t i,t_programa* unPrograma){
-	log_trace(logger,"Dentro de la funcion escribirFD");
 	uint32_t fd = 0;
 	recv(i,&fd,sizeof(uint32_t),MSG_WAITALL);
 	send(i,"Y",1,0);
@@ -450,7 +446,6 @@ bool escribirFD(uint32_t i,t_programa* unPrograma){
 }
 
 char* leerFD(uint32_t i,t_programa* unPrograma){
-	log_trace(logger,"Dentro de la funcion leerFD");
 	uint32_t fd = 0;
 	recv(i,&fd,sizeof(uint32_t),MSG_WAITALL);
 	send(i,"Y",1,0);
@@ -533,7 +528,6 @@ uint32_t buscarFDPorId(uint32_t id){
 	int contador = 0;
 	while(contador < list_size(tablaGlobalArchivos)){
 		t_entradaTGA * aux = list_get(tablaGlobalArchivos,contador);
-		printf("Comparando %i con ID %i\n",aux->indice,id);
 		if(aux->indice == id){
 			return id;
 		}
