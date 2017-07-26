@@ -141,7 +141,7 @@ int asignarEnPagHeap(t_programa *programa,uint32_t pag, uint32_t tam){
 	t_pos pos;
 	t_heap* heapKernel;
 
-	while(offset<=tamanioPagina){
+	while(offset<=tamanioPagina-metadataHeap_tam()){
 	metadata=buscarMetadataHeap(programa->pcb->pid,pag,offset);
 	visualizarMetadata(metadata);
 
@@ -229,7 +229,6 @@ t_puntero allocEnHeap(t_programa *programa,uint32_t tam){
 	}
 
 	while(res==-1){
-		//todo hacelo bien
 		printf("\n");
 		pag=buscarPaginaAdecuada(programa->paginasHeap,tam,&desde,inicioHeap);
 		printf("Res buscar pag adecuada: %i, valor desde: %i\n",pag,desde);
@@ -242,6 +241,7 @@ t_puntero allocEnHeap(t_programa *programa,uint32_t tam){
 		}
 
 		res=asignarEnPagHeap(programa,pag,tam);
+		desde++;
 	}
 
 	return res;
