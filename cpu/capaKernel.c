@@ -395,7 +395,7 @@ int moverCursor(uint32_t fd,uint32_t nuevaPos){
 		return -1;
 }
 
-int leerArchivo(uint32_t fd, uint32_t tamanio){
+int leerArchivo(uint32_t fd, uint32_t tamanio,char **data){
 	char res;
 	send(kernel,"l",1,0);
 
@@ -407,8 +407,12 @@ int leerArchivo(uint32_t fd, uint32_t tamanio){
 
 	recv(kernel,&res,1,0);//recibo Y o N
 
-	if(res=='Y')
-	return 1;
+
+	if(res=='Y'){
+		*data=malloc(tamanio);
+		recv(kernel,*data,tamanio,0);
+		return 1;
+	}
 	else
 		return -1;
 

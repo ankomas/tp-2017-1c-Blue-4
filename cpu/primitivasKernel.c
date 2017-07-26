@@ -11,6 +11,7 @@
 #include "primitivas.h"
 #include "primitivasKernel.h"
 #include "capaKernel.h"
+#include "capaMemoria.h"
 
 #define RED   "\x1B[31m"
 #define GRN   "\x1B[32m"
@@ -170,8 +171,12 @@ void dummy_moverCursor(t_descriptor_archivo descriptor_archivo, t_valor_variable
 void dummy_escribir(t_descriptor_archivo descriptor_archivo, void* informacion, t_valor_variable tamanio){
 	if(finPrograma_global!='Y')
 		return;
-	int res;
+	int res,i;
 	printf("Llamada a "YEL"ESCRIBIR"RESET" %i,%i\n",descriptor_archivo,tamanio);
+	printf("Info a escribir: ");
+	for(i=0;i<tamanio;i++)
+		printf("%c",((char*)informacion)[i]);
+	printf("\n");
 	res=escribirArchivo(descriptor_archivo,informacion,tamanio);
 
 	if(res==-1){
@@ -182,13 +187,28 @@ void dummy_escribir(t_descriptor_archivo descriptor_archivo, void* informacion, 
 void dummy_leer(t_descriptor_archivo descriptor_archivo, t_puntero informacion, t_valor_variable tamanio){
 	if(finPrograma_global!='Y')
 		return;
-	printf("Llamada a "YEL"LEER"RESET" %i,%i,%i\n",descriptor_archivo,informacion,tamanio);
-	int res;
+	char *data=NULL;
+	t_pos pos=punteroAPos(informacion,tamPag_global);
+	printf("Llamada a "YEL"LEER"RESET" %i,%i (%i,%i),%i\n",descriptor_archivo,informacion,pos.pag,pos.off,tamanio);
+	int res,i;
 
-	res=leerArchivo(descriptor_archivo, tamanio);
+	res=leerArchivo(descriptor_archivo, tamanio, &data);
 
 	if(res==-1){
 		setExitCode(&pcb_global,"error al leer archivo",21);
+		return;
+	}
+
+	printf("Info leida: ");
+	for(i=0;i<tamanio;i++)
+		printf("%c",data[i]);
+	printf("\n");
+
+	res=guardarEnMemoria(memoria,pcb_global.pid,pos.pag,pos.off,tamanio,data);
+	free(data);
+	if(res==-1){
+		setExitCode(&pcb_global,"fallo al escribir en memoria",12);
+		printf("\n");
 	}
 }
 

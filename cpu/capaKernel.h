@@ -30,6 +30,6 @@ int cerrarArchivo(t_descriptor_archivo fd);
 
 int escribirArchivo(t_descriptor_archivo descriptor_archivo, void* informacion, t_valor_variable tamanio);
 int moverCursor(uint32_t fd,uint32_t nuevaPos);
-int leerArchivo(uint32_t fd, uint32_t tamanio);
+int leerArchivo(uint32_t fd, uint32_t tamanio,char **data);
 
 #endif /* CAPAKERNEL_H_ */
