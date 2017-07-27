@@ -44,10 +44,13 @@ int archivoValido(char* path){
 
 int validarArchivo(char* path){ //Completa!
 	if(!archivoValido(path)){
+		log_error(logFS,"Archivo NO Encontrado");
 		perror("Archivo No Encontrado");
 		return -1;
-	} else
+	} else{
+		log_trace(logFS,"Archivo Valido");
 		return 0;
+	}
 }
 
 
@@ -98,7 +101,7 @@ void crearDirectorios(char* path)
 		string_append(&ruta_Archivo,directorio);
 		string_append(&ruta_directorio,"/Archivos");
 		string_append(&ruta_directorio,ruta_Archivo);
-		printf("ruta_directorio: %s \n",ruta_directorio);
+		//printf("ruta_directorio: %s \n",ruta_directorio);
 		crearCarpeta(ruta_directorio);
 		posicion++;
 		free(ruta_directorio);
@@ -145,7 +148,7 @@ int crearArchivo(char* ruta)
  FILE* archivo;
  char *numero_string,*bloques;
  int bloqueLibre=getBloqueLibre();
- printf("bloqueLibre: %i\n", bloqueLibre);
+ //printf("bloqueLibre: %i\n", bloqueLibre);
  if(bloqueLibre<0)return -1;
  //crear Directorios si los hay!!
  crearDirectorios(ruta);
@@ -190,6 +193,7 @@ int crearArchivo(char* path){ //No sabia que hacer
 */
 void borrarArchivo(char* path){
 	if(validarArchivo(path)<0) {
+		log_error(logFS,"NO puede ejecutarse el borrar con este archivo");
 		perror("No se puede borrar un archivo que no existe");
 		return;
 	}
@@ -209,6 +213,7 @@ void borrarArchivo(char* path){
 	remove(ruta);
 	free(ruta);
 	free(info.bloques);
+	log_trace(logFS,"....Archivo borrado correctamente");
 }
 
 
