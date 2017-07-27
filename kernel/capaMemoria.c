@@ -248,7 +248,7 @@ int pedirPagias(uint32_t pid,uint32_t cantPaginas){
 	free(paquete.data);
 
 	recv(idUMC,&res,1,0);
-
+	printf("PEDIR PAGINAS COP: %c\n",res);
 	switch(res){
 	case 'Y':
 		log_trace(logger,"Llamada a PEDIR PAGINAS correcto");

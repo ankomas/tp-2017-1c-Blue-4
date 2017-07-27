@@ -81,9 +81,12 @@ t_metadata_heap streamAMetadataHeap(char* stream){
 }
 
 int nuevaPagHeap(t_programa *programa,uint32_t tam,uint32_t pag){
+	printf("NUEVA PAG HEAP llamando a pedirPaginas PID: %i\n",programa->pcb->pid);
 	int res = pedirPagias(programa->pcb->pid,1);
-	if(res<0)
+	if(res<0){
+		printf("NUEVA PAG HEAP ERROR: pedir paginas error\n");
 		return -1;
+	}
 	uint32_t pagPedida=pag;
 	//crea estructuras
 	t_heap *nuevoHeap=malloc(sizeof(t_heap));
@@ -100,7 +103,12 @@ int nuevaPagHeap(t_programa *programa,uint32_t tam,uint32_t pag){
 	metadataStream=metadataHeapAStream(nuevoMetaHeap);
 
 	printf("NUEVA PAG HEAP Guardar en memoria el metadata\n");
-	guardarEnMemoria(idUMC , programa->pcb->pid,pagPedida,0,metadataHeap_tam(),metadataStream);
+	res=guardarEnMemoria(idUMC , programa->pcb->pid,pagPedida,0,metadataHeap_tam(),metadataStream);
+
+	if(res<0){
+		printf("NUEVA PAG HEAP ERROR: no se pudo guardar en memoria\n");
+		return -1;
+	}
 
 	list_add(programa->paginasHeap,nuevoHeap);
 
