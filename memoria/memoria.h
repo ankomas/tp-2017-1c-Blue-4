@@ -12,6 +12,7 @@
 
 pthread_t mutex_tabla, mutex_memoria;
 pthread_mutex_t mutex_operacion;
+pthread_mutex_t semCacheDisp;
 int32_t contador;
 
 typedef struct {
