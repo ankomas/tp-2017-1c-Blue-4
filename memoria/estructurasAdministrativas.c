@@ -75,19 +75,24 @@ tablaPaginas_t* crearTablaDePaginas(){
 int actualizarMarcosDisponibles(int marcosAUsar)
 {
 	texto_en_color_de_exito("marcos a usar ",marcosAUsar);
+	pthread_mutex_lock(&mutex_marcos);
 	if((configDeMemoria.marcosDisponibles-marcosAUsar)>=0)
 	{
 		configDeMemoria.marcosDisponibles-=marcosAUsar;
 		texto_en_color_de_exito(" marcos disponibles ",configDeMemoria.marcosDisponibles);
+		pthread_mutex_unlock(&mutex_marcos);
 		return 0;
 	}
 	texto_en_color_de_error("NO PUEDO ASIGAR MAS MARCOS!!!");
+	pthread_mutex_unlock(&mutex_marcos);
 	return -1;
 }
 
 void aumentarMarcosDisponibles(int marcosAAumentar)
 {
+	pthread_mutex_lock(&mutex_marcos);
 	configDeMemoria.marcosDisponibles+=marcosAAumentar;
+	pthread_mutex_unlock(&mutex_marcos);
 }
 
 void reservarEstructurasEnTablaDePaginas(tablaPaginas_t* tablaDePaginas){
@@ -153,6 +158,7 @@ tablaCache_t * crearTablaCache(){
 }
 
 int actualizarCacheDisponible(uint32_t marcosAUsar){
+	// todo mutexear y revisar si no me olvido de asignar un marco
 	if((configDeMemoria.cacheDisponible-marcosAUsar)>0)
 		{
 			configDeMemoria.cacheDisponible-=marcosAUsar;

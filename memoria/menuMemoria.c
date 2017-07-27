@@ -20,6 +20,7 @@
 void modificarRetardo()
 {
 	int nuevoRetardo;
+	//todo mutexear retardo!!!
 	texto_en_color_de_exito("El retardo actual es", configDeMemoria.retardo);
 	texto_en_color("\nIngrese el nuevo retardo en ms");
 	scanf("%i", &nuevoRetardo);
@@ -152,10 +153,12 @@ void dump()
 
 void flush()
 {
+	//todo mutexear cache!!!
 	int entradasCache=configDeMemoria.entradasCache;
 	tablaCache_t* tablaCache = (tablaCache_t*)cache;
 	uint32_t marcos_EstructurasAdministrativas = cuantosMarcosRepresenta(tamanioDeTablaCache());
 	int i=marcos_EstructurasAdministrativas;
+	pthread_mutex_lock(&mutex_tablaCache);
 	texto_en_color("Limpiando la memoria cache........ \n\n");
 	while(i<entradasCache)
 	{
@@ -165,12 +168,15 @@ void flush()
 		i++;
 	}
 	texto_en_color("Limpieza de cache terminada\n\n");
+	pthread_mutex_unlock(&mutex_tablaCache);
 }
 
 void sizeMemory()
 {
 	int framesTotales = configDeMemoria.marcos;
+	pthread_mutex_lock(&mutex_marcos);
 	int framesDisponibles = configDeMemoria.marcosDisponibles;
+	pthread_mutex_unlock(&mutex_marcos);
 	int framesOcupados = framesTotales-framesDisponibles;
 	texto_en_color_de_exito("Los frames totales en la memoria son",framesTotales);
 	texto_en_color_de_exito("Los frames disponibles en la memoria son",framesDisponibles);
