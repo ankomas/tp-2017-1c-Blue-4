@@ -236,7 +236,9 @@ t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual){
 	nuevoProceso->tablaArchivosPrograma = list_create();
 	nuevoProceso->FDCounter = 2;
 	nuevoProceso->paginasHeap = list_create();
+	pthread_mutex_lock(&mutex_colasPlanificacion);
 	nuevoProceso->quantumRestante = quantum;
+	pthread_mutex_unlock(&mutex_colasPlanificacion);
 	nuevoProceso->pcb = nuevoPCB;
 	nuevoProceso->rafagasEjecutadas = 0;
 	nuevoProceso->cantidadSyscallsEjecutadas = 0;
@@ -382,10 +384,13 @@ void* cpu(t_cpu * cpu){
 						liberarCPU(cpu,proximoPrograma);
 					else{
 						liberarPCB(*(proximoPrograma->pcb));
+						pthread_mutex_lock(&mutex_colasPlanificacion);
 						*(proximoPrograma->pcb)=deserializarPCB(res);
+						pthread_mutex_unlock(&mutex_colasPlanificacion);
 						free(res);
 						res=NULL;
 					}
+					pthread_mutex_lock(&mutex_colasPlanificacion);
 					if(proximoPrograma->pcb->exitCode == 0){
 						anuncio("Programa finalizo con exito");
 					} else if(proximoPrograma->pcb->exitCode < 0){
@@ -393,7 +398,7 @@ void* cpu(t_cpu * cpu){
 					}
 
 					send(proximoPrograma->id,"F",1,0);
-					pthread_mutex_lock(&mutex_colasPlanificacion);
+
 
 					if(finalizarProcesoMemoria(proximoPrograma->pcb->pid,true) == 0){
 						char * string = concat(3,"Moviendo el proceso ",string_itoa(proximoPrograma->pcb->pid)," a EXIT");
@@ -546,11 +551,11 @@ void* programa(t_programa *programa){
 	t_programa * aux = list_find(procesosEXIT->elements,(void*)_condicion3);
 	if(charsito[0] == 'F' && aux == NULL){
 		programa->pcb->exitCode = -7;
-		test("A");
+		log_trace(logger,"La consola finalizo un programa");
 	}
 	if(rev <= 0 && aux == NULL){
-		test("B");
 		programa->pcb->exitCode = -6;
+		log_trace(logger,"La consola finalizo un programa por desconexion");
 	}
 
 	int resFinalizarPrograma = finalizarProcesoMemoria(programa->pcb->pid,false);
