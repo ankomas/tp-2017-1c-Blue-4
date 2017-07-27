@@ -43,6 +43,7 @@ extern pthread_mutex_t mutex_colasPlanificacion;
 extern pthread_mutex_t mutex_semaforos;
 extern pthread_mutex_t mutex_fs;
 extern pthread_mutex_t mutex_varGlobales;
+extern pthread_mutex_t mutex_memoria;
 
 extern t_log* logger;
 
