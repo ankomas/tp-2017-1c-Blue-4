@@ -18,7 +18,7 @@
 
 #include <blue4-lib.h>
 #include "operacionesFS.h"
-
+#include "arquitecturaFS.h"
 #include <pthread.h>
 //#include <commons/config>
 #include "conexiones.h"
@@ -357,7 +357,7 @@ void escribir(int socket)
 	//{
 		ruta=rutaEnPuntoMontaje("/Archivos",path);
 		printf("Escribir en: %s\n",ruta);
-		log_trace("Escribiendo el archivo....");
+		log_trace(logFS,"Escribiendo el archivo....");
 		resultado=guardarDatos(ruta,offset,tamanio,data);
 		testi(resultado);
 		if(resultado<0)
