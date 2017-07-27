@@ -451,10 +451,13 @@ int buscarMarcoVacioCache() {
 int agregarProcesoACache(int pid, int pag) {
 	int marco = nuevoMarcoDelMismoProceso(pid);
 	if (marco < 0) {
+		pthread_mutex_lock(&semCacheDisp);
 		if (configDeMemoria.cacheDisponible > 0) {
-			marco = buscarMarcoVacioCache();
 			configDeMemoria.cacheDisponible--;
+			pthread_mutex_unlock(&semCacheDisp);
+			marco = buscarMarcoVacioCache();
 		} else
+			pthread_mutex_unlock(&semCacheDisp);
 			marco = lru();
 	}
 	tablaCache_t* tabla = obtenerTablaCache();
