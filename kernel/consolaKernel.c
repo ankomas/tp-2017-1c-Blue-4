@@ -213,7 +213,9 @@ void *consolaKernel(){
 			opcionInt = 0;
 			printf("\nIngrese el nuevo grado de multiprogramacion:\n");
 			scanf("%d", &opcionInt);
+			pthread_mutex_lock(&mutex_colasPlanificacion);
 			gradoMultiprogramacion = opcionInt;
+			pthread_mutex_unlock(&mutex_colasPlanificacion);
 			char * texto = concat(2,"Nuevo grado de multiprogramacion: ",string_itoa(opcionInt));
 			log_info(logger,texto);
 			free(texto);
