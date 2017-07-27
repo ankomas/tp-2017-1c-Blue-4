@@ -23,7 +23,7 @@ void iniciarProgramaAnsisop(char* pathProgramaAsisop)
 
 
 
-void finalizarPrograma(int id)
+void finalizarPrograma(int id,char* cop)
 {
 
 	dataHilos_t* data = buscaHiloPorPid(id);
@@ -40,7 +40,7 @@ void finalizarPrograma(int id)
 	pthread_mutex_lock(&mutexDataDeProcesos);
 	listarInfoArchivo(infoProceso,data->pidHilo);
 	pthread_mutex_unlock(&mutexDataDeProcesos);
-	send(data->socketKernel,"F",1,0);
+	send(data->socketKernel,cop,1,0);
 	eliminarHiloYrecursos(data);
 }
 
@@ -69,7 +69,7 @@ void desconectarConsola()
 
 		if(data)
 		{
-			finalizarPrograma(data->pidHilo);
+			finalizarPrograma(data->pidHilo,"F");
 		}
 		i++;
 	}
@@ -167,7 +167,7 @@ void crearMenuPrincipal()
 			case 2:
 				textoAzul("Ingrese el id del programa que quiere finalizar ");
 				scanf("%d",&id);
-				finalizarPrograma(id);
+				finalizarPrograma(id,"F");
 				getchar();
 				break;
 			case 3:
