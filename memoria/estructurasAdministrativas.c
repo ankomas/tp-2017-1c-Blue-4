@@ -159,11 +159,14 @@ tablaCache_t * crearTablaCache(){
 
 int actualizarCacheDisponible(uint32_t marcosAUsar){
 	// todo mutexear y revisar si no me olvido de asignar un marco
+	pthread_mutex_lock(&semCacheDisp);
 	if((configDeMemoria.cacheDisponible-marcosAUsar)>0)
 		{
 			configDeMemoria.cacheDisponible-=marcosAUsar;
+			pthread_mutex_unlock(&semCacheDisp);
 			return 0;
 		}
+		pthread_mutex_unlock(&semCacheDisp);
 		return -1;
 }
 
