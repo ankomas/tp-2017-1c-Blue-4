@@ -186,9 +186,16 @@ void eliminarRecursos(dataHilos_t* datosDeHilo)
 	close(datosDeHilo->socketKernel);
 	//printf("size en cerrarSocket es : %d \n",list_size(dataDeHilos));
 
+	textoAmarillo("VOY A ELIMINAR EL PROCESO");
+	char* pid_string=string_itoa(datosDeHilo->pidHilo);
+	textoAmarillo(pid_string);
 	dataHilos_t* hilo=eliminarHiloDeListaPorPid(datosDeHilo->pidHilo);
+	if(hilo)
+	{
+		textoAzul("NO SOY NULL");
 	free(hilo->path);
 	free(hilo);
+	}
 	//printf("size en cerrarSocket es : %d \n",list_size(dataDeHilos));
 }
 
@@ -216,7 +223,9 @@ void eliminarHiloYrecursos(dataHilos_t* hiloAEliminar)
 
 		pthread_cancel(hiloAEliminar->hilo);
 		eliminarRecursos(hiloAEliminar);
+		pthread_mutex_lock(&mutexDataDeHilos);
 		printf("el tamaño de la lista al terminar el hilo es : %d \n",list_size(dataDeHilos));
+		pthread_mutex_unlock(&mutexDataDeHilos);
 
 }
 
@@ -363,7 +372,7 @@ void imprimirFinalizacionDeProceso(dataHilos_t* data)
 void imprimirSentenciaAnsisop(dataHilos_t* data)
 {
 	char* sentencia=recibirSentenciaAnsisop(data->socketKernel);
-	dataProceso_t* infoProceso=eliminarProcesoDeListaPorPid(data->pidHilo);
+	dataProceso_t* infoProceso=buscaInfoProcesoPorPid(data->pidHilo);
 
 	if(infoProceso==NULL)return;
 
@@ -379,7 +388,7 @@ void imprimirSentenciaAnsisop(dataHilos_t* data)
 		free(sentencia);
 		infoProceso->impresionesPorPantalla=infoProceso->impresionesPorPantalla+1;
 		pthread_mutex_unlock(&mutexDataDeProcesos);
-		agregarDataDeProceso(infoProceso);
+		//agregarDataDeProceso(infoProceso);
 		return;
 
 	}
