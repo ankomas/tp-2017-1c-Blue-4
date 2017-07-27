@@ -12,6 +12,7 @@
 
 pthread_mutex_t escribiendoMemoria, escribiendoMemoriaCache;
 pthread_mutex_t mutex_tablaDePaginas,mutex_tablaCache;
+pthread_mutex_t mutex_marcos;
 
 uint32_t tamanioDeTabla();
 
