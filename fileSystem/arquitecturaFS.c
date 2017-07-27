@@ -27,6 +27,25 @@
 
 t_config *config;
 
+
+
+void loguearMensajeConNumero(char* mensaje,int numero)
+{
+	char* num_string=string_itoa(numero);
+	char* mensaje_log=concat(2,mensaje,num_string);
+	log_trace(logFS,mensaje_log);
+	free(num_string);
+	free(mensaje_log);
+}
+
+
+void loguearMensajeConString(char* mensaje,char* info)
+{
+	char* mensaje_log=concat(2,mensaje,info);
+	log_trace(logFS,mensaje_log);
+	free(mensaje_log);
+}
+
 char* rutaEnPuntoMontaje(char* carpeta, char* path){
 	char* ruta = string_new();
 	if(path){
@@ -41,8 +60,9 @@ char* rutaEnPuntoMontaje(char* carpeta, char* path){
 	return ruta;
 }
 
+
 void leerConfig(){
-	char* ruta,*string_configuracion;
+	char* ruta;
 	ruta= rutaAbsolutaDe("config.cfg");
 	config=config_create(ruta);
 	//string_configuracion=obtenerConfiguracionString(config,"PUNTO_MONTAJE");
@@ -50,23 +70,24 @@ void leerConfig(){
 	//configFS.puntoMontaje = rutaAbsolutaDe(string_configuracion);
 	//free(string_configuracion);
 	char* config_string=obtenerConfiguracionString(config,"PUERTO");
-	char* concat_string = concat(2,"Puerto: ",config_string);
-	anuncio(concat_string);
+	char* concat_string = concat(2,"EL Puerto actual es: ",config_string);
+	log_trace(logFS,concat_string);
 	free(concat_string);
-	concat_string=concat(2,"Punto de Montaje: ", configFS.puntoMontaje);
-	anuncio( concat_string);
+	concat_string=concat(2,"El Punto de Montaje es: ", configFS.puntoMontaje);
+	log_trace(logFS,concat_string);
 	free(ruta);
 	free(concat_string);
 }
 
 void leerMetadata(){
+	log_trace(logFS,"Leyendo metadata....");
 	char* ruta = rutaEnPuntoMontaje("/Metadata","/Metadata.bin");
 	t_config* elConfig = config_create(ruta);
 	configFS.tamBloque = obtenerConfiguracion(elConfig,"TAMANIO_BLOQUES");
 	configFS.bloques = obtenerConfiguracion(elConfig,"CANTIDAD_BLOQUES");
 	free(ruta);
-	printf("Tamaño de bloque: %i\n", configFS.tamBloque);
-	printf("Cantidad de bloques: %i\n", configFS.bloques);
+	loguearMensajeConNumero("Tmaño de bloque: ",configFS.tamBloque);
+	loguearMensajeConNumero("Cantidad de bloques: ",configFS.bloques);
 	config_destroy(elConfig);
 }
 
@@ -103,7 +124,7 @@ void guardarBitmap()
 	archivo=fopen(ruta,"wb+"); //"ab+",si quisiera escribir siempre al final del archivo
 	bitmap=calloc(1,configFS.bloques);
 	fwrite(bitmap,1,configFS.bloques,archivo);
-	printf("bitmap: %s\n", bitmap);
+	log_trace(logFS,"bitmap creado");
 	free(ruta);
 	free(bitmap);
 	fclose(archivo);
@@ -127,9 +148,14 @@ int getBloqueLibre()
 	while(bits_recorridos < tamBitMap)
 	{
 		bit_libre = (int) bitarray_test_bit(bitMap, bits_recorridos);
-		if( bit_libre == 0)return bits_recorridos;
+		if( bit_libre == 0)
+		{
+			loguearMensajeConNumero("El primer bloque libre es: ",bits_recorridos);
+			return bits_recorridos;
+		}
 		bits_recorridos++ ;
 	}
+	log_error(logFS,"NO HAY MAS BLOQUES LIBRES");
 	return -1;
 }
 
@@ -147,6 +173,7 @@ int cantidad_bloquesLibres(){
 		if(bloque_libre == 0)bloques_libres ++;
 		bit++;
 	}
+	loguearMensajeConNumero("La cantidad de bloques libres que tengo es: ",bloques_libres);
 	return bloques_libres;
 }
 
@@ -154,11 +181,13 @@ int cantidad_bloquesLibres(){
 
 void ocuparBloque(int bloque)
 {
+	loguearMensajeConNumero("Seteo el bloque: ",bloque);
 	bitarray_set_bit(bitMap,bloque);
 }
 
 void liberarBloque(int bloque)
 {
+	loguearMensajeConNumero("Libero el bloque: ",bloque);
 	bitarray_clean_bit(bitMap,bloque);
 }
 
@@ -188,6 +217,7 @@ void generarBloques()
 	char* numero_string;
 	char* ruta;
 	FILE* archivo;
+	log_trace(logFS,"Generando bloques....");
 	while(numeroDeBloque<configFS.bloques)
 	{
 		numero_string=string_itoa(numeroDeBloque);
@@ -200,6 +230,7 @@ void generarBloques()
 		fclose(archivo);
 		numeroDeBloque++;
 	}
+	log_trace(logFS,"....Bloques generados");
 }
 
 
@@ -285,7 +316,14 @@ void crearEstruturasDelFS()
 }
 
 
+
+void iniciarLogFS()
+{
+	logFS= log_create("logFS.log",rutaAbsolutaDe("Debug/fileSystem"),true,LOG_LEVEL_TRACE);
+}
+
 void inicializarFS(){
+	iniciarLogFS();
 	leerConfig();
 	leerMetadata();
 	crearEstruturasDelFS();
