@@ -170,14 +170,17 @@ void crear(int socket)
 
 	if(path)
 	{
+		log_trace(logFS,"Creando archivo....");
 		//send(socket,"Y",1,0);
 		resultado=crearArchivo(path);
 		if(resultado<0)
 		{
+			log_error(logFS,"....No se pudo crear el archivo");
 			send(socket,"N",1,0);
 			free(path);
 			return;
 		}
+		log_trace(logFS,"....Archivo creado correctamente");
 		send(socket,"Y",1,0);
 		free(path);
 		return;
@@ -308,16 +311,18 @@ void leer(int socket)
 	//{
 		//free(buffer);
 	ruta=rutaEnPuntoMontaje("/Archivos",path);
+	log_trace(logFS,"....Leyendo archivo");
 	resultado=obtenerDatos(ruta,offset,tamanio);
 	if(resultado)
 	{
+		log_trace(logFS,"....Se pudo leer correctamente el archivo");
 		send(socket,"Y",1,0);
 		textoVerde("LO LEIDO ES :");
 		char* res = calloc(1,tamanio+1);
 		memcpy(res,resultado,tamanio);
 		printf(" %s \n",res);
 		int i=0;
-		printf("el length de lo leido es: %d \n",string_length(res));
+		//printf("el length de lo leido es: %d \n",string_length(res));
 		while(i<tamanio)
 		{
 			printf("el char es :%c \n",res[i]);
@@ -329,6 +334,7 @@ void leer(int socket)
 		free(resultado);
 		return;
 	}else{
+		log_error(logFS,"....NO pudo leerse el archivo");
 		send(socket,"N",1,0);
 		free(ruta);
 		return;
@@ -351,15 +357,17 @@ void escribir(int socket)
 	//{
 		ruta=rutaEnPuntoMontaje("/Archivos",path);
 		printf("Escribir en: %s\n",ruta);
+		log_trace("Escribiendo el archivo....");
 		resultado=guardarDatos(ruta,offset,tamanio,data);
 		testi(resultado);
 		if(resultado<0)
 		{
+			log_error(logFS,"....No se pudo escribir el archivo");
 			send(socket,"N",1,0);
 			free(ruta);
 			return;
 		}
-		textoAmarillo("\n wachin te envio una Y \n");
+		//textoAmarillo("\n wachin te envio una Y \n");
 		send(socket,"Y",1,0);
 		free(ruta);
 		return;
@@ -371,6 +379,7 @@ void escribir(int socket)
 void borrar(int socket)
 {
 	char* path=recibirPath(socket);
+	log_trace(logFS,"Borrando el archivo....");
 	if(path)
 	{
 		send(socket,"Y",1,0);
@@ -378,6 +387,7 @@ void borrar(int socket)
 		free(path);
 		return;
 	}
+	log_error(logFS,"....No se pudo borrar el archivo");
 	send(socket,"N",1,0);
 }
 
