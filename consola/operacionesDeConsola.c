@@ -52,8 +52,9 @@ void desconectarConsola()
 	pthread_mutex_lock(&mutexDataDeHilos);
 	textoAzul("\n DESCONECTANDO CONSOLA.....");
 	int cant_procesos=list_size(dataDeHilos);
+	printf("la cantidad de procesos a finalizar es: %d \n ",cant_procesos);
 	pthread_mutex_unlock(&mutexDataDeHilos);
-	if(cant_procesos==0)
+	if(cant_procesos<=0)
 	{
 		textoAzul(" \n .....CONSOLA DESCONECTADA");
 		return;
@@ -61,15 +62,19 @@ void desconectarConsola()
 	int i=0;
 	while(i<cant_procesos)
 	{
+		//printf("el i es : %d \n",i);
 		pthread_mutex_lock(&mutexDataDeHilos);
-		dataHilos_t* data=list_get(dataDeHilos,i);
+		dataHilos_t* data=list_get(dataDeHilos,0);
 		pthread_mutex_unlock(&mutexDataDeHilos);
-		finalizarPrograma(data->pidHilo);
+
+		if(data)
+		{
+			finalizarPrograma(data->pidHilo);
+		}
 		i++;
 	}
 	textoAzul(" \n .....CONSOLA DESCONECTADA");
 }
-
 
 
 void limpiarMensajes()
