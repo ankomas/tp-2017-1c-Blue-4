@@ -9,6 +9,7 @@
 #define ARQUITECTURAFS_H_
 
 #include <commons/bitarray.h>
+#include <commons/log.h>
 
 typedef struct{
 	char* puntoMontaje;
@@ -20,6 +21,8 @@ typedef struct{
 	char** bloques;
 	int tamanio;
 }t_infoArchivo;
+
+t_log* logFS;
 
 configFS_t configFS;
 
@@ -119,5 +122,20 @@ int cantidad_bloquesLibres();
  * @return expresion segun los parametros iniciados
  */
 char* obtenerFormatoDeBloques(char* ,char* );
+
+/**
+ * Loguea en logFS un cierto mensaje , relacionandolo con un numero.
+ * @param mensaje
+ * @param numero
+ */
+void loguearMensajeConNumero(char* ,int );
+
+/**
+ * Loguea en logFS un cierto mensaje , relacionandolo con un string.
+ * @param mensaje
+ * @param info
+ */
+void loguearMensajeConString(char* ,char* );
+
 
 #endif /* ARQUITECTURAFS_H_ */
