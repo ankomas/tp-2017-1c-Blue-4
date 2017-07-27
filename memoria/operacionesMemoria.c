@@ -218,7 +218,10 @@ int agregarNuevoProceso(uint32_t pid, uint32_t paginasRequeridas,int32_t pos) {
 }
 
 int tieneMarcosSuficientes(int paginasRequeridas) {
-	return paginasRequeridas <= configDeMemoria.marcosDisponibles;
+	pthread_mutex_lock(&mutex_marcos);
+	int condicion= paginasRequeridas <= configDeMemoria.marcosDisponibles;
+	pthread_mutex_unlock(&mutex_marcos);
+	return condicion;
 }
 
 int inicializarPrograma(uint32_t pid, uint32_t paginasRequeridas) {
