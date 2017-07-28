@@ -91,7 +91,7 @@ char* obtenerDataSerializada(uint32_t* puntero,char* buffer)
 //TODO liberar el string cuando no se necesite mas !!!
 char* recibirTamanioBuffer(int socket,int* resultado)
 {
-	printf("entro a recibir tamanio buffer \n");
+	//printf("entro a recibir tamanio buffer \n");
 	int tambuffer=sizeof(uint32_t);
 	char* buffer=malloc(tambuffer);
 	char* buffer_string=malloc(tambuffer+1);
@@ -100,7 +100,7 @@ char* recibirTamanioBuffer(int socket,int* resultado)
 	*resultado=recvall(socket,buffer,tambuffer);
 	memcpy(buffer_string,buffer,tambuffer);
 	free(buffer);
-	printf("salgo de recibir tamanio buffer \n");
+	//printf("salgo de recibir tamanio buffer \n");
 	return buffer_string;
 }
 
@@ -110,7 +110,7 @@ uint32_t recibirUint32_t(int socket)
 {
 	int resultado;
 	uint32_t uint;
-	printf("entro a recibir tamanio buffer \n");
+	//printf("entro a recibir tamanio buffer \n");
 	uint32_t tambuffer=sizeof(uint32_t);
 	char* buffer=malloc(tambuffer);
 	memset(buffer,'\0',tambuffer);
@@ -123,7 +123,7 @@ uint32_t recibirUint32_t(int socket)
 	memcpy(&uint,buffer,tambuffer);
 	//tamanioTotal=*(uint32_t*)buffer;
 	free(buffer);
-	printf("se recibio: %u \n",uint);
+	//printf("se recibio: %u \n",uint);
 	return uint;
 }
 
@@ -131,11 +131,11 @@ uint32_t recibirUint32_t(int socket)
 char* recibirPaquete(int socket,uint32_t tamanio,int* resultadoDelRecv)
 {
 	char* data=malloc(tamanio);
-	printf("entro al recvall \n");
-	printf("se va a recibir data de socket : %d ,tamanio: %d \n",socket,tamanio);
+	//printf("entro al recvall \n");
+	//printf("se va a recibir data de socket : %d ,tamanio: %d \n",socket,tamanio);
 	*resultadoDelRecv=recvall(socket,data,tamanio);
 	testi(*resultadoDelRecv);
-	printf("sali del recvall \n");
+	//printf("sali del recvall \n");
 	return data;
 }
 
@@ -182,17 +182,17 @@ char* recibir_PID_PAGINAS(int socket,uint32_t* pid,uint32_t* pagina,uint32_t* pu
 		tamanioTotalBuffer=recibirUint32_t(socket);
 		if(tamanioTotalBuffer<0)return NULL;
 
-		printf("el tamaño del paquete es: %d \n",tamanioTotalBuffer);
+		//printf("el tamaño del paquete es: %d \n",tamanioTotalBuffer);
 		//usleep(10000);
 		buffer=recibirPaquete(socket,tamanioTotalBuffer,&resultado);
-		printf("entro al if del validar  recv \n");
+		//printf("entro al if del validar  recv \n");
 		if(validarRecv(socket,resultado)<0)
 		{
 			printf("recv invalido \n");
 			free(buffer);
 			return NULL;
 		}
-		printf("entro al deserializar \n");
+		//printf("entro al deserializar \n");
 		*pid=obtenerNumeroSerializado(puntero,buffer);
 		printf("el pid es: %d \n",*pid);
 		*pagina=obtenerNumeroSerializado(puntero,buffer);
@@ -224,7 +224,7 @@ void peticionMemoria(uint32_t socket)
 	send(socket,"Y",1,0);
 	printf("Se van a reservar bytes de memoria para el proceso %i\n", pid);
 	inicializarPrograma(pid,paginasRequeridas);
-	printf("salgo del inicializar \n");
+	//printf("salgo del inicializar \n");
 }
 
 
@@ -280,7 +280,7 @@ void enviarTamPagina(int socket)
 	char* data;
 	data=string_itoa(configDeMemoria.tamMarco);
 	uint32_t tamanio= sizeof(uint32_t);
-
+	
 	sendall(socket,data,&tamanio);
 	free(data);
 }
@@ -479,7 +479,7 @@ int handshakeHandler(int i){
 			pthread_attr_setdetachstate(&hiloDetachable,PTHREAD_CREATE_DETACHED);
 			pthread_mutex_lock(&mutex_operacion);
 			//FD_CLR(i,&master);
-			printf("entro al hilo \n");
+			//printf("entro al hilo \n");
 			pthread_mutex_unlock(&mutex_operacion);
 			pthread_create(&hilo,&hiloDetachable,(void*)operacionesMemoria,(void*)i);
 
@@ -573,7 +573,7 @@ int servidor()
 			exit(4);
 		}
 
-		printf("hasta aca llegue \n");
+		//printf("hasta aca llegue \n");
 		// run through the existing connections looking for data to read
 		for (i = 0; i <= fdmax; i++) {
 			if (FD_ISSET(i, &read_fds)) { // we got one!!
@@ -609,7 +609,7 @@ int servidor()
 
 				} else {
 					// handle data from a client
-					printf("entro al recv del cop \n");
+					//printf("entro al recv del cop \n");
 					if ((nbytes = recv(i, &buf, 1, 0)) <= 0) {
 
 						//queue_push(procesosNEW, 2);
@@ -641,7 +641,7 @@ int servidor()
 						pthread_attr_setdetachstate(&hiloDetachable,PTHREAD_CREATE_DETACHED);
 						pthread_mutex_lock(&mutex_operacion);
 						FD_CLR(i,&master);
-						printf("entro al hilo \n");
+						//printf("entro al hilo \n");
 						pthread_mutex_unlock(&mutex_operacion);
 						pthread_create(&hilo,&hiloDetachable,(void*)operacionesMemoria,(void*)dataHilo);
 						*/
