@@ -457,7 +457,7 @@ void* cpu(t_cpu * cpu){
 				//
 				recv(cpu->id,res,1,MSG_WAITALL);
 
-				int contadorBloqueados= 0;
+				contadorBloqueados= 0;
 				while(contadorBloqueados < list_size(procesosBLOCK)){
 					t_programa *auxBloqueado = list_get(procesosBLOCK,contadorBloqueados);
 					if(auxBloqueado->debeFinalizar == 1){
