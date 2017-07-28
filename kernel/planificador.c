@@ -646,9 +646,6 @@ void* programa(t_programa *programa){
 		programa->pcb->exitCode = -6;
 		log_trace(logger,"La consola finalizo un programa por desconexion");
 	}
-	pthread_mutex_lock(&mutex_fs);
-	cerrarFDsiProcesoMuere(programa);
-	pthread_mutex_unlock(&mutex_fs);
 	pthread_mutex_unlock(&mutex_colasPlanificacion);
 	//int resFinalizarPrograma = finalizarProcesoMemoria(programa->pcb->pid,false);
 
