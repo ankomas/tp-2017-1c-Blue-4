@@ -34,11 +34,14 @@ void dummy_wait(t_nombre_semaforo identificador_semaforo){
 
 	switch(res){
 	case 'Y':
+		printf("\n");
 		return;
 	case 'N':
 		setExitCode(&pcb_global,"el semaforo no existe",15);
+		printf("\n");
 		return;
 	case 'B':
+		printf("\n");
 		finPrograma_global='B';
 		return;
 	}
@@ -55,9 +58,11 @@ void dummy_signal(t_nombre_semaforo identificador_semaforo){
 
 	switch(res){
 	case 'Y':
+		printf("\n");
 		return;
 	case 'N':
 		setExitCode(&pcb_global,"el semaforo no existe",15);
+		printf("\n");
 		return;
 	}
 }
@@ -77,12 +82,15 @@ t_puntero dummy_reservar(t_valor_variable espacio){
 	case 'Y':
 		pos=punteroAPos(puntero,tamPag_global);
 		printf("Puntero: %i (%i,%i,%i)\n",puntero,pos.pag,pos.off,espacio);
+		printf("\n");
 		return puntero;
 	case 'N':
 		setExitCode(&pcb_global,"error al reservar en heap",16);
+		printf("\n");
 		return -1;
 	default:
 		setExitCode(&pcb_global,"error al reservar en heap",16);
+		printf("\n");
 		return -1;
 	}
 }
@@ -98,12 +106,15 @@ void dummy_liberar(t_puntero puntero){
 
 	switch(res){
 	case 'Y':
+		printf("\n");
 		return;
 	case 'N':
 		setExitCode(&pcb_global,"error al liberar en heap",16);
+		printf("\n");
 		return;
 	default:
 		setExitCode(&pcb_global,"error al liberar en heap",16);
+		printf("\n");
 		return;
 	}
 }
@@ -123,9 +134,11 @@ t_descriptor_archivo dummy_abrir(t_direccion_archivo direccion, t_banderas flags
 
 	if(res==-1){
 		setExitCode(&pcb_global,"error al abrir archivo",2);
+		printf("\n");
 		return -1;
 	}
 	printf("File descriptor: %i\n",res);
+	printf("\n");
 	return res;
 }
 
@@ -140,6 +153,7 @@ void dummy_borrar(t_descriptor_archivo descriptor_archivo){
 	if(res==-1){
 		setExitCode(&pcb_global,"error al borrar archivo",17);
 	}
+	printf("\n");
 
 }
 
@@ -153,6 +167,7 @@ void dummy_cerrar(t_descriptor_archivo descriptor_archivo){
 	if(res==-1){
 		setExitCode(&pcb_global,"error al cerrar archivo",18);
 	}
+	printf("\n");
 }
 
 void dummy_moverCursor(t_descriptor_archivo descriptor_archivo, t_valor_variable posicion){
@@ -165,6 +180,7 @@ void dummy_moverCursor(t_descriptor_archivo descriptor_archivo, t_valor_variable
 	if(res==-1){
 		setExitCode(&pcb_global,"error al cerrar archivo",18);
 	}
+	printf("\n");
 
 }
 
@@ -182,6 +198,7 @@ void dummy_escribir(t_descriptor_archivo descriptor_archivo, void* informacion, 
 	if(res==-1){
 		setExitCode(&pcb_global,"error al escribir archivo",19);
 	}
+	printf("\n");
 }
 
 void dummy_leer(t_descriptor_archivo descriptor_archivo, t_puntero informacion, t_valor_variable tamanio){
