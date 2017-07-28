@@ -292,11 +292,10 @@ t_programa * inicializarPrograma(uint32_t i,uint32_t pidActual){
 	return nuevoProceso;
 }
 
-void liberarCPU(t_cpu* cpu, t_programa* programaDeCPU){
+void liberarCPU(t_cpu* cpu, t_programa* programaDeCPU,bool force){
 		log_error(logger,"Se esta por eliminar una CPU");
 		pthread_mutex_lock(&mutex_colasPlanificacion);
-		moverPrograma(programaDeCPU,procesosEXEC,procesosEXIT);
-		int resFinalizarPrograma = finalizarProcesoMemoria(programaDeCPU->pcb->pid,false);
+		int resFinalizarPrograma = finalizarProcesoMemoria(programaDeCPU->pcb->pid,force);
 
 		if(resFinalizarPrograma == 0){
 			log_trace(logger,"Un programa ha sido movido a EXIT");
@@ -314,40 +313,6 @@ void liberarCPU(t_cpu* cpu, t_programa* programaDeCPU){
 		send(programaDeCPU->id,"F",1,0);
 		pthread_exit(&cpu->hilo);
 	}
-
-
-void finalizarPrograma(t_programa * proximoPrograma,t_cpu * cpu,char* res,uint32_t tamARecibir){
-	//
-	if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
-		liberarCPU(cpu,proximoPrograma);
-		res=realloc(res,tamARecibir);
-	if(recv(cpu->id,res,tamARecibir,MSG_WAITALL) <= 0)
-		liberarCPU(cpu,proximoPrograma);
-	else{
-		liberarPCB(*(proximoPrograma->pcb));
-		pthread_mutex_lock(&mutex_colasPlanificacion);
-		*(proximoPrograma->pcb)=deserializarPCB(res);
-		pthread_mutex_unlock(&mutex_colasPlanificacion);
-		free(res);
-		res=NULL;
-	}
-	pthread_mutex_lock(&mutex_colasPlanificacion);
-	if(proximoPrograma->pcb->exitCode == 0){
-		anuncio("Programa finalizo con exito");
-	} else if(proximoPrograma->pcb->exitCode < 0){
-		imprimirDescripcionError(proximoPrograma->pcb->exitCode);
-	}
-		send(proximoPrograma->id,"F",1,0);
-	if(finalizarProcesoMemoria(proximoPrograma->pcb->pid,true) == 0){
-		char * string = concat(3,"Moviendo el proceso ",string_itoa(proximoPrograma->pcb->pid)," a EXIT");
-		cantidadMemoryLeak(proximoPrograma);
-		log_trace(logger,string);
-		free(string);
-	}else
-		log_trace(logger,"Fallo el liberar memoria");
-	pthread_mutex_unlock(&mutex_colasPlanificacion);
-	//
-}
 
 void* cpu(t_cpu * cpu){
 	//log_info("Cpu: #%i\n",cpu->id);
@@ -394,17 +359,17 @@ void* cpu(t_cpu * cpu){
 			res=realloc(res,1);
 
 			if(sendall(cpu->id, (char*)&paquete.data_size, &tamUint) < 0)
-				liberarCPU(cpu,proximoPrograma);
+				liberarCPU(cpu,proximoPrograma,true);
 
 			if(sendall(cpu->id, paquete.data, &paquete.data_size) < 0)
-				liberarCPU(cpu,proximoPrograma);
+				liberarCPU(cpu,proximoPrograma,true);
 
 			free(paquete.data);
 
 			recv(cpu->id,res,1,MSG_WAITALL);
 			if(res[0]!= 'Y'){
 				log_error(logger,"La CPU no recibio el PCB");
-				liberarCPU(cpu,proximoPrograma);
+				liberarCPU(cpu,proximoPrograma,true);
 			}
 
 			while(1){
@@ -417,14 +382,14 @@ void* cpu(t_cpu * cpu){
 				// Verifico si aun le falta ejecutar al proceso
 				if(res[0] == 'F'){
 					if(cpu->debeFinalizar){
-						liberarCPU(cpu,proximoPrograma);
+						liberarCPU(cpu,proximoPrograma,true);
 					} else {
 						proximoPrograma->rafagasEjecutadas++;
 						if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
-							liberarCPU(cpu,proximoPrograma);
+							liberarCPU(cpu,proximoPrograma,true);
 						res=realloc(res,tamARecibir);
 						if(recv(cpu->id,res,tamARecibir,MSG_WAITALL) <= 0)
-							liberarCPU(cpu,proximoPrograma);
+							liberarCPU(cpu,proximoPrograma,true);
 						else{
 							liberarPCB(*(proximoPrograma->pcb));
 							pthread_mutex_lock(&mutex_colasPlanificacion);
@@ -458,13 +423,13 @@ void* cpu(t_cpu * cpu){
 				} else if(res[0] == 'Y'){
 					proximoPrograma->rafagasEjecutadas++;
 					if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
-						liberarCPU(cpu,proximoPrograma);
+						liberarCPU(cpu,proximoPrograma,true);
 
 					res=realloc(res,tamARecibir);
 					log_info(logger,"Tam PCB a recibir: %i\n",tamARecibir);
 					log_trace(logger,"PCB RECIBIDO DEL CPU");
 					if(recv(cpu->id,res,tamARecibir,MSG_WAITALL) <= 0)
-						liberarCPU(cpu,proximoPrograma);
+						liberarCPU(cpu,proximoPrograma,true);
 					else{
 						pthread_mutex_lock(&mutex_colasPlanificacion);
 						liberarPCB(*(proximoPrograma->pcb));
