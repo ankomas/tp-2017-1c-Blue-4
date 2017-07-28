@@ -360,7 +360,7 @@ bool cerrarFD(uint32_t i, t_programa* unPrograma){
 	}
 }
 
-void cerrarFDsiProcesoMuere(uint32_t i, t_programa* unPrograma){
+void cerrarFDsiProcesoMuere(t_programa* unPrograma){
 	uint32_t fd = 0;
 	int contador = 0;
 	while(list_size(unPrograma->tablaArchivosPrograma) > contador){
