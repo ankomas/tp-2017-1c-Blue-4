@@ -586,7 +586,7 @@ void* programa(t_programa *programa){
 
 	char * charsito = malloc(1);
 	int rev = recv(programa->id,charsito,1,0);
-	//pthread_mutex_lock(&mutex_colasPlanificacion);
+	pthread_mutex_lock(&mutex_colasPlanificacion);
 	bool _condicion3(t_programa* self){
 		return self->pcb->pid==programa->pcb->pid;
 	}
@@ -606,7 +606,7 @@ void* programa(t_programa *programa){
 		programa->pcb->exitCode = -6;
 		log_trace(logger,"La consola finalizo un programa por desconexion");
 	}
-
+	pthread_mutex_unlock(&mutex_colasPlanificacion);
 	//int resFinalizarPrograma = finalizarProcesoMemoria(programa->pcb->pid,false);
 
 	/*if(resFinalizarPrograma == 0){
