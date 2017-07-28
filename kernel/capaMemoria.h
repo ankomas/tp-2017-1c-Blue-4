@@ -37,5 +37,5 @@ void liberarHeapNico(int cpu,t_programa *proximoPrograma);
 
 void inicializarVariablesCompartidas();
 void inicializarSemaforos();
-bool semWait(uint32_t i,uint32_t pid, t_programa * proximoPrograma);
+bool semWait(uint32_t i,uint32_t pid, t_programa * proximoPrograma,t_cpu* cpu);
 #endif /* CAPAMEMORIA_H_ */
