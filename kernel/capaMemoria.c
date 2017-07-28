@@ -574,9 +574,9 @@ bool semWait(uint32_t i,uint32_t pid, t_programa * proximoPrograma){
 				if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
 					//liberarCPU(cpu,proximoPrograma);
 				res=realloc(res,tamARecibir);
-				if(recv(i,res,tamARecibir,MSG_WAITALL) <= 0)
+				if(recv(i,res,tamARecibir,MSG_WAITALL) <= 0){
 					//liberarCPU(cpu,proximoPrograma);
-				else{
+				}else{
 					liberarPCB(*(proximoPrograma->pcb));
 					*(proximoPrograma->pcb)=deserializarPCB(res);
 					free(res);
