@@ -608,7 +608,7 @@ void semSignal(uint32_t i){
 	// Recibo largo del nombre del semaforo
 	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
 		anuncio("Ocurrio un problema al hacer un Signal");
-	if(send(i,"Y",1,0) < 0){
+	if(send(i,"Y",1,0) <= 0){
 		anuncio("Ocurrio un problema al hacer un Signal");
 		return;
 	}
@@ -618,7 +618,8 @@ void semSignal(uint32_t i){
 	// Recibo el nombre del semaforo
 	if(recv(i,rev,tamARecibir,MSG_WAITALL) <= 0)
 		anuncio("Ocurrio un problema al hacer un Signal");
-	if(send(i,"Y",1,0)){
+	if(send(i,"Y",1,0)<=0){
+		anuncio("Ocurrio un problema al hacer un Signal");
 		return;
 	}
 
