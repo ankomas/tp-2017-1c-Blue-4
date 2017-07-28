@@ -403,10 +403,10 @@ void* cpu(t_cpu * cpu){
 
 			while(1){
 				recv(cpu->id,res,1,MSG_WAITALL);
-				pthread_mutex_lock(&mutex_colasPlanificacion);
+				/*pthread_mutex_lock(&mutex_colasPlanificacion);
 				if(proximoPrograma->debeFinalizar == 1 || cpu->debeFinalizar)
 					res[0] = 'F';
-				pthread_mutex_unlock(&mutex_colasPlanificacion);
+				pthread_mutex_unlock(&mutex_colasPlanificacion);*/
 
 				// Verifico si aun le falta ejecutar al proceso
 				if(res[0] == 'F'){
@@ -450,6 +450,47 @@ void* cpu(t_cpu * cpu){
 					proximoPrograma = NULL;
 					break;
 				} else if(res[0] == 'Y'){
+					//
+					if(cpu->debeFinalizar){
+						liberarCPU(cpu,proximoPrograma,true);
+					} else {
+						proximoPrograma->rafagasEjecutadas++;
+						if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
+							liberarCPU(cpu,proximoPrograma,true);
+						res=realloc(res,tamARecibir);
+						if(recv(cpu->id,res,tamARecibir,MSG_WAITALL) <= 0)
+							liberarCPU(cpu,proximoPrograma,true);
+						else{
+							liberarPCB(*(proximoPrograma->pcb));
+							pthread_mutex_lock(&mutex_colasPlanificacion);
+							*(proximoPrograma->pcb)=deserializarPCB(res);
+							pthread_mutex_unlock(&mutex_colasPlanificacion);
+							free(res);
+							res=NULL;
+						}
+						pthread_mutex_lock(&mutex_colasPlanificacion);
+						if(proximoPrograma->pcb->exitCode == 0){
+							log_info(logger,"Programa finalizo con exito");
+						} else if(proximoPrograma->pcb->exitCode < 0){
+							imprimirDescripcionError(proximoPrograma->pcb->exitCode);
+						}
+
+						send(proximoPrograma->id,"F",1,0);
+
+
+						if(finalizarProcesoMemoria(proximoPrograma->pcb->pid,true) == 0){
+							char * string = concat(3,"Moviendo el proceso ",string_itoa(proximoPrograma->pcb->pid)," a EXIT");
+							cantidadMemoryLeak(proximoPrograma);
+							log_trace(logger,string);
+							free(string);
+						}else
+							log_trace(logger,"Fallo el liberar memoria");
+
+						pthread_mutex_unlock(&mutex_colasPlanificacion);
+						proximoPrograma = NULL;
+						break;
+					}
+					//
 					proximoPrograma->rafagasEjecutadas++;
 					if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
 						liberarCPU(cpu,proximoPrograma,true);
