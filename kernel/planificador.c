@@ -362,6 +362,7 @@ void* cpu(t_cpu * cpu){
 	}
 
 	void nico(){
+		printf("Nico\n");
 		if(proximoPrograma!=NULL){
 			proximoPrograma->debeFinalizar=1;
 		}
@@ -483,9 +484,11 @@ void* cpu(t_cpu * cpu){
 
 				}else if(res[0] == 'S'){
 					pthread_mutex_lock(&mutex_colasPlanificacion);
+					pthread_mutex_lock(&mutex_semaforos);
 					log_trace(logger,"Llamada a SIGNAL");
 					semSignal(cpu->id);
 					proximoPrograma->cantidadSyscallsEjecutadas++;
+					pthread_mutex_unlock(&mutex_semaforos);
 					pthread_mutex_unlock(&mutex_colasPlanificacion);
 				} else if(res[0] == 'A'){
 					pthread_mutex_lock(&mutex_varGlobales);
@@ -501,13 +504,16 @@ void* cpu(t_cpu * cpu){
 					pthread_mutex_unlock(&mutex_varGlobales);
 				} else if(res[0] == 'W'){
 					pthread_mutex_lock(&mutex_colasPlanificacion);
+					pthread_mutex_lock(&mutex_semaforos);
 					log_trace(logger,"Llamada a WAIT");
 					proximoPrograma->cantidadSyscallsEjecutadas++;
 					if(semWait(cpu->id,proximoPrograma->pcb->pid,proximoPrograma)){
 						proximoPrograma = NULL;
+						pthread_mutex_unlock(&mutex_semaforos);
 						pthread_mutex_unlock(&mutex_colasPlanificacion);
 						break;
 					}
+					pthread_mutex_unlock(&mutex_semaforos);
 					pthread_mutex_unlock(&mutex_colasPlanificacion);
 				} else if(res[0] == 'H'){
 					log_trace(logger,"Llamada a Leer Heap");
