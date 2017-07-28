@@ -301,9 +301,11 @@ t_valor_variable dummy_obtenerValorCompartida(t_nombre_compartida variable){
 	res= obtenerVarGlobal(variable,&compartida);
 	if(res==1){
 		printf("Valor de %s: %i\n",variable,compartida);
+		printf("\n");
 		return compartida;
 	}
 	setExitCode(&pcb_global,"La variable compartida no existe",14);
+	printf("\n");
 	return NO_EXISTE_VARIABLE;
 }
 
@@ -314,8 +316,11 @@ t_valor_variable dummy_asignarValorCompartida(t_nombre_compartida variable, t_va
 	printf("Llamada a "YEL"ASIGNAR VALOR COMPARTIDA"RESET"\n");
 	printf("Variable: %s, valor: %i\n",variable,valor);
 	res=asignarVarGlobal(variable,valor);
-	if(res==1)
+	if(res==1){
+		printf("\n");
 		return valor;
+	}
 	setExitCode(&pcb_global,"La variable compartida no existe",14);
+	printf("\n");
 	return NO_EXISTE_VARIABLE;
 }
