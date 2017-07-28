@@ -299,7 +299,7 @@ void liberarCPU(t_cpu* cpu, t_programa* programaDeCPU,bool force){
 
 		if(resFinalizarPrograma == 0){
 			log_trace(logger,"Un programa ha sido movido a EXIT");
-			cantidadMemoryLeak(programa);
+			cantidadMemoryLeak(programaDeCPU);
 		} else {
 			log_trace(logger,"Excepcion de memoria. No se pudo liberar recursos del programa");
 			programaDeCPU->pcb->exitCode = -5;
