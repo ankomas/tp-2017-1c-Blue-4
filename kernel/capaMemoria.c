@@ -401,7 +401,7 @@ void leerVarGlobal(uint32_t i){
 	// Recibo largo del nombre de la variable
 	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
 		anuncio("Ocurrio un problema al recibir un valor de variable global");
-	if(send(i,"Y",1,0) < 0){
+	if(send(i,"Y",1,0) <= 0){
 		anuncio("Ocurrio un problema al enviar un valor de variable global");
 		return;
 	}
@@ -419,7 +419,7 @@ void leerVarGlobal(uint32_t i){
 
 	if(dictionary_has_key(variablesCompartidas,rev)!=true){
 		log_error(logger,"La variable global no existe");
-		if(send(i,"N",1,0) < 0)
+		if(send(i,"N",1,0) <= 0)
 			anuncio("Ocurrio un problema al enviar un valor de variable global");
 		free(rev);
 		return;
@@ -427,13 +427,17 @@ void leerVarGlobal(uint32_t i){
 
 	//Existe, sigo
 
-	if(send(i,"Y",1,0) < 0)
+	if(send(i,"Y",1,0) <= 0){
 		log_error(logger,"Ocurrio un problema al enviar un valor de variable global");
+		return;
+	}
 
 	int32_t res = *(int32_t*)dictionary_get(variablesCompartidas,rev);
 	log_info(logger,"Valor de la variable global a enviar: %i\n",*(int32_t*)dictionary_get(variablesCompartidas,rev));
-	if(sendall(i, (char*)&res, &tamInt) < 0)
+	if(sendall(i, (char*)&res, &tamInt) < 0){
 		log_error(logger,"Ocurrio un problema al enviar un valor de variable global");
+		return;
+	}
 	free(rev);
 	//free(res);
 }
@@ -452,7 +456,7 @@ void guardarVarGlobal(uint32_t i){
 		//free(rev);
 		//return;
 	}
-	if(send(i,"Y",1,0) < 0){
+	if(send(i,"Y",1,0) <= 0){
 		anuncio("Ocurrio un problema al enviar un valor de variable global");
 		free(rev);
 		return;
@@ -467,7 +471,7 @@ void guardarVarGlobal(uint32_t i){
 		//return;
 	}
 
-	if(send(i,"Y",1,0) < 0){
+	if(send(i,"Y",1,0) <= 0){
 		anuncio("Ocurrio un problema al enviar un valor de variable global");
 		free(rev);
 		return;
@@ -489,7 +493,7 @@ void guardarVarGlobal(uint32_t i){
 	log_info(logger,"%i,%i\n",dictionary_has_key(variablesCompartidas,rev),dictionary_has_key(variablesCompartidas,"Ca"));
 	if(dictionary_has_key(variablesCompartidas,rev)!=true){
 		log_error(logger,"La variable global no existe");
-		if(send(i,"N",1,0) < 0)
+		if(send(i,"N",1,0) <= 0)
 			anuncio("Ocurrio un problema al enviar un valor de variable global");
 		free(rev);
 		return;
@@ -506,7 +510,7 @@ void guardarVarGlobal(uint32_t i){
 
 	dictionary_put(variablesCompartidas,rev,nuevoValorVar);
 
-	if(send(i,"Y",1,0) < 0){
+	if(send(i,"Y",1,0) <= 0){
 		anuncio("Ocurrio un problema al enviar un valor de variable global");
 		free(rev);
 		return;
