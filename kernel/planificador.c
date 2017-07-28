@@ -661,6 +661,25 @@ void* programa(t_programa *programa){
 		programa->pcb->exitCode = -6;
 		log_trace(logger,"La consola finalizo un programa por desconexion");
 	}
+	
+	int contadorBloqueados = 0;
+	while(queue_size(procesosBLOCK) > contadorBloqueados){
+		t_programa * auxBlock = list_get(procesosBLOCK->elements,contadorBloqueados);
+		if(auxBlock->debeFinalizar > 0){
+			//
+			auxBlock->pcb->exitCode = -21;
+			if(finalizarProcesoMemoria(auxBlock->pcb->pid,true) == 0){
+				char * string = concat(3,"Moviendo el proceso ",string_itoa(auxBlock->pcb->pid)," a EXIT");
+				cantidadMemoryLeak(auxBlock);
+				log_trace(logger,string);
+				free(string);
+			}else{
+				log_trace(logger,"Fallo el liberar memoria");
+			}
+			//
+		}
+		contadorBloqueados++;
+	}
 	pthread_mutex_unlock(&mutex_colasPlanificacion);
 	//int resFinalizarPrograma = finalizarProcesoMemoria(programa->pcb->pid,false);
 
