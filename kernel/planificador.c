@@ -334,7 +334,7 @@ void liberarCPU(t_cpu* cpu, t_programa* programaDeCPU,bool force){
 		}
 		pthread_mutex_unlock(&mutex_colasPlanificacion);
 		pthread_mutex_lock(&mutex_fs);
-		cerrarFDsiProcesoMuere(cpu->id,programaDeCPU);
+		cerrarFDsiProcesoMuere(programaDeCPU);
 		pthread_mutex_unlock(&mutex_fs);
 		eliminarSiHayCPU(cpu->id);
 		programaDeCPU->pcb->exitCode= -21;
@@ -403,6 +403,12 @@ void* cpu(t_cpu * cpu){
 
 			while(1){
 				recv(cpu->id,res,1,MSG_WAITALL);
+				/*pthread_mutex_lock(&mutex_colasPlanificacion);
+				if(proximoPrograma->debeFinalizar == 1 || cpu->debeFinalizar)
+					res[0] = 'F';
+				pthread_mutex_unlock(&mutex_colasPlanificacion);*/
+
+				// Verifico si aun le falta ejecutar al proceso
 				if(res[0] == 'F'){
 					if(cpu->debeFinalizar){
 						liberarCPU(cpu,proximoPrograma,true);
@@ -447,7 +453,7 @@ void* cpu(t_cpu * cpu){
 					//
 					if(cpu->debeFinalizar){
 						liberarCPU(cpu,proximoPrograma,true);
-					} else if(proximoPrograma->debeFinalizar) {
+					} else {
 						proximoPrograma->rafagasEjecutadas++;
 						if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
 							liberarCPU(cpu,proximoPrograma,true);
@@ -618,7 +624,6 @@ void* cpu(t_cpu * cpu){
 }
 
 void* programa(t_programa *programa){
-
 	char * charsito = malloc(1);
 	int rev = recv(programa->id,charsito,1,0);
 	pthread_mutex_lock(&mutex_colasPlanificacion);
@@ -641,39 +646,10 @@ void* programa(t_programa *programa){
 		programa->pcb->exitCode = -6;
 		log_trace(logger,"La consola finalizo un programa por desconexion");
 	}
-	//
-					int contadorBloqueados= 0;
-					while(contadorBloqueados < list_size(procesosBLOCK->elements)){
-						t_programa *auxBloqueado = list_get(procesosBLOCK->elements,contadorBloqueados);
-						if(auxBloqueado->debeFinalizar == 1){
-							//
-							if(auxBloqueado->debeFinalizar){
-								if(auxBloqueado->pcb->exitCode == 0){
-									log_info(logger,"Programa finalizo con exito");
-								} else if(auxBloqueado->pcb->exitCode < 0){
-									imprimirDescripcionError(auxBloqueado->pcb->exitCode);
-								}
-
-								send(auxBloqueado->id,"F",1,0);
-
-
-								if(finalizarProcesoMemoria(auxBloqueado->pcb->pid,true) == 0){
-									char * string = concat(3,"Moviendo el proceso ",string_itoa(auxBloqueado->pcb->pid)," a EXIT");
-									cantidadMemoryLeak(auxBloqueado);
-									log_trace(logger,string);
-									free(string);
-								}else
-									log_trace(logger,"Fallo el liberar memoria");
-								liberarPCB(*(auxBloqueado->pcb));
-							}
-
-							//
-						}
-						contadorBloqueados++;
-
-					}
-					//
-
+	pthread_mutex_lock(&mutex_fs);
+	cerrarFDsiProcesoMuere(programa);
+	pthread_mutex_unlock(&mutex_fs);
+	pthread_mutex_unlock(&mutex_colasPlanificacion);
 	//int resFinalizarPrograma = finalizarProcesoMemoria(programa->pcb->pid,false);
 
 	/*if(resFinalizarPrograma == 0){
@@ -684,7 +660,6 @@ void* programa(t_programa *programa){
 		//programa->pcb->exitCode = -5;
 	}*/
 	//pthread_mutex_unlock(&mutex_colasPlanificacion);
-	pthread_mutex_unlock(&mutex_colasPlanificacion);
 	return NULL;
 }
 
