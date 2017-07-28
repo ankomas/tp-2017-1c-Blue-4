@@ -521,7 +521,7 @@ void guardarVarGlobal(uint32_t i){
 
 
 
-bool semWait(uint32_t i,uint32_t pid, t_programa * proximoPrograma,t_cpu * cpu){
+bool semWait(uint32_t i,uint32_t pid, t_programa * proximoPrograma){
 	// Wait semaforo
 
 	uint32_t tamARecibir=0;
@@ -575,59 +575,22 @@ bool semWait(uint32_t i,uint32_t pid, t_programa * proximoPrograma,t_cpu * cpu){
 			char* res = malloc(1);
 			recv(i,res,1,MSG_WAITALL);
 			if(res[0] == 'B'){
-				//
-				if(cpu->debeFinalizar){
-					liberarCPU(cpu,proximoPrograma,true);
-				} else if(proximoPrograma->debeFinalizar) {
-					proximoPrograma->rafagasEjecutadas++;
-					if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
-						liberarCPU(cpu,proximoPrograma,true);
-					res=realloc(res,tamARecibir);
-					if(recv(cpu->id,res,tamARecibir,MSG_WAITALL) <= 0)
-						liberarCPU(cpu,proximoPrograma,true);
-					else{
-						liberarPCB(*(proximoPrograma->pcb));
-						*(proximoPrograma->pcb)=deserializarPCB(res);
-						free(res);
-						res=NULL;
-					}
-					if(proximoPrograma->pcb->exitCode == 0){
-						log_info(logger,"Programa finalizo con exito");
-					} else if(proximoPrograma->pcb->exitCode < 0){
-						imprimirDescripcionError(proximoPrograma->pcb->exitCode);
-					}
-
-					send(proximoPrograma->id,"F",1,0);
-
-
-					if(finalizarProcesoMemoria(proximoPrograma->pcb->pid,true) == 0){
-						char * string = concat(3,"Moviendo el proceso ",string_itoa(proximoPrograma->pcb->pid)," a EXIT");
-						cantidadMemoryLeak(proximoPrograma);
-						log_trace(logger,string);
-						free(string);
-					}else
-						log_trace(logger,"Fallo el liberar memoria");
-
-					return 1;
-				} else {
-					//
-					if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0){
-						//liberarCPU(cpu,proximoPrograma);
-					}
-					res=realloc(res,tamARecibir);
-					if(recv(i,res,tamARecibir,MSG_WAITALL) <= 0){
-						//liberarCPU(cpu,proximoPrograma);
-					}else{
-						liberarPCB(*(proximoPrograma->pcb));
-						*(proximoPrograma->pcb)=deserializarPCB(res);
-						free(res);
-						res=NULL;
-					}
-
-					free(rev);
-					//pthread_mutex_unlock(&mutex_semaforos);
-					return 1;
+				if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0){
+					//liberarCPU(cpu,proximoPrograma);
 				}
+				res=realloc(res,tamARecibir);
+				if(recv(i,res,tamARecibir,MSG_WAITALL) <= 0){
+					//liberarCPU(cpu,proximoPrograma);
+				}else{
+					liberarPCB(*(proximoPrograma->pcb));
+					*(proximoPrograma->pcb)=deserializarPCB(res);
+					free(res);
+					res=NULL;
+				}
+
+				free(rev);
+				//pthread_mutex_unlock(&mutex_semaforos);
+				return 1;
 			}
 			//
 		}
@@ -827,4 +790,3 @@ void liberarHeapNico(int cpu,t_programa *proximoPrograma){
 /*int liberarPagina(){
 
 }*/
-
