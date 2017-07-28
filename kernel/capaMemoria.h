@@ -38,4 +38,5 @@ void liberarHeapNico(int cpu,t_programa *proximoPrograma);
 void inicializarVariablesCompartidas();
 void inicializarSemaforos();
 bool semWait(uint32_t i,uint32_t pid, t_programa * proximoPrograma);
+void cerrarFDsiProcesoMuere(t_programa* unPrograma);
 #endif /* CAPAMEMORIA_H_ */
