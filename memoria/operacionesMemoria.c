@@ -44,7 +44,7 @@ tablaCache_t* obtenerTablaCache() {
 	return tabla;
 }
 
-int lru() { //ACA PASA ALGO MUY TURBIO!
+int lru() {
 	tablaCache_t* tabla = obtenerTablaCache();
 	int marco, minV = int32_max, minM = -2;
 	for (marco = 1; marco < configDeMemoria.entradasCache; marco++) {
@@ -55,6 +55,7 @@ int lru() { //ACA PASA ALGO MUY TURBIO!
 		}
 		pthread_mutex_unlock(&mutex_tablaCache);
 	}
+	printf("Cache LRU: Se reemplazara el marco %i, del proceso %i, pagina %i\n",minM, tabla[minM].pid, tabla[minM].pagina);
 	return minM;
 }
 
