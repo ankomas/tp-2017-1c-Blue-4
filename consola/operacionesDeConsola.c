@@ -69,7 +69,7 @@ void desconectarConsola()
 
 		if(data)
 		{
-			finalizarPrograma(data->pidHilo,"F");
+			finalizarPrograma(data->pidHilo,"0");
 		}
 		i++;
 	}
