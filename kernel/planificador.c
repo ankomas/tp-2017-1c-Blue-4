@@ -84,6 +84,12 @@ void imprimirDescripcionError(int error){
 		case -21:
 			textoAzul("La cpu que estaba ejecutando el programa se desconecto");
 			break;
+		case -22:
+			textoAzul("Error al escribir un archivo");
+			break;
+		case -23:
+			textoAzul("Error al leer un archivo");
+			break;
 		case -30:
 			textoAzul("No existe variable");
 			break;
