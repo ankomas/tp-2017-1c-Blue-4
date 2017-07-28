@@ -307,13 +307,47 @@ void liberarCPU(t_cpu* cpu, t_programa* programaDeCPU){
 		}
 		pthread_mutex_unlock(&mutex_colasPlanificacion);
 		pthread_mutex_lock(&mutex_fs);
-		cerrarFD(cpu->id, programaDeCPU);
+		cerrarFDsiProcesoMuere(cpu->id,programaDeCPU);
 		pthread_mutex_unlock(&mutex_fs);
 		eliminarSiHayCPU(cpu->id);
 		programaDeCPU->pcb->exitCode= -10;
 		send(programaDeCPU->id,"F",1,0);
 		pthread_exit(&cpu->hilo);
 	}
+
+
+void finalizarPrograma(t_programa * proximoPrograma,t_cpu * cpu,char* res,uint32_t tamARecibir){
+	//
+	if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
+		liberarCPU(cpu,proximoPrograma);
+		res=realloc(res,tamARecibir);
+	if(recv(cpu->id,res,tamARecibir,MSG_WAITALL) <= 0)
+		liberarCPU(cpu,proximoPrograma);
+	else{
+		liberarPCB(*(proximoPrograma->pcb));
+		pthread_mutex_lock(&mutex_colasPlanificacion);
+		*(proximoPrograma->pcb)=deserializarPCB(res);
+		pthread_mutex_unlock(&mutex_colasPlanificacion);
+		free(res);
+		res=NULL;
+	}
+	pthread_mutex_lock(&mutex_colasPlanificacion);
+	if(proximoPrograma->pcb->exitCode == 0){
+		anuncio("Programa finalizo con exito");
+	} else if(proximoPrograma->pcb->exitCode < 0){
+		imprimirDescripcionError(proximoPrograma->pcb->exitCode);
+	}
+		send(proximoPrograma->id,"F",1,0);
+	if(finalizarProcesoMemoria(proximoPrograma->pcb->pid,true) == 0){
+		char * string = concat(3,"Moviendo el proceso ",string_itoa(proximoPrograma->pcb->pid)," a EXIT");
+		cantidadMemoryLeak(proximoPrograma);
+		log_trace(logger,string);
+		free(string);
+	}else
+		log_trace(logger,"Fallo el liberar memoria");
+	pthread_mutex_unlock(&mutex_colasPlanificacion);
+	//
+}
 
 void* cpu(t_cpu * cpu){
 	//log_info("Cpu: #%i\n",cpu->id);
@@ -334,8 +368,14 @@ void* cpu(t_cpu * cpu){
 		pthread_exit(&cpu->hilo);
 	}
 
+	void nico(){
+		if(proximoPrograma!=NULL){
+			proximoPrograma->debeFinalizar=1;
+		}
+	}
+
 	while(1){
-		signal(SIGPIPE, liberarCPUSinPrograma);
+		signal(SIGPIPE, nico);
 		if(proximoPrograma != 0 && proximoPrograma!=NULL){
 			char* aString1 = string_itoa(proximoPrograma->pcb->pid);
 			char* aString2 = string_itoa(cpu->id);
@@ -533,7 +573,6 @@ void* cpu(t_cpu * cpu){
 			pthread_mutex_unlock(&mutex_colasPlanificacion);
 
 		}
-
 		usleep(500);
 	}
 
