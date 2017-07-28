@@ -196,7 +196,7 @@ void dummy_escribir(t_descriptor_archivo descriptor_archivo, void* informacion, 
 	res=escribirArchivo(descriptor_archivo,informacion,tamanio);
 
 	if(res==-1){
-		setExitCode(&pcb_global,"error al escribir archivo",19);
+		setExitCode(&pcb_global,"error al escribir archivo",22);
 	}
 	printf("\n");
 }
@@ -212,7 +212,7 @@ void dummy_leer(t_descriptor_archivo descriptor_archivo, t_puntero informacion, 
 	res=leerArchivo(descriptor_archivo, tamanio, &data);
 
 	if(res==-1){
-		setExitCode(&pcb_global,"error al leer archivo",21);
+		setExitCode(&pcb_global,"error al leer archivo",23);
 		return;
 	}
 
