@@ -526,16 +526,22 @@ bool semWait(uint32_t i,uint32_t pid, t_programa * proximoPrograma){
 	// Recibo largo del nombre del semaforo
 	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
 		anuncio("Ocurrio un problema al hacer un Wait");
-	if(send(i,"Y",1,0) < 0)
+	if(send(i,"Y",1,0) < 0){
 		anuncio("Ocurrio un problema al hacer un Wait");
+		return 0;
+	}
 	rev=realloc(rev,tamARecibir+1);
 	memset(rev,'\0',tamARecibir+1);
 	// Recibo el nombre del semaforo
-	if(recv(i,rev,tamARecibir,MSG_WAITALL) <= 0)
+	if(recv(i,rev,tamARecibir,MSG_WAITALL) <= 0){
 		anuncio("Ocurrio un problema al hacer un Wait");
-	send(i,"Y",1,0);
+	}
+	if(send(i,"Y",1,0)< 0){
+		anuncio("Ocurrio un problema al hacer un wait");
+		return 0;
+	}
 	//printf("Llamada a SEM WAIT: %s\n",rev);
-	pthread_mutex_lock(&mutex_semaforos);
+	//pthread_mutex_lock(&mutex_semaforos);
 	t_semaforo * semaforoObtenido =(t_semaforo *)dictionary_get(semaforos,rev);
 	if(dictionary_has_key(semaforos,rev)){
 		testi(i);
@@ -544,8 +550,10 @@ bool semWait(uint32_t i,uint32_t pid, t_programa * proximoPrograma){
 		semaforoObtenido->valor--;
 		printf("Nuevo valor de %s: %i\n",rev,semaforoObtenido->valor);
 		if(semaforoObtenido->valor >= 0){
-			if(send(i,"Y",1,0) <= 0)
+			if(send(i,"Y",1,0) <= 0){
 				anuncio("Ocurrio un problema al hacer un Wait");
+				return 0;
+			}
 		}else {
 			//t_cpu * cpuEncontrada = encontrarCPU(i);
 			//uint32_t pid = cpuEncontrada->programaEnEjecucion->pid;
@@ -555,17 +563,19 @@ bool semWait(uint32_t i,uint32_t pid, t_programa * proximoPrograma){
 			free(string);
 			moverPrograma(proximoPrograma,procesosEXEC,procesosBLOCK);
 
-			if(send(i,"B",1,0) <= 0)
+			if(send(i,"B",1,0) <= 0){
 				anuncio("Ocurrio un problema al hacer un Wait");
+				return 0;
+			}
 			//
 			char* res = malloc(1);
 			recv(i,res,1,MSG_WAITALL);
 			if(res[0] == 'B'){
 				if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
-					liberarCPU(cpu,proximoPrograma);
+					//liberarCPU(cpu,proximoPrograma);
 				res=realloc(res,tamARecibir);
 				if(recv(i,res,tamARecibir,MSG_WAITALL) <= 0)
-					liberarCPU(cpu,proximoPrograma);
+					//liberarCPU(cpu,proximoPrograma);
 				else{
 					liberarPCB(*(proximoPrograma->pcb));
 					*(proximoPrograma->pcb)=deserializarPCB(res);
@@ -574,17 +584,18 @@ bool semWait(uint32_t i,uint32_t pid, t_programa * proximoPrograma){
 				}
 
 				free(rev);
-				pthread_mutex_unlock(&mutex_semaforos);
+				//pthread_mutex_unlock(&mutex_semaforos);
 				return 1;
 			}
 			//
 		}
 	} else {
-		if(send(i,"N",1,0) <= 0)
+		if(send(i,"N",1,0) <= 0){
 			anuncio("Ocurrio un problema al hacer un Wait");
+			return 0;
+		}
 	}
 	free(rev);
-	pthread_mutex_unlock(&mutex_semaforos);
 	return 0;
 
 }
@@ -596,18 +607,22 @@ void semSignal(uint32_t i){
 	// Recibo largo del nombre del semaforo
 	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
 		anuncio("Ocurrio un problema al hacer un Signal");
-	if(send(i,"Y",1,0) < 0)
+	if(send(i,"Y",1,0) < 0){
 		anuncio("Ocurrio un problema al hacer un Signal");
+		return 0;
+	}
 	rev=realloc(rev,tamARecibir+1);
 	memset(rev,'\0',tamARecibir+1);
 
 	// Recibo el nombre del semaforo
 	if(recv(i,rev,tamARecibir,MSG_WAITALL) <= 0)
 		anuncio("Ocurrio un problema al hacer un Signal");
-	send(i,"Y",1,0);
+	if(send(i,"Y",1,0)){
+		return 0;
+	}
 
 	printf("Llamada a SEM SIGNAL: %s\n",rev);
-	pthread_mutex_lock(&mutex_semaforos);
+	//pthread_mutex_lock(&mutex_semaforos);
 	t_semaforo * semaforoObtenido =(t_semaforo *)dictionary_get(semaforos,rev);
 	if(dictionary_has_key(semaforos,rev)){
 		testi(i);
@@ -628,14 +643,18 @@ void semSignal(uint32_t i){
 			moverPrograma(programaAux,procesosBLOCK,procesosREADY);
 		}
 
-		if(send(i,"Y",1,0) <= 0)
+		if(send(i,"Y",1,0) <= 0){
 			anuncio("Ocurrio un problema al hacer un Signal");
+			return 0;	
+		}
 	} else {
-		if(send(i,"N",1,0) <= 0)
+		if(send(i,"N",1,0) <= 0){
 			anuncio("Ocurrio un problema al hacer un Signal");
+			return 0;
+		}
 	}
 	free(rev);
-	pthread_mutex_unlock(&mutex_semaforos);
+	//pthread_mutex_unlock(&mutex_semaforos);
 }
 
 void guardarEnHeap(uint32_t i,t_list * paginasHeap,uint32_t *pid){
