@@ -402,109 +402,7 @@ void* cpu(t_cpu * cpu){
 			}
 
 			while(1){
-				//
-								//
-				int contadorBloqueados= 0;
-				while(contadorBloqueados < list_size(procesosBLOCK)){
-					pthread_mutex_lock(&mutex_colasPlanificacion);
-					t_programa *auxBloqueado = list_get(procesosBLOCK,contadorBloqueados);
-					pthread_mutex_unlock(&mutex_colasPlanificacion);
-					if(auxBloqueado->debeFinalizar == 1){
-						//
-						if(cpu->debeFinalizar){
-							liberarCPU(cpu,proximoPrograma,true);
-						} else if(auxBloqueado->debeFinalizar){
-							if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
-								liberarCPU(cpu,proximoPrograma,true);
-							res=realloc(res,tamARecibir);
-							if(recv(cpu->id,res,tamARecibir,MSG_WAITALL) <= 0)
-								liberarCPU(cpu,proximoPrograma,true);
-							else{
-								liberarPCB(*(auxBloqueado->pcb));
-								pthread_mutex_lock(&mutex_colasPlanificacion);
-								*(auxBloqueado->pcb)=deserializarPCB(res);
-								pthread_mutex_unlock(&mutex_colasPlanificacion);
-								free(res);
-								res=NULL;
-							}
-							pthread_mutex_lock(&mutex_colasPlanificacion);
-							if(auxBloqueado->pcb->exitCode == 0){
-								log_info(logger,"Programa finalizo con exito");
-							} else if(auxBloqueado->pcb->exitCode < 0){
-								imprimirDescripcionError(auxBloqueado->pcb->exitCode);
-							}
-
-							send(proximoPrograma->id,"F",1,0);
-
-
-							if(finalizarProcesoMemoria(auxBloqueado->pcb->pid,true) == 0){
-								char * string = concat(3,"Moviendo el proceso ",string_itoa(auxBloqueado->pcb->pid)," a EXIT");
-								cantidadMemoryLeak(auxBloqueado);
-								log_trace(logger,string);
-								free(string);
-							}else
-								log_trace(logger,"Fallo el liberar memoria");
-
-							pthread_mutex_unlock(&mutex_colasPlanificacion);
-						}
-
-						//
-					}
-					contadorBloqueados++;
-
-				}
-				//
-				//
 				recv(cpu->id,res,1,MSG_WAITALL);
-
-				contadorBloqueados= 0;
-				while(contadorBloqueados < list_size(procesosBLOCK)){
-					t_programa *auxBloqueado = list_get(procesosBLOCK,contadorBloqueados);
-					if(auxBloqueado->debeFinalizar == 1){
-						//
-						if(cpu->debeFinalizar){
-							liberarCPU(cpu,proximoPrograma,true);
-						} else if(auxBloqueado->debeFinalizar){
-							if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
-								liberarCPU(cpu,proximoPrograma,true);
-							res=realloc(res,tamARecibir);
-							if(recv(cpu->id,res,tamARecibir,MSG_WAITALL) <= 0)
-								liberarCPU(cpu,proximoPrograma,true);
-							else{
-								liberarPCB(*(auxBloqueado->pcb));
-								pthread_mutex_lock(&mutex_colasPlanificacion);
-								*(auxBloqueado->pcb)=deserializarPCB(res);
-								pthread_mutex_unlock(&mutex_colasPlanificacion);
-								free(res);
-								res=NULL;
-							}
-							pthread_mutex_lock(&mutex_colasPlanificacion);
-							if(auxBloqueado->pcb->exitCode == 0){
-								log_info(logger,"Programa finalizo con exito");
-							} else if(auxBloqueado->pcb->exitCode < 0){
-								imprimirDescripcionError(auxBloqueado->pcb->exitCode);
-							}
-
-							send(proximoPrograma->id,"F",1,0);
-
-
-							if(finalizarProcesoMemoria(auxBloqueado->pcb->pid,true) == 0){
-								char * string = concat(3,"Moviendo el proceso ",string_itoa(auxBloqueado->pcb->pid)," a EXIT");
-								cantidadMemoryLeak(auxBloqueado);
-								log_trace(logger,string);
-								free(string);
-							}else
-								log_trace(logger,"Fallo el liberar memoria");
-
-							pthread_mutex_unlock(&mutex_colasPlanificacion);
-						}
-
-						//
-					}
-					contadorBloqueados++;
-
-				}
-
 				if(res[0] == 'F'){
 					if(cpu->debeFinalizar){
 						liberarCPU(cpu,proximoPrograma,true);
@@ -743,7 +641,39 @@ void* programa(t_programa *programa){
 		programa->pcb->exitCode = -6;
 		log_trace(logger,"La consola finalizo un programa por desconexion");
 	}
-	pthread_mutex_unlock(&mutex_colasPlanificacion);
+	//
+					int contadorBloqueados= 0;
+					while(contadorBloqueados < list_size(procesosBLOCK->elements)){
+						t_programa *auxBloqueado = list_get(procesosBLOCK->elements,contadorBloqueados);
+						if(auxBloqueado->debeFinalizar == 1){
+							//
+							if(auxBloqueado->debeFinalizar){
+								if(auxBloqueado->pcb->exitCode == 0){
+									log_info(logger,"Programa finalizo con exito");
+								} else if(auxBloqueado->pcb->exitCode < 0){
+									imprimirDescripcionError(auxBloqueado->pcb->exitCode);
+								}
+
+								send(auxBloqueado->id,"F",1,0);
+
+
+								if(finalizarProcesoMemoria(auxBloqueado->pcb->pid,true) == 0){
+									char * string = concat(3,"Moviendo el proceso ",string_itoa(auxBloqueado->pcb->pid)," a EXIT");
+									cantidadMemoryLeak(auxBloqueado);
+									log_trace(logger,string);
+									free(string);
+								}else
+									log_trace(logger,"Fallo el liberar memoria");
+								liberarPCB(*(auxBloqueado->pcb));
+							}
+
+							//
+						}
+						contadorBloqueados++;
+
+					}
+					//
+
 	//int resFinalizarPrograma = finalizarProcesoMemoria(programa->pcb->pid,false);
 
 	/*if(resFinalizarPrograma == 0){
@@ -754,6 +684,7 @@ void* programa(t_programa *programa){
 		//programa->pcb->exitCode = -5;
 	}*/
 	//pthread_mutex_unlock(&mutex_colasPlanificacion);
+	pthread_mutex_unlock(&mutex_colasPlanificacion);
 	return NULL;
 }
 
