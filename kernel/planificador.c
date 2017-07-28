@@ -406,7 +406,7 @@ void* cpu(t_cpu * cpu){
 				if(res[0] == 'F'){
 					if(cpu->debeFinalizar){
 						liberarCPU(cpu,proximoPrograma,true);
-					} else if(proximoPrograma->debeFinalizar){
+					} else {
 						proximoPrograma->rafagasEjecutadas++;
 						if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
 							liberarCPU(cpu,proximoPrograma,true);
