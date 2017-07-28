@@ -586,34 +586,37 @@ void* programa(t_programa *programa){
 
 	char * charsito = malloc(1);
 	int rev = recv(programa->id,charsito,1,0);
-	pthread_mutex_lock(&mutex_colasPlanificacion);
+	//pthread_mutex_lock(&mutex_colasPlanificacion);
 	bool _condicion3(t_programa* self){
 		return self->pcb->pid==programa->pcb->pid;
 	}
 	t_programa * aux = list_find(procesosEXIT->elements,(void*)_condicion3);
 	if(charsito[0] == 'F' && aux == NULL){
+		programa->debeFinalizar=true;
 		programa->pcb->exitCode = -7;
 		log_trace(logger,"La consola finalizo un programa");
 	}
 	if(charsito[0] == '0' && aux == NULL){
+		programa->debeFinalizar=true;
 		programa->pcb->exitCode = -6;
 		log_trace(logger,"La consola finalizo un programa por desconexion");
 	}
 	if(rev <= 0 && aux == NULL){
+		programa->debeFinalizar=true;
 		programa->pcb->exitCode = -6;
 		log_trace(logger,"La consola finalizo un programa por desconexion");
 	}
 
-	int resFinalizarPrograma = finalizarProcesoMemoria(programa->pcb->pid,false);
+	//int resFinalizarPrograma = finalizarProcesoMemoria(programa->pcb->pid,false);
 
-	if(resFinalizarPrograma == 0){
+	/*if(resFinalizarPrograma == 0){
 		log_trace(logger,"Un programa ha sido movido a EXIT");
 		cantidadMemoryLeak(programa);
 	} else {
 		//log_trace(logger,"Excepcion de memoria. No se pudo liberar recursos del programa");
 		//programa->pcb->exitCode = -5;
-	}
-	pthread_mutex_unlock(&mutex_colasPlanificacion);
+	}*/
+	//pthread_mutex_unlock(&mutex_colasPlanificacion);
 	return NULL;
 }
 
