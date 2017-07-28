@@ -571,8 +571,9 @@ bool semWait(uint32_t i,uint32_t pid, t_programa * proximoPrograma){
 			char* res = malloc(1);
 			recv(i,res,1,MSG_WAITALL);
 			if(res[0] == 'B'){
-				if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
+				if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0){
 					//liberarCPU(cpu,proximoPrograma);
+				}
 				res=realloc(res,tamARecibir);
 				if(recv(i,res,tamARecibir,MSG_WAITALL) <= 0){
 					//liberarCPU(cpu,proximoPrograma);
