@@ -548,7 +548,7 @@ void* cpu(t_cpu * cpu){
 					pthread_mutex_lock(&mutex_semaforos);
 					log_trace(logger,"Llamada a WAIT");
 					proximoPrograma->cantidadSyscallsEjecutadas++;
-					if(semWait(cpu->id,proximoPrograma->pcb->pid,proximoPrograma)){
+					if(semWait(cpu->id,proximoPrograma->pcb->pid,proximoPrograma,cpu)){
 						proximoPrograma = NULL;
 						pthread_mutex_unlock(&mutex_semaforos);
 						pthread_mutex_unlock(&mutex_colasPlanificacion);
