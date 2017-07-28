@@ -240,7 +240,7 @@ void *consolaKernel(){
 
 					if(programaRunning != NULL){
 						programaEncontrado->debeFinalizar = 1;
-						programaEncontrado->pcb->exitCode = -11;
+						programaEncontrado->pcb->exitCode = -19;
 					} else if(programaNew != NULL){
 						moverPrograma(programaEncontrado,procesosNEW,procesosEXIT);
 					} else {
