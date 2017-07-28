@@ -41,6 +41,7 @@ typedef struct t_cpu {
 	t_pcb *programaEnEjecucion;
 	bool disponible;
 	pthread_t hilo;
+	bool debeFinalizar;
 } t_cpu;
 
 t_cpu * encontrarCPU(uint32_t i);
