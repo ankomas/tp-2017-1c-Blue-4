@@ -120,7 +120,7 @@ int sendall(uint32_t s, char *buf, uint32_t *len)
     aux=string_itoa(total);
     aux2=concat(2,"Cantidad enviada:",aux);
     //printf("A: %i\n",s);
-    textoVerde(aux2);
+    //textoVerde(aux2);
     free(aux);
     free(aux2);
     *len = total; // return number actually sent here
@@ -143,7 +143,7 @@ int recvall(uint32_t s, char *buf, uint32_t len)
         bytesleft -= n;
     }
     aux=string_itoa(total);
-    textoVerde(concat(2,"Cantidad recibida:",aux));
+    //textoVerde(concat(2,"Cantidad recibida:",aux));
     free(aux);
     len = total; // return number actually sent here
 
