@@ -403,12 +403,55 @@ void* cpu(t_cpu * cpu){
 
 			while(1){
 				recv(cpu->id,res,1,MSG_WAITALL);
-				/*pthread_mutex_lock(&mutex_colasPlanificacion);
-				if(proximoPrograma->debeFinalizar == 1 || cpu->debeFinalizar)
-					res[0] = 'F';
-				pthread_mutex_unlock(&mutex_colasPlanificacion);*/
 
-				// Verifico si aun le falta ejecutar al proceso
+				int contadorBloqueados= 0;
+				while(contadorBloqueados < list_size(procesosBLOCK)){
+					t_programa *auxBloqueado = list_get(procesosBLOCK,contadorBloqueados);
+					if(auxBloqueado->debeFinalizar == 1){
+						//
+						if(cpu->debeFinalizar){
+							liberarCPU(cpu,proximoPrograma,true);
+						} else if(auxBloqueado->debeFinalizar){
+							if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
+								liberarCPU(cpu,proximoPrograma,true);
+							res=realloc(res,tamARecibir);
+							if(recv(cpu->id,res,tamARecibir,MSG_WAITALL) <= 0)
+								liberarCPU(cpu,proximoPrograma,true);
+							else{
+								liberarPCB(*(auxBloqueado->pcb));
+								pthread_mutex_lock(&mutex_colasPlanificacion);
+								*(auxBloqueado->pcb)=deserializarPCB(res);
+								pthread_mutex_unlock(&mutex_colasPlanificacion);
+								free(res);
+								res=NULL;
+							}
+							pthread_mutex_lock(&mutex_colasPlanificacion);
+							if(auxBloqueado->pcb->exitCode == 0){
+								log_info(logger,"Programa finalizo con exito");
+							} else if(auxBloqueado->pcb->exitCode < 0){
+								imprimirDescripcionError(auxBloqueado->pcb->exitCode);
+							}
+
+							send(proximoPrograma->id,"F",1,0);
+
+
+							if(finalizarProcesoMemoria(auxBloqueado->pcb->pid,true) == 0){
+								char * string = concat(3,"Moviendo el proceso ",string_itoa(auxBloqueado->pcb->pid)," a EXIT");
+								cantidadMemoryLeak(auxBloqueado);
+								log_trace(logger,string);
+								free(string);
+							}else
+								log_trace(logger,"Fallo el liberar memoria");
+
+							pthread_mutex_unlock(&mutex_colasPlanificacion);
+						}
+
+						//
+					}
+					contadorBloqueados++;
+
+				}
+
 				if(res[0] == 'F'){
 					if(cpu->debeFinalizar){
 						liberarCPU(cpu,proximoPrograma,true);
@@ -548,7 +591,7 @@ void* cpu(t_cpu * cpu){
 					pthread_mutex_lock(&mutex_semaforos);
 					log_trace(logger,"Llamada a WAIT");
 					proximoPrograma->cantidadSyscallsEjecutadas++;
-					if(semWait(cpu->id,proximoPrograma->pcb->pid,proximoPrograma,cpu)){
+					if(semWait(cpu->id,proximoPrograma->pcb->pid,proximoPrograma)){
 						proximoPrograma = NULL;
 						pthread_mutex_unlock(&mutex_semaforos);
 						pthread_mutex_unlock(&mutex_colasPlanificacion);
