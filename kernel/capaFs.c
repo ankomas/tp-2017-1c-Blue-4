@@ -360,6 +360,37 @@ bool cerrarFD(uint32_t i, t_programa* unPrograma){
 	}
 }
 
+void cerrarFDsiProcesoMuere(uint32_t i, t_programa* unPrograma){
+	uint32_t fd = 0;
+	int contador = 0;
+	while(list_size(unPrograma->tablaArchivosPrograma) > contador){
+		t_entradaTAP * entradaFDaux = list_get(unPrograma->tablaArchivosPrograma,contador);
+		fd = entradaFDaux->indice;
+		uint32_t auxFDTAP = buscarFDArchivoPorId(fd,unPrograma);
+		t_entradaTAP* entradaFD = list_get(unPrograma->tablaArchivosPrograma,auxFDTAP);
+		uint32_t indiceGlobalFD = entradaFD->globalFD;
+		if(indiceGlobalFD != 9999){
+			list_remove(unPrograma->tablaArchivosPrograma,auxFDTAP);//ojo este fd es un puntero que no es absoluto
+			bool _condicion3(t_entradaTGA* self){
+				return self->indice==indiceGlobalFD;
+			}
+			//TODO cond
+			t_entradaTGA * aux = list_find(tablaGlobalArchivos,(void*)_condicion3);
+
+			if(aux->abierto == 1){
+				list_remove_by_condition(tablaGlobalArchivos,(void*)_condicion3);
+			} else {
+				aux->abierto--;
+			}
+			list_remove(unPrograma->tablaArchivosPrograma,buscarFDArchivoPorId(fd,unPrograma));
+			log_trace(logger,"FD cerrado");
+		}else{
+			log_trace(logger,"Se intento cerrar un FD que no existia");
+		}
+		contador++;
+	}
+}
+
 bool escribirFD(uint32_t i,t_programa* unPrograma){
 	uint32_t fd = 0;
 	recv(i,&fd,sizeof(uint32_t),MSG_WAITALL);
