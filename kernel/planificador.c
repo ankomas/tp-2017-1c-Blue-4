@@ -592,6 +592,10 @@ void* programa(t_programa *programa){
 		programa->pcb->exitCode = -7;
 		log_trace(logger,"La consola finalizo un programa");
 	}
+	if(charsito[0] == '0' && aux == NULL){
+		programa->pcb->exitCode = -6;
+		log_trace(logger,"La consola finalizo un programa por desconexion");
+	}
 	if(rev <= 0 && aux == NULL){
 		programa->pcb->exitCode = -6;
 		log_trace(logger,"La consola finalizo un programa por desconexion");
