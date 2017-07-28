@@ -412,7 +412,7 @@ void* cpu(t_cpu * cpu){
 				if(res[0] == 'F'){
 					if(cpu->debeFinalizar){
 						liberarCPU(cpu,proximoPrograma,true);
-					} else {
+					} else if(proximoPrograma->debeFinalizar){
 						proximoPrograma->rafagasEjecutadas++;
 						if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
 							liberarCPU(cpu,proximoPrograma,true);
@@ -453,7 +453,7 @@ void* cpu(t_cpu * cpu){
 					//
 					if(cpu->debeFinalizar){
 						liberarCPU(cpu,proximoPrograma,true);
-					} else {
+					} else if(proximoPrograma->debeFinalizar) {
 						proximoPrograma->rafagasEjecutadas++;
 						if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
 							liberarCPU(cpu,proximoPrograma,true);
