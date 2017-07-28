@@ -33,7 +33,7 @@ typedef struct t_programa {
 	uint32_t cantidadAlocarEjecutadosBytes;
 	uint32_t cantidadLiberarEjecutados;
 	uint32_t cantidadLiberarEjecutadosBytes;
-	bool debeFinalizar;
+	int32_t debeFinalizar;
 } t_programa;
 
 typedef struct t_cpu {
