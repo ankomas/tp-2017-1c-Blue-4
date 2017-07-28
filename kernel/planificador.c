@@ -645,24 +645,27 @@ void* programa(t_programa *programa){
 	bool _condicion3(t_programa* self){
 		return self->pcb->pid==programa->pcb->pid;
 	}
+	int32_t exitCode = -6;
 	t_programa * aux = list_find(procesosEXIT->elements,(void*)_condicion3);
 	if(charsito[0] == 'F' && aux == NULL){
 		programa->debeFinalizar=2;
+		exitCode = -7;
 		programa->pcb->exitCode = -7;
 		log_trace(logger,"La consola finalizo un programa");
 	}
 	if(charsito[0] == '0' && aux == NULL){
 		programa->debeFinalizar=1;
 		programa->pcb->exitCode = -6;
+		exitCode = -6;
 		log_trace(logger,"La consola finalizo un programa por desconexion");
 	}
 	if(rev <= 0 && aux == NULL){
 		programa->debeFinalizar=1;
+		exitCode = -6;
 		programa->pcb->exitCode = -6;
 		log_trace(logger,"La consola finalizo un programa por desconexion");
 	}
-	
-	
+
 	int contadorBloqueados = 0;
 	while(queue_size(procesosBLOCK) > contadorBloqueados){
 		t_programa * auxBlock = list_get(procesosBLOCK->elements,contadorBloqueados);
@@ -671,7 +674,7 @@ void* programa(t_programa *programa){
 			bool _condicion(uint32_t* elem){
 				return auxBlock->pcb->pid==*elem;
 			}
-			uint32_t auxPID = list_remove_by_condition(procesosBLOCK->elements,(void*)_condicion);
+			uint32_t* auxPID = list_remove_by_condition(procesosBLOCK->elements,(void*)_condicion);
 			auxBlock->pcb->exitCode = exitCode;
 			if(finalizarProcesoMemoria(auxBlock->pcb->pid,true) == 0){
 				char * string = concat(3,"Moviendo el proceso ",string_itoa(auxBlock->pcb->pid)," a EXIT");
@@ -685,7 +688,7 @@ void* programa(t_programa *programa){
 		}
 		contadorBloqueados++;
 	}
-	
+
 	pthread_mutex_unlock(&mutex_colasPlanificacion);
 	//int resFinalizarPrograma = finalizarProcesoMemoria(programa->pcb->pid,false);
 
