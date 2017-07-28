@@ -55,7 +55,7 @@ int lru() {
 		}
 		pthread_mutex_unlock(&mutex_tablaCache);
 	}
-	printf("Cache LRU: Se reemplazara el marco %i, del proceso %i, pagina %i\n",minM, tabla[minM].pid, tabla[minM].pagina);
+	//printf("Cache LRU: Se reemplazara el marco %i, del proceso %i, pagina %i\n",minM, tabla[minM].pid, tabla[minM].pagina);
 	return minM;
 }
 
@@ -461,6 +461,7 @@ int agregarProcesoACache(int pid, int pag) {
 			pthread_mutex_unlock(&semCacheDisp);
 			marco = lru();
 	}
+	printf("Cache: se le asignara el marco %i al proceso %i, pagina %i\n", marco, pid, pag);
 	tablaCache_t* tabla = obtenerTablaCache();
 	pthread_mutex_lock(&mutex_tablaCache);
 	tabla[marco].pid = pid;
