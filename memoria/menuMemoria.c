@@ -158,17 +158,17 @@ void flush()
 	tablaCache_t* tablaCache = (tablaCache_t*)cache;
 	uint32_t marcos_EstructurasAdministrativas = cuantosMarcosRepresenta(tamanioDeTablaCache());
 	int i=marcos_EstructurasAdministrativas;
-	pthread_mutex_lock(&mutex_tablaCache);
 	texto_en_color("Limpiando la memoria cache........ \n\n");
 	while(i<entradasCache)
 	{
 		//printf("el pid de la cache es: %d \n",tablaCache[i].pid);
+		pthread_mutex_lock(&mutex_tablaCache);
 		tablaCache[i].pid=-2;
 		tablaCache[i].pagina=i;
+		pthread_mutex_unlock(&mutex_tablaCache);
 		i++;
 	}
 	texto_en_color("Limpieza de cache terminada\n\n");
-	pthread_mutex_unlock(&mutex_tablaCache);
 }
 
 void sizeMemory()
