@@ -333,6 +333,9 @@ void liberarCPU(t_cpu* cpu, t_programa* programaDeCPU,bool force){
 			programaDeCPU->pcb->exitCode = -5;
 		}
 		pthread_mutex_unlock(&mutex_colasPlanificacion);
+		pthread_mutex_lock(&mutex_fs);
+		cerrarFDsiProcesoMuere(programaDeCPU);
+		pthread_mutex_unlock(&mutex_fs);
 		eliminarSiHayCPU(cpu->id);
 		programaDeCPU->pcb->exitCode= -21;
 		send(programaDeCPU->id,"F",1,0);
@@ -409,7 +412,7 @@ void* cpu(t_cpu * cpu){
 				if(res[0] == 'F'){
 					if(cpu->debeFinalizar){
 						liberarCPU(cpu,proximoPrograma,true);
-					} else(proximoPrograma->debeFinalizar) {
+					} else if(proximoPrograma->debeFinalizar){
 						proximoPrograma->rafagasEjecutadas++;
 						if(recv(cpu->id,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
 							liberarCPU(cpu,proximoPrograma,true);
@@ -432,9 +435,7 @@ void* cpu(t_cpu * cpu){
 						}
 
 						send(proximoPrograma->id,"F",1,0);
-						pthread_mutex_lock(&mutex_fs);
-						cerrarFDsiProcesoMuere(programaDeCPU);
-						pthread_mutex_unlock(&mutex_fs);
+
 
 						if(finalizarProcesoMemoria(proximoPrograma->pcb->pid,true) == 0){
 							char * string = concat(3,"Moviendo el proceso ",string_itoa(proximoPrograma->pcb->pid)," a EXIT");
@@ -475,10 +476,7 @@ void* cpu(t_cpu * cpu){
 						}
 
 						send(proximoPrograma->id,"F",1,0);
-						
-						pthread_mutex_lock(&mutex_fs);
-						cerrarFDsiProcesoMuere(programaDeCPU);
-						pthread_mutex_unlock(&mutex_fs);
+
 
 						if(finalizarProcesoMemoria(proximoPrograma->pcb->pid,true) == 0){
 							char * string = concat(3,"Moviendo el proceso ",string_itoa(proximoPrograma->pcb->pid)," a EXIT");
