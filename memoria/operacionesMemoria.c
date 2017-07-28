@@ -484,6 +484,8 @@ void* leer(uint32_t pid, uint32_t pag, uint32_t offset, uint32_t tam) { // SIGUE
 		agregarProcesoACache(pid, pag);
 		copiarMemoriaACache(pid, pag);
 	}
+	else
+		printf("Esta en cache: Se accede rapidamente\n");
 	return leerCache(pid,pag,offset, tam);
 }
 
