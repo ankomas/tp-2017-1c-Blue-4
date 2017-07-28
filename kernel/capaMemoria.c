@@ -401,8 +401,10 @@ void leerVarGlobal(uint32_t i){
 	// Recibo largo del nombre de la variable
 	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
 		anuncio("Ocurrio un problema al recibir un valor de variable global");
-	if(send(i,"Y",1,0) < 0)
+	if(send(i,"Y",1,0) < 0){
 		anuncio("Ocurrio un problema al enviar un valor de variable global");
+		return;
+	}
 	rev=realloc(rev,tamARecibir+1);
 	// Recibo el nombre de la variable
 	if(recv(i,rev,tamARecibir,MSG_WAITALL) <= 0)
@@ -445,23 +447,38 @@ void guardarVarGlobal(uint32_t i){
 	char * rev = malloc(1),*aux=NULL;
 
 	// Recibo largo del nombre de la variable
-	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
+	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0){
 		anuncio("Ocurrio un problema al recibir un valor de variable global");
-	if(send(i,"Y",1,0) < 0)
+		//free(rev);
+		//return;
+	}
+	if(send(i,"Y",1,0) < 0){
 		anuncio("Ocurrio un problema al enviar un valor de variable global");
+		free(rev);
+		return;
+	}
 	rev=realloc(rev,tamARecibir+1);
 	memset(rev,'\0',tamARecibir+1);
 
 	// Recibo el nombre de la variable
-	if(recv(i,rev,tamARecibir,MSG_WAITALL) <= 0)
+	if(recv(i,rev,tamARecibir,MSG_WAITALL) <= 0){
 		anuncio("Ocurrio un problema al recibir un valor de variable global");
+		//free(rev);
+		//return;
+	}
 
-	if(send(i,"Y",1,0) < 0)
+	if(send(i,"Y",1,0) < 0){
 		anuncio("Ocurrio un problema al enviar un valor de variable global");
+		free(rev);
+		return;
+	}
 
 	// Recibo el valor a asignar
-	if(recv(i,nuevoValorVar,tamInt,MSG_WAITALL) <= 0)
+	if(recv(i,nuevoValorVar,tamInt,MSG_WAITALL) <= 0){
 		anuncio("Ocurrio un problema al enviar un valor de variable global");
+		//free(rev);
+		//return;
+	}
 
 	// Verificar si existe la variable
 	aux=concat(2,"Llamada a GUARDAR VAR GLOBAL: ",rev);
@@ -489,8 +506,11 @@ void guardarVarGlobal(uint32_t i){
 
 	dictionary_put(variablesCompartidas,rev,nuevoValorVar);
 
-	if(send(i,"Y",1,0) < 0)
+	if(send(i,"Y",1,0) < 0){
 		anuncio("Ocurrio un problema al enviar un valor de variable global");
+		free(rev);
+		return;
+	}
 
 	free(rev);
 }
