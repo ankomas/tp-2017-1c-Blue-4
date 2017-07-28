@@ -1,5 +1,4 @@
-/*
- * planificador.c
+* planificador.c
  *
  *  Created on: 14/4/2017
  *      Author: utnso
@@ -53,10 +52,40 @@ void imprimirDescripcionError(int error){
 			textoAzul("La cpu que estaba ejecutando el programa se desconecto");
 			break;
 		case -11:
-			textoAzul("Programa eliminado por el usuario");
+			textoAzul("Error lectura memoria");
+			break;
+		case -12:
+			textoAzul("Error escribir memoria");
+			break;
+		case -13:
+			textoAzul("Etiqueta Inexistente");
+			break;
+		case -14:
+			textoAzul("Variable compartida inexistente");
+			break;
+		case -15:
+			textoAzul("Semaforo inexistente");
+			break;
+		case -16:
+			textoAzul("Error al reservar en heap");
+			break;
+		case -17:
+			textoAzul("Error al borrar archivo");
+			break;
+		case -18:
+			textoAzul("Error al cerrrar archivo");
+			break;
+		case -19:
+			textoAzul("Programa eliminado por el usuario.");
 			break;
 		case -20:
 			textoAzul("Error sin definicion");
+			break;
+		case -21:
+			textoAzul("La cpu que estaba ejecutando el programa se desconecto");
+			break;
+		case -30:
+			textoAzul("No existe variable");
 			break;
 		default:
 			break;
@@ -301,7 +330,6 @@ void liberarCPU(t_cpu* cpu, t_programa* programaDeCPU,bool force){
 			log_trace(logger,"Un programa ha sido movido a EXIT");
 			cantidadMemoryLeak(programaDeCPU);
 		} else {
-			log_trace(logger,"Excepcion de memoria. No se pudo liberar recursos del programa");
 			programaDeCPU->pcb->exitCode = -5;
 		}
 		pthread_mutex_unlock(&mutex_colasPlanificacion);
@@ -309,7 +337,7 @@ void liberarCPU(t_cpu* cpu, t_programa* programaDeCPU,bool force){
 		cerrarFDsiProcesoMuere(cpu->id,programaDeCPU);
 		pthread_mutex_unlock(&mutex_fs);
 		eliminarSiHayCPU(cpu->id);
-		programaDeCPU->pcb->exitCode= -10;
+		programaDeCPU->pcb->exitCode= -21;
 		send(programaDeCPU->id,"F",1,0);
 		pthread_exit(&cpu->hilo);
 	}
@@ -400,7 +428,7 @@ void* cpu(t_cpu * cpu){
 						}
 						pthread_mutex_lock(&mutex_colasPlanificacion);
 						if(proximoPrograma->pcb->exitCode == 0){
-							anuncio("Programa finalizo con exito");
+							log_info(logger,"Programa finalizo con exito");
 						} else if(proximoPrograma->pcb->exitCode < 0){
 							imprimirDescripcionError(proximoPrograma->pcb->exitCode);
 						}
