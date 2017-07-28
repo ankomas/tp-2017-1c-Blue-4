@@ -364,7 +364,7 @@ void* cpu(t_cpu * cpu){
 	void nico(){
 		printf("Nico\n");
 		if(proximoPrograma!=NULL){
-			proximoPrograma->debeFinalizar=1;
+			proximoPrograma->debeFinalizar=3;
 		}
 	}
 
@@ -426,6 +426,7 @@ void* cpu(t_cpu * cpu){
 							pthread_mutex_unlock(&mutex_colasPlanificacion);
 							free(res);
 							res=NULL;
+
 						}
 						pthread_mutex_lock(&mutex_colasPlanificacion);
 						if(proximoPrograma->pcb->exitCode == 0){
@@ -436,6 +437,13 @@ void* cpu(t_cpu * cpu){
 
 						send(proximoPrograma->id,"F",1,0);
 
+						if(proximoPrograma->debeFinalizar==1){
+							proximoPrograma->pcb->exitCode = -6;
+						} else if(proximoPrograma->debeFinalizar==2){
+							proximoPrograma->pcb->exitCode = -7;
+						} else if(proximoPrograma->debeFinalizar==3){
+							proximoPrograma->pcb->exitCode = -21;
+						}
 
 						if(finalizarProcesoMemoria(proximoPrograma->pcb->pid,true) == 0){
 							char * string = concat(3,"Moviendo el proceso ",string_itoa(proximoPrograma->pcb->pid)," a EXIT");
@@ -477,6 +485,13 @@ void* cpu(t_cpu * cpu){
 
 						send(proximoPrograma->id,"F",1,0);
 
+						if(proximoPrograma->debeFinalizar==1){
+							proximoPrograma->pcb->exitCode = -6;
+						} else if(proximoPrograma->debeFinalizar==2){
+							proximoPrograma->pcb->exitCode = -7;
+						} else if(proximoPrograma->debeFinalizar==3){
+							proximoPrograma->pcb->exitCode = -21;
+						}
 
 						if(finalizarProcesoMemoria(proximoPrograma->pcb->pid,true) == 0){
 							char * string = concat(3,"Moviendo el proceso ",string_itoa(proximoPrograma->pcb->pid)," a EXIT");
@@ -632,17 +647,17 @@ void* programa(t_programa *programa){
 	}
 	t_programa * aux = list_find(procesosEXIT->elements,(void*)_condicion3);
 	if(charsito[0] == 'F' && aux == NULL){
-		programa->debeFinalizar=true;
+		programa->debeFinalizar=2;
 		programa->pcb->exitCode = -7;
 		log_trace(logger,"La consola finalizo un programa");
 	}
 	if(charsito[0] == '0' && aux == NULL){
-		programa->debeFinalizar=true;
+		programa->debeFinalizar=1;
 		programa->pcb->exitCode = -6;
 		log_trace(logger,"La consola finalizo un programa por desconexion");
 	}
 	if(rev <= 0 && aux == NULL){
-		programa->debeFinalizar=true;
+		programa->debeFinalizar=1;
 		programa->pcb->exitCode = -6;
 		log_trace(logger,"La consola finalizo un programa por desconexion");
 	}
