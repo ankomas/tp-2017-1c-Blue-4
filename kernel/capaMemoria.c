@@ -609,7 +609,7 @@ void semSignal(uint32_t i){
 		anuncio("Ocurrio un problema al hacer un Signal");
 	if(send(i,"Y",1,0) < 0){
 		anuncio("Ocurrio un problema al hacer un Signal");
-		return 0;
+		return;
 	}
 	rev=realloc(rev,tamARecibir+1);
 	memset(rev,'\0',tamARecibir+1);
@@ -618,7 +618,7 @@ void semSignal(uint32_t i){
 	if(recv(i,rev,tamARecibir,MSG_WAITALL) <= 0)
 		anuncio("Ocurrio un problema al hacer un Signal");
 	if(send(i,"Y",1,0)){
-		return 0;
+		return;
 	}
 
 	printf("Llamada a SEM SIGNAL: %s\n",rev);
@@ -645,12 +645,12 @@ void semSignal(uint32_t i){
 
 		if(send(i,"Y",1,0) <= 0){
 			anuncio("Ocurrio un problema al hacer un Signal");
-			return 0;	
+			return;	
 		}
 	} else {
 		if(send(i,"N",1,0) <= 0){
 			anuncio("Ocurrio un problema al hacer un Signal");
-			return 0;
+			return;
 		}
 	}
 	free(rev);
