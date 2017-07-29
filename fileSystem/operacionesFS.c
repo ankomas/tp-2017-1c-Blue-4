@@ -333,7 +333,7 @@ int escribirEnBloques(int offset, int tam, char** bloques, char* cadena) {
 	if(cantBloquesEscribo ==0) return -1;
 	for (i = 0; i < cantBloquesEscribo; i++) {
 		ruta = obtenerRutaSegunBLoque(bloques[bloqueInicial + i]);
-		printf("Escribo en bloque: %s\n", bloques[bloqueInicial + i]);
+		//printf("Escribo en bloque: %s\n", bloques[bloqueInicial + i]);
 		FILE *archivo = fopen(ruta, "rb+");
 		tamAEscribir = configFS.tamBloque;
 		if (i + 1 == cantBloquesEscribo && offsetFinal > 0) tamAEscribir = offsetFinal;
@@ -343,13 +343,13 @@ int escribirEnBloques(int offset, int tam, char** bloques, char* cadena) {
 			fseek(archivo, offsetInicial, SEEK_SET); printf("Hago el fseek\n");
 			offsetInicial = 0;
 		}
-		printf("Tam a escribir: %i\n", tamAEscribir);
+		//printf("Tam a escribir: %i\n", tamAEscribir);
 		//if(!bitPower){
 		memcpy(buffer, cadena + tamEscrito, tamAEscribir);
 		tamEscrito += tamAEscribir;
 		//}
 		//bitPower=0;
-		printf("Cadena a escribir: %s\n", buffer);
+		//printf("Cadena a escribir: %s\n", buffer);
 		fwrite(buffer, 1, tamAEscribir, archivo);
 		char* string = concat(4, "Se escribio en el bloque: ", bloques[bloqueInicial+i], " la cadena: ", buffer);
 		log_trace(logFS, string);
