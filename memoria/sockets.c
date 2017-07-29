@@ -162,8 +162,17 @@ uint32_t peticionMemoria2(uint32_t socket)
 	bytes =*(uint32_t *)paquete.data;
 
 	send(socket,"Y",1,0);
-	printf("Se van a reservar %i bytes de memoria para el socket %i\n", bytes, socket);
-
+	//printf("Se van a reservar %i bytes de memoria para el socket %i\n", bytes, socket);
+	char* num_str = string_itoa(bytes);
+	char* numero_str = string_itoa(socket);
+	char* mensaje_log = concat(2,"Se van a reservar en la memoria los siguientes bytes: ",num_str);
+	log_trace(logMemoria,mensaje_log);
+	free(mensaje_log);
+	free(num_str);
+	mensaje_log = concat(2,"del socket: ",numero_str);
+	log_trace(logMemoria,mensaje_log);
+	free(mensaje_log);
+	free(numero_str);
 	//reservarMemoria(bytes);
 
 	free(paquete.data);
@@ -194,9 +203,19 @@ char* recibir_PID_PAGINAS(int socket,uint32_t* pid,uint32_t* pagina,uint32_t* pu
 		}
 		//printf("entro al deserializar \n");
 		*pid=obtenerNumeroSerializado(puntero,buffer);
-		printf("el pid es: %d \n",*pid);
+		//printf("el pid es: %d \n",*pid);
 		*pagina=obtenerNumeroSerializado(puntero,buffer);
-		printf("pagina/s : %d \n",*pagina);
+		//printf("pagina/s : %d \n",*pagina);
+		char* num_str = string_itoa(*pagina);
+	char* numero_str = string_itoa(*pid);
+	char* mensaje_log = concat(2,"Para el pid: ",numero_str);
+	log_trace(logMemoria,mensaje_log);
+	free(mensaje_log);
+	free(numero_str);
+	mensaje_log = concat(2,"Se reservan pagina/s: ",num_str);
+	log_trace(logMemoria,mensaje_log);
+	free(mensaje_log);
+	free(num_str);
 		return buffer;
 }
 
@@ -222,7 +241,12 @@ void peticionMemoria(uint32_t socket)
 		return ;
 	}
 	send(socket,"Y",1,0);
-	printf("Se van a reservar bytes de memoria para el proceso %i\n", pid);
+	//printf("Se van a reservar bytes de memoria para el proceso %i\n", pid);
+	char* num_str = string_itoa(pid);
+	char* mensaje_log = concat(2,"Se van a reservar bytes de memoria para el proceso: ",num_str);
+	log_trace(logMemoria,mensaje_log);
+	free(mensaje_log);
+	free(num_str);
 	inicializarPrograma(pid,paginasRequeridas);
 	//printf("salgo del inicializar \n");
 }
@@ -252,7 +276,12 @@ int recibir_PID_PAGINA_OFFSET_TAMANIO(int socket,uint32_t* pid,uint32_t* pagina,
 		free(buffer);
 		return 0;
 	}
-	printf("no se pudo recibir: pid,pagina,offset,tamanio  de : %d\n",socket);
+	//printf("no se pudo recibir: pid,pagina,offset,tamanio  de : %d\n",socket);
+	char* numero_str = string_itoa(socket);
+	char* mensaje_log = concat(2,"No se pudo recibir data para el socket: ",numero_str);
+	log_error(logMemoria,mensaje_log);
+	free(mensaje_log);
+	free(numero_str);
 	return -1;
 }
 
@@ -366,12 +395,19 @@ void agregarPaginasA(int socket)
 		resultado=asignarPaginasAUnProceso(pid,paginasRequeridas);
 		if(resultado<0)
 		{
-			texto_en_color_de_error(" LA MEMORIA NO POSEE MAS PAGINAS DISPONIBLES \n");
+			//texto_en_color_de_error(" LA MEMORIA NO POSEE MAS PAGINAS DISPONIBLES \n");
+	
+	log_error(logMemoria,"LA MEMORIA NO POSEE MAS MARCOS DISPONIBLES ");
 			send(socket,"N",1,0);
 			return;
 		}
 		send(socket,"Y",1,0);
-		printf("Se agregaron paginas para el proceso %i\n", pid);
+		//printf("Se agregaron paginas para el proceso %i\n", pid);
+	char* num_str = string_itoa(pid);
+	char* mensaje_log = concat(2,"SE AGREGARON PAGINAS CORRECTAMENTE PARA EL PROCESO : ",num_str);
+	log_trace(logMemoria,mensaje_log);
+	free(mensaje_log);
+	free(num_str);
 }
 
 
@@ -388,7 +424,12 @@ void darFinA(int socket)
 		return;
 	}
 		send(socket,"Y",1,0);
-	printf("Se finalizo el proceso %i\n", pid);
+	//printf("Se finalizo el proceso %i\n", pid);
+	char* num_str = string_itoa(pid);
+	char* mensaje_log = concat(2,"Se finalizo correctamente el proceso: ",num_str);
+	log_trace(logMemoria,mensaje_log);
+	free(mensaje_log);
+	free(num_str);
 }
 
 
@@ -411,8 +452,12 @@ void eliminarPaginaDe(int socket)
 		return;
 	}
 	send(socket,"Y",1,0);
-	printf("Se elimino una pagina del proceso: %i\n", pid);
-}
+	//printf("Se elimino una pagina del proceso: %i\n", pid);
+	char* num_str = string_itoa(pid);
+	char* mensaje_log = concat(2,"Se elimino correctamente el proceso : ",num_str);
+	log_trace(logMemoria,mensaje_log);
+	free(mensaje_log);
+	free(num_str);
 
 
 void manejarProgramaCaido(){
@@ -427,11 +472,23 @@ void operacionesMemoria(int socket)
 	{
 	if(recv(socket,&cop,1,MSG_WAITALL)==0)
 		{
-			printf("se desconecto el cliente : %d",socket);
+			//printf("se desconecto el cliente : %d",socket);
+		char* num_str = string_itoa(socket);
+	char* mensaje_log = concat(2,"Se desconecto el cliente: ",num_str);
+	log_error(logMemoria,mensaje_log);
+	free(mensaje_log);
+	free(num_str);
 			return;
 		}
 	signal(SIGPIPE, manejarProgramaCaido);
-	printf(" \n %s LLEGUE A OPERACIONES MEMORIA con %c %s \n",KBLU, cop,KNRM);
+	//printf(" \n %s LLEGUE A OPERACIONES MEMORIA con %c %s \n",KBLU, cop,KNRM);
+        char* cop_str = malloc(2);
+		memset(cop_str,'\0',2);
+		memcpy(cop_str,cop,1);
+	char* mensaje_log = concat(2,"EL CODIGO DE OPERACION DE MEMORIA ES : ",cop_str);
+	log_trace(logMemoria,mensaje_log);
+	free(mensaje_log);
+	free(cop_str);	
 	switch(cop)
 	{
 		case 'A': agregarPaginasA(socket);break;
@@ -471,7 +528,7 @@ int handshakeHandler(int i){
 		return -1;
 	} else {
 		if(sendall(i,charToString(UMC_ID),(uint32_t*)&tamHandshake) == 0){
-			printf("Handshake exitoso\n");
+			log_trace(logMemoria,"Handshake exitoso");
 
 			pthread_attr_t hiloDetachable;
 			pthread_t hilo;
