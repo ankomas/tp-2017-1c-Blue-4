@@ -368,7 +368,7 @@ void* cpu(t_cpu * cpu){
 	}
 
 	void nico(){
-		printf("Nico\n");
+		//printf("Nico\n");
 		if(proximoPrograma!=NULL){
 			proximoPrograma->debeFinalizar=3;
 		}
