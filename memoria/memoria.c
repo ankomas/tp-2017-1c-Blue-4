@@ -30,6 +30,7 @@ void inicializarEstructurasAdministrativas()
 	inicializarMemoria();
 	inicializarCache();
 	logMemoria= log_create("logMemoria.log",rutaAbsolutaDe("Debug/memoria"),true,LOG_LEVEL_TRACE);
+	
 }
 
 void eliminarEstructurasAdministrativas()
