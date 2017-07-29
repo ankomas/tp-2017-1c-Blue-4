@@ -86,7 +86,17 @@ int guardarEnMemoria(uint32_t i, uint32_t pid,uint32_t pagina,uint32_t offset,ui
 	char *streamTamanioContenido = intToStream(tamanioContenido);
 
 	//[Identificador del Programa], [#página], [offset], [tamaño] y [buffer]
+	char* auxA = string_itoa(pid);
+	char* auxB = string_itoa(pagina);
+	char* auxC = string_itoa(offset);
+	char* auxD = string_itoa(tamanioContenido);
+	char* auxE = concat(8,"PID: ", auxA,"", auxB,"", auxC,"", auxD);
 	printf("PID: %i, PAGINA: %i, OFFSET: %i, TAMANIO: %i\n",pid,pagina,offset,tamanioContenido);
+	free(auxA);
+	free(auxB);
+	free(auxC);
+	free(auxD);
+	free(auxE);
 /*
 	int wtf;
 	char *wtf2=contenido;
@@ -275,7 +285,7 @@ int pedirPagias(uint32_t pid,uint32_t cantPaginas){
 	free(paquete.data);
 
 	recv(idUMC,&res,1,0);
-	printf("PEDIR PAGINAS COP: %c\n",res);
+	//printf("PEDIR PAGINAS COP: %c\n",res);
 	switch(res){
 	case 'Y':
 		log_trace(logger,"Llamada a PEDIR PAGINAS correcto");
