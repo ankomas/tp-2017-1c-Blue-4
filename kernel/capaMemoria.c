@@ -558,9 +558,10 @@ bool semWait(uint32_t i,uint32_t pid, t_programa * proximoPrograma){
 	//pthread_mutex_lock(&mutex_semaforos);
 	t_semaforo * semaforoObtenido =(t_semaforo *)dictionary_get(semaforos,rev);
 	if(dictionary_has_key(semaforos,rev)){
-		testi(i);
-		test("Valor semaforo en Wait antes de decrementar");
-		testi(semaforoObtenido->valor);
+		log_info(logger,"Valor semaforo en Wait antes de decrementar");
+		char* valString = string_itoa(semaforoObtenido->valor);
+		log_info(logger,valString);
+		free(valString);
 		semaforoObtenido->valor--;
 
 		char* intConcatenado = string_itoa(semaforoObtenido->valor);
@@ -647,9 +648,10 @@ void semSignal(uint32_t i){
 	//pthread_mutex_lock(&mutex_semaforos);
 	t_semaforo * semaforoObtenido =(t_semaforo *)dictionary_get(semaforos,rev);
 	if(dictionary_has_key(semaforos,rev)){
-		testi(i);
-		test("Valor semaforo en Signal antes de aumentar");
-		testi(semaforoObtenido->valor);
+		log_info(logger,"Valor semaforo en Signal antes de aumentar");
+		char* valString = string_itoa(semaforoObtenido->valor);
+		log_info(logger,valString);
+		free(valString);
 		semaforoObtenido->valor++;
 
 		char* intConcatenado = string_itoa(semaforoObtenido->valor);
