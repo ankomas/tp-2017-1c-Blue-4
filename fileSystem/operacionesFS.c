@@ -297,8 +297,8 @@ void* lecturaSegunTamanio(int offset, int tam, char** bloques) {
 	char* ruta;
 	cantBloquesLeo = cuantosBloquesNecesito(offset, tam, &bloqueInicial,
 			&offsetInicial, &offsetFinal);
-	printf("Bloque Inicial : %i, Cuantos Bloques Leo: %i, Offset: %i, Tam: %i, Offset Inicial: %i, Offset Final: %i\n",
-			bloqueInicial, cantBloquesLeo, offset, tam, offsetInicial, offsetFinal);
+	//printf("Bloque Inicial : %i, Cuantos Bloques Leo: %i, Offset: %i, Tam: %i, Offset Inicial: %i, Offset Final: %i\n",
+	//		bloqueInicial, cantBloquesLeo, offset, tam, offsetInicial, offsetFinal);
 	if(cantBloquesLeo == 0) return NULL;
 	for (i = 0; i < cantBloquesLeo; i++) {
 		ruta = obtenerRutaSegunBLoque(bloques[bloqueInicial + i]);
@@ -311,7 +311,10 @@ void* lecturaSegunTamanio(int offset, int tam, char** bloques) {
 		}
 		if (i + 1 == cantBloquesLeo && offsetFinal > 0) tamALeer = offsetFinal;
 		fread(buffer, 1, tamALeer, archivo);
-		printf("lo que se lee del fread es : %s \n",buffer);
+		//printf("lo que se lee del fread es : %s \n",buffer);
+		char* string = concat(2, "La cadena leida es: ", buffer);
+		log_trace(logFS, string);
+		free(string);
 		memcpy(cadena + tamLeido, buffer, tamALeer);
 		tamLeido += tamALeer;
 		fclose(archivo);
@@ -328,8 +331,8 @@ int escribirEnBloques(int offset, int tam, char** bloques, char* cadena) {
 	char* ruta;
 	cantBloquesEscribo = cuantosBloquesNecesito(offset, tam, &bloqueInicial,
 			&offsetInicial, &offsetFinal);
-	printf("Bloque Inicial : %i, Cuantos Bloques Escribo: %i, Offset: %i, Tam: %i, Offset Inicial: %i, Offset Final: %i\n",
-				bloqueInicial, cantBloquesEscribo, offset, tam, offsetInicial, offsetFinal);
+	//printf("Bloque Inicial : %i, Cuantos Bloques Escribo: %i, Offset: %i, Tam: %i, Offset Inicial: %i, Offset Final: %i\n",
+	//			bloqueInicial, cantBloquesEscribo, offset, tam, offsetInicial, offsetFinal);
 	if(cantBloquesEscribo ==0) return -1;
 	for (i = 0; i < cantBloquesEscribo; i++) {
 		ruta = obtenerRutaSegunBLoque(bloques[bloqueInicial + i]);
