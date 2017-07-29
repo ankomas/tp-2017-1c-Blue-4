@@ -207,7 +207,18 @@ int asignarEnPagHeap(t_programa *programa,uint32_t pag, uint32_t tam){
 				pos.off=offset2;
 				pos.size=tam;
 
-				printf("Asignar en heap correcto, pos: %i (%i,%i,%i)\n",posAPuntero(pos,tamanioPagina),pos.pag,pos.off,pos.size);
+				char* intConcatenado = string_itoa(posAPuntero(pos,tamanioPagina));
+				char* intConcatenado2 = string_itoa(pos.pag);
+				char* intConcatenado3 = string_itoa(pos.off);
+				char* intConcatenado4 = string_itoa(pos.size);
+				char* unStringConcatenado = concat(9,"Asignar en heap correcto, pos: ",intConcatenado," (",intConcatenado2,",",intConcatenado3,",",intConcatenado4,")");
+				log_info(logger,unStringConcatenado);
+				free(unStringConcatenado);
+				free(intConcatenado);
+				free(intConcatenado2);
+				free(intConcatenado3);
+				free(intConcatenado4);
+				
 				return posAPuntero(pos,tamanioPagina);
 			}else if(metadata.size==tam&&!(offset+metadata.size+metadataHeap_tam()==tamanioPagina)){
 				//cambiar a ocupado
