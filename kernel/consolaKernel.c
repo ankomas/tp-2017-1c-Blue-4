@@ -239,12 +239,13 @@ void *consolaKernel(){
 					t_programa * programaReady = list_find(procesosREADY->elements,(void*)_condicion3);
 
 					if(programaRunning != NULL){
-						programaEncontrado->debeFinalizar = 1;
+						programaEncontrado->debeFinalizar = 4;
 						programaEncontrado->pcb->exitCode = -19;
 					} else if(programaNew != NULL){
+						programaEncontrado->pcb->exitCode = -19;
 						moverPrograma(programaEncontrado,procesosNEW,procesosEXIT);
 					} else {
-
+						programaEncontrado->pcb->exitCode = -19;
 						int resFinalizarPrograma = finalizarProcesoMemoria(programaEncontrado->pcb->pid,false);
 
 						if(resFinalizarPrograma == 0){
