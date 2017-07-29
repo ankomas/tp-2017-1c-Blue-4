@@ -86,8 +86,7 @@ void crearDirectorios(char* path)
 	char* ruta_Archivo=string_new();
 	if(directorioSiguiente==NULL)
 	{
-		printf("no hay directorios \n");
-		//free(directorio);
+		log_warning(logFS, "no hay directorios");
 		free(ruta_Archivo);
 		return;
 	}
@@ -209,7 +208,7 @@ char* obtenerArchivoSegunBloque(char* numeroDeBloque)
 
 int cuantosBloquesRepresenta(int tam){
 	int i=0;
-	printf("tam : %d \n ",tam);
+	//printf("tam : %d \n ",tam);
 	while(tam >= configFS.tamBloque){
 		tam -= configFS.tamBloque;
 		i++;
@@ -322,7 +321,8 @@ int escribirEnBloques(int offset, int tam, char** bloques, char* cadena) {
 		if (offsetInicial > 0) {
 			if (i + 1 == cantBloquesEscribo && offsetFinal > 0) tamAEscribir = offsetFinal - offsetInicial;
 			else tamAEscribir -= offsetInicial;
-			fseek(archivo, offsetInicial, SEEK_SET); printf("Hago el fseek\n");
+			fseek(archivo, offsetInicial, SEEK_SET);
+			log_trace(logFS, "Se ha desplazado el cursor exitosamente");
 			offsetInicial = 0;
 		}
 		//printf("Tam a escribir: %i\n", tamAEscribir);
@@ -380,7 +380,7 @@ char* pedirBloques(int bloquesAPedir,char** bloquesAnteriores)
 	while(i<bloquesAPedir)
 	{
 		bloqueLibre=getBloqueLibre();
-		printf("bloque libre: %d \n",bloqueLibre);
+		//printf("bloque libre: %d \n",bloqueLibre);
 		if(bloqueLibre<0)return NULL;
 		ocuparBloque(bloqueLibre);
 		if(i==0)bloques=generarPrimerosBloques(bloquesAnteriores);
@@ -409,14 +409,22 @@ int guardarDatos(char* path,int offset, int tam, char* texto){
 	if(offset+tam>=info.tamanio)nuevoTam=offset+tam;
 	else nuevoTam=info.tamanio;
 	//SIGUE PIDIENDO BLOQUESS!
-	printf("Bloques de offset+tam: %i\n", cuantosBloquesRepresenta(offset+tam));
-	printf("Bloques de info.bloques: %i\n", cantidadDeBloquesEn(info.bloques));
+	//printf("Bloques de offset+tam: %i\n", cuantosBloquesRepresenta(offset+tam));
+	//printf("Bloques de info.bloques: %i\n", cantidadDeBloquesEn(info.bloques));
 
 	if(cuantosBloquesRepresenta(offset+tam) > cantidadDeBloquesEn(info.bloques)){
 		bloquesAPedir = cuantosBloquesRepresenta(offset+tam) - cantidadDeBloquesEn(info.bloques);
-		printf("bloques q pido: %d \n",bloquesAPedir);
+		//printf("bloques q pido: %d \n",bloquesAPedir);
+		char* bloquesAPedirString = string_itoa(bloquesAPedir);
+		char* string = concat(2, "Bloques a pedir: ", bloquesAPedirString);
+		log_warning(logFS, string);
+		free(string);
+		free(bloquesAPedirString);
 		char* bloques=pedirBloques(bloquesAPedir,info.bloques);
-		printf("los bloques son: %s \n",bloques);
+		char* string2 = concat(2, "Los bloques son: ", bloques);
+		log_trace(logFS, string2);
+		free(string2);
+		//printf("los bloques son: %s \n",bloques);
 		if(bloques==NULL)
 		{
 			free(info.bloques);
@@ -426,7 +434,7 @@ int guardarDatos(char* path,int offset, int tam, char* texto){
 		}
 		free(info.bloques);
 		info=actualizarArchivo(path,bloques,nuevoTam);
-		printf("Offset: %i, tam: %i, info.bloques: %p, texto: %p\n",offset,tam,info.bloques,texto);
+		//printf("Offset: %i, tam: %i, info.bloques: %p, texto: %p\n",offset,tam,info.bloques,texto);
 		escribirEnBloques(offset, tam, info.bloques, texto);
 		//free(ruta);
 		free(bloques);
