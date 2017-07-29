@@ -43,8 +43,17 @@ int buscarPaginaAdecuada(t_list *heap,uint32_t tam,int *desde,int inicioHeap){
 int buscarPaginaAdecuada(t_list *heap,uint32_t tam,int *desde,uint32_t inicioHeap){
 	t_heap *aux=NULL;
 
-	printf("BUSCAR PAGINA ADECUADA\n");
-	printf("Tam lista heap: %i, desde: %i, inicio heap: %i\n",list_size(heap),*desde,inicioHeap);
+	log_info(logger,"BUSCAR PAGINA ADECUADA\n");
+	char* intConcatenado = string_itoa(list_size(heap));
+	char* intConcatenado2 = string_itoa(*desde);
+	char* intConcatenado3 = string_itoa(inicioHeap);
+	char * unStringConcatenado = concat(6,"Tam lista heap: ",intConcatenado," desde: ",intConcatenado2," inicio heap: ",intConcatenado3);
+	log_info(logger,unStringConcatenado);
+	free(unStringConcatenado);
+	free(intConcatenado);
+	free(intConcatenado2);
+	free(intConcatenado3);
+
 	while(1){
 		bool _heapByPage(t_heap *self){
 			return self->nPag==*desde;
@@ -54,11 +63,23 @@ int buscarPaginaAdecuada(t_list *heap,uint32_t tam,int *desde,uint32_t inicioHea
 
 		if(aux==NULL)
 			return -1;
-		printf("Encontre la pag %i del heap, tamanio disponible: %i\n",aux->nPag,aux->tamDisp);
-		//La pag x del heap tiene tam suficiente?
+		log_info(logger,"BUSCAR PAGINA ADECUADA\n");
+			char* intConcatenado = string_itoa(aux->nPag);
+			char* intConcatenado2 = string_itoa(aux->tamDisp);
+			char * unStringConcatenado = concat(5,"Encontre la pag ",intConcatenado,"  del heap, tamanio disponible: ",intConcatenado2,"\n");
+			log_info(logger,unStringConcatenado);
+			free(unStringConcatenado);
+			free(intConcatenado);
+			free(intConcatenado2);
 		if(aux->tamDisp>=tam)
 			return *desde;
-		printf("El tamanio pedido %i es mayor al tamanio disponible %i\n",tam,aux->tamDisp);
+		intConcatenado = string_itoa(tam);
+		intConcatenado2 = string_itoa(aux->tamDisp);
+		unStringConcatenado = concat(5,"El tamanio pedido ",intConcatenado," es mayor al tamanio disponible ",intConcatenado2,"\n");
+		log_info(logger,unStringConcatenado);
+		free(unStringConcatenado);
+		free(intConcatenado);
+		free(intConcatenado2);
 		*desde+=1;
 }
 }
@@ -102,11 +123,11 @@ int nuevaPagHeap(t_programa *programa,uint32_t tam,uint32_t pag){
 
 	metadataStream=metadataHeapAStream(nuevoMetaHeap);
 
-	printf("NUEVA PAG HEAP Guardar en memoria el metadata\n");
+	log_info(logger,"NUEVA PAG HEAP Guardar en memoria el metadata\n");
 	res=guardarEnMemoria(idUMC , programa->pcb->pid,pagPedida,0,metadataHeap_tam(),metadataStream);
 
 	if(res<0){
-		printf("NUEVA PAG HEAP ERROR: no se pudo guardar en memoria\n");
+		log_info(logger,"NUEVA PAG HEAP ERROR: no se pudo guardar en memoria\n");
 		return -1;
 	}
 
@@ -135,12 +156,12 @@ void guardarMetadata(t_metadata_heap metadata,uint32_t pid,uint32_t pag,uint32_t
 }
 
 void visualizarMetadata(t_metadata_heap metadata){
-	printf("Metadata ");
+	log_info(logger,"Metadata ");
 	if(metadata.free==true)
-		printf("FREE\n");
+		log_info(logger,"FREE\n");
 	else
-		printf("USED\n");
-	printf("Metadata size: %i\n",metadata.size);
+		log_info(logger,"USED\n");
+	log_info("Metadata size: %i\n",metadata.size);
 }
 
 int asignarEnPagHeap(t_programa *programa,uint32_t pag, uint32_t tam){
@@ -212,12 +233,24 @@ int asignarEnPagHeap(t_programa *programa,uint32_t pag, uint32_t tam){
 				pos.off=offset2;
 				pos.size=tam;
 
-				printf("Asignar en heap correcto, pos: %i (%i,%i,%i)\n",posAPuntero(pos,tamanioPagina),pos.pag,pos.off,pos.size);
+				char* intConcatenado = string_itoa(posAPuntero(pos,tamanioPagina));
+				char* intConcatenado2 = string_itoa(pos.pag);
+				char* intConcatenado3 = string_itoa(pos.off);
+				char* intConcatenado4 = string_itoa(pos.size);
+				char* unStringConcatenado = concat(9,"Asignar en heap correcto, pos: ",intConcatenado," (",intConcatenado2,",",intConcatenado3,",",intConcatenado4,")");
+				log_info(logger,unStringConcatenado);
+				free(unStringConcatenado);
+				free(intConcatenado);
+				free(intConcatenado2);
+				free(intConcatenado3);
+				free(intConcatenado4);
+
+				//printf("Asignar en heap correcto, pos: %i (%i,%i,%i)\n",posAPuntero(pos,tamanioPagina),pos.pag,pos.off,pos.size);
 				return posAPuntero(pos,tamanioPagina);
 			}
 		}
 	offset+=metadata.size+metadataHeap_tam();
-	printf("OFFSET AHORA ES: %i\n",offset);
+	log_info(logger,"OFFSET AHORA ES: %i\n",offset);
 	}
 
 	return -1;
@@ -230,17 +263,15 @@ t_puntero allocEnHeap(t_programa *programa,uint32_t tam){
 	int desde=inicioHeap;
 
 
-	printf("ALLOC EN HEAP\n");
-	printf("Tam: %i, tamanio pagina: %i, metadata tam: %i\n",tam,tamanioPagina,metadataHeap_tam());
+	log_info(logger,"ALLOC EN HEAP\n");
+	log_info(logger,"Tam: %i, tamanio pagina: %i, metadata tam: %i\n",tam,tamanioPagina,metadataHeap_tam());
 	if(tam>tamanioPagina-metadataHeap_tam()*2){
 		return -1;
 	}
 
 	while(res==-1){
-		printf("\n");
 		pag=buscarPaginaAdecuada(programa->paginasHeap,tam,&desde,inicioHeap);
-		printf("Res buscar pag adecuada: %i, valor desde: %i\n",pag,desde);
-		printf("\n");
+		log_info(logger,"Res buscar pag adecuada: %i, valor desde: %i\n",pag,desde);
 		if(pag==-1)
 			pag=nuevaPagHeap(programa,tam,desde);
 		if(pag==-1){
@@ -322,7 +353,7 @@ void compactador(t_programa *programa,uint32_t pag,t_heap* heapKernel){
 	while(res){
 		if(compactar(programa->pcb->pid,pag,&metadata,offset,siguiente,heapKernel,programa)){
 			//Se pudo compactar, busco otro metadata
-			printf("COMPACTADO, NUEVO METADATA: \n");
+			log_info(logger,"COMPACTADO, NUEVO METADATA: \n");
 			visualizarMetadata(metadata);
 			res=buscarSiguienteMetadataHeap(programa->pcb->pid,pag,offset,&offsetsig,metadata,&siguiente);
 /*
@@ -389,7 +420,7 @@ int liberar(t_programa* programa,t_puntero puntero){
 	t_heap *heapKernel;
 	//uint32_t offsetsig=0;
 
-	printf("Llamada a LIBERAR\n");
+	log_info(logger,"Llamada a LIBERAR\n");
 
 	posMetadata.off-=metadataHeap_tam();
 	metadata=buscarMetadataHeap(programa->pcb->pid,posMetadata.pag,posMetadata.off);
@@ -415,4 +446,3 @@ int liberar(t_programa* programa,t_puntero puntero){
 
 	return 1;
 }
-
