@@ -91,7 +91,7 @@ uint32_t pidActual = 100;
 		res=handshake(socketCliente);
 
 		if(id!=res){
-			printf("Error: el id del proceso al que se conecto (%i) no es el requerido (%i)\n",res,id);
+			log_error(logger,"Error: el id del proceso al que se conecto (%i) no es el requerido (%i)\n",res,id);
 			free(servinfo);
 			return -1;
 		}
@@ -331,7 +331,7 @@ int servidor(void)
 						if (newfd > fdmax) {    // keep track of the max
 							fdmax = newfd;
 						}
-						printf("selectserver: new connection from %s on "
+						//printf("selectserver: new connection from %s on "
 							"socket %d\n",
 							inet_ntop(remoteaddr.ss_family,
 								get_in_addr((struct sockaddr*)&remoteaddr),
