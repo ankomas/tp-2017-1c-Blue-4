@@ -644,7 +644,7 @@ void semSignal(uint32_t i){
 		return;
 	}
 
-	printf("Llamada a SEM SIGNAL: %s\n",rev);
+	//printf("Llamada a SEM SIGNAL: %s\n",rev);
 	//pthread_mutex_lock(&mutex_semaforos);
 	t_semaforo * semaforoObtenido =(t_semaforo *)dictionary_get(semaforos,rev);
 	if(dictionary_has_key(semaforos,rev)){
