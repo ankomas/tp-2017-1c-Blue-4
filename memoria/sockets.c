@@ -134,7 +134,7 @@ char* recibirPaquete(int socket,uint32_t tamanio,int* resultadoDelRecv)
 	//printf("entro al recvall \n");
 	//printf("se va a recibir data de socket : %d ,tamanio: %d \n",socket,tamanio);
 	*resultadoDelRecv=recvall(socket,data,tamanio);
-	testi(*resultadoDelRecv);
+	//testi(*resultadoDelRecv);
 	//printf("sali del recvall \n");
 	return data;
 }
@@ -298,7 +298,12 @@ char* recibir_PID_PAGINA_OFFSET_TAMANIO_DATA(int socket,uint32_t* pid,uint32_t* 
 			free(buffer);
 			return data;
 		}
-		printf("no se pudo recibir: pid,pagina,offset,tamanio,data  de : %d\n",socket);
+		//printf("no se pudo recibir: pid,pagina,offset,tamanio,data  de : %d\n",socket);
+		char* numero_str = string_itoa(socket);
+		char* mensaje_log = concat(2,"No se pudo recibir data para el socket: ",numero_str);
+		log_error(logMemoria,mensaje_log);
+		free(mensaje_log);
+		free(numero_str);
 		return NULL;
 }
 
@@ -454,7 +459,7 @@ void eliminarPaginaDe(int socket)
 	send(socket,"Y",1,0);
 	//printf("Se elimino una pagina del proceso: %i\n", pid);
 	char* num_str = string_itoa(pid);
-	char* mensaje_log = concat(2,"Se elimino correctamente el proceso : ",num_str);
+	char* mensaje_log = concat(2,"Se elimino correctamente una pagina del proceso : ",num_str);
 	log_trace(logMemoria,mensaje_log);
 	free(mensaje_log);
 	free(num_str);
@@ -673,7 +678,12 @@ int servidor()
 						// got error or connection closed by client
 						if (nbytes == 0) {
 							// connection closed
-							printf("selectserver: se desconecto el socket %d \n", i);
+							//printf("selectserver: se desconecto el socket %d \n", i);
+							char* numero_str = string_itoa(i);
+							char* mensaje_log = concat(2,"Se Desconecto el socket : ",numero_str);
+							log_error(logMemoria,mensaje_log);
+							free(mensaje_log);
+							free(numero_str);
 						} else {
 							perror("recv");
 						}
