@@ -438,7 +438,11 @@ void* cpu(t_cpu * cpu){
 						if(proximoPrograma->pcb->exitCode == 0){
 							log_info(logger,"Programa finalizo con exito");
 						} else if(proximoPrograma->pcb->exitCode < 0){
-							imprimirDescripcionError(proximoPrograma->pcb->exitCode);
+							char * intStringificado = string_itoa(proximoPrograma->pcb->exitCode);
+							char* stringAuxiliar = concat(2,"Programa finalizo con error",intStringificado);
+							log_error(logger,stringAuxiliar);
+							free(intStringificado);
+							free(stringAuxiliar);
 						}
 
 						send(proximoPrograma->id,"F",1,0);
