@@ -69,8 +69,21 @@ void actualizarCounterMarco(uint32_t marco) {
 void escribirCache(uint32_t marco, uint32_t offset, uint32_t tamData,
 		void *data) {
 	pthread_mutex_lock(&escribiendoMemoriaCache);
-	printf("CACHE %p MARCO %i CONFIG TAM MARCO %i OFFSET %i\n",cache,marco,configDeMemoria.tamMarco,offset);
-	printf("DATA %p\n",data);
+	//printf("CACHE %p MARCO %i CONFIG TAM MARCO %i OFFSET %i\n",cache,marco,configDeMemoria.tamMarco,offset);
+	//printf("DATA %p\n",data);
+	char* marco_str = string_itoa(marco);
+	char* offset_str=string_itoa(offset);
+	char* tamMarco_str=string_itoa(configDeMemoria.tamMarco);
+		char* mensaje_log = concat(2,"Se va a ESCRIBIR en CACHE el marco: ",marco_str);
+		char* mensaje_log2=concat(3,mensaje_log," el cual, el tiene un tamaño de: ",tamMarco_str);
+		char* mensaje_log3=concat(3,mensaje_log2," con un offset de: ",offset_str);
+		log_trace(logMemoria,mensaje_log3);
+		free(mensaje_log);
+		free(mensaje_log2);
+		free(mensaje_log3);
+		free(marco_str);
+		free(offset_str);
+		free(tamMarco_str);
 	memcpy(cache + marco * configDeMemoria.tamMarco + offset, data, tamData);
 	actualizarCounterMarco(marco);
 	pthread_mutex_unlock(&escribiendoMemoriaCache);
@@ -233,6 +246,7 @@ int inicializarPrograma(uint32_t pid, uint32_t paginasRequeridas) {
 	//pthread_mutex_unlock(mutexMemoria);
 }
 
+
 int eliminarPaginaDeUnProceso(uint32_t pid, uint32_t paginaAEliminar) {
 	tablaPaginas_t* tablaDePaginas;
 	tablaDePaginas = obtenerTablaDePaginas();
@@ -311,11 +325,11 @@ uint32_t finalizarPrograma(uint32_t pid) {
 		pthread_mutex_unlock(&mutex_tablaCache);
 	}
 
-	textoAmarillo("LAS PAGINAS TOTALES SON: ");
+	//textoAmarillo("LAS PAGINAS TOTALES SON: ");
 	paginasTotales=obtener_paginasActualesDeProcesoActivo(pid);
-	char* string_num = string_itoa(paginasTotales);
-	textoAmarillo(string_num);
-	free(string_num);
+	//char* string_num = string_itoa(paginasTotales);
+	//textoAmarillo(string_num);
+	//free(string_num);
 	aumentarMarcosDisponibles(paginasTotales);
 	eliminar_DataDeProcesoActivo(pid);
 	return 0;
@@ -349,10 +363,12 @@ int asignarPaginasAUnProceso(uint32_t pid, uint32_t paginasRequeridas) {
 
 	while (i < paginasRequeridas) {
 		pagina = proximaPaginaAAsignar(pid,paginasMaximas);
+		/*
 		char* prox_pagina_string= string_itoa(pagina);
 		textoAmarillo("LA PROXIMA PAGINA A ASIGNAR ES : ");
 		textoAmarillo(prox_pagina_string);
 		free(prox_pagina_string);
+		*/
 		marco = nuevoMarco(pid, pagina);
 		pthread_mutex_lock(&mutex_tablaDePaginas);
 		tablaDePaginas[marco].pid = pid;
@@ -461,9 +477,22 @@ int agregarProcesoACache(int pid, int pag) {
 			pthread_mutex_unlock(&semCacheDisp);
 			marco = lru();
 	}
-	printf("Cache: se le asignara el marco %i al proceso %i, pagina %i\n", marco, pid, pag);
+	//printf("Cache: se le asignara el marco %i al proceso %i, pagina %i\n", marco, pid, pag);
 	tablaCache_t* tabla = obtenerTablaCache();
 	pthread_mutex_lock(&mutex_tablaCache);
+	char* numero_str = string_itoa(marco);
+	char* pid_str=string_itoa(pid);
+	char* pag_str=string_itoa(pag);
+	char* mensaje_log = concat(2,"Cache: se le asignara el marco: ",numero_str);
+	char* mensaje_log2=concat(3,mensaje_log," al proceso: ",pid_str);
+	char* mensaje_log3=concat(3,mensaje_log2," pagina: ",pag_str);
+	log_trace(logMemoria,mensaje_log3);
+	free(mensaje_log);
+	free(mensaje_log2);
+	free(mensaje_log3);
+	free(numero_str);
+	free(pid_str);
+	free(pag_str);
 	tabla[marco].pid = pid;
 	tabla[marco].pagina = pag;
 	tabla[marco].counter = contador++;
@@ -486,7 +515,7 @@ void* leer(uint32_t pid, uint32_t pag, uint32_t offset, uint32_t tam) { // SIGUE
 		copiarMemoriaACache(pid, pag);
 	}
 	else
-		printf("Esta en cache: Se accede rapidamente\n");
+		log_trace(logMemoria,"el proceso se encuentra en cache, se accede rapidamente");
 	return leerCache(pid,pag,offset, tam);
 }
 
