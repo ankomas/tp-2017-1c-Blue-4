@@ -552,7 +552,13 @@ bool semWait(uint32_t i,uint32_t pid, t_programa * proximoPrograma){
 		test("Valor semaforo en Wait antes de decrementar");
 		testi(semaforoObtenido->valor);
 		semaforoObtenido->valor--;
-		printf("Nuevo valor de %s: %i\n",rev,semaforoObtenido->valor);
+
+		char* intConcatenado = string_itoa(semaforoObtenido->valor);
+		char * unStringConcatenado = concat(4,"Nuevo valor de ",rev," ",intConcatenado);
+		log_info(logger,unStringConcatenado);
+		free(unStringConcatenado);
+		free(intConcatenado);
+
 		if(semaforoObtenido->valor >= 0){
 			if(send(i,"Y",1,0) <= 0){
 				anuncio("Ocurrio un problema al hacer un Wait");
@@ -596,7 +602,7 @@ bool semWait(uint32_t i,uint32_t pid, t_programa * proximoPrograma){
 		}
 	} else {
 		if(send(i,"N",1,0) <= 0){
-			anuncio("Ocurrio un problema al hacer un Wait");
+			log_error(logger,"Ocurrio un problema al hacer un Wait");
 			return 0;
 		}
 	}
@@ -611,9 +617,9 @@ void semSignal(uint32_t i){
 
 	// Recibo largo del nombre del semaforo
 	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
-		anuncio("Ocurrio un problema al hacer un Signal");
+		log_error(logger,"Ocurrio un problema al hacer un Signal");
 	if(send(i,"Y",1,0) <= 0){
-		anuncio("Ocurrio un problema al hacer un Signal");
+		log_error(logger,"Ocurrio un problema al hacer un Signal");
 		return;
 	}
 	rev=realloc(rev,tamARecibir+1);
@@ -621,9 +627,9 @@ void semSignal(uint32_t i){
 
 	// Recibo el nombre del semaforo
 	if(recv(i,rev,tamARecibir,MSG_WAITALL) <= 0)
-		anuncio("Ocurrio un problema al hacer un Signal");
+		log_error(logger,"Ocurrio un problema al hacer un Signal");
 	if(send(i,"Y",1,0)<=0){
-		anuncio("Ocurrio un problema al hacer un Signal");
+		log_error(logger,"Ocurrio un problema al hacer un Signal");
 		return;
 	}
 
@@ -635,13 +641,19 @@ void semSignal(uint32_t i){
 		test("Valor semaforo en Signal antes de aumentar");
 		testi(semaforoObtenido->valor);
 		semaforoObtenido->valor++;
-		printf("Nuevo valor de %s: %i\n",rev,semaforoObtenido->valor);
+
+		char* intConcatenado = string_itoa(semaforoObtenido->valor);
+		char * unStringConcatenado = concat(4,"Nuevo valor de ",rev," ",intConcatenado);
+		log_info(logger,unStringConcatenado);
+		free(unStringConcatenado);
+		free(intConcatenado);
+
 		if(queue_size(semaforoObtenido->colaEspera)>0){
 			uint32_t *proximoPID = (uint32_t*)queue_pop(semaforoObtenido->colaEspera);
-			printf("PID COLA SEM: %i\n",proximoPID);
+
 			t_programa * programaAux =  encontrarProgramaPorPID(proximoPID);
 			if(programaAux == NULL){
-				test("NULL ALERT");
+
 			}
 			char * string = concat(3,"Moviendo el proceso ",string_itoa(programaAux->pcb->pid)," de BLOCK a READY");
 			log_trace(logger,string);
@@ -650,12 +662,12 @@ void semSignal(uint32_t i){
 		}
 
 		if(send(i,"Y",1,0) <= 0){
-			anuncio("Ocurrio un problema al hacer un Signal");
+			log_error(logger,"Ocurrio un problema al hacer un Signal");
 			return;	
 		}
 	} else {
 		if(send(i,"N",1,0) <= 0){
-			anuncio("Ocurrio un problema al hacer un Signal");
+			log_error(logger,"Ocurrio un problema al hacer un Signal");
 			return;
 		}
 	}
