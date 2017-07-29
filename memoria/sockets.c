@@ -235,15 +235,19 @@ void peticionMemoria(uint32_t socket)
 		return ;
 	}
 	free(buffer);
+	char* num_str = string_itoa(pid);
 	if(!(tieneMarcosSuficientes(paginasRequeridas)))
 	{
+		char* mensaje_log = concat(2,"No Se pudo  reservar  memoria para el proceso: ",num_str);
+		log_error(logMemoria,mensaje_log);
+		free(mensaje_log);
+		free(num_str);
 		send(socket,"N",1,0);
 		return ;
 	}
 	send(socket,"Y",1,0);
 	//printf("Se van a reservar bytes de memoria para el proceso %i\n", pid);
-	char* num_str = string_itoa(pid);
-	char* mensaje_log = concat(2,"Se van a reservar bytes de memoria para el proceso: ",num_str);
+	char* mensaje_log = concat(2,"Se va a reservar  memoria para el proceso: ",num_str);
 	log_trace(logMemoria,mensaje_log);
 	free(mensaje_log);
 	free(num_str);
@@ -332,6 +336,7 @@ void solicitarBytes(int socket)
 		send(socket,"N",1,0);
 		return;
 	}
+	char* num_str = string_itoa(pid);
 	data=leer(pid,pagina,offset,tamanio);
 /*
 	int wtf;
@@ -342,10 +347,18 @@ void solicitarBytes(int socket)
 	printf("\n");
 */
 	if(data){
+		char* mensaje_log = concat(2,"Se leyo correctamente en el proceso : ",num_str);
+				log_trace(logMemoria,mensaje_log);
+				free(mensaje_log);
+				free(num_str);
 		send(socket,"Y",1,0);
 		sendall(socket,data,&tamanio);
 		free(data);
 	}else{
+		char* mensaje_log = concat(2,"NO se pudo leer correctamente en el proceso : ",num_str);
+		log_error(logMemoria,mensaje_log);
+		free(mensaje_log);
+		free(num_str);
 		send(socket,"N",1,0);
 	}
 }
@@ -370,13 +383,22 @@ void almacenarBytes(int socket)
 			printf("%c",wtf2[wtf]);
 		printf("\n");
 */
+		char* num_str = string_itoa(pid);
 		resultado=escribir(pid,pagina,offset,tamanio,data);
 		if(resultado<0)
 		{
+			char* mensaje_log = concat(2,"NO se escribio correctamente en el proceso : ",num_str);
+			log_error(logMemoria,mensaje_log);
+			free(mensaje_log);
+			free(num_str);
 			send(socket,"N",1,0);
 			free(data);
 			return;
 		}
+		char* mensaje_log = concat(2,"Se escribio correctamente en el proceso : ",num_str);
+		log_trace(logMemoria,mensaje_log);
+		free(mensaje_log);
+		free(num_str);
 		send(socket,"Y",1,0);
 		free(data);
 		return;
@@ -387,6 +409,7 @@ void almacenarBytes(int socket)
 
 void agregarPaginasA(int socket)
 {
+	log_trace(logMemoria,"Iniciando agregar paginas a un proceso");
 	uint32_t pid,paginasRequeridas, puntero;
 	int resultado;
 		char *buffer;
@@ -418,19 +441,24 @@ void agregarPaginasA(int socket)
 
 void darFinA(int socket)
 {
+	log_trace(logMemoria,"Iniciando finalizar programa");
 	uint32_t pid;
 	int resultado;
 	pid=recibirUint32_t(socket);
 	if(pid<0)return;
+	char* num_str = string_itoa(pid);
 	resultado=finalizarPrograma(pid);
 	if(resultado<0)
 	{
+		char* mensaje_log = concat(2,"No pudo finalizarse correctamente el proceso: ",num_str);
+		log_error(logMemoria,mensaje_log);
+		free(mensaje_log);
+		free(num_str);
 		send(socket,"N",1,0);
 		return;
 	}
 		send(socket,"Y",1,0);
 	//printf("Se finalizo el proceso %i\n", pid);
-	char* num_str = string_itoa(pid);
 	char* mensaje_log = concat(2,"Se finalizo correctamente el proceso: ",num_str);
 	log_trace(logMemoria,mensaje_log);
 	free(mensaje_log);
@@ -440,6 +468,7 @@ void darFinA(int socket)
 
 void eliminarPaginaDe(int socket)
 {
+	log_trace(logMemoria,"Iniciando eliminar pagina");
 	uint32_t pid,paginaRequeridas, puntero;
 	int resultado;
 	char *buffer;
@@ -450,15 +479,19 @@ void eliminarPaginaDe(int socket)
 		return ;
 	}
 	free(buffer);
+	char* num_str = string_itoa(pid);
 	resultado=eliminarPaginaDeUnProceso(pid,paginaRequeridas);
 	if(resultado<0)
 	{
+		char* mensaje_log = concat(2,"No se pudo eliminar una pagina del proceso : ",num_str);
+		log_error(logMemoria,mensaje_log);
+		free(mensaje_log);
+		free(num_str);
 		send(socket,"N",1,0);
 		return;
 	}
 	send(socket,"Y",1,0);
 	//printf("Se elimino una pagina del proceso: %i\n", pid);
-	char* num_str = string_itoa(pid);
 	char* mensaje_log = concat(2,"Se elimino correctamente una pagina del proceso : ",num_str);
 	log_trace(logMemoria,mensaje_log);
 	free(mensaje_log);
