@@ -118,38 +118,16 @@ void crearDirectorios(char* path)
 	free(ruta_Archivo);
 }
 
-
-int crearArchivoo(char* ruta)
-{
-	FILE* archivo;
-	char *numero_string,*bloques;
-	int bloqueLibre=getBloqueLibre();
-	if(bloqueLibre<0) return -1;
-	//crear Directorios si los hay!!
-	crearDirectorios(ruta);
-	ocuparBloque(bloqueLibre);
-	char* ruta_Archivo=rutaArchivo(ruta);
-	//printf("Ruta Archivo: %s\n", ruta_Archivo);
-	archivo=fopen(ruta_Archivo,"wb");
-	generarFormatoArchivo(ruta_Archivo);
-	numero_string=string_itoa(bloqueLibre);
-	bloques=obtenerFormatoDeBloques(NULL,numero_string);
-	bloques=obtenerFormatoDeBloques(bloques,NULL);
-	cambiarFormatoDeArchivo(ruta_Archivo,0,bloques);
-	fclose(archivo);
-	free(bloques);
-	free(numero_string);
-	free(ruta_Archivo);
-	return 0;
-}
-
 int crearArchivo(char* ruta)
 {
  FILE* archivo;
  char *numero_string,*bloques;
  int bloqueLibre=getBloqueLibre();
  //printf("bloqueLibre: %i\n", bloqueLibre);
- if(bloqueLibre<0)return -1;
+ if(bloqueLibre<0){
+	 log_error(logFS, "No hay suficientes bloques libres para crear el archivo");
+	 return -1;
+ }
  //crear Directorios si los hay!!
  crearDirectorios(ruta);
  ocuparBloque(bloqueLibre);
@@ -164,6 +142,7 @@ int crearArchivo(char* ruta)
  free(bloques);
  free(numero_string);
  free(ruta_Archivo);
+log_trace(logFS, "Archivo creado exitosamente");
  return 0;
 }
 
@@ -235,7 +214,7 @@ int cuantosBloquesRepresenta(int tam){
 		tam -= configFS.tamBloque;
 		i++;
 	}
-	printf("bloques a pedir : %d \n",i);
+	//printf("bloques a pedir : %d \n",i);
 	if(tam>0) i++;
 	return i;
 }
@@ -251,7 +230,7 @@ int cuantosBloquesRepresenta(int tam){
  */
 int cuantosBloquesNecesito(int offset, int tam,int* bloqueInicial ,int* offsetInicial,int* offsetFinal){
 	int i=0,bloquesEvitados=0;
-	printf("Offset: %i, Tam: %i\n", offset, tam);
+	//printf("Offset: %i, Tam: %i\n", offset, tam);
 	while(offset >= configFS.tamBloque){
 		offset -= configFS.tamBloque;
 		bloquesEvitados++;
