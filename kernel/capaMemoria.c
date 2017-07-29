@@ -91,7 +91,7 @@ int guardarEnMemoria(uint32_t i, uint32_t pid,uint32_t pagina,uint32_t offset,ui
 	char* auxC = string_itoa(offset);
 	char* auxD = string_itoa(tamanioContenido);
 	char* auxE = concat(8,"PID: ", auxA,"", auxB,"", auxC,"", auxD);
-	printf("PID: %i, PAGINA: %i, OFFSET: %i, TAMANIO: %i\n",pid,pagina,offset,tamanioContenido);
+	log_info(logger,auxE);
 	free(auxA);
 	free(auxB);
 	free(auxC);
