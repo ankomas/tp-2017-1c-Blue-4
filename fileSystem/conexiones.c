@@ -281,12 +281,12 @@ char* recibir_offset_tamanio_data(int socket,uint32_t* offset,uint32_t* tamanio)
 	printf("el tamaño del paquete es: %d \n",tamanioTotalBuffer);
 	char *data=recibirPaquete(socket,tamanioTotalBuffer,&resultado);
 	int contador = 0;
-	textoRojo("TESTEANDO");
+	/*textoRojo("TESTEANDO");
 	while(tamanioTotalBuffer > contador){
 		printf("%c\n",data[contador]);
 		contador++;
 	}
-	textoRojo("FIN TESTEANDO");
+	textoRojo("FIN TESTEANDO");*/
 	if(validarRecv(socket,resultado)<0)
 		{
 			printf("recv invalido \n");
