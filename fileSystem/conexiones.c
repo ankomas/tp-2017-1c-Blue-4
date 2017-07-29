@@ -85,7 +85,7 @@ uint32_t recibirUint32_t(int socket)
 {
 	int resultado;
 	uint32_t uint;
-	printf("entro a recibir tamanio buffer \n");
+	//printf("entro a recibir tamanio buffer \n");
 	uint32_t tambuffer=sizeof(uint32_t);
 	char* buffer=malloc(tambuffer);
 	memset(buffer,'\0',tambuffer);
@@ -98,7 +98,7 @@ uint32_t recibirUint32_t(int socket)
 	memcpy(&uint,buffer,tambuffer);
 	//tamanioTotal=*(uint32_t*)buffer;
 	free(buffer);
-	printf("se recibio: %u \n",uint);
+	//printf("se recibio: %u \n",uint);
 	return uint;
 }
 
@@ -125,7 +125,7 @@ char* recibirPath(int socket)
 	int resultado;
 	char *path,*buffer;
 	tamanioTotalBuffer=recibirUint32_t(socket);
-	printf("el tamanio del buffer es: %d \n",tamanioTotalBuffer);
+	//printf("el tamanio del buffer es: %d \n",tamanioTotalBuffer);
 	if(tamanioTotalBuffer==-1)return NULL;
 	buffer=recibirPaquete(socket,tamanioTotalBuffer,&resultado);
 	if(validarRecv(socket,resultado)<0)
@@ -136,7 +136,7 @@ char* recibirPath(int socket)
 	path=calloc(1,tamanioTotalBuffer+1);
 	memcpy(path,buffer,tamanioTotalBuffer);
 	free(buffer);
-	printf("el path es: %s\n ",path);
+	//printf("el path es: %s\n ",path);
 	return path;
 
 }
@@ -251,9 +251,9 @@ void recibir_offset_tamanio(int socket,uint32_t* offset,uint32_t* tamanio)
 		return ;
 	}
 	*offset=obtenerNumeroSerializado(puntero,buffer);
-	printf("el offset es: %d \n ",*offset);
+	//printf("el offset es: %d \n ",*offset);
 	*tamanio=obtenerNumeroSerializado(puntero,buffer);
-	printf("el tamanio es: %d \n ",*tamanio);
+	//printf("el tamanio es: %d \n ",*tamanio);
 	free(buffer);
 }
 
@@ -278,7 +278,7 @@ char* recibir_offset_tamanio_data(int socket,uint32_t* offset,uint32_t* tamanio)
 	recibir_offset_tamanio(socket,offset,tamanio);
 	uint32_t tamanioTotalBuffer=recibirUint32_t(socket);
 	if(tamanioTotalBuffer==-1)return NULL;
-	printf("el tamaño del paquete es: %d \n",tamanioTotalBuffer);
+	//printf("el tamaño del paquete es: %d \n",tamanioTotalBuffer);
 	char *data=recibirPaquete(socket,tamanioTotalBuffer,&resultado);
 	int contador = 0;
 	/*textoRojo("TESTEANDO");
@@ -289,7 +289,7 @@ char* recibir_offset_tamanio_data(int socket,uint32_t* offset,uint32_t* tamanio)
 	textoRojo("FIN TESTEANDO");*/
 	if(validarRecv(socket,resultado)<0)
 		{
-			printf("recv invalido \n");
+			//printf("recv invalido \n");
 			free(data);
 			return NULL;
 		}
@@ -323,11 +323,6 @@ void leer(int socket)
 		printf(" %s \n",res);
 		int i=0;
 		//printf("el length de lo leido es: %d \n",string_length(res));
-		while(i<tamanio)
-		{
-			printf("el char es :%c \n",res[i]);
-			i++;
-		}
 		free(res);
 		sendall(socket,resultado,&tamanio);
 		free(ruta);
@@ -356,7 +351,7 @@ void escribir(int socket)
 	//if(data)
 	//{
 		ruta=rutaEnPuntoMontaje("/Archivos",path);
-		printf("Escribir en: %s\n",ruta);
+		//printf("Escribir en: %s\n",ruta);
 		log_trace(logFS,"Escribiendo el archivo....");
 		resultado=guardarDatos(ruta,offset,tamanio,data);
 		testi(resultado);
