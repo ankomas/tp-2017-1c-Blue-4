@@ -410,15 +410,15 @@ void leerVarGlobal(uint32_t i){
 
 	// Recibo largo del nombre de la variable
 	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
-		anuncio("Ocurrio un problema al recibir un valor de variable global");
+		log_error(logger,"Ocurrio un problema al recibir un valor de variable global");
 	if(send(i,"Y",1,0) <= 0){
-		anuncio("Ocurrio un problema al enviar un valor de variable global");
+		log_error(logger,"Ocurrio un problema al enviar un valor de variable global");
 		return;
 	}
 	rev=realloc(rev,tamARecibir+1);
 	// Recibo el nombre de la variable
 	if(recv(i,rev,tamARecibir,MSG_WAITALL) <= 0)
-		anuncio("Ocurrio un problema al recibir un valor de variable global");
+		log_error(logger,"Ocurrio un problema al recibir un valor de variable global");
 	memcpy(rev+tamARecibir,"\0",1);
 
 	//Verificar si existe la variable
@@ -430,7 +430,7 @@ void leerVarGlobal(uint32_t i){
 	if(dictionary_has_key(variablesCompartidas,rev)!=true){
 		log_error(logger,"La variable global no existe");
 		if(send(i,"N",1,0) <= 0)
-			anuncio("Ocurrio un problema al enviar un valor de variable global");
+			log_error(logger,"Ocurrio un problema al enviar un valor de variable global");
 		free(rev);
 		return;
 	}
@@ -462,12 +462,12 @@ void guardarVarGlobal(uint32_t i){
 
 	// Recibo largo del nombre de la variable
 	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0){
-		anuncio("Ocurrio un problema al recibir un valor de variable global");
+		log_error(logger,"Ocurrio un problema al recibir un valor de variable global");
 		//free(rev);
 		//return;
 	}
 	if(send(i,"Y",1,0) <= 0){
-		anuncio("Ocurrio un problema al enviar un valor de variable global");
+		log_error(logger,"Ocurrio un problema al enviar un valor de variable global");
 		free(rev);
 		return;
 	}
@@ -476,20 +476,20 @@ void guardarVarGlobal(uint32_t i){
 
 	// Recibo el nombre de la variable
 	if(recv(i,rev,tamARecibir,MSG_WAITALL) <= 0){
-		anuncio("Ocurrio un problema al recibir un valor de variable global");
+		log_error(logger,"Ocurrio un problema al recibir un valor de variable global");
 		//free(rev);
 		//return;
 	}
 
 	if(send(i,"Y",1,0) <= 0){
-		anuncio("Ocurrio un problema al enviar un valor de variable global");
+		log_error(logger,"Ocurrio un problema al enviar un valor de variable global");
 		free(rev);
 		return;
 	}
 
 	// Recibo el valor a asignar
 	if(recv(i,nuevoValorVar,tamInt,MSG_WAITALL) <= 0){
-		anuncio("Ocurrio un problema al enviar un valor de variable global");
+		log_error(logger,"Ocurrio un problema al enviar un valor de variable global");
 		//free(rev);
 		//return;
 	}
@@ -504,7 +504,7 @@ void guardarVarGlobal(uint32_t i){
 	if(dictionary_has_key(variablesCompartidas,rev)!=true){
 		log_error(logger,"La variable global no existe");
 		if(send(i,"N",1,0) <= 0)
-			anuncio("Ocurrio un problema al enviar un valor de variable global");
+			log_error(logger,"Ocurrio un problema al enviar un valor de variable global");
 		free(rev);
 		return;
 	}
@@ -521,7 +521,7 @@ void guardarVarGlobal(uint32_t i){
 	dictionary_put(variablesCompartidas,rev,nuevoValorVar);
 
 	if(send(i,"Y",1,0) <= 0){
-		anuncio("Ocurrio un problema al enviar un valor de variable global");
+		log_error(logger,"Ocurrio un problema al enviar un valor de variable global");
 		free(rev);
 		return;
 	}
@@ -539,19 +539,19 @@ bool semWait(uint32_t i,uint32_t pid, t_programa * proximoPrograma){
 
 	// Recibo largo del nombre del semaforo
 	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
-		anuncio("Ocurrio un problema al hacer un Wait");
+		log_error(logger,"Ocurrio un problema al hacer un Wait");
 	if(send(i,"Y",1,0) < 0){
-		anuncio("Ocurrio un problema al hacer un Wait");
+		log_error(logger,"Ocurrio un problema al hacer un Wait");
 		return 0;
 	}
 	rev=realloc(rev,tamARecibir+1);
 	memset(rev,'\0',tamARecibir+1);
 	// Recibo el nombre del semaforo
 	if(recv(i,rev,tamARecibir,MSG_WAITALL) <= 0){
-		anuncio("Ocurrio un problema al hacer un Wait");
+		log_error(logger,"Ocurrio un problema al hacer un Wait");
 	}
 	if(send(i,"Y",1,0)< 0){
-		anuncio("Ocurrio un problema al hacer un wait");
+		log_error(logger,"Ocurrio un problema al hacer un wait");
 		return 0;
 	}
 	//printf("Llamada a SEM WAIT: %s\n",rev);
@@ -572,7 +572,7 @@ bool semWait(uint32_t i,uint32_t pid, t_programa * proximoPrograma){
 
 		if(semaforoObtenido->valor >= 0){
 			if(send(i,"Y",1,0) <= 0){
-				anuncio("Ocurrio un problema al hacer un Wait");
+				log_error(logger,"Ocurrio un problema al hacer un Wait");
 				return 0;
 			}
 		}else {
@@ -585,7 +585,7 @@ bool semWait(uint32_t i,uint32_t pid, t_programa * proximoPrograma){
 			moverPrograma(proximoPrograma,procesosEXEC,procesosBLOCK);
 
 			if(send(i,"B",1,0) <= 0){
-				anuncio("Ocurrio un problema al hacer un Wait");
+				log_error(logger,"Ocurrio un problema al hacer un Wait");
 				return 0;
 			}
 			//
@@ -772,15 +772,15 @@ void leerHeap(uint32_t i){
 
 	// Recibo largo del nombre del semaforo
 	if(recv(i,&tamARecibir,sizeof(uint32_t),MSG_WAITALL) <= 0)
-		anuncio("Ocurrio un problema al hacer un Wait");
+		log_error(logger,"Ocurrio un problema al hacer un Wait");
 	if(send(i,"Y",1,0) < 0)
-		anuncio("Ocurrio un problema al hacer un Wait");
+		log_error(logger,"Ocurrio un problema al hacer un Wait");
 	rev=realloc(rev,tamARecibir+1);
 	memset(rev,'\0',tamARecibir+1);
 
 	// Recibo el nombre del semaforo
 	if(recv(i,&rev,tamARecibir,MSG_WAITALL) <= 0)
-		anuncio("Ocurrio un problema al hacer un Wait");
+		log_error(logger,"Ocurrio un problema al hacer un Wait");
 	send(i,"Y",1,0);
 
 	pthread_mutex_lock(&mutex_semaforos);
@@ -790,7 +790,7 @@ void leerHeap(uint32_t i){
 		t_cpu * cpuEncontrada = encontrarCPUporPID(*proximoPID);
 
 		if(send(i,"Y",cpuEncontrada->id,0))
-			anuncio("Ocurrio un problema al hacer un Wait");
+			log_error(logger,"Ocurrio un problema al hacer un Wait");
 	}else {
 		semaforoObtenido->valor++;
 	}
