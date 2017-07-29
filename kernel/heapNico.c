@@ -102,7 +102,11 @@ t_metadata_heap streamAMetadataHeap(char* stream){
 }
 
 int nuevaPagHeap(t_programa *programa,uint32_t tam,uint32_t pag){
-	printf("NUEVA PAG HEAP llamando a pedirPaginas PID: %i\n",programa->pcb->pid);
+	char* unStringAux2 = string_itoa(programa->pcb->pid);
+	char* unStringAux = concat(2,"NUEVA PAG HEAP llamando a pedirPaginas PID:",unStringAux2);
+	log_info(logger,unStringAux);
+	free(unStringAux);
+	free(unStringAux2);
 	int res = pedirPagias(programa->pcb->pid,1);
 	if(res<0){
 		printf("NUEVA PAG HEAP ERROR: pedir paginas error\n");
