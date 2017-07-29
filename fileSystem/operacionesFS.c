@@ -351,7 +351,7 @@ int escribirEnBloques(int offset, int tam, char** bloques, char* cadena) {
 		//bitPower=0;
 		//printf("Cadena a escribir: %s\n", buffer);
 		fwrite(buffer, 1, tamAEscribir, archivo);
-		char* string = concat(4, "Se escribio en el bloque: ", bloques[bloqueInicial+i], " la cadena: ", buffer);
+		char* string = concat(4, "Se escribio en el bloque ", bloques[bloqueInicial+i], " la cadena: ", buffer);
 		log_trace(logFS, string);
 		free(string);
 		fclose(archivo);
