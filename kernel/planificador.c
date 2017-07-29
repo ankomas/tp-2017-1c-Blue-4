@@ -453,6 +453,8 @@ void* cpu(t_cpu * cpu){
 							proximoPrograma->pcb->exitCode = -7;
 						} else if(proximoPrograma->debeFinalizar==3){
 							proximoPrograma->pcb->exitCode = -21;
+						} else if(proximoPrograma->debeFinalizar==4){
+							proximoPrograma->pcb->exitCode = -19;
 						}
 
 						if(finalizarProcesoMemoria(proximoPrograma->pcb->pid,true) == 0){
@@ -505,6 +507,8 @@ void* cpu(t_cpu * cpu){
 							proximoPrograma->pcb->exitCode = -7;
 						} else if(proximoPrograma->debeFinalizar==3){
 							proximoPrograma->pcb->exitCode = -21;
+						} else if(proximoPrograma->debeFinalizar==4){
+							proximoPrograma->pcb->exitCode = -19;
 						}
 
 						if(finalizarProcesoMemoria(proximoPrograma->pcb->pid,true) == 0){
