@@ -15,9 +15,10 @@
 char* puerto;
 int marcos, tamMarco, entradasCache, cachePorProceso, retardo;
 
-
 void inicializarEstructurasAdministrativas()
 {
+	logMemoria= log_create("logMemoria.log",rutaAbsolutaDe("Debug/memoria"),false,LOG_LEVEL_TRACE);
+	log_trace(logMemoria,"Inicializando estructuras administrativas....");
 	pthread_mutex_init(&escribiendoMemoria,NULL);
 	pthread_mutex_init(&escribiendoMemoriaCache,NULL);
 	pthread_mutex_init(&mutex_procesosActivos,NULL);
@@ -29,7 +30,7 @@ void inicializarEstructurasAdministrativas()
 	inicializarDataConfig();
 	inicializarMemoria();
 	inicializarCache();
-	logMemoria= log_create("logMemoria.log",rutaAbsolutaDe("Debug/memoria"),false,LOG_LEVEL_TRACE);
+	log_trace(logMemoria,"....Termino de inicializar estructuras administrativas");
 	
 }
 
