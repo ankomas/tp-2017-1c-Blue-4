@@ -14,6 +14,7 @@ pthread_t mutex_tabla, mutex_memoria;
 pthread_mutex_t mutex_operacion;
 pthread_mutex_t semCacheDisp;
 int32_t contador;
+t_log* logMemoria;
 
 typedef struct {
 	uint32_t pid;
