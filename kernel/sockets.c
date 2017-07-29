@@ -331,12 +331,12 @@ int servidor(void)
 						if (newfd > fdmax) {    // keep track of the max
 							fdmax = newfd;
 						}
-						//printf("selectserver: new connection from %s on "
+						/*printf("selectserver: new connection from %s on "
 							"socket %d\n",
 							inet_ntop(remoteaddr.ss_family,
 								get_in_addr((struct sockaddr*)&remoteaddr),
 								remoteIP, INET6_ADDRSTRLEN),
-							newfd);
+							newfd);*/
 						if(handshakeHandler(newfd) == -1){
 							send(newfd,"0",1,0);
 							//close(i);
