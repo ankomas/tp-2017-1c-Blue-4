@@ -8,6 +8,7 @@
 #ifndef SOCKETS_H_
 #define SOCKETS_H_
 
+#include <commons/log.h>
 int servidor();
 int handshakeHandler(int);
 void peticionMemoria(uint32_t);
