@@ -730,7 +730,7 @@ void guardarEnHeap(uint32_t i,t_list * paginasHeap,uint32_t *pid){
 int guardarHeapNico(uint32_t socket,t_programa* programa){
 	t_puntero res;
 	t_valor_variable tam;
-	printf("Llamada a GUARDAR HEAP NICO\n");
+	log_info(logger,"Llamada a GUARDAR HEAP\n");
 	recv(socket,&tam,sizeof(t_valor_variable),0);
 
 	res=allocEnHeap(programa,tam);
