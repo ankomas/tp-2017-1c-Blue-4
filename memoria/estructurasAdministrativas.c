@@ -21,6 +21,7 @@
 #include "configuraciones.h"
 #include "operacionesMemoria.h"
 #include "estructurasAdministrativas.h"
+#include "commons/string.h"
 #define int32_min -999999
 #define int32_max 999999
 
