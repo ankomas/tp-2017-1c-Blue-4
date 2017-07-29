@@ -74,16 +74,28 @@ tablaPaginas_t* crearTablaDePaginas(){
 
 int actualizarMarcosDisponibles(int marcosAUsar)
 {
-	texto_en_color_de_exito("marcos a usar ",marcosAUsar);
+	//texto_en_color_de_exito("marcos a usar ",marcosAUsar);
+
 	pthread_mutex_lock(&mutex_marcos);
+	char* numero_str = string_itoa(marcosAUsar);
+	char* mensaje_log = concat(2,"Marcos asignados por la memoria: ",numero_str);
+	log_trace(logMemoria,mensaje_log);
+	free(mensaje_log);
+	free(numero_str);
 	if((configDeMemoria.marcosDisponibles-marcosAUsar)>=0)
 	{
 		configDeMemoria.marcosDisponibles-=marcosAUsar;
-		texto_en_color_de_exito(" marcos disponibles ",configDeMemoria.marcosDisponibles);
+		//texto_en_color_de_exito(" marcos disponibles ",configDeMemoria.marcosDisponibles);
+		char* numero_str = string_itoa(configDeMemoria.marcosDisponibles);
+		char* mensaje_log = concat(2,"Marcos disponibles en la memoria: ",numero_str);
+		log_trace(logMemoria,mensaje_log);
+		free(mensaje_log);
+		free(numero_str);
 		pthread_mutex_unlock(&mutex_marcos);
 		return 0;
 	}
-	texto_en_color_de_error("NO PUEDO ASIGAR MAS MARCOS!!!");
+	//texto_en_color_de_error("NO PUEDO ASIGAR MAS MARCOS!!!");
+	log_error(logMemoria,"NO PUEDO ASIGAR MAS MARCOS !!!");
 	pthread_mutex_unlock(&mutex_marcos);
 	return -1;
 }
@@ -91,6 +103,11 @@ int actualizarMarcosDisponibles(int marcosAUsar)
 void aumentarMarcosDisponibles(int marcosAAumentar)
 {
 	pthread_mutex_lock(&mutex_marcos);
+	char* numero_str = string_itoa(marcosAAumentar);
+	char* mensaje_log = concat(2,"La memoria aumentara como disponibles la siguientes cantidad de marcos: ",numero_str);
+	log_trace(logMemoria,mensaje_log);
+	free(mensaje_log);
+	free(numero_str);
 	configDeMemoria.marcosDisponibles+=marcosAAumentar;
 	pthread_mutex_unlock(&mutex_marcos);
 }
@@ -132,10 +149,12 @@ void inicializarProcesosActivos()
 
 
 void inicializarMemoria(){
+	//log_trace(logMemoria,"Inicializando estructuras administrativas....");
 	asignarTamanioAMemoria();
 	cargarTablaDePaginasAMemoria();
 	maxPA = configDeMemoria.marcos - cuantosMarcosRepresenta(tamanioDeTabla());
 	inicializarProcesosActivos();
+	//log_trace(logMemoria,"....Termino de iniciar estructuras administrativas");
 }
 
 void asignarTamanioACache(){
@@ -160,7 +179,7 @@ tablaCache_t * crearTablaCache(){
 int actualizarCacheDisponible(uint32_t marcosAUsar){
 	// todo mutexear y revisar si no me olvido de asignar un marco
 	pthread_mutex_lock(&semCacheDisp);
-	if((configDeMemoria.cacheDisponible-marcosAUsar)>0)
+	if((configDeMemoria.cacheDisponible-marcosAUsar)>=0)
 		{
 			configDeMemoria.cacheDisponible-=marcosAUsar;
 			pthread_mutex_unlock(&semCacheDisp);
@@ -295,6 +314,11 @@ uint32_t eliminar_DataDeProcesoActivo(uint32_t pid)
 	uint32_t posicion_PidBuscado=obtener_PosicionProcesoActivo(pid);
 	if(posicion_PidBuscado==-1)return -1;
 	pthread_mutex_lock(&mutex_procesosActivos);
+	char* numero_str = string_itoa(procesosActivos[posicion_PidBuscado].paginas);
+		char* mensaje_log = concat(2,"Paginas totales a eliminar: ",numero_str);
+		log_trace(logMemoria,mensaje_log);
+		free(mensaje_log);
+		free(numero_str);
 	procesosActivos[posicion_PidBuscado].pid=-2;
 	procesosActivos[posicion_PidBuscado].paginas=-2;
 	procesosActivos[posicion_PidBuscado].paginaDeInicio=-2;
