@@ -748,12 +748,12 @@ int guardarHeapNico(uint32_t socket,t_programa* programa){
 	res=allocEnHeap(programa,tam);
 
 	if(res==-1){
-		printf("ERROR: tamanio mas grande que el de pagina\n");
+		log_error(logger,"ERROR: tamanio mas grande que el de pagina\n");
 		send(socket,"N",1,0);
 		return 1;
 	}
 	if(res==-2){
-		printf("ERROR: no se pudo asignar paginas al proceso\n");
+		log_error(logger,"ERROR: no se pudo asignar paginas al proceso\n");
 		send(socket,"N",1,0);
 		return 1;
 	}
