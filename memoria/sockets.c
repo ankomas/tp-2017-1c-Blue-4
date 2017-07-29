@@ -458,7 +458,7 @@ void eliminarPaginaDe(int socket)
 	log_trace(logMemoria,mensaje_log);
 	free(mensaje_log);
 	free(num_str);
-
+}
 
 void manejarProgramaCaido(){
 
@@ -484,7 +484,7 @@ void operacionesMemoria(int socket)
 	//printf(" \n %s LLEGUE A OPERACIONES MEMORIA con %c %s \n",KBLU, cop,KNRM);
         char* cop_str = malloc(2);
 		memset(cop_str,'\0',2);
-		memcpy(cop_str,cop,1);
+		memcpy(cop_str,&cop,1);
 	char* mensaje_log = concat(2,"EL CODIGO DE OPERACION DE MEMORIA ES : ",cop_str);
 	log_trace(logMemoria,mensaje_log);
 	free(mensaje_log);

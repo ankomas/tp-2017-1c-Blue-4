@@ -9,6 +9,7 @@
 #define MEMORIA_H_
 
 #include <commons/collections/list.h>
+#include <commons/log.h>
 
 pthread_t mutex_tabla, mutex_memoria;
 pthread_mutex_t mutex_operacion;
