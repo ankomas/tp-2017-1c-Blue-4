@@ -29,7 +29,7 @@ void inicializarEstructurasAdministrativas()
 	inicializarDataConfig();
 	inicializarMemoria();
 	inicializarCache();
-	logMemoria= log_create("logMemoria.log",rutaAbsolutaDe("Debug/memoria"),true,LOG_LEVEL_TRACE);
+	logMemoria= log_create("logMemoria.log",rutaAbsolutaDe("Debug/memoria"),false,LOG_LEVEL_TRACE);
 	
 }
 
