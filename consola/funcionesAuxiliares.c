@@ -192,7 +192,7 @@ void eliminarRecursos(dataHilos_t* datosDeHilo)
 	dataHilos_t* hilo=eliminarHiloDeListaPorPid(datosDeHilo->pidHilo);
 	if(hilo)
 	{
-		textoAzul("NO SOY NULL");
+		//textoAzul("NO SOY NULL");
 	free(hilo->path);
 	free(hilo);
 	}
